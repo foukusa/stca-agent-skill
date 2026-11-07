@@ -4,7 +4,7 @@ message: >-
   pinned author implementation when using this work.
 type: software
 title: STCA Agent Skill
-version: '0.1.2'
+version: '0.1.0'
 authors:
   - family-names: Wang
     given-names: Weihao

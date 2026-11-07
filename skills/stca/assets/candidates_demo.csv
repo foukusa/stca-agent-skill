@@ -1,7 +1,7 @@
-ID,SMILES,demonstration_note
-demo_polyethylene,*CC*,structure_interface_demo_no_measured_property
-demo_polystyrene,*CC(c1ccccc1)*,structure_interface_demo_no_measured_property
-demo_polyether,*CCO*,structure_interface_demo_no_measured_property
-demo_aromatic_polyether,*c1ccc(Oc2ccc(*)cc2)cc1,structure_interface_demo_no_measured_property
-demo_aromatic_polyamide,*c1ccc(C(=O)Nc2ccc(NC(*)=O)cc2)cc1,structure_interface_demo_no_measured_property
-demo_invalid,not_a_smiles,intentionally_invalid_for_input_handling_demo
+CandidateKey,SMILES,demonstration_note
+sample-A7,*CC*,structure_interface_demo_no_measured_property
+42-blue,*CC(c1ccccc1)*,structure_interface_demo_no_measured_property
+polyether-demo,*CCO*,structure_interface_demo_no_measured_property
+aromatic-ether,*c1ccc(Oc2ccc(*)cc2)cc1,structure_interface_demo_no_measured_property
+amide-case,*c1ccc(C(=O)Nc2ccc(NC(*)=O)cc2)cc1,structure_interface_demo_no_measured_property
+invalid-row,not_a_smiles,intentionally_invalid_for_input_handling_demo

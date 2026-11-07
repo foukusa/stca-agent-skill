@@ -1,7 +1,7 @@
 {
   "schema": "stca-agent-skill-public-validation-v1",
   "audit_date": "2026-11-07",
-  "integration_version": "0.1.2",
+  "integration_version": "0.1.0",
   "upstream": {
     "repository": "https://github.com/foukusa/polymer-stca",
     "package_version": "1.0",
@@ -716,5 +716,28 @@
     "independent_tiers": true,
     "absolute_cutoff_mapping_checked": true,
     "single_or_multiple_objectives_supported": true
+  },
+  "adapter_contract_validation": {
+    "status": "PASS",
+    "arbitrary_identifier_column": true,
+    "arbitrary_identifier_values_preserved": [
+      "sample-A7",
+      "42-blue"
+    ],
+    "identifier_used_as_model_feature": false,
+    "missing_identifier_behavior": "generated_row_receipt_ids",
+    "generated_identifier_examples": [
+      "row-000001",
+      "row-000002"
+    ],
+    "objective_default_id_column": null,
+    "hcap_role": "calculation_only",
+    "primary_output": "results.csv",
+    "primary_output_restores_original_star_smiles": true,
+    "audit_output": "rows.csv",
+    "audit_output_retains_hcap_copy": true,
+    "reverse_hcap_conversion_attempted": false,
+    "audit_without_identifier_column": true,
+    "test_scope": "actual RDKit H-cap plus adapter I/O; frozen-rule scoring isolated with a deterministic fake model"
   }
 }

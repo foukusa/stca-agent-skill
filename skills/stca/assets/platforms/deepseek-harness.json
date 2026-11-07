@@ -1,6 +1,6 @@
 {
   "platform": "deepseek-harness",
-  "package_version": "0.1.2",
+  "package_version": "0.1.0",
   "frontmatter": {
     "name": "stca",
     "description": "Use STCA for polymer screening, measured-data rule extraction, independently scaled multi-property objective planning, and rule-guided candidate verification. Trigger on STCA、滑动阈值相关分析、聚合物子结构筛选、多性能筛选、规则提取、候选设计、生成约束. Preserve H-cap and the pinned implementation."

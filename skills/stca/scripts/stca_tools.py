@@ -17,6 +17,7 @@ import sys
 
 from stca_runtime import environment_receipt, load_stca
 from stca_io import read_csv_frame
+from prepare_hcap import hcap_smiles
 
 
 PROFILES = ("tg-high", "ec-low", "ec-high")
@@ -515,7 +516,10 @@ def plan_objectives(args) -> int:
     source = _json(source_path)
     if not isinstance(source, dict):
         raise ValueError("Objective specification must be a JSON object.")
-    allowed = {"schema", "id_column", "smiles_column", "objectives"}
+    allowed = {
+        "schema", "id_column", "smiles_column", "hcap_before_maccs",
+        "hcap_output_column", "objectives",
+    }
     extras = set(source) - allowed
     if extras:
         raise ValueError(f"Unknown objective specification fields: {sorted(extras)}")
@@ -524,11 +528,19 @@ def plan_objectives(args) -> int:
     objectives = source.get("objectives")
     if not isinstance(objectives, list) or not objectives:
         raise ValueError("Provide at least one objective.")
-    id_column = source.get("id_column", "ID")
-    smiles_column = source.get("smiles_column", "SMILES_hcap")
-    for field, value in (("id_column", id_column), ("smiles_column", smiles_column)):
-        if not isinstance(value, str) or not value.strip():
-            raise ValueError(f"{field} must be a nonempty string.")
+    id_column = source.get("id_column")
+    smiles_column = source.get("smiles_column", "SMILES")
+    hcap_before_maccs = source.get("hcap_before_maccs", True)
+    hcap_output_column = source.get("hcap_output_column", "stca_calculation_smiles_hcap")
+    if id_column is not None and (not isinstance(id_column, str) or not id_column.strip()):
+        raise ValueError("id_column must be null/omitted or a nonempty arbitrary column name.")
+    if not isinstance(smiles_column, str) or not smiles_column.strip():
+        raise ValueError("smiles_column must be a nonempty string.")
+    if not isinstance(hcap_before_maccs, bool):
+        raise ValueError("hcap_before_maccs must be true or false.")
+    if (not isinstance(hcap_output_column, str) or not hcap_output_column.strip() or
+            hcap_output_column == smiles_column):
+        raise ValueError("hcap_output_column must be a nonempty calculation-only column distinct from smiles_column.")
     normalised, requirements, names = [], [], set()
     for index, objective in enumerate(objectives):
         plan, requirement = _route_objective(objective, index)
@@ -541,6 +553,8 @@ def plan_objectives(args) -> int:
         "schema": "stca-joint-config-v1",
         "id_column": id_column,
         "smiles_column": smiles_column,
+        "hcap_before_maccs": hcap_before_maccs,
+        "hcap_output_column": hcap_output_column,
         "requirements": requirements,
     }
     result = {
@@ -564,26 +578,41 @@ def plan_objectives(args) -> int:
     return 0
 
 
-def _config(path: Path) -> dict:
-    config = _json(path)
+def _config_object(config: dict) -> dict:
+    config = json.loads(json.dumps(config, ensure_ascii=False))
     if not isinstance(config, dict):
         raise ValueError("Joint configuration must be a JSON object.")
-    allowed = {"schema", "id_column", "smiles_column", "features", "requirements"}
+    allowed = {
+        "schema", "id_column", "smiles_column", "hcap_before_maccs",
+        "hcap_output_column", "features", "requirements",
+    }
     if set(config) - allowed:
         raise ValueError(f"Unknown joint configuration fields: {sorted(set(config) - allowed)}")
     if "schema" in config and config["schema"] != "stca-joint-config-v1":
         raise ValueError("Unsupported joint configuration schema.")
-    for name in ("id_column", "smiles_column"):
-        value = config.get(name, "ID" if name == "id_column" else "SMILES")
-        if not isinstance(value, str) or not value.strip():
-            raise ValueError(f"{name} must be a nonempty column name.")
-        config[name] = value
+    id_column = config.get("id_column")
+    if id_column is not None and (not isinstance(id_column, str) or not id_column.strip()):
+        raise ValueError("id_column must be null/omitted or a nonempty arbitrary column name.")
+    config["id_column"] = id_column
+    smiles_column = config.get("smiles_column", "SMILES")
+    if not isinstance(smiles_column, str) or not smiles_column.strip():
+        raise ValueError("smiles_column must be a nonempty column name.")
+    config["smiles_column"] = smiles_column
+    hcap_before_maccs = config.get("hcap_before_maccs", True)
+    if not isinstance(hcap_before_maccs, bool):
+        raise ValueError("hcap_before_maccs must be true or false.")
+    config["hcap_before_maccs"] = hcap_before_maccs
+    hcap_output_column = config.get("hcap_output_column", "stca_calculation_smiles_hcap")
+    if (not isinstance(hcap_output_column, str) or not hcap_output_column.strip() or
+            hcap_output_column == smiles_column):
+        raise ValueError("hcap_output_column must be a distinct nonempty calculation-only column name.")
+    config["hcap_output_column"] = hcap_output_column
     features = config.get("features")
     if features is not None:
         if (not isinstance(features, list) or not features or
                 any(not isinstance(x, str) or not x for x in features) or len(set(features)) != len(features)):
             raise ValueError("features must be an explicit nonempty list of distinct binary column names.")
-        if config["id_column"] in features:
+        if config["id_column"] is not None and config["id_column"] in features:
             raise ValueError("The identifier must not be used as a binary descriptor.")
     requirements = config.get("requirements")
     if not isinstance(requirements, list) or len(requirements) < 1:
@@ -611,18 +640,44 @@ def _config(path: Path) -> dict:
     return config
 
 
+def _config(path: Path) -> dict:
+    return _config_object(_json(path))
+
+
 def _read_candidates(path: Path, config: dict):
     frame = read_csv_frame(path)
-    required = [config["id_column"]] + (config.get("features") or [config["smiles_column"]])
+    required = list(config.get("features") or [config["smiles_column"]])
+    if config["id_column"] is not None:
+        required.insert(0, config["id_column"])
     missing = set(required) - set(frame.columns)
     if missing:
         raise ValueError(f"Candidate columns missing: {sorted(missing)}")
-    ids = frame[config["id_column"]]
-    if ids.str.strip().eq("").any() or ids.duplicated().any():
-        raise ValueError("Candidate identifiers must be nonempty and unique; each row is one explicitly identified candidate.")
     if any(name.startswith("stca_") for name in frame.columns):
         raise ValueError("Input contains reserved stca_ output columns; use the original candidate table.")
-    return frame
+    if config["id_column"] is None:
+        ids = frame.index.to_series().map(lambda index: f"row-{index + 1:06d}").astype("string")
+        identity = {
+            "id_column": None,
+            "output_id_column": "stca_candidate_id",
+            "source": "generated_from_input_row_position",
+            "arbitrary_text_ids_preserved": True,
+            "used_as_model_feature": False,
+        }
+    else:
+        ids = frame[config["id_column"]].astype("string")
+        if ids.str.strip().eq("").any() or ids.duplicated().any():
+            raise ValueError(
+                "The configured candidate identifier column must contain nonempty unique values. "
+                "Its name and values are otherwise arbitrary and are never used as model features."
+            )
+        identity = {
+            "id_column": config["id_column"],
+            "output_id_column": config["id_column"],
+            "source": "user_supplied_arbitrary_text_identifier",
+            "arbitrary_text_ids_preserved": True,
+            "used_as_model_feature": False,
+        }
+    return frame, ids, identity
 
 
 def _conflicts(constraints: list[tuple[str, dict]]) -> tuple[list, list]:
@@ -659,24 +714,21 @@ def _conflicts(constraints: list[tuple[str, dict]]) -> tuple[list, list]:
     return literal_conflicts, target_conflicts
 
 
-def joint_screen(args, stca) -> int:
-    import numpy as np
-    import pandas as pd
-    from stca.chemistry import maccs_from_smiles
-
-    config_path = Path(args.config).expanduser().resolve()
-    input_path = Path(args.input).expanduser().resolve()
-    config = _config(config_path)
-    frame = _read_candidates(input_path, config)
-    models = []
-    constraints = []
-    for requirement in config["requirements"]:
-        model, metadata = _load_model(stca, requirement, config_path.parent)
-        constraint = _constraint(stca, model, metadata, requirement["tier"])
-        models.append((requirement, model, metadata, constraint))
-        constraints.append((requirement["name"], constraint))
-
+def _candidate_matrix(frame, config: dict, models, *, np, pd, maccs_from_smiles):
+    """Build the exact calculation representation without replacing raw structures."""
     features = config.get("features")
+    calculation = {
+        "input_structure_column": None,
+        "calculation_structure_column": None,
+        "hcap_before_maccs": False,
+        "original_structure_preserved": True,
+        "reverse_hcap_conversion_attempted": False,
+        "interpretation": (
+            "The original repeat-unit SMILES remains authoritative for presentation. "
+            "H-cap is a calculation-only copy; connection points are not reconstructed from the capped molecule."
+        ),
+    }
+    extra_columns = {}
     if features:
         for _, model, _, _ in models:
             if model.artifact["feature_names"] != features:
@@ -685,16 +737,92 @@ def joint_screen(args, stca) -> int:
         valid = (binary.isin([0, 1]) & np.isfinite(binary)).all(axis=1)
         if any(model.artifact["feature_spec"]["kind"] == "rdkit_maccs167" for _, model, _, _ in models):
             valid &= binary.iloc[:, 0].eq(0)
-        audit = pd.DataFrame({"input_valid": valid,
-                              "input_error": np.where(valid, "", "invalid_binary_feature_or_MACCS_dummy_bit")})
-        X = binary
-    else:
-        if any(model.artifact["feature_spec"]["kind"] != "rdkit_maccs167" for _, model, _, _ in models):
-            raise ValueError("SMILES input requires MACCS models; declare features explicitly for binary models.")
-        X, audit = maccs_from_smiles(frame[config["smiles_column"]].tolist(), errors="report")
-        valid = audit["input_valid"].astype(bool)
+        audit = pd.DataFrame({
+            "input_valid": valid,
+            "input_error": np.where(valid, "", "invalid_binary_feature_or_MACCS_dummy_bit"),
+        })
+        calculation.update({
+            "representation": "explicit_binary_features",
+            "feature_count": len(features),
+        })
+        return binary, audit, valid, extra_columns, calculation
+
+    if any(model.artifact["feature_spec"]["kind"] != "rdkit_maccs167" for _, model, _, _ in models):
+        raise ValueError("SMILES input requires MACCS models; declare features explicitly for binary models.")
+
+    original_column = config["smiles_column"]
+    raw_smiles = frame[original_column].astype("string").fillna("").tolist()
+    calculation_column = config["hcap_output_column"]
+    hcap_enabled = config["hcap_before_maccs"]
+    prepared, counts, hcap_errors = [], [], []
+    for value in raw_smiles:
+        if not hcap_enabled:
+            prepared.append(value)
+            counts.append(0)
+            hcap_errors.append("")
+            continue
+        try:
+            capped, count = hcap_smiles(value)
+        except (ValueError, RuntimeError) as exc:
+            prepared.append("")
+            counts.append(0)
+            hcap_errors.append(str(exc))
+        else:
+            prepared.append(capped)
+            counts.append(count)
+            hcap_errors.append("")
+
+    X, audit = maccs_from_smiles(prepared, errors="report")
+    valid = audit["input_valid"].astype(bool) & pd.Series([not error for error in hcap_errors], index=frame.index)
+    combined_errors = []
+    for index, error in enumerate(hcap_errors):
+        if error:
+            combined_errors.append("hcap_error: " + error)
+        else:
+            combined_errors.append(str(audit.iloc[index]["input_error"]))
+    audit = audit.copy()
+    audit["input_valid"] = valid.to_numpy()
+    audit["input_error"] = combined_errors
+    extra_columns[calculation_column] = prepared
+    extra_columns["stca_hcap_connection_atoms_replaced"] = counts
+    calculation.update({
+        "representation": "rdkit_maccs167",
+        "input_structure_column": original_column,
+        "calculation_structure_column": calculation_column,
+        "hcap_before_maccs": hcap_enabled,
+        "hcap_changed_row_count": int(sum(count > 0 for count in counts)),
+        "original_structure_preserved": True,
+        "final_presentation_structure_column": original_column,
+    })
+    return X, audit, valid, extra_columns, calculation
+
+
+def _run_candidate_screen(*, input_path: Path, config_path: Path | None, config: dict,
+                          output_dir, stca, source) -> int:
+    import numpy as np
+    import pandas as pd
+    from stca.chemistry import maccs_from_smiles
+
+    frame, candidate_ids, identity = _read_candidates(input_path, config)
+    models = []
+    constraints = []
+    for requirement in config["requirements"]:
+        base_dir = config_path.parent if config_path is not None else Path.cwd()
+        model, metadata = _load_model(stca, requirement, base_dir)
+        constraint = _constraint(stca, model, metadata, requirement["tier"])
+        models.append((requirement, model, metadata, constraint))
+        constraints.append((requirement["name"], constraint))
+
+    features = config.get("features")
+    X, audit, valid, extra_columns, calculation = _candidate_matrix(
+        frame, config, models, np=np, pd=pd, maccs_from_smiles=maccs_from_smiles,
+    )
     out = frame.copy()
     out.insert(0, "stca_row_position", range(len(frame)))
+    if config["id_column"] is None:
+        out.insert(1, "stca_candidate_id", candidate_ids.to_numpy())
+    for name, values in extra_columns.items():
+        out[name] = values
     out["stca_input_valid"] = valid.to_numpy()
     out["stca_input_error"] = audit["input_error"].to_numpy()
     if "canonical_smiles" in audit:
@@ -747,28 +875,47 @@ def joint_screen(args, stca) -> int:
     status.loc[assessed & joint.fillna(False)] = "selected"
     out["stca_joint__status"] = status
     literal_conflicts, target_conflicts = _conflicts(constraints)
-    receipt = environment_receipt(args.source)
-    receipt.update({"operation": "joint-screen", "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+    single_requirement = len(requirement_reports) == 1
+    operation_name = "screen-candidates" if single_requirement else "joint-screen"
+    receipt = environment_receipt(source)
+    receipt.update({"operation": operation_name, "generated_at_utc": datetime.now(timezone.utc).isoformat(),
                     "input": {"path": str(input_path), "sha256": _sha256(input_path)},
-                    "configuration": {"path": str(config_path), "sha256": _sha256(config_path)},
+                    "configuration": ({"path": str(config_path), "sha256": _sha256(config_path)}
+                                      if config_path is not None else {"kind": "command_line_single_requirement"}),
                     "models": [r["model"] for r in requirement_reports],
                     "training_performed": False, "measured_joint_properties_evaluated": False})
     summary = {
-        "schema": "stca-joint-summary-v1", "operation": "frozen_structural_rule_intersection",
-        "row_identity": {"id_column": config["id_column"], "unique_nonempty_ids": True,
+        "schema": "stca-candidate-screen-summary-v1",
+        "operation": ("frozen_structural_rule_screen" if single_requirement
+                      else "frozen_structural_rule_intersection"),
+        "combiner": "single_rule" if single_requirement else "AND",
+        "row_identity": {**identity, "unique_nonempty_ids": True,
                          "same_input_rows_used_for_every_requirement": True},
+        "structure_representation": calculation,
         "input_count": len(frame), "valid_input_count": int(valid.sum()),
         "invalid_input_count": int((~valid).sum()), "joint_assessed_count": int(assessed.sum()),
         "joint_selected_count": int(joint.fillna(False).sum()),
         "joint_unknown_count": int(joint.isna().sum()),
         "requirements": requirement_reports, "literal_conflicts": literal_conflicts,
         "stored_target_interval_conflicts": target_conflicts,
+        "primary_output": "results.csv",
+        "audit_output": "rows.csv",
         "interpretation": "The same candidate satisfies all selected structural rules. No joint measured-property success rate or success probability is inferred.",
         "unknown_policy": "Any invalid input or unavailable representative keeps joint_selected unknown, even if another rule returns false.",
         "conflict_interpretation": "Direct contradictions make the combined bit conditions unsatisfiable. Absence of direct bit conflicts does not prove a chemically feasible structure or compatible physical conditions.",
         "runtime": receipt,
     }
-    output = _new_directory(args.output_dir)
+    output = _new_directory(output_dir)
+    # The primary user-facing file restores the original repeat-unit structure
+    # by using the untouched input column. H-cap/canonical calculation structures
+    # remain only in rows.csv for auditability; no lossy reverse conversion is
+    # attempted after wildcard atoms have been replaced by hydrogen.
+    calculation_only = {
+        config.get("hcap_output_column"),
+        "stca_canonical_smiles",
+    }
+    presentation = out.drop(columns=[name for name in calculation_only if name in out.columns])
+    presentation.to_csv(output / "results.csv", index=False)
     out.to_csv(output / "rows.csv", index=False)
     _write_json(output / "summary.json", summary)
     _write_json(output / "manifest.json", receipt)
@@ -780,6 +927,57 @@ def joint_screen(args, stca) -> int:
                       "joint_unknown_count": summary["joint_unknown_count"],
                       "literal_conflict_count": len(literal_conflicts)}, ensure_ascii=False))
     return 0
+
+
+def joint_screen(args, stca) -> int:
+    config_path = Path(args.config).expanduser().resolve()
+    input_path = Path(args.input).expanduser().resolve()
+    config = _config(config_path)
+    return _run_candidate_screen(
+        input_path=input_path,
+        config_path=config_path,
+        config=config,
+        output_dir=args.output_dir,
+        stca=stca,
+        source=args.source,
+    )
+
+
+def screen_candidates(args, stca) -> int:
+    """Apply one frozen rule while keeping the original repeat-unit SMILES."""
+    requirement = {
+        "name": "screen",
+        "label": args.label or f"{args.profile or 'saved model'} ({args.tier:g})",
+        "profile": args.profile,
+        "model": args.model,
+        "protocol": args.protocol,
+        "tier": _tier(args.tier),
+        "property": args.property,
+        "direction": args.direction,
+        "source_property": args.source_property,
+        "transfer_role": args.transfer_role,
+        "tier_source": "user_tier",
+        "objective_cutoff": None,
+        "objective_unit": None,
+    }
+    # Remove optional metadata fields only; exactly one profile/model remains.
+    requirement = {key: value for key, value in requirement.items() if value is not None}
+    config = _config_object({
+        "schema": "stca-joint-config-v1",
+        "id_column": args.id_column,
+        "smiles_column": args.smiles_column,
+        "hcap_before_maccs": not args.input_is_hcap,
+        "hcap_output_column": args.hcap_output_column,
+        "requirements": [requirement],
+    })
+    return _run_candidate_screen(
+        input_path=Path(args.input).expanduser().resolve(),
+        config_path=None,
+        config=config,
+        output_dir=args.output_dir,
+        stca=stca,
+        source=args.source,
+    )
 
 
 def main(argv=None) -> int:
@@ -799,6 +997,29 @@ def main(argv=None) -> int:
     export.add_argument("--protocol", choices=PROTOCOLS, help="Required for a profile; if supplied with a model it must match its saved protocol.")
     export.add_argument("--tier", type=float, required=True)
     export.add_argument("--output-dir", required=True, help="A new output directory; existing directories are never overwritten.")
+    screen = commands.add_parser(
+        "screen-candidates",
+        help=("Apply one frozen STCA rule to raw repeat-unit SMILES. H-cap is calculation-only; "
+              "the original star-containing SMILES remains the primary output structure."),
+    )
+    screen_model = screen.add_mutually_exclusive_group(required=True)
+    screen_model.add_argument("--profile", choices=PROFILES)
+    screen_model.add_argument("--model", help="Saved STCA model JSON; its own protocol is retained.")
+    screen.add_argument("--protocol", choices=PROTOCOLS, help="Required with --profile; optional consistency check with --model.")
+    screen.add_argument("--tier", type=float, required=True)
+    screen.add_argument("--input", required=True)
+    screen.add_argument("--id-column", help="Optional arbitrary identifier column. Omit it to generate row-000001 style receipt IDs.")
+    screen.add_argument("--smiles-column", default="SMILES", help="Original repeat-unit SMILES column retained in final output.")
+    screen.add_argument("--hcap-output-column", default="stca_calculation_smiles_hcap",
+                        help="Calculation-only H-cap column; it never replaces the original structure column.")
+    screen.add_argument("--input-is-hcap", action="store_true",
+                        help="The supplied SMILES already match the model's H-cap representation; do not transform them.")
+    screen.add_argument("--label")
+    screen.add_argument("--property")
+    screen.add_argument("--direction", choices=("high", "low"))
+    screen.add_argument("--source-property")
+    screen.add_argument("--transfer-role")
+    screen.add_argument("--output-dir", required=True, help="A new output directory.")
     joint = commands.add_parser("joint-screen", help="Apply multiple frozen rules to each row of one candidate CSV.")
     joint.add_argument("--input", required=True)
     joint.add_argument("--config", required=True)
@@ -808,7 +1029,11 @@ def main(argv=None) -> int:
         if args.command == "plan-objectives":
             return plan_objectives(args)
         stca = load_stca(args.source)
-        return export_rules(args, stca) if args.command == "export-rules" else joint_screen(args, stca)
+        if args.command == "export-rules":
+            return export_rules(args, stca)
+        if args.command == "screen-candidates":
+            return screen_candidates(args, stca)
+        return joint_screen(args, stca)
     except (ValueError, RuntimeError, ImportError, OSError, KeyError, TypeError) as exc:
         print(f"stca-tools: {exc}", file=sys.stderr)
         return 2

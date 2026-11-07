@@ -4,7 +4,7 @@
 
 ## 1. 输入与表示
 
-- 保留原始 SMILES；原 STCA 完整输入流程按作者确认的 H-cap 契约，将末端连接点换氢后生成 MACCS。用 `prepare_hcap.py` 显式生成新列及处理记录，再传入原核心。作者档案中的 7,291 条 Tg 和 863 条 EC 已无 `*`，无需再次改写；863 条 EC 的 167 位均已与原始指纹表逐位核对一致。自定义模型沿用其训练表示；已有二值矩阵不做 H-cap。
+- 保留原始 SMILES；原 STCA 完整输入流程按作者确认的 H-cap 契约，将末端连接点换氢后生成 MACCS。H-cap 只存在于计算副本，最终主结果重新显示从一开始保留的原始带 `*` 重复单元；不从 capped 分子逆推连接点。作者档案中的 7,291 条 Tg 和 863 条 EC 已无 `*`，无需再次改写；863 条 EC 的 167 位均已与原始指纹表逐位核对一致。自定义模型沿用其训练表示；已有二值矩阵不做 H-cap。
 - 对 SMILES 使用上游 `maccs_from_smiles`：RDKit MACCS 共 167 个位置，K0 是空位，K1–K166 保留原编号。不要改成 166 列后重新编号，也不要替换成 110 类、Morgan、Core8 或配方编码。
 - 上游 `maccs_from_smiles` 本身不执行 H-cap，它只处理传入的已准备 SMILES；这不是否定上游之前的预处理。适配层的 H-cap 仅处理末端单键通配原子，内部或多键通配原子应报错。不要生成低聚物、去盐或做互变异构归一。原始与 H-cap canonical 图分别保留；H-cap 碰撞不证明完整聚合物相同，也不是外推距离。
 - 无效结构必须保留为错误或明确失败。上游错误行的特征是 -1，不能用全零替代，否则缺失型规则可能错误放行。
@@ -94,7 +94,7 @@ EC 的参考档位保存在 `stca_tools.py` 中并统一转换到 `log10(S/cm)`�
 
 - `screen(smiles, tier=..., errors=...)` / `screen_fingerprints(...)` 只应用冻结规则。输出 selected、规则名、缺少的必需 bit、出现的禁止 bit 等；selected 是结构规则匹配，不是性能预测值、概率或实验达标证明。
 - `evaluate(..., cutoff_mode="fixed_train")` 默认使用保存的训练阈值；`dataset_relative` 重新定义外评集分位目标，只用于评价，不改规则。二者不可混报。显式数值 `cutoff` 也是评价阈值，不会重新学习该阈值对应的规则。
-- 保存了 PID 分组的预置模型评价需要同一 ID 约定；不能传 canonical SMILES 代替 PID 后声称无泄漏。`allow_overlap=True` 只能用于明确的重评，不可报告为独立测试。
+- 行标识可以任意命名，也可以由适配器按行序生成；它不进入模型。用于划分的 `group_column` 则必须具有真实材料或结构分组意义。不能把随机行 ID 当作分组键，也不能把 canonical SMILES 与另一种材料 ID 口径互换后声称无泄漏。`allow_overlap=True` 只能用于明确的重评，不可报告为独立测试。
 - 输出 TP/FP/TN/FN、MCC、precision、recall、specificity、F1、coverage、enrichment factor、AS 及阈值/数据角色。不要删掉无效数据集以提高调和分数。
 - `model.new_trainer()` 重建训练配方，不复制旧排名或获胜规则。`trainer.export_diagnostics()` 保存相关性、阈值/支持数、候选规则、选择范围指标和模板审计。
 - 多个模型可以逐个筛选同一候选；在适配层做结果交集时注明模型、tier 和 AND 条件。没有配对真实性能时，不产生联合精度等真实标签指标。

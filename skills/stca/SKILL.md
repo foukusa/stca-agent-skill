@@ -72,14 +72,20 @@ python3.12 "$SKILL_DIR/scripts/setup_locked_environment.py" --env-dir "$STCA_ENV
 
 ### 候选 SMILES
 
-- 保留原始重复单元 SMILES。
-- 对末端单键 `*` 使用 `prepare_hcap.py` 生成独立的 `SMILES_hcap` 列。
+- 标识列名称和值均可由用户任意指定；不要求 `PID`。候选表没有标识列时，筛选适配器按输入行序生成回执 ID。标识不进入模型特征。
+- 保留原始重复单元 SMILES，并把它作为最终结果中的权威结构。
+- 对末端单键 `*` 建立独立的 H-cap 计算副本；不要覆盖原始结构，也不要从 H-cap 结果反推连接点。
 - 在 H-cap 结构上计算 167 位 RDKit MACCS，保留 K0 占位。
 - 无效结构保留错误状态，不填成全零指纹。
 
+优先使用 `stca_tools.py screen-candidates` 处理单一冻结规则。它会直接读取原始带星号结构，内部建立 H-cap 副本，并输出：
+
+- `results.csv`：面向用户的主结果，显示原始带 `*` 的重复单元；
+- `rows.csv`：完整审计结果，另含 H-cap 计算结构和表示信息。
+
 ### 实测数据
 
-确认：样本 ID、结构列、目标列、单位、方向、测量条件和数据角色。用 `audit_dataset.py` 检查重复结构、重复测量、跨集重叠和冲突记录。保留原始数据，所有转换另存文件。
+确认：可选的行标识、结构列、目标列、单位、方向、测量条件和数据角色。行标识可以任意命名或省略；它不自动等于材料分组键。构建防泄漏划分时，使用 canonical 结构、真实材料身份或其他有科学意义的独立分组变量，不能把随机行 ID 当作分组依据。用 `audit_dataset.py` 检查重复结构、重复测量、跨集重叠和冲突记录。保留原始数据，所有转换另存文件。
 
 EC 支持 `S/m`、`S/cm`、`log10(S/m)` 和 `log10(S/cm)`；Tg/Tm/Td 明确 degC 或 K；TC 明确 W/(m·K)；ε-AC 为无量纲。不同单位不得直接混用。
 
@@ -110,12 +116,12 @@ STCA 执行：
 
 ```bash
 "$STCA_PY" "$SKILL_DIR/scripts/stca_tools.py" joint-screen \
-  --input candidates_hcap.csv \
+  --input candidates.csv \
   --config out/objective-plan/joint_config.json \
   --output-dir out/multi-property-screen
 ```
 
-输出应逐项包含：目标性质、方向、tier、规则来源、单项通过状态、失败条件和最终交集。
+默认配置把 `SMILES` 视为原始重复单元，并在内部 H-cap。输出应逐项包含：目标性质、方向、tier、规则来源、单项通过状态、失败条件和最终交集。`results.csv` 显示原始结构；`rows.csv` 保留计算副本。
 
 联合筛选是“同一候选同时满足多条结构规则”。若要评价真实性能的联合命中率，必须提供同一材料、可比条件下的配对多性能标签。
 

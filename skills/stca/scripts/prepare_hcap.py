@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Prepare an explicit H-capped column while retaining original repeat units.
+"""Prepare a calculation-only H-capped column while retaining original repeat units.
 
 This is a skill adapter for a user-requested representation contract, not a
 recovered author's preprocessing function. It neither changes nor fits STCA.
 The output column must be selected explicitly for subsequent fingerprinting.
+Final user-facing results should use the untouched original repeat-unit SMILES;
+the capped molecule is not chemically reverse-converted back to connection points.
 """
 from __future__ import annotations
 
@@ -128,6 +130,7 @@ def prepare(args) -> dict:
                    "columns": header + [args.output_column]},
         "original_smiles_column": args.smiles_column,
         "processed_smiles_column": args.output_column,
+        "final_presentation_smiles_column": args.smiles_column,
         "id_column": args.id_column,
         "input_count": len(records),
         "output_count": len(prepared),
@@ -146,13 +149,14 @@ def prepare(args) -> dict:
         "original_fields_preserved": True,
         "records_removed_or_deduplicated": 0,
         "input_file_modified": False,
+        "reverse_hcap_conversion_attempted": False,
         "upstream_stca_algorithm_modified": False,
         "fingerprints_computed": False,
         "training_performed": False,
         "runtime": runtime,
         "rdkit_version": rdBase.rdkitVersion,
         "rows": row_audit,
-        "interpretation": "Select the processed column explicitly for MACCS/STCA. Keep the original column for repeat-unit identity. Capped molecular identity does not establish polymer equivalence or physical-property success.",
+        "interpretation": "Select the processed column explicitly for MACCS/STCA. Keep and present the original star-containing repeat-unit column after screening. Do not reconstruct connection points from the capped molecule; the original text is the authoritative structure record. Capped molecular identity does not establish polymer equivalence or physical-property success.",
     }
     manifest_payload = (json.dumps(receipt, ensure_ascii=False, indent=2, allow_nan=False) + "\n").encode("utf-8")
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -176,7 +180,7 @@ def main(argv=None) -> int:
     parser.add_argument("--input", required=True)
     parser.add_argument("--output", required=True, help="A new CSV path; its manifest is <output>.manifest.json.")
     parser.add_argument("--smiles-column", default="SMILES")
-    parser.add_argument("--output-column", default="SMILES_hcap")
+    parser.add_argument("--output-column", default="stca_calculation_smiles_hcap")
     parser.add_argument("--id-column", help="Optional existing ID column, copied verbatim into row receipts.")
     args = parser.parse_args(argv)
     try:

@@ -1,17 +1,18 @@
 {
-  "package_version": "0.1.2",
+  "package_version": "0.1.0",
   "publication_guide_revision": "Mac 2026-11-07",
   "status": "LOCAL_PUBLICATION_STRUCTURE_CHECKS_PASSED",
-  "canonical_skill_git_commit": "d309ae165007c1fa412ca224818cd7f78c1e3ee9",
-  "canonical_skill_files_exported": 30,
-  "core_scripts_unchanged_from_previous_validated_release": true,
+  "canonical_skill_git_commit": null,
+  "canonical_skill_files_exported": 48,
+  "core_scripts_unchanged_from_previous_validated_release": false,
   "core_scripts_sha256": {
-    "audit_dataset.py": "b1fea38b80d7fe66c0609deadd58e6ab6cf124d1d4b383ff17a8d4e767d4f268",
-    "prepare_hcap.py": "1e91b0f85e613ccc8937a1d97af4aaa45794c3ea7577980f90c953565d9a7a65",
+    "audit_dataset.py": "5ef7dedd8c8cf4129e0e4333c9ecea19146c0d339b248a0112ad7e9a1ce8cd35",
+    "build_platform_packages.py": "95feea99f90900ca46aa21854b3ae5844c8ff288bca6232d7af453eda27bcea4",
+    "prepare_hcap.py": "79e0912dfa38eeba87e561b72be55024842a8d98794ad2a148ff0905f22cbc80",
     "setup_locked_environment.py": "a5b28748068c2764dde3f1198c8ecbf931ce5631b31eef9d6b9a8c955209ff84",
     "stca_io.py": "fdc9c6f304711b02a60cecd93b6527582ed50fe81d93b42b92becd362abf5357",
     "stca_runtime.py": "16dbdea81574f7a3c654b8b87ca4ce014447c4677f0f67f10446a874323c19ba",
-    "stca_tools.py": "3458f88b70246fd1384a780ad8e5f560939feff24e5c2c54ea9b69087e43f5b5"
+    "stca_tools.py": "c3d497ca9e4ad424bdd41e42edce244444a70f34f6b47fc3da344bccf96d41bd"
   },
   "python_syntax": "PASS",
   "json_parse": "PASS",
@@ -27,11 +28,21 @@
     "README.md is the English landing page and README.zh-CN.md is its complete Chinese translation.",
     "Both landing pages begin with a linked table of contents and explicit install/invocation examples.",
     "GitHub source installation is separated from locally generated platform release ZIPs.",
-    "The four native platform archives are generated from the same saved skill source.",
-    "Computational scripts are unchanged from the previously validated release.",
+    "Candidate identifiers are arbitrary and optional; PID is not required.",
+    "H-cap is calculation-only; results.csv presents the original star-containing repeat unit and rows.csv retains the audit copy.",
+    "The original upstream STCA scan/ranking/prefix-family algorithm is unchanged; only the skill adapter and documentation were revised.",
     "Live platform publication and macOS host execution have not been performed by this package build."
   ],
   "logo_dimensions": "512x512 RGBA",
   "logo_readme_display_width_px": 104,
-  "objective_planner": "PASS_TG_TM_TD_TC_EC_EPSILON_INDEPENDENT_TIERS"
+  "objective_planner": "PASS_TG_TM_TD_TC_EC_EPSILON_INDEPENDENT_TIERS",
+  "publication_commit_pending": true,
+  "upstream_stca_algorithm_changed": false,
+  "adapter_changes": [
+    "Arbitrary/optional candidate identifier handling",
+    "Calculation-only H-cap with original-star-SMILES primary output",
+    "New screen-candidates wrapper and results.csv/rows.csv split"
+  ],
+  "identifier_contract": "PASS_ARBITRARY_OPTIONAL_NOT_A_FEATURE",
+  "hcap_presentation_contract": "PASS_RESULTS_ORIGINAL_ROWS_AUDIT_HCAP"
 }

@@ -1,7 +1,7 @@
 # STCA · Mac 发布、安装与调用指南
 
 **GitHub · ChatGPT / Codex · DeepSeek Harness · WorkBuddy**  
-软件版本：0.1.2　｜　Mac 指南修订：2026-11-07
+软件版本：0.1.0　｜　Mac 指南修订：2026-11-07
 
 > **先区分两类文件：** GitHub 仓库保存源码，不在 `main` 文件树中存放平台 ZIP；ChatGPT、DeepSeek 和 WorkBuddy 的 ZIP 由维护者在 Mac 本地构建，再上传到对应平台或作为 GitHub Release 附件。
 
@@ -41,17 +41,17 @@ PUBLISH_STEPS.zh-CN.md    # 本指南
 
 ```zsh
 python3 tools/build_packages.py \
-  --output-dir "$HOME/Desktop/STCA-release-0.1.2"
+  --output-dir "$HOME/Desktop/STCA-release-0.1.0"
 ```
 
 生成：
 
 ```text
-~/Desktop/STCA-release-0.1.2/
-├── stca-github-release-0.1.2.zip
-├── stca-openai-plugin-0.1.2.zip
-├── stca-deepseek-harness-0.1.2.zip
-├── stca-workbuddy-0.1.2.zip
+~/Desktop/STCA-release-0.1.0/
+├── stca-github-release-0.1.0.zip
+├── stca-openai-plugin-0.1.0.zip
+├── stca-deepseek-harness-0.1.0.zip
+├── stca-workbuddy-0.1.0.zip
 ├── STCA_logo.png
 └── SHA256SUMS.txt
 ```
@@ -60,10 +60,10 @@ python3 tools/build_packages.py \
 
 | 文件 | 用途 |
 | --- | --- |
-| `stca-github-release-0.1.2.zip` | 可选的 GitHub Release 源码归档附件 |
-| `stca-openai-plugin-0.1.2.zip` | 上传到 OpenAI 插件发布门户 |
-| `stca-deepseek-harness-0.1.2.zip` | 可选的 DeepSeek Harness 下载包 |
-| `stca-workbuddy-0.1.2.zip` | WorkBuddy 本机导入与开放平台提交 |
+| `stca-github-release-0.1.0.zip` | 可选的 GitHub Release 源码归档附件 |
+| `stca-openai-plugin-0.1.0.zip` | 上传到 OpenAI 插件发布门户 |
+| `stca-deepseek-harness-0.1.0.zip` | 可选的 DeepSeek Harness 下载包 |
+| `stca-workbuddy-0.1.0.zip` | WorkBuddy 本机导入与开放平台提交 |
 | `STCA_logo.png` | 各平台品牌图标与 Release 附件 |
 
 ### 0.3 推荐顺序
@@ -168,9 +168,9 @@ cp -R stca-agent-skill/skills/stca /目标技能目录/stca
 
 源码推送完成后，仓库网页进入 **Releases → Draft a new release**：
 
-- Tag：`v0.1.2`
-- Title：`STCA Agent Skill v0.1.2`
-- Release notes：复制 `CHANGELOG.md` 中 0.1.2 的内容
+- Tag：`v0.1.0`
+- Title：`STCA Agent Skill v0.1.0`
+- Release notes：复制 `CHANGELOG.md` 中 0.1.0 的内容
 - Attach binaries：上传本地构建目录中的四份 ZIP、`STCA_logo.png` 和 `SHA256SUMS.txt`
 
 Release 附件用于下载；它们不是 `main` 分支源码文件。
@@ -189,8 +189,8 @@ STCA 插件公开后：
 
 ```text
 @STCA Screen candidates.csv for high Tg and bottom-5% EC.
-Preserve the original SMILES, H-cap terminal connection points,
-and report row-level pass/fail results with failed rule conditions.
+Use CandidateKey as an arbitrary identifier column. Keep the original star-containing SMILES in the final results,
+use H-cap only for MACCS calculation, and report row-level pass/fail results with failed rule conditions.
 ```
 
 ### 2.2 维护者提交哪个文件
@@ -199,19 +199,19 @@ and report row-level pass/fail results with failed rule conditions.
 
 ```zsh
 python3 tools/build_packages.py \
-  --output-dir "$HOME/Desktop/STCA-release-0.1.2"
+  --output-dir "$HOME/Desktop/STCA-release-0.1.0"
 ```
 
 上传：
 
 ```text
-~/Desktop/STCA-release-0.1.2/stca-openai-plugin-0.1.2.zip
+~/Desktop/STCA-release-0.1.0/stca-openai-plugin-0.1.0.zip
 ```
 
 不要上传：
 
 - GitHub 源码文件夹；
-- `stca-github-release-0.1.2.zip`；
+- `stca-github-release-0.1.0.zip`；
 - 整个 Mac 发布总包。
 
 ### 2.3 Mac 提交步骤
@@ -222,13 +222,13 @@ python3 tools/build_packages.py \
 4. Mac 文件选择器按 `⌘⇧G`，输入：
 
 ```text
-~/Desktop/STCA-release-0.1.2
+~/Desktop/STCA-release-0.1.0
 ```
 
-5. 选择 `stca-openai-plugin-0.1.2.zip`。
+5. 选择 `stca-openai-plugin-0.1.0.zip`。
 6. 检查：
    - Display name：STCA
-   - Version：0.1.2
+   - Version：0.1.0
    - Skill：`stca`
    - Logo：STCA logo
    - 三个 starter prompts
@@ -240,7 +240,8 @@ python3 tools/build_packages.py \
 发布或私测安装后，至少运行三条：
 
 ```text
-@STCA Apply the paper low-EC 5% rule to the attached candidates. H-cap first.
+@STCA Apply the paper low-EC 5% rule to the attached candidates.
+Use H-cap only for calculation and return the original star-containing SMILES.
 ```
 
 ```text
@@ -295,7 +296,7 @@ test -f "$HOME/.dsh/skills/stca/SKILL.md" && echo "STCA installed"
 
 ### 3.3 另一种方式：Release ZIP
 
-维护者在 GitHub Release 提供 `stca-deepseek-harness-0.1.2.zip` 后：
+维护者在 GitHub Release 提供 `stca-deepseek-harness-0.1.0.zip` 后：
 
 1. Finder 双击 ZIP。
 2. 得到顶层 `stca` 文件夹。
@@ -314,7 +315,8 @@ open "$HOME/.dsh/skills"
 
 ```text
 /stca Screen candidates.csv with the paper low-EC 5% rule.
-H-cap before MACCS calculation and report every failed condition.
+Use H-cap only for MACCS calculation, restore the original repeat-unit SMILES in the final results,
+and report every failed condition.
 ```
 
 提取规则：
@@ -346,7 +348,7 @@ propose 20 repeat units, retain every proposal, and verify every frozen rule.
 
 ```zsh
 python3 tools/build_packages.py \
-  --output-dir "$HOME/Desktop/STCA-release-0.1.2"
+  --output-dir "$HOME/Desktop/STCA-release-0.1.0"
 ```
 
 WorkBuddy 中进入：
@@ -358,7 +360,7 @@ WorkBuddy 中进入：
 选择：
 
 ```text
-~/Desktop/STCA-release-0.1.2/stca-workbuddy-0.1.2.zip
+~/Desktop/STCA-release-0.1.0/stca-workbuddy-0.1.0.zip
 ```
 
 导入后确认 STCA 出现在“已安装”中。
@@ -369,8 +371,8 @@ WorkBuddy 中进入：
 
 ```text
 使用 STCA skill 筛选工作目录中的 candidates.csv。
-目标是高 Tg 和低 EC；分别选择档位，先执行 H-cap，
-再输出各目标结果、失败条件和同候选交集。
+目标是高 Tg 和低 EC；分别选择档位。H-cap 只用于计算，
+最终结果保留原始带星号 SMILES，再输出各目标结果、失败条件和同候选交集。
 ```
 
 规则提取：
@@ -385,7 +387,7 @@ WorkBuddy 中进入：
 
 1. 打开 [WorkBuddy 开放平台](https://open.workbuddy.cn/)，完成开发者认证。
 2. 创建“技能”资产。
-3. 上传 `stca-workbuddy-0.1.2.zip`。
+3. 上传 `stca-workbuddy-0.1.0.zip`。
 4. 核对：名称、中文／英文显示名、版本、作者、简介、示例和 logo。
 5. 预览无误后提交审核。
 6. 审核通过后发布。
@@ -403,7 +405,7 @@ WorkBuddy 中进入：
 调用时至少写清：
 
 1. 输入文件；
-2. ID、SMILES 和性能列；
+2. 原始 SMILES 列、可选的任意标识列，以及性能列；
 3. 目标性质与方向；
 4. tier／strictness；
 5. 使用 paper 规则还是从数据提取规则；
@@ -415,7 +417,7 @@ WorkBuddy 中进入：
 
 ```zsh
 python3 tools/build_packages.py \
-  --output-dir "$HOME/Desktop/STCA-release-0.1.2-r2"
+  --output-dir "$HOME/Desktop/STCA-release-0.1.0-r2"
 ```
 
 输出目录必须是新目录。构建脚本会统一生成四个平台 ZIP、logo 和 SHA256 清单。
@@ -448,7 +450,7 @@ python3 tools/build_packages.py \
 
 ### ChatGPT / Codex
 
-- [ ] 上传的是 `stca-openai-plugin-0.1.2.zip`。
+- [ ] 上传的是 `stca-openai-plugin-0.1.0.zip`。
 - [ ] `plugin.json` 位于 ZIP 根层。
 - [ ] 图标、版本和 starter prompts 正确。
 - [ ] 安装后能通过 `@STCA` 调用。
@@ -457,18 +459,18 @@ python3 tools/build_packages.py \
 
 - [ ] 最终路径是 `~/.dsh/skills/stca/SKILL.md`。
 - [ ] `/stca` 能发现技能。
-- [ ] 实际执行 H-cap 与筛选脚本。
+- [ ] 实际执行 H-cap 与筛选脚本，主结果显示原始带 `*` 的 SMILES。
 
 ### WorkBuddy
 
-- [ ] 上传的是 `stca-workbuddy-0.1.2.zip`。
+- [ ] 上传的是 `stca-workbuddy-0.1.0.zip`。
 - [ ] 技能能导入并启用。
 - [ ] 对话中“使用 STCA skill”能触发实际工作流。
 - [ ] 开放平台信息和 logo 正确。
 
 ### 科学功能
 
-- [ ] H-cap 后再计算 MACCS。
+- [ ] H-cap 只作为计算副本，最终主结果恢复显示原始重复单元 SMILES。
 - [ ] paper 与 source_locked 协议分开报告。
 - [ ] EC 5% 规则可实际筛选候选。
 - [ ] 输出逐候选失败条件。

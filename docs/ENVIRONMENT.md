@@ -8,7 +8,7 @@ The setup helper prepares a new environment without changing STCA rules or algor
 
 ```bash
 python3.12 skills/stca/scripts/setup_locked_environment.py \
-  --env-dir "$HOME/.venvs/stca-0.1.2"
+  --env-dir "$HOME/.venvs/stca-0.1.0"
 ```
 
 Read `python` and `source` from the generated `stca-environment.json`, export
@@ -18,8 +18,9 @@ Read `python` and `source` from the generated `stca-environment.json`, export
 "$STCA_PY" skills/stca/scripts/stca_runtime.py doctor
 ```
 
-Use the recorded interpreter for H-cap preparation, screening, fitting, rule export
-and objective planning. An existing environment is not overwritten. Linux x86_64
+Use the recorded interpreter for calculation-only H-cap preparation, screening,
+fitting, rule export and objective planning. Candidate results retain the original
+star-containing repeat-unit SMILES; no `PID` column is required. An existing environment is not overwritten. Linux x86_64
 uses the included wheel-hash lock; other systems use the exact version snapshot and
 must have compatible wheels.
 

@@ -27,8 +27,8 @@
   "maccs_bits": 167,
   "source_installation": "Public PyPI, binary wheels, exact versions; no inherited system packages.",
   "files": {
-    "requirements-py312.txt": "4d279c4a36c63762690deb69b383a4dc7b532c1d28cc70c9799484345044512c",
-    "requirements-py312-linux-x86_64.lock": "b5d2efd6cf85811a5561377c0f2867f6d343154f836270e8813db15d4f0323ec"
+    "requirements-py312.txt": "b229f6458bc720ce13022a460b67f127c6082d8e825b90f81e8c55af930f82a0",
+    "requirements-py312-linux-x86_64.lock": "98942773f194f6d80cd54fe0dbfd7c648bd3313905951557d127dbbb28aac172"
   },
   "wheel_receipts": [
     {

@@ -125,7 +125,7 @@ def main() -> int:
     manifest = json.loads(files["plugin.json"])
     version = manifest.get("version")
     if not isinstance(version, str) or not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", version):
-        raise ValueError("plugin.json version must be a release version such as 0.1.2.")
+        raise ValueError("plugin.json version must be a release version such as 0.1.0.")
     synchronized = {}
     for name in PUBLICATION_FILES:
         synchronized[f"skills/stca/assets/publication/{name}"] = files[name]

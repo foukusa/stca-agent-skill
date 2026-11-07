@@ -8,7 +8,7 @@
 
 ```bash
 SKILL_DIR="/absolute/path/to/stca"
-STCA_ENV_DIR="$HOME/.venvs/stca-0.1.2"
+STCA_ENV_DIR="$HOME/.venvs/stca-0.1.0"
 export PYTHONUTF8=1
 
 python3.12 "$SKILL_DIR/scripts/setup_locked_environment.py" \
@@ -24,7 +24,7 @@ export STCA_SOURCE="$(python3.12 -c 'import json,sys; print(json.load(open(sys.a
 
 ```powershell
 $SkillDir = (Resolve-Path "C:ctual\path\stca").Path
-$StcaEnvDir = Join-Path $env:USERPROFILE ".venvs\stca-0.1.2"
+$StcaEnvDir = Join-Path $env:USERPROFILE ".venvs\stca-0.1.0"
 $env:PYTHONUTF8 = "1"
 
 py -3.12 (Join-Path $SkillDir "scripts\setup_locked_environment.py") --env-dir $StcaEnvDir
@@ -38,4 +38,4 @@ $env:STCA_SOURCE = $Setup.source
 
 ## 路径与 H-cap
 
-保留原始重复单元 SMILES，用 `prepare_hcap.py` 另建 `SMILES_hcap` 计算列，再用该列计算 MACCS。环境和输出目录不要放进 skill 安装目录。已有成功环境可复用 `stca-environment.json` 中的解释器和源码路径。
+保留原始重复单元 SMILES，H-cap 只建立计算副本。推荐直接用 `stca_tools.py screen-candidates`：主结果 `results.csv` 显示原始带 `*` 结构，审计文件 `rows.csv` 才保留 H-cap 计算列。标识列可任意命名或省略，不要求 `PID`。环境和输出目录不要放进 skill 安装目录；已有成功环境可复用 `stca-environment.json` 中的解释器和源码路径。

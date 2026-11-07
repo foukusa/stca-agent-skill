@@ -210,7 +210,9 @@ def audit_one(label, path, args, features):
         finding(report, "error", "unreadable_csv", str(exc))
         return state
     report.update({"sha256": hashlib.sha256(raw).hexdigest(), "size_bytes": len(raw), "columns": header, "records": len(rows)})
-    required = [args.id_column, *(features if features else [args.smiles_column]), *args.target]
+    required = [*(features if features else [args.smiles_column]), *args.target]
+    if args.id_column:
+        required.insert(0, args.id_column)
     missing = sorted(set(required) - set(header))
     if missing:
         finding(report, "error", "missing_columns", "Required columns are missing.", columns=missing)
@@ -218,19 +220,42 @@ def audit_one(label, path, args, features):
     if not rows:
         finding(report, "error", "empty_dataset", "CSV contains no data records.")
         return state
-    ids = [row[args.id_column] for row in rows]
-    blank = [i for i, value in enumerate(ids) if not value.strip()]
-    if blank:
-        finding(report, "error", "empty_id", "Record/group IDs must be nonempty.", count=len(blank), record_positions=blank[:EXAMPLE_LIMIT])
-    state["ids"] = {x for x in ids if x.strip()}
-    report["id_audit"] = {"column": args.id_column, "strings_preserved": True, **duplicate_summary(ids)}
-    if report["id_audit"]["repeated_groups"]:
-        finding(report, "warning", "repeated_ids", "IDs repeat within this dataset. Preserve repeated observations and group them together when splitting.",
-                groups=report["id_audit"]["repeated_groups"])
-    padded = [i for i, value in enumerate(ids) if value != value.strip()]
-    if padded:
-        finding(report, "warning", "id_whitespace", "IDs contain leading or trailing whitespace; identity is currently checked as the exact supplied string.",
-                count=len(padded), record_positions=padded[:EXAMPLE_LIMIT])
+    if args.id_column:
+        ids = [row[args.id_column] for row in rows]
+        blank = [i for i, value in enumerate(ids) if not value.strip()]
+        if blank:
+            finding(report, "error", "empty_id", "Supplied row identifiers must be nonempty.", count=len(blank), record_positions=blank[:EXAMPLE_LIMIT])
+        state["ids"] = {x for x in ids if x.strip()}
+        state["supplied_ids"] = True
+        report["id_audit"] = {
+            "column": args.id_column,
+            "source": "user_supplied_arbitrary_text_identifier",
+            "strings_preserved": True,
+            "used_as_model_feature": False,
+            **duplicate_summary(ids),
+        }
+        if report["id_audit"]["repeated_groups"]:
+            finding(report, "warning", "repeated_ids", "Identifiers repeat within this dataset. Preserve repeated observations; use a separate scientifically meaningful grouping column when constructing splits.",
+                    groups=report["id_audit"]["repeated_groups"])
+        padded = [i for i, value in enumerate(ids) if value != value.strip()]
+        if padded:
+            finding(report, "warning", "id_whitespace", "Identifiers contain leading or trailing whitespace; identity is currently checked as the exact supplied string.",
+                    count=len(padded), record_positions=padded[:EXAMPLE_LIMIT])
+    else:
+        # Row identifiers are bookkeeping only. When no user column is supplied,
+        # create deterministic labels for receipts without pretending they are
+        # material IDs or using them to assert cross-dataset disjointness.
+        ids = [f"{label}-row-{index + 1:06d}" for index in range(len(rows))]
+        state["ids"] = set()
+        state["supplied_ids"] = False
+        report["id_audit"] = {
+            "column": None,
+            "source": "generated_from_row_position_for_receipts_only",
+            "strings_preserved": True,
+            "used_as_model_feature": False,
+            "cross_dataset_id_overlap_checked": False,
+            **duplicate_summary(ids),
+        }
 
     targets = {column: target_audit(report, rows, column) for column in args.target}
     identities = binary_audit(report, rows, features) if features else smiles_audit(report, rows, args.smiles_column)
@@ -265,14 +290,16 @@ def make_report(args, features):
         },
     }
     for left, right in combinations(states, 2):
-        id_overlap = sorted(states[left]["ids"] & states[right]["ids"])
+        id_overlap_checked = bool(states[left].get("supplied_ids") and states[right].get("supplied_ids"))
+        id_overlap = sorted(states[left]["ids"] & states[right]["ids"]) if id_overlap_checked else []
         representation_overlap = sorted(states[left]["input_identities"] & states[right]["input_identities"])
-        comparison = {"left": left, "right": right, "overlapping_ids": len(id_overlap),
+        comparison = {"left": left, "right": right, "id_overlap_checked": id_overlap_checked,
+                      "overlapping_ids": len(id_overlap),
                       "overlapping_input_representations": len(representation_overlap),
                       "id_examples": id_overlap[:EXAMPLE_LIMIT], "input_examples": representation_overlap[:EXAMPLE_LIMIT],
                       "representation_kind": "complete_binary_vector" if features else "canonical_SMILES"}
         report["between_datasets"].append(comparison)
-        if id_overlap:
+        if id_overlap_checked and id_overlap:
             finding(report, "error", "cross_dataset_id_overlap", f"{left} and {right} share supplied record/group identities.", count=len(id_overlap))
         if representation_overlap:
             message = (f"{left} and {right} contain identical complete descriptor vectors; they are not representation-disjoint. This does not alone prove identical materials."
@@ -299,7 +326,12 @@ def main(argv=None):
     parser.add_argument("--input", required=True, help="Source or candidate CSV.")
     parser.add_argument("--selection-input", help="Separate CSV whose labels participate in rule selection, if applicable.")
     parser.add_argument("--test", help="Separate intended holdout CSV.")
-    parser.add_argument("--id-column", default="ID")
+    parser.add_argument(
+        "--id-column",
+        help=("Optional arbitrary row-identifier column (for example ID, SampleKey or RecordName). "
+              "It is preserved as text and never used as a model feature. If omitted, deterministic "
+              "row-position identifiers are generated for the audit receipt only."),
+    )
     parser.add_argument("--smiles-column", default="SMILES")
     parser.add_argument("--features", help="Comma-separated explicit binary feature columns, replacing SMILES.")
     parser.add_argument("--target", action="append", default=[], help="Numeric target to audit in each CSV; repeat for multiple targets.")
@@ -310,7 +342,10 @@ def main(argv=None):
         parser.error("--features must contain distinct nonempty names.")
     if len(set(args.target)) != len(args.target):
         parser.error("Do not repeat a target column name.")
-    if set(features) & ({args.id_column} | set(args.target)):
+    forbidden = set(args.target)
+    if args.id_column:
+        forbidden.add(args.id_column)
+    if set(features) & forbidden:
         parser.error("Features cannot contain the ID or target columns.")
     output = Path(args.output).expanduser().resolve()
     if output.exists():

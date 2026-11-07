@@ -1,4 +1,4 @@
-STCA Agent Skill — OpenAI listing text (0.1.2)
+STCA Agent Skill — OpenAI listing text (0.1.0)
 
 Display name: STCA
 Short description: Polymer screening and design rules
@@ -6,7 +6,7 @@ Developer name: Weihao Wang
 Category: Developer Tools
 
 Long description:
-Use Sliding Threshold Correlation Analysis (STCA) for polymer repeat units. Apply frozen structural rules to candidate libraries; extract readable rule families from measured data; connect independently scaled Tg, Tm, Td, TC, EC and ε-AC objectives; and export executable constraints for agent-assisted candidate design followed by explicit structural verification. The skill preserves the H-cap representation used by STCA and calls the pinned polymer-stca implementation. It requires a Python/RDKit execution environment.
+Use Sliding Threshold Correlation Analysis (STCA) for polymer repeat units. Apply frozen structural rules to candidate libraries; extract readable rule families from measured data; connect independently scaled Tg, Tm, Td, TC, EC and ε-AC objectives; and export executable constraints for agent-assisted candidate design followed by explicit structural verification. The skill keeps the original star-containing repeat-unit SMILES for final results, uses H-cap only as a calculation representation, accepts arbitrary identifier-column names, and calls the pinned polymer-stca implementation. It requires a Python/RDKit execution environment.
 
 Starter prompts:
 1. Screen this polymer candidate table for high Tg, low EC and high TC. Choose the tier for each objective independently, then report the same-candidate intersection and failed rule conditions.

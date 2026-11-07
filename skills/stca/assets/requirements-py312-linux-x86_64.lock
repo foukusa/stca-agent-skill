@@ -1,4 +1,4 @@
-# STCA agent skill 0.1.2
+# STCA agent skill 0.1.0
 # Exact active runtime dependencies for CPython 3.12.
 # Fresh isolated installation verified on Linux x86_64, 2026-11-07.
 # macOS and Windows are not yet verified; verify installation and execution there.

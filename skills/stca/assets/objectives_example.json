@@ -1,7 +1,9 @@
 {
   "schema": "stca-objectives-v1",
-  "id_column": "ID",
-  "smiles_column": "SMILES_hcap",
+  "id_column": "CandidateKey",
+  "smiles_column": "SMILES",
+  "hcap_before_maccs": true,
+  "hcap_output_column": "stca_calculation_smiles_hcap",
   "objectives": [
     {
       "name": "thermal_stability",

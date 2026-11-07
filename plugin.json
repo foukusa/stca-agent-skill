@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "stca",
-  "version": "0.1.2",
+  "version": "0.1.0",
   "description": "Screen polymer repeat units with STCA, extract readable rules from measured data, connect thermal and electrical objectives, and verify rule-guided candidates.",
   "author": {
     "name": "Weihao Wang"
@@ -18,7 +18,7 @@
       "interface": {
         "displayName": "STCA",
         "shortDescription": "Polymer screening and design rules",
-        "longDescription": "Use Sliding Threshold Correlation Analysis (STCA) for polymer repeat units. Apply frozen structural rules to candidate libraries; extract readable rule families from measured data; connect independently scaled Tg, Tm, Td, TC, EC and ε-AC objectives; and export executable constraints for agent-assisted candidate design followed by explicit structural verification. The skill preserves the H-cap representation used by STCA and calls the pinned polymer-stca implementation. It requires a Python/RDKit execution environment.",
+        "longDescription": "Use Sliding Threshold Correlation Analysis (STCA) for polymer repeat units. Apply frozen structural rules to candidate libraries; extract readable rule families from measured data; connect independently scaled Tg, Tm, Td, TC, EC and ε-AC objectives; and export executable constraints for agent-assisted candidate design followed by explicit structural verification. The skill keeps the original star-containing repeat-unit SMILES for final results, uses H-cap only as a calculation representation, accepts arbitrary identifier-column names, and calls the pinned polymer-stca implementation. It requires a Python/RDKit execution environment.",
         "developerName": "Weihao Wang",
         "category": "Developer Tools",
         "defaultPrompt": [
