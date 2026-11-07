@@ -1,0 +1,20 @@
+STCA Agent Skill — OpenAI listing text (0.1.0)
+
+Display name: STCA
+Short description: Polymer screening with rules
+Developer name: Weihao Wang
+Category: Developer Tools
+
+Long description:
+Use Weihao Wang's original Sliding Threshold Correlation Analysis for polymer repeat units. Screen candidate structures with frozen published rules; extract readable presence/absence rules from measured datasets and evaluate frozen models; export exact rules for agent-assisted candidate proposal followed by computational verification. Applies the confirmed H-cap representation before RDKit MACCS. Calls the pinned author implementation. Requires a Python/RDKit execution environment and initial access to the source and dependencies. A selected candidate satisfies structural rules; its physical properties still require separate evidence.
+
+Starter prompts:
+1. Screen my polymer SMILES with original STCA low-EC 5% rules, applying H-cap before MACCS.
+2. Extract STCA rules from measured polymer data, freeze the model, and evaluate a held-out dataset.
+3. Propose polymer candidates under STCA constraints, H-cap them, and verify them against the frozen rules.
+
+Primary icon and composer icon: assets/stca-logo.png
+
+Publisher checks:
+Use the developer identity actually verified in the submission portal. Match its display name if it differs. Confirm the category in the portal. Optional website/support/privacy/terms fields are omitted; no service URL or contact address has been invented. No MCP server is included.
+

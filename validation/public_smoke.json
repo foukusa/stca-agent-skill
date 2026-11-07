@@ -1,0 +1,36 @@
+{
+  "status": "PASS",
+  "test_scope": "H-cap, frozen paper EC5 screening, rule export, same-candidate Tg20/EC5 intersection",
+  "upstream_commit": "5951b0ef23d63edc8f7e803aaaffa5e4168288f6",
+  "python_version": "3.12.14",
+  "packages": {
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "scipy": "1.17.0",
+    "rdkit": "2025.9.4"
+  },
+  "input_sha256": "48279ed30907ba3d6552e5e09b69c232cf57936ccba0d993f7de03420435c8eb",
+  "input_count": 10,
+  "valid_count": 10,
+  "ec_low_05_selected_count": 9,
+  "ec_low_05_selected_ids": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09"
+  ],
+  "joint_selected_count": 9,
+  "original_columns_and_order_preserved": true,
+  "original_input_unchanged": true,
+  "frozen_model_content_matched": true,
+  "training_performed": false,
+  "measured_property_evaluation_performed": false,
+  "interpretation": "Structural integration regression only; no physical property or novelty guarantee.",
+  "execution_environment": "Fresh isolated CPython 3.12 environment created by the release locked setup helper on Linux x86-64.",
+  "audit_date": "2026-11-07"
+}

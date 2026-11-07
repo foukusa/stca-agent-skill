@@ -1,0 +1,49 @@
+cff-version: 1.2.0
+message: >-
+  Please cite this software integration, the original STCA paper, and the
+  pinned author implementation when using this work.
+type: software
+title: STCA Agent Skill
+version: 0.1.0
+authors:
+  - family-names: Wang
+    given-names: Weihao
+abstract: >-
+  Agent workflows for applying published Sliding Threshold Correlation
+  Analysis rules, deriving and evaluating rules from measured data, and
+  proposing polymer repeat-unit candidates followed by explicit H-cap,
+  MACCS generation and frozen structural-rule verification. This integration
+  calls the pinned original polymer-stca implementation.
+keywords:
+  - STCA
+  - polymers
+  - interpretable screening
+  - agent skills
+  - molecular design
+references:
+  - type: article
+    title: >-
+      Interpretable substructure-based screening of multi-property polymer
+      dielectrics with prompt-ready rules for rational design
+    authors:
+      - family-names: Wang
+        given-names: Weihao
+      - family-names: Ruan
+        given-names: Haoou
+      - family-names: Butler
+        given-names: Keith T.
+      - family-names: Kumada
+        given-names: Akiko
+      - family-names: Sato
+        given-names: Masahiro
+    journal: npj Computational Materials
+    year: 2026
+    doi: 10.1038/s41524-026-02345-x
+  - type: software
+    title: polymer-stca
+    authors:
+      - family-names: Wang
+        given-names: Weihao
+    version: '1.0'
+    url: https://github.com/foukusa/polymer-stca
+    commit: 5951b0ef23d63edc8f7e803aaaffa5e4168288f6

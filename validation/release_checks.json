@@ -1,0 +1,18 @@
+{
+  "package_version": "0.1.0",
+  "status": "PASS_PREPUBLICATION_LOCAL_CHECKS",
+  "canonical_skill_export_identical": true,
+  "skill_files_checked": 19,
+  "python_syntax": "PASS",
+  "json_parse": "PASS",
+  "openai_listing_limits": "PASS",
+  "icon_file_references": "PASS",
+  "private_path_scan": "PASS",
+  "external_publication_performed": false,
+  "publisher_license_confirmation_required": true,
+  "hosted_directory_installation_tested": false,
+  "agent_plugins_manifest_schema": "PASS",
+  "citation_cff_full_schema": "PASS",
+  "canonical_saved_readback_verified": true,
+  "public_plugin_logo_matches_generated_asset": true
+}

@@ -1,0 +1,8 @@
+{
+  "id_column": "ID",
+  "smiles_column": "SMILES_hcap",
+  "requirements": [
+    {"name": "high_tg", "profile": "tg-high", "protocol": "paper", "tier": 0.20},
+    {"name": "low_ec", "profile": "ec-low", "protocol": "paper", "tier": 0.05}
+  ]
+}

@@ -1,0 +1,14 @@
+interface:
+  display_name: STCA 聚合物筛选
+  short_description: 调用原始 STCA，提取可读子结构规则，验证单性能筛选并组合多性能结构约束
+  default_prompt: 使用 $stca 按原始算法分析我的聚合物数据，先按 H-cap 契约处理连接点，再执行冻结规则、验证留出集并导出设计约束。
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+  brand_color: '#167D8D'
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

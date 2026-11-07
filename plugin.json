@@ -1,0 +1,36 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "stca",
+  "version": "0.1.0",
+  "description": "Apply original STCA rules to polymer repeat units, fit interpretable rules from measured data, and guide candidate proposals with executable structural checks.",
+  "author": {
+    "name": "Weihao Wang"
+  },
+  "keywords": [
+    "STCA",
+    "polymers",
+    "materials-science",
+    "interpretable-screening",
+    "substructure"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "STCA",
+        "shortDescription": "Polymer screening with rules",
+        "longDescription": "Use Weihao Wang's original Sliding Threshold Correlation Analysis for polymer repeat units. Screen candidate structures with frozen published rules; extract readable presence/absence rules from measured datasets and evaluate frozen models; export exact rules for agent-assisted candidate proposal followed by computational verification. Applies the confirmed H-cap representation before RDKit MACCS. Calls the pinned author implementation. Requires a Python/RDKit execution environment and initial access to the source and dependencies. A selected candidate satisfies structural rules; its physical properties still require separate evidence.",
+        "developerName": "Weihao Wang",
+        "category": "Developer Tools",
+        "defaultPrompt": [
+          "Screen my polymer SMILES with original STCA low-EC 5% rules, applying H-cap before MACCS.",
+          "Extract STCA rules from measured polymer data, freeze the model, and evaluate a held-out dataset.",
+          "Propose polymer candidates under STCA constraints, H-cap them, and verify them against the frozen rules."
+        ],
+        "brandColor": "#167D8D",
+        "composerIcon": "./assets/stca-logo.png",
+        "logo": "./assets/stca-logo.png"
+      }
+    }
+  }
+}
+
