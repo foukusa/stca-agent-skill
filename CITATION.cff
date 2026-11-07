@@ -8,6 +8,7 @@ version: '0.1.0'
 authors:
   - family-names: Wang
     given-names: Weihao
+    orcid: https://orcid.org/0009-0005-4445-7074
 abstract: >-
   Agent workflows for applying published Sliding Threshold Correlation
   Analysis rules, deriving and evaluating rules from measured data, and

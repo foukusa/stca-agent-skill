@@ -9,20 +9,19 @@
       "name": "thermal_stability",
       "property": "Tg",
       "direction": "high",
-      "strictness": "standard"
+      "tier": 0.20
     },
     {
       "name": "electrical_insulation",
       "property": "EC",
       "direction": "low",
-      "strictness": "extreme"
+      "tier": 0.10
     },
     {
       "name": "heat_dissipation",
       "property": "TC",
       "direction": "high",
-      "cutoff": 0.32,
-      "unit": "W/(m·K)"
+      "tier": 0.20
     }
   ]
 }

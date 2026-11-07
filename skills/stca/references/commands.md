@@ -3,7 +3,7 @@
 ## 目录
 
 - [环境](#环境)
-- [标识列、分组键与 H-cap](#标识列分组键与-h-cap)
+- [标识列、数据角色与 H-cap](#标识列数据角色与-h-cap)
 - [1. 审计数据](#1-审计数据)
 - [2. 应用论文预置规则](#2-应用论文预置规则)
 - [3. 新测量数据的源内拟合](#3-新测量数据的源内拟合)
@@ -32,7 +32,7 @@ export STCA_SOURCE="$(python3.12 -c 'import json; print(json.load(open("stca-set
 
 Linux x86_64 默认使用带 wheel SHA256 的锁定文件；其他系统使用精确版本快照并需在实际设备上验证。已有兼容源码时，可向安装器传入 `--source /absolute/clean/checkout`。输出始终写入用户工作目录，不写进 skill 安装目录。
 
-## 标识列、分组键与 H-cap
+## 标识列、数据角色与 H-cap
 
 ### 标识列
 
@@ -42,9 +42,9 @@ Linux x86_64 默认使用带 wheel SHA256 的锁定文件；其他系统使用�
 - 候选筛选时，提供的标识应非空且唯一。
 - 不提供标识列时，`screen-candidates`／`joint-screen` 自动生成 `row-000001` 形式的运行回执 ID。
 
-### 分组键
+### 数据角色
 
-随机行 ID 不等于材料分组键。需要防止划分泄漏时，`--group-column` 应指向 canonical 重复单元、真实材料身份或其他有科学意义的分组。没有可信分组键时，应使用预先固定且经过结构重叠审计的 split 列，而不是把随机 ID 当作材料身份。
+随机行 ID 不定义 source／evaluation。已发表规则模式直接应用冻结规则，不重新划分候选表；自定义数据模式必须由用户提供明确的数据角色，或说明只在全量数据上归纳而没有独立评价。论文复现只能使用论文原始 ECFP2 interpolation／extrapolation 角色。
 
 ### H-cap
 
@@ -83,7 +83,7 @@ Linux x86_64 默认使用带 wheel SHA256 的锁定文件；其他系统使用�
   --output data_audit.json
 ```
 
-没有标识列时删除 `--id-column RecordKey`；审计器会生成仅用于回执的行 ID，并且不会据此判断跨集 ID 重叠。它仍会检查 canonical 结构重叠。
+没有标识列时删除 `--id-column RecordKey`；审计器会生成仅用于回执的行 ID，并且不会据此判断跨集 ID 重叠。它仍会检查结构重复与用户提供的数据角色重叠。
 
 训练中使用 selection 数据时加 `--selection-input selection.csv`。二值矩阵加 `--features aromatic,ether,carbonyl`，并保证所有数据使用相同特征含义和列序。重复测量不应仅因标签不同而被删除；应保留测量条件和冲突证据。
 
@@ -95,11 +95,11 @@ Linux x86_64 默认使用带 wheel SHA256 的锁定文件；其他系统使用�
 "$STCA_PY" "$SKILL_DIR/scripts/stca_tools.py" screen-candidates \
   --profile ec-low \
   --protocol paper \
-  --tier 0.05 \
+  --tier 0.10 \
   --input candidates.csv \
   --id-column CandidateKey \
   --smiles-column SMILES \
-  --output-dir ec_low_05
+  --output-dir ec_low_10
 ```
 
 无标识列时删除 `--id-column CandidateKey`。输出：
@@ -115,23 +115,25 @@ Linux x86_64 默认使用带 wheel SHA256 的锁定文件；其他系统使用�
 
 预置 `tg-high` 的 tier 为 0.30/0.20/0.10；`ec-low` 与 `ec-high` 为 0.20/0.15/0.10/0.05。不要插值未支持档位。
 
-## 3. 新测量数据的源内拟合
+## 3. 在用户实测数据上重新归纳规则
 
-`RecordKey` 可以是任意行标识；`StructureGroup` 才是有科学意义的划分分组：
+行标识可以任意命名或省略。自定义数据模式必须使用用户明确提供的 source／evaluation 角色。若沿用已发表 profile 的档位，可在 source 数据上拟合后冻结评价：
 
 ```bash
 "$STCA_PY" "$SKILL_DIR/scripts/stca_runtime.py" run -- \
   train-profile --profile tg-high --protocol source_locked \
   --input tg_source.csv --target Tg --tg-unit degC \
-  --group-column StructureGroup --output-dir tg_fit
+  --output-dir tg_fit
 
 "$STCA_PY" "$SKILL_DIR/scripts/stca_runtime.py" run -- \
   train-profile --profile ec-low --protocol source_locked \
   --input ec_source.csv --target EC --ec-input-unit 'S/m' \
-  --group-column StructureGroup --output-dir ec_fit
+  --output-dir ec_fit
 ```
 
-如果用户已经提供固定 `split` 列且上游命令支持该角色，可使用该划分并单独审计结构重叠；不要凭空生成 `PID`。EC 始终转换为 `log10(S/cm)` 后拟合。
+这里的 `source_locked` 是自定义数据模式的内部协议：只在 source 角色选择规则，再冻结到 evaluation 角色。它不是论文原始 ECFP2 划分的替代名称。
+
+如果用户要定义不同于预置 profile 的百分位集合，应先按 H-cap 合同生成 MACCS 二值表，再使用通用 `train --tiers ...` 命令显式传入百分位。EC 始终转换为 `log10(S/cm)` 后拟合。
 
 论文历史选择重建：
 
@@ -144,7 +146,7 @@ Linux x86_64 默认使用带 wheel SHA256 的锁定文件；其他系统使用�
   --acknowledge-selection-labels --output-dir ec_paper_refit
 ```
 
-这里的 acknowledgement 表明 selection 标签参与过规则选择。继续评价时必须使用另一个真正独立的最终测试集。
+这里的 acknowledgement 表明论文 selection 标签参与过规则选择。只有实际使用论文原始 ECFP2 数据角色时，才能称为论文流程重建。
 
 ## 4. 自定义二值输入
 
@@ -152,12 +154,12 @@ Linux x86_64 默认使用带 wheel SHA256 的锁定文件；其他系统使用�
 "$STCA_PY" "$SKILL_DIR/scripts/stca_runtime.py" run -- \
   train --input binary_data.csv --features feature_a,feature_b,feature_c \
   --target measured_value --target-name example_property --target-unit explicit_unit \
-  --direction high --tiers 0.20 --scan-mode value --scan-step 0.25 \
+  --direction high --tiers 0.30,0.20,0.10 --scan-mode value --scan-step 0.25 \
   --max-rank 3 --family-size 8 --split-column split \
   --group-column StructureGroup --output-dir binary_fit
 ```
 
-普通二值列不能冒充 MACCS 结构位。`explicit_unit` 和 `0.25` 仅是参数示例，不是通用默认值。
+普通二值列不能冒充 MACCS 结构位。`--tiers` 是用户明确指定的百分位列表；`explicit_unit` 和 `0.25` 仅是参数示例，不是通用默认值。
 
 ## 5. 冻结评价
 
@@ -191,9 +193,9 @@ Linux x86_64 默认使用带 wheel SHA256 的锁定文件；其他系统使用�
   "hcap_before_maccs": true,
   "hcap_output_column": "stca_calculation_smiles_hcap",
   "objectives": [
-    {"property": "Tg", "direction": "high", "strictness": "standard"},
-    {"property": "EC", "direction": "low", "strictness": "extreme"},
-    {"property": "TC", "direction": "high", "cutoff": 0.32, "unit": "W/(m·K)"}
+    {"property": "Tg", "direction": "high", "tier": 0.20},
+    {"property": "EC", "direction": "low", "tier": 0.10},
+    {"property": "TC", "direction": "high", "tier": 0.20}
   ]
 }
 ```

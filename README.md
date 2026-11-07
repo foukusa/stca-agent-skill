@@ -12,44 +12,75 @@
   <strong>English</strong> · <a href="README.zh-CN.md">简体中文</a>
 </p>
 
-> **Source repository and platform ZIPs are different things.** The GitHub `main` branch contains editable source code, including [`skills/stca/`](skills/stca/). Platform ZIPs are generated locally by the maintainer and may be attached to a GitHub Release or uploaded to a platform; they are not required in the source tree.
+## Contents
 
-## Table of contents
-
-- [What the skill does](#what-the-skill-does)
+- [What STCA does](#what-stca-does)
+- [Two operating modes](#two-operating-modes)
+- [Published profiles and percentage tiers](#published-profiles-and-percentage-tiers)
 - [Quick start](#quick-start)
-- [Identifiers and structure columns](#identifiers-and-structure-columns)
-- [Install the skill](#install-the-skill)
-  - [GitHub and skills.sh](#github-and-skillssh)
-  - [ChatGPT and Codex](#chatgpt-and-codex)
-  - [DeepSeek Harness](#deepseek-harness)
-  - [WorkBuddy](#workbuddy)
-- [How to invoke STCA](#how-to-invoke-stca)
-- [Workflow 1: screen candidates with frozen rules](#workflow-1-screen-candidates-with-frozen-rules)
-- [Workflow 2: extract rules from measured data](#workflow-2-extract-rules-from-measured-data)
+- [Input conventions](#input-conventions)
+- [Install and invoke](#install-and-invoke)
+- [Workflow 1: apply published rules](#workflow-1-apply-published-rules)
+- [Workflow 2: derive rules from your own data](#workflow-2-derive-rules-from-your-own-data)
 - [Workflow 3: rule-guided candidate design](#workflow-3-rule-guided-candidate-design)
-- [Command-line use](#command-line-use)
+- [Command-line examples](#command-line-examples)
+- [Outputs](#outputs)
 - [Scientific scope](#scientific-scope)
-- [Citation and source](#citation-and-source)
+- [Paper, source, and author profiles](#paper-source-and-author-profiles)
 - [License](#license)
 
-## What the skill does
+## What STCA does
 
-STCA Agent Skill wraps the original Sliding Threshold Correlation Analysis workflow for polymer repeat units. The host agent interprets the request, organizes files, invokes the scripts, and explains the outputs. The pinned `polymer-stca` implementation performs threshold scanning, substructure ranking, prefix-rule-family construction, frozen screening, and evaluation.
+STCA Agent Skill wraps the original Sliding Threshold Correlation Analysis workflow for polymer repeat units. The host agent interprets the request, organizes files, invokes the scripts, and explains the outputs. The pinned `polymer-stca` implementation performs threshold scanning, MACCS substructure ranking, prefix-rule-family construction, frozen screening, and evaluation.
 
-It supports three concrete workflows:
+The skill supports three functions:
 
-1. **Apply published STCA rules.** Screen repeat-unit candidates and report row-by-row pass/fail status, missing required MACCS keys, and forbidden keys that are unexpectedly present.
-2. **Extract readable rules from measured data.** Run sliding-threshold analysis, retain the positive/negative prefix rule family, freeze a representative rule, and evaluate a separate holdout.
-3. **Guide candidate design with frozen rules.** Export exact structural constraints, let the host agent propose candidates, and explicitly verify every proposal.
+1. **Apply published STCA rules** to a new candidate table and report row-by-row pass/fail results and failed structural conditions.
+2. **Derive new readable rules from a user's measured dataset** using user-defined percentage thresholds.
+3. **Guide candidate design with frozen rules**, then verify every proposed repeat unit explicitly.
 
-For multi-property requests, each property retains its own direction and tier. STCA does not force Tg, EC, TC, and other properties onto one numerical scale; it applies the corresponding rules separately and reports their same-candidate intersection.
+## Two operating modes
+
+### 1. Published-rule mode
+
+Use the frozen conclusions reported in the STCA paper. These rules retain the provenance of the paper's **ECFP2-based interpolation/extrapolation split**. Applying a published rule to a new candidate library does not require re-splitting that library and does not retrain the rule.
+
+Use this mode when the goal is:
+
+- to apply the paper's existing Tg or EC structural rules to new candidates;
+- to reproduce a published profile and percentage tier;
+- to export a published rule as an executable design constraint.
+
+### 2. Custom-data mode
+
+Use a new measured dataset to derive a new STCA rule family. The user explicitly supplies:
+
+- the measured property and unit;
+- the target direction or EC regime;
+- the percentage threshold or thresholds;
+- the source and evaluation roles, when independent evaluation is required.
+
+The resulting rules are **custom rules derived from that dataset**, not the frozen rules of the paper. A random row identifier is never treated as a scientific split variable.
+
+## Published profiles and percentage tiers
+
+The percentage tier is an explicit part of every published screening task. It is not replaced by vague labels such as “standard” or “extreme.”
+
+| Published profile | Meaning | Available tiers |
+| --- | --- | --- |
+| `tg-high` | high-Tg branch | top 30%, top 20%, top 10% |
+| `ec-low` | low-EC / insulation regime | bottom 20%, bottom 15%, bottom 10%, bottom 5% |
+| `ec-high` | high-EC / conduction regime | top 20%, top 15%, top 10%, top 5% |
+
+For the published profiles, Tg has a high-performance branch. The two-way **high/low distinction is mainly used for EC**, where `ec-low` denotes insulation and `ec-high` denotes conduction. The percentage tier is specified separately.
+
+A 5% tier is therefore only one available EC tier. It is not the default and should only be used when the user explicitly selects it.
 
 ## Quick start
 
-### A. Screen a candidate CSV
+### A. Apply published rules to candidates
 
-A candidate file may use **any identifier column name and arbitrary text values**:
+Example input:
 
 ```csv
 CandidateKey,SMILES
@@ -57,107 +88,95 @@ sample-A7,*c1ccc(cc1)C(=O)N*
 42-blue,*Oc1ccc(cc1)O*
 ```
 
-The identifier is bookkeeping only. It is never used as a model feature. You may also omit an identifier column entirely; the screening wrapper then generates stable receipt IDs such as `row-000001` without changing the source file.
-
-Invoke the skill with a request such as:
+Example request with independently chosen percentage tiers:
 
 ```text
-Use the STCA skill to screen candidates.csv for high Tg and bottom-5% electrical conductivity.
-The identifier column is CandidateKey and the repeat-unit column is SMILES.
+Use STCA in published-rule mode to screen candidates.csv.
+Apply the Tg top-20% rule and the low-EC bottom-10% rule.
+CandidateKey is an optional row label and SMILES contains the original repeat unit.
 Keep the original star-containing SMILES in the final results, use H-cap only for MACCS calculation,
-apply the frozen paper rules, report each failed condition, and save the outputs in out/screening.
+report every failed rule condition, and save the outputs in out/screening.
 ```
 
-### B. Extract rules from measured data
+### B. Derive rules from measured data
 
 ```text
-Use the STCA skill on measured_tg.csv.
-RecordKey is only a row identifier; SMILES contains the repeat unit and Tg_degC contains the measurement.
-Audit duplicate structures and split overlap, extract the complete STCA rule family on the source set,
-freeze the representative rule, and evaluate the independent holdout.
-Do not assume the row identifier is a material grouping key.
+Use STCA in custom-data mode on measured_ec.csv.
+SMILES contains the repeat unit and EC_S_cm contains measured conductivity.
+Derive low-EC rules for the user-defined bottom-20%, bottom-15%, and bottom-10% thresholds.
+Use the source/evaluation roles already provided in the Role column, freeze each selected rule,
+and report evaluation metrics separately. Do not treat the row identifier as a split variable.
 ```
 
 ### C. Propose and verify candidates
 
 ```text
-Use the STCA skill to export structural constraints for high thermal stability and low EC.
+Use STCA to export the published Tg top-20% and low-EC bottom-10% structural constraints.
 Propose 20 repeat units with two connection points, retain every raw proposal,
-use a temporary H-cap copy for MACCS calculation, and present the original star-containing structures
-in the final pass/fail table. Do not describe rule compliance as measured-property confirmation.
+create an H-cap calculation copy for MACCS, and return the original star-containing structures
+with the pass/fail result and every failed condition.
 ```
 
-## Identifiers and structure columns
+## Input conventions
 
 ### Identifier column
 
-- `PID` is **not required**.
-- Candidate identifiers can be arbitrary strings such as `CandidateKey`, `Name`, `RecordID`, or user-provided labels.
-- The column name is supplied through `--id-column` or `id_column` in JSON.
-- For candidate screening, the identifier must be nonempty and unique if a column is supplied.
-- If no identifier column is supplied, `screen-candidates` and `joint-screen` generate receipt IDs from row order.
-- Identifier values are never used as MACCS features or STCA variables.
-
-### Row identifier versus split/group key
-
-A random row identifier is not automatically a scientifically meaningful grouping key. When creating a leakage-controlled source/holdout split, use a separate group such as a canonical repeat-unit structure, a real material identity, or another defensible grouping variable. Do not use arbitrary random IDs to claim material-disjoint evaluation.
+- `PID` is not required.
+- An identifier column is optional and may have any name, such as `CandidateKey`, `Name`, or `RecordID`.
+- Identifier values are bookkeeping only. They are never used as MACCS features or STCA variables.
+- If no identifier is supplied, the wrapper generates row receipts such as `row-000001` without modifying the source file.
+- In custom-data mode, source/evaluation roles must be supplied explicitly; arbitrary identifiers do not define the split.
 
 ### H-cap and final structures
 
-The original STCA representation uses H-cap before MACCS calculation. This skill therefore follows this sequence:
+The original repeat-unit SMILES is preserved from the beginning. H-cap is created only as a calculation copy:
 
 ```text
 original repeat-unit SMILES with *
-        ↓ preserve unchanged
-calculation-only H-cap copy
-        ↓
-MACCS and frozen STCA rules
-        ↓
+        ├── retained unchanged for reporting
+        └── temporary H-cap copy
+                    ↓
+                 MACCS
+                    ↓
+               STCA rule
+                    ↓
 final results show the original star-containing SMILES
 ```
 
-The skill does **not** attempt to infer connection points by reverse-converting an H-capped molecule; that information is lossy. Instead, the original input is retained from the beginning and restored as the primary presentation structure. The full audit file may also contain the H-cap calculation copy.
+The skill does not attempt to reconstruct connection points from an H-capped molecule. `results.csv` presents the original repeat unit; the audit output may additionally record the temporary H-cap structure.
 
-## Install the skill
+## Install and invoke
 
 ### GitHub and skills.sh
 
-Install directly from the public source repository:
+Install directly from the repository:
 
 ```bash
 npx skills add foukusa/stca-agent-skill --skill stca
 ```
 
-This reads `skills/stca/` from the repository and does **not** require a ZIP in the `main` branch.
+Then invoke the installed skill explicitly in a compatible Agent Skills host:
 
-You can also clone and copy the skill directory into another Agent Skills host:
-
-```bash
-git clone https://github.com/foukusa/stca-agent-skill.git
-cp -R stca-agent-skill/skills/stca /your/agent/skills/stca
+```text
+Use STCA in published-rule mode. Apply Tg top 20% and EC-low bottom 10% to candidates.csv.
 ```
 
 ### ChatGPT and Codex
 
-**Users:** after the STCA plugin is published, install it from the Plugins directory. Start a new chat, type `@STCA`, attach the input file, and state the target property, direction, tier, and relevant columns.
+After the STCA plugin is published, install it from the plugin directory.
 
-**Maintainers:** build the OpenAI package locally:
+- **ChatGPT:** start a new chat, type `@STCA`, attach the input file, and state the mode, property profile, and percentage tier.
+- **Codex:** select the installed STCA skill or mention `$stca` explicitly.
 
-```bash
-python3 tools/build_packages.py --output-dir "$HOME/Desktop/STCA-release-0.1.0"
-```
-
-Upload this generated file to the OpenAI plugin portal:
+Example:
 
 ```text
-STCA-release-0.1.0/stca-openai-plugin-0.1.0.zip
+@STCA Apply the published Tg top-20% rule to the attached candidate table and list every failed condition.
 ```
-
-The ZIP is a release artifact. It is not expected to exist in the GitHub source tree.
 
 ### DeepSeek Harness
 
-Install directly from source on macOS:
+Clone the repository and copy the skill directory:
 
 ```bash
 git clone https://github.com/foukusa/stca-agent-skill.git
@@ -166,112 +185,75 @@ rm -rf "$HOME/.dsh/skills/stca"
 cp -R stca-agent-skill/skills/stca "$HOME/.dsh/skills/stca"
 ```
 
-Invoke it in Harness with:
+Invoke it with `/stca`:
 
 ```text
-/stca Screen candidates.csv with the paper low-EC 5% rule. Use CandidateKey as the identifier,
-H-cap only for calculation, and return the original repeat-unit SMILES with each failed condition.
+/stca Apply the published EC-low bottom-10% rule to candidates.csv. Preserve the original repeat-unit SMILES and report failed conditions.
 ```
-
-A maintainer may additionally attach `stca-deepseek-harness-0.1.0.zip` to a GitHub Release for users who prefer a ready-made package.
 
 ### WorkBuddy
 
-**Users:** install the published STCA skill from the WorkBuddy skill market. For local testing, import the maintainer-built package through **Add skill → Upload skill**.
-
-**Maintainers:** the same build command creates:
+Install STCA from the WorkBuddy skill market, enable it in the task, and name it explicitly:
 
 ```text
-STCA-release-0.1.0/stca-workbuddy-0.1.0.zip
+Use the STCA skill in custom-data mode to derive Tg rules at the top-30%, top-20%, and top-10% thresholds from measured_tg.csv.
 ```
 
-After enabling it, invoke it explicitly in a task:
-
-```text
-Use the STCA skill to screen this polymer table for high Tg and low EC.
-The identifier column is SampleName. Preserve the original SMILES in the final output and save all result files to the workspace.
-```
-
-## How to invoke STCA
-
-| Host | Explicit invocation | Example |
-| --- | --- | --- |
-| ChatGPT / ChatGPT Work | Type `@STCA` and select the plugin or skill | `@STCA Screen the attached candidates with the low-EC 5% rule.` |
-| Codex | Select or mention the installed STCA skill | `Use $stca to audit and screen candidates.csv.` |
-| DeepSeek Harness | Type `/stca` | `/stca Extract and freeze rules from measured_td.csv.` |
-| WorkBuddy | Enable STCA and name it in the task | `Use the STCA skill to verify these generated candidates.` |
-| Other Agent Skills hosts | Explicitly request STCA | `Use STCA and follow the H-cap/frozen-rule workflow.` |
-
-A useful request should identify:
-
-- the input file;
-- the original repeat-unit SMILES column;
-- the optional identifier column, if present;
-- property and direction, such as high Tg or low EC;
-- tier or strictness, such as `0.05`, `strict`, or `extreme`;
-- whether to apply published rules or learn rules from measured data;
-- the desired output directory or report format.
-
-## Workflow 1: screen candidates with frozen rules
+## Workflow 1: apply published rules
 
 **Input:** original repeat-unit SMILES or a validated 167-bit MACCS matrix.
+
+**Required choices:**
+
+- published profile: `tg-high`, `ec-low`, or `ec-high`;
+- explicit percentage tier supported by that profile.
 
 **Processing:**
 
 1. Preserve the original row and original repeat-unit SMILES.
 2. H-cap supported terminal single-bond `*` connection points in a calculation-only copy.
 3. Compute 167-bit RDKit MACCS with the K0 placeholder retained.
-4. Load the selected frozen STCA profile and tier.
-5. Evaluate all required-present and required-absent conditions.
-6. Preserve invalid rows as unknown/error rows rather than treating them as true negatives.
+4. Load the frozen paper rule for the selected profile and tier.
+5. Evaluate every required-present and required-absent condition.
+6. Preserve invalid structures as unknown/error rows rather than treating them as true negatives.
 
-**Primary output:** `results.csv`, which presents the original star-containing repeat-unit SMILES.
+No new training split is created in this workflow. The rule is the frozen paper conclusion and is applied directly to the user's candidate set.
 
-**Audit output:** `rows.csv`, which additionally records the H-cap calculation structure and representation details.
+## Workflow 2: derive rules from your own data
 
-Published profiles:
-
-- `tg-high`: tiers `0.30`, `0.20`, `0.10`;
-- `ec-low`: tiers `0.20`, `0.15`, `0.10`, `0.05`;
-- `ec-high`: tiers `0.20`, `0.15`, `0.10`, `0.05`.
-
-## Workflow 2: extract rules from measured data
-
-**Input:** structures, measured property, unit, data role, and optional row/group columns.
+**Input:** repeat-unit structures, measured property, unit, explicit percentage thresholds, and source/evaluation roles when evaluation is requested.
 
 **Processing:**
 
-1. Audit invalid structures, repeated measurements, representation collisions, and cross-set overlap.
-2. Scan property thresholds on the source data.
+1. Audit invalid structures, repeated measurements, representation collisions, and role overlap.
+2. Scan the user-defined property thresholds on the source data.
 3. Correlate each substructure-frequency trajectory with the moving threshold.
 4. Rank positive and negative MACCS keys separately.
 5. Construct the original positive-only, negative-only, and mixed prefix rule family.
-6. Select and freeze a representative under the declared protocol.
-7. Evaluate data that did not participate in rule selection.
+6. Select and freeze a representative rule using only the declared source role.
+7. Evaluate the frozen rule on the declared evaluation role.
 
-**Output:** scan trajectories, rankings, the complete rule family, frozen `model.json`, selection diagnostics, and holdout metrics.
-
-The row identifier column may be arbitrary or omitted. A separate scientifically meaningful group key must be used when group-disjoint splitting is required.
+The user may define any scientifically meaningful percentage thresholds supported by the data. These rules belong to the new dataset. They must not be presented as reproduction of the published ECFP2 split unless the original paper data roles are actually used.
 
 ## Workflow 3: rule-guided candidate design
 
-**Input:** frozen rules, candidate budget, connection-point format, allowed chemistry, and design objectives.
+**Input:** one or more frozen rules, explicit percentage tiers, candidate budget, connection-point format, and allowed chemistry.
 
 **Processing:**
 
-1. Export exact structural constraints.
+1. Export exact required-present and required-absent constraints.
 2. Let the host agent propose the requested number of repeat units.
 3. Retain every raw proposal and original star-containing SMILES.
 4. Create a temporary H-cap calculation structure.
 5. Compute MACCS and verify every frozen rule.
-6. Report pass/fail state and exact failure conditions.
+6. Report pass/fail state and exact failed conditions.
 7. For multiple objectives, evaluate each rule separately before computing the same-candidate intersection.
 
-**Output:** original proposals, full audit records, per-rule results, failure conditions, and the final intersection. Rule compliance is not an experimental property measurement or a synthesis guarantee.
+Rule compliance is not an experimental property measurement or a synthesis guarantee.
 
-## Command-line use
+## Command-line examples
 
-The simplest single-rule candidate command accepts raw star-containing structures and automatically restores the original structure in `results.csv`:
+### Apply one published rule
 
 ```bash
 export SKILL_DIR="$PWD/skills/stca"
@@ -284,18 +266,18 @@ STCA_PY="$(python3.12 -c 'import json; print(json.load(open("stca-setup.json"))[
 export STCA_SOURCE="$(python3.12 -c 'import json; print(json.load(open("stca-setup.json"))["source"])')"
 
 "$STCA_PY" "$SKILL_DIR/scripts/stca_tools.py" screen-candidates \
-  --profile ec-low \
+  --profile tg-high \
   --protocol paper \
-  --tier 0.05 \
+  --tier 0.20 \
   --input candidates.csv \
   --id-column CandidateKey \
   --smiles-column SMILES \
-  --output-dir out/ec-low-05
+  --output-dir out/tg-top20
 ```
 
-Omit `--id-column CandidateKey` when no identifier column is present; the wrapper generates receipt IDs. The original `SMILES` remains in `results.csv`; H-cap details are retained in `rows.csv`.
+Omit `--id-column CandidateKey` when the table has no identifier column.
 
-For multiple objectives, use an objective file whose identifier field is optional and whose structure field is the original repeat-unit column:
+### Plan a multi-rule screen with explicit tiers
 
 ```json
 {
@@ -304,27 +286,53 @@ For multiple objectives, use an objective file whose identifier field is optiona
   "smiles_column": "SMILES",
   "hcap_before_maccs": true,
   "objectives": [
-    {"property": "Tg", "direction": "high", "strictness": "standard"},
-    {"property": "EC", "direction": "low", "strictness": "extreme"}
+    {"property": "Tg", "direction": "high", "tier": 0.20},
+    {"property": "EC", "direction": "low", "tier": 0.10}
   ]
 }
 ```
 
-More commands and data contracts are documented in [`skills/stca/references/commands.md`](skills/stca/references/commands.md).
+```bash
+"$STCA_PY" "$SKILL_DIR/scripts/stca_tools.py" plan-objectives \
+  --objectives objectives.json \
+  --output-dir out/objective-plan
+
+"$STCA_PY" "$SKILL_DIR/scripts/stca_tools.py" joint-screen \
+  --input candidates.csv \
+  --config out/objective-plan/joint_config.json \
+  --output-dir out/joint-screen
+```
+
+More commands are documented in [`skills/stca/references/commands.md`](skills/stca/references/commands.md).
+
+## Outputs
+
+| File | Purpose |
+| --- | --- |
+| `results.csv` | primary candidate results with the original repeat-unit SMILES |
+| `rows.csv` | audit table including the calculation-only H-cap representation |
+| `summary.json` | profiles, tiers, rule signatures, representation contract, and run metadata |
+| `objective_plan.json` | explicit property/profile/tier routing for multi-rule tasks |
+| `joint_config.json` | executable same-candidate multi-rule configuration |
+| frozen `model.json` | custom or published structural rule artifact |
 
 ## Scientific scope
 
 - STCA is a transparent screening and rule-extraction method, not a numerical property predictor.
-- A structure that passes a frozen rule is **rule-compliant**, not experimentally confirmed.
-- Multi-property screening is the intersection of separately defined structural rules. Joint measured-property performance requires paired labels under comparable conditions.
+- Passing a frozen rule means **structural rule compliance**, not experimental confirmation.
+- Published-rule mode preserves the paper's ECFP2-split provenance and applies frozen conclusions directly.
+- Custom-data mode allows user-defined percentage thresholds and user-supplied data roles; its outputs are new dataset-specific rules.
+- Multi-property screening is the intersection of separately specified structural rules.
 - The original STCA prefix-family construction is preserved; the skill does not replace it with arbitrary combinatorial or beam search.
-- The paper protocol and source-locked external-evaluation protocol are reported separately.
-- H-cap is a representation step for calculation; the original repeat-unit structure remains the authoritative output structure.
+- H-cap is a calculation representation; the original repeat-unit structure remains the authoritative output structure.
 
-## Citation and source
+## Paper, source, and author profiles
 
 - **Paper:** [Interpretable substructure-based screening of multi-property polymer dielectrics with prompt-ready rules for rational design](https://doi.org/10.1038/s41524-026-02345-x)
 - **Original implementation:** [foukusa/polymer-stca](https://github.com/foukusa/polymer-stca)
+- **ORCID:** [0009-0005-4445-7074](https://orcid.org/0009-0005-4445-7074)
+- **Google Scholar:** [Weihao Wang](https://scholar.google.com/citations?user=d9WIMyMAAAAJ)
+- **ResearchGate:** [Weihao Wang](https://www.researchgate.net/profile/Weihao-Wang-23)
 - **Software citation metadata:** [`CITATION.cff`](CITATION.cff)
 
 ## License

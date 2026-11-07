@@ -12,7 +12,7 @@
     "setup_locked_environment.py": "a5b28748068c2764dde3f1198c8ecbf931ce5631b31eef9d6b9a8c955209ff84",
     "stca_io.py": "fdc9c6f304711b02a60cecd93b6527582ed50fe81d93b42b92becd362abf5357",
     "stca_runtime.py": "16dbdea81574f7a3c654b8b87ca4ce014447c4677f0f67f10446a874323c19ba",
-    "stca_tools.py": "c3d497ca9e4ad424bdd41e42edce244444a70f34f6b47fc3da344bccf96d41bd"
+    "stca_tools.py": "f1e053141a94902e7179db96b1564a89ae5d131ddc4c8e631a6f5dbdd4a9634e"
   },
   "python_syntax": "PASS",
   "json_parse": "PASS",
@@ -25,9 +25,11 @@
   "external_publication_performed": false,
   "publisher_license_confirmation_required": true,
   "notes": [
-    "README.md is the English landing page and README.zh-CN.md is its complete Chinese translation.",
-    "Both landing pages begin with a linked table of contents and explicit install/invocation examples.",
-    "GitHub source installation is separated from locally generated platform release ZIPs.",
+    "README.md is the English public landing page and README.zh-CN.md is its complete Chinese translation.",
+    "Both public READMEs begin with a linked table of contents and user-facing install/invocation examples.",
+    "Public documentation separates published-rule mode from custom-data rule derivation.",
+    "Published rules retain the paper ECFP2 interpolation/extrapolation provenance; applying them does not re-split the candidate table.",
+    "Percentage tiers are explicit. EC high/low denotes conduction/insulation regimes; the 5% tier is optional rather than a default.",
     "Candidate identifiers are arbitrary and optional; PID is not required.",
     "H-cap is calculation-only; results.csv presents the original star-containing repeat unit and rows.csv retains the audit copy.",
     "The original upstream STCA scan/ranking/prefix-family algorithm is unchanged; only the skill adapter and documentation were revised.",
@@ -35,13 +37,15 @@
   ],
   "logo_dimensions": "512x512 RGBA",
   "logo_readme_display_width_px": 104,
-  "objective_planner": "PASS_TG_TM_TD_TC_EC_EPSILON_INDEPENDENT_TIERS",
+  "objective_planner": "PASS_EXPLICIT_PERCENTAGE_TIERS_NO_IMPLICIT_STRICTNESS",
   "publication_commit_pending": true,
   "upstream_stca_algorithm_changed": false,
   "adapter_changes": [
     "Arbitrary/optional candidate identifier handling",
     "Calculation-only H-cap with original-star-SMILES primary output",
-    "New screen-candidates wrapper and results.csv/rows.csv split"
+    "Explicit percentage tiers in objective planning; no implicit strictness mapping",
+    "Published-rule versus custom-data workflow separation",
+    "screen-candidates wrapper and results.csv/rows.csv split"
   ],
   "identifier_contract": "PASS_ARBITRARY_OPTIONAL_NOT_A_FEATURE",
   "hcap_presentation_contract": "PASS_RESULTS_ORIGINAL_ROWS_AUDIT_HCAP"

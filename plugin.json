@@ -2,7 +2,7 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "stca",
   "version": "0.1.0",
-  "description": "Screen polymer repeat units with STCA, extract readable rules from measured data, connect thermal and electrical objectives, and verify rule-guided candidates.",
+  "description": "Apply published STCA polymer rules or derive new readable rule families from measured data with explicit percentage thresholds, then verify rule-guided candidates.",
   "author": {
     "name": "Weihao Wang"
   },
@@ -17,14 +17,14 @@
     "com.openai": {
       "interface": {
         "displayName": "STCA",
-        "shortDescription": "Polymer screening and design rules",
-        "longDescription": "Use Sliding Threshold Correlation Analysis (STCA) for polymer repeat units. Apply frozen structural rules to candidate libraries; extract readable rule families from measured data; connect independently scaled Tg, Tm, Td, TC, EC and ε-AC objectives; and export executable constraints for agent-assisted candidate design followed by explicit structural verification. The skill keeps the original star-containing repeat-unit SMILES for final results, uses H-cap only as a calculation representation, accepts arbitrary identifier-column names, and calls the pinned polymer-stca implementation. It requires a Python/RDKit execution environment.",
+        "shortDescription": "Polymer screening with readable rules",
+        "longDescription": "Use Sliding Threshold Correlation Analysis (STCA) for polymer repeat units. In published-rule mode, apply frozen Tg and EC structural rules that retain the paper's ECFP2-split provenance; select an explicit profile and percentage tier. In custom-data mode, derive a new rule family from user-supplied measured data with user-defined percentages and declared source/evaluation roles. The skill also exports executable constraints for agent-assisted candidate design and verifies every proposal. It preserves the original star-containing repeat-unit SMILES, uses H-cap only as a calculation representation, accepts optional arbitrary row identifiers, and calls the pinned polymer-stca implementation. A Python/RDKit execution environment is required.",
         "developerName": "Weihao Wang",
         "category": "Developer Tools",
         "defaultPrompt": [
-          "Screen this polymer candidate table for high Tg, low EC and high TC. Choose the tier for each objective independently, then report the same-candidate intersection and failed rule conditions.",
-          "Extract and freeze STCA rules from this measured Td dataset, then evaluate the independent holdout and export the readable rule family.",
-          "Export structural constraints for low ε-AC and high thermal stability, propose candidates, and verify every proposal against the frozen rules."
+          "Apply the published Tg top-20% and EC-low bottom-10% rules to this polymer candidate table, then report the same-candidate intersection and every failed condition.",
+          "Derive STCA rules from this measured dataset using the explicit percentage thresholds and source/evaluation roles I provide, then export the complete rule family and frozen model.",
+          "Export the selected frozen STCA constraints, propose repeat-unit candidates, preserve the original star-containing SMILES, and verify every proposal after H-cap/MACCS calculation."
         ],
         "brandColor": "#167D8D",
         "composerIcon": "./assets/stca-logo.png",

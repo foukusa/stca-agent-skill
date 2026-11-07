@@ -12,44 +12,75 @@
   <a href="README.md">English</a> · <strong>简体中文</strong>
 </p>
 
-> **GitHub 源码仓库和平台 ZIP 是两类不同文件。** GitHub 的 `main` 分支保存可编辑源码，核心 skill 位于 [`skills/stca/`](skills/stca/)；平台 ZIP 由维护者在本地构建，可作为 GitHub Release 附件或上传到相应平台，但不要求出现在源码树中。
-
 ## 目录
 
-- [这个 skill 能做什么](#这个-skill-能做什么)
+- [STCA 能做什么](#stca-能做什么)
+- [两种运行模式](#两种运行模式)
+- [已发表 profile 与百分位档位](#已发表-profile-与百分位档位)
 - [快速开始](#快速开始)
-- [标识列与结构列](#标识列与结构列)
-- [安装 STCA](#安装-stca)
-  - [GitHub 与 skills.sh](#github-与-skillssh)
-  - [ChatGPT 与 Codex](#chatgpt-与-codex)
-  - [DeepSeek Harness](#deepseek-harness)
-  - [WorkBuddy](#workbuddy)
-- [如何调用 STCA](#如何调用-stca)
-- [功能一：使用冻结规则筛选候选](#功能一使用冻结规则筛选候选)
-- [功能二：从实测数据提取规则](#功能二从实测数据提取规则)
+- [输入约定](#输入约定)
+- [安装与调用](#安装与调用)
+- [功能一：应用已发表规则](#功能一应用已发表规则)
+- [功能二：在自己的数据上重新归纳规则](#功能二在自己的数据上重新归纳规则)
 - [功能三：规则引导候选设计](#功能三规则引导候选设计)
-- [命令行使用](#命令行使用)
+- [命令行示例](#命令行示例)
+- [输出文件](#输出文件)
 - [科学边界](#科学边界)
-- [论文、源码与引用](#论文源码与引用)
+- [论文、源码与作者主页](#论文源码与作者主页)
 - [许可](#许可)
 
-## 这个 skill 能做什么
+## STCA 能做什么
 
-STCA Agent Skill 将原始 Sliding Threshold Correlation Analysis 工作流封装为可调用的聚合物重复单元分析工具。宿主智能体负责理解任务、组织文件、调用脚本和解释结果；固定版本的 `polymer-stca` 实现负责阈值扫描、子结构排序、前缀规则家族构建、冻结筛选与评价。
+STCA Agent Skill 将原始 Sliding Threshold Correlation Analysis 工作流封装为可调用的聚合物重复单元分析工具。宿主智能体负责理解任务、组织文件、调用脚本和解释结果；固定版本的 `polymer-stca` 实现负责阈值扫描、MACCS 子结构排序、前缀规则家族构建、冻结筛选与评价。
 
-它明确支持三种功能：
+它支持三种功能：
 
-1. **应用已发表的 STCA 规则。** 对重复单元候选进行筛选，输出逐候选通过／未通过状态、缺失的必需 MACCS keys，以及意外出现的排除 keys。
-2. **从实测数据提取可读规则。** 执行滑动阈值分析，保留正／负前缀规则家族，冻结代表规则，并评价独立留出集。
-3. **用冻结规则指导候选设计。** 导出精确结构约束，由宿主智能体提出候选，再逐条执行明确核验。
+1. **把已发表的 STCA 规则直接应用到新的候选表**，逐条输出通过／未通过状态和失败条件。
+2. **在用户自己的实测数据上重新归纳可读规则**，百分位阈值由用户明确指定。
+3. **使用冻结规则指导候选设计**，并对每个提案进行显式结构核验。
 
-对于多性能目标，每种性质保留自己的方向和档位。STCA 不会把 Tg、EC、TC 等性质强行转换到同一个数值尺度，而是分别应用对应规则，再报告同一候选的交集。
+## 两种运行模式
+
+### 1. 已发表规则模式
+
+直接使用 STCA 论文中已经冻结的结论。这些规则保留了论文中 **基于 ECFP2 的 interpolation／extrapolation 划分**来源。把已发表规则应用到新的候选库时，不需要重新划分候选库，也不会重新训练规则。
+
+适合以下任务：
+
+- 把论文已有的 Tg 或 EC 结构规则应用到新的候选；
+- 复用论文某个明确的 profile 和百分位档位；
+- 把已发表规则导出为可执行设计约束。
+
+### 2. 自定义数据模式
+
+在新的实测数据集上重新提取 STCA 规则。用户需要明确提供：
+
+- 实测性质和单位；
+- 目标方向或 EC regime；
+- 一个或多个百分位阈值；
+- 需要独立评价时的 source／evaluation 数据角色。
+
+由此得到的是**针对该数据集的新规则**，不是论文中冻结规则的复现。随机行 ID 不会被当作科学划分变量。
+
+## 已发表 profile 与百分位档位
+
+百分位档位是每个已发表筛选任务的明确组成部分，不能用“standard”或“extreme”一类模糊标签替代。
+
+| 已发表 profile | 含义 | 可用档位 |
+| --- | --- | --- |
+| `tg-high` | 高 Tg 分支 | Top 30%、Top 20%、Top 10% |
+| `ec-low` | 低 EC／绝缘 regime | Bottom 20%、Bottom 15%、Bottom 10%、Bottom 5% |
+| `ec-high` | 高 EC／导电 regime | Top 20%、Top 15%、Top 10%、Top 5% |
+
+在已发表 profile 中，Tg 只有高性能分支。**high／low 的双向区分主要用于 EC**：`ec-low` 表示绝缘，`ec-high` 表示导电；百分位档位再单独指定。
+
+因此，5% 只是 EC 的一个可选档位，不是默认值。只有用户明确选择 5% 时才使用它。
 
 ## 快速开始
 
-### A. 筛选候选 CSV
+### A. 使用已发表规则筛选候选
 
-候选文件的标识列可以使用**任意列名和任意文本值**：
+输入示例：
 
 ```csv
 CandidateKey,SMILES
@@ -57,107 +88,94 @@ sample-A7,*c1ccc(cc1)C(=O)N*
 42-blue,*Oc1ccc(cc1)O*
 ```
 
-标识只用于追踪记录，不会进入模型特征。候选文件也可以完全不提供标识列；筛选适配器会在运行记录中生成 `row-000001` 形式的稳定行号，而不会修改源文件。
-
-可以这样调用：
+百分位分别指定的调用示例：
 
 ```text
-使用 STCA skill 筛选 candidates.csv，目标是高 Tg 和 Bottom 5% 低电导率。
-标识列为 CandidateKey，重复单元结构列为 SMILES。
+使用 STCA 的已发表规则模式筛选 candidates.csv。
+Tg 使用 Top 20% 规则，EC 使用低电导／绝缘 regime 的 Bottom 10% 规则。
+CandidateKey 只是可选行标识，SMILES 是原始重复单元结构。
 最终结果保留原始带星号 SMILES，H-cap 只用于 MACCS 计算，
-使用冻结的 paper 规则，列出每条失败条件，并将结果保存到 out/screening。
+列出每条失败条件，并将结果保存到 out/screening。
 ```
 
-### B. 从实测数据提取规则
+### B. 在实测数据上重新归纳规则
 
 ```text
-使用 STCA skill 分析 measured_tg.csv。
-RecordKey 只是行标识，SMILES 是重复单元结构，Tg_degC 是实测值。
-先审计重复结构和跨集重叠，在源数据上提取完整 STCA 规则家族，
-冻结代表规则，再评价独立留出集。
-不要把随机行标识当作材料分组键。
+使用 STCA 的自定义数据模式分析 measured_ec.csv。
+SMILES 是重复单元结构，EC_S_cm 是实测电导率。
+由用户定义 Bottom 20%、Bottom 15% 和 Bottom 10% 三个低 EC 百分位阈值。
+使用 Role 列中已经提供的 source／evaluation 角色，分别冻结规则并报告评价指标。
+不要把行标识当作划分变量。
 ```
 
 ### C. 提出并核验候选
 
 ```text
-使用 STCA skill 导出高热稳定性和低 EC 的结构约束。
+使用 STCA 导出已发表的 Tg Top 20% 与低 EC Bottom 10% 结构约束。
 提出 20 个带两个连接点的重复单元，保留全部原始提案，
-只建立临时 H-cap 计算副本，最终通过／失败表仍显示原始带星号结构。
-不得把结构规则符合写成实测性能已经确认。
+建立 H-cap 计算副本用于 MACCS，最终返回原始带星号结构、通过／失败状态和每条失败条件。
 ```
 
-## 标识列与结构列
+## 输入约定
 
 ### 标识列
 
-- **不要求使用 `PID`。**
-- 候选标识可以是 `CandidateKey`、`Name`、`RecordID` 或用户已有的任意文本列。
-- 列名通过 `--id-column` 或 JSON 中的 `id_column` 指定。
-- 候选筛选中，如果提供了标识列，其值应非空且唯一。
-- 如果不提供标识列，`screen-candidates` 和 `joint-screen` 会根据输入行序生成运行回执 ID。
-- 标识值不会作为 MACCS 特征或 STCA 变量使用。
-
-### 行标识不等于划分分组键
-
-随机行 ID 不自动具有科学分组意义。构建防泄漏的 source／holdout 划分时，应使用另一个有明确意义的分组，例如 canonical 重复单元结构、真实材料身份，或其他可辩护的分组变量。不能用随机 ID 声称实现了材料无重叠评价。
+- 不要求使用 `PID`。
+- 标识列可以省略，也可以使用 `CandidateKey`、`Name`、`RecordID` 等任意列名。
+- 标识只用于记录追踪，不会进入 MACCS 或 STCA。
+- 未提供标识列时，适配器会生成 `row-000001` 形式的行回执，不会修改源文件。
+- 自定义数据模式中的 source／evaluation 角色必须明确提供；任意标识不会自动定义划分。
 
 ### H-cap 与最终结构
 
-原始 STCA 表示在计算 MACCS 前采用 H-cap。因此 skill 执行以下顺序：
+原始重复单元 SMILES 从一开始就被保留；H-cap 只是计算副本：
 
 ```text
 原始带 * 的重复单元 SMILES
-        ↓ 始终原样保留
-临时 H-cap 计算副本
-        ↓
-MACCS 与冻结 STCA 规则
-        ↓
-最终结果重新显示原始带 * 的 SMILES
+        ├── 原样保留用于最终展示
+        └── 临时 H-cap 计算副本
+                    ↓
+                 MACCS
+                    ↓
+               STCA 规则
+                    ↓
+最终结果仍显示原始带 * 的 SMILES
 ```
 
-skill **不会**尝试从已经 H-cap 的分子中化学逆推出连接点，因为该过程会丢失信息。正确做法是从一开始保留原始输入，并在最终结果中把它作为主结构。完整审计文件仍可以包含 H-cap 计算副本。
+skill 不会从 H-cap 分子反推连接点。`results.csv` 展示原始重复单元；审计输出可以另外记录临时 H-cap 结构。
 
-## 安装 STCA
+## 安装与调用
 
 ### GitHub 与 skills.sh
 
-直接从公开源码仓库安装：
+直接从仓库安装：
 
 ```bash
 npx skills add foukusa/stca-agent-skill --skill stca
 ```
 
-这条命令直接读取仓库中的 `skills/stca/`，**不要求 `main` 分支里存在 ZIP**。
+安装后，在兼容 Agent Skills 的宿主中明确调用：
 
-也可以克隆仓库，把 skill 目录复制到其他兼容 Agent Skills 的宿主：
-
-```bash
-git clone https://github.com/foukusa/stca-agent-skill.git
-cp -R stca-agent-skill/skills/stca /你的/agent/skills/stca
+```text
+使用 STCA 的已发表规则模式。对 candidates.csv 应用 Tg Top 20% 和 EC-low Bottom 10% 规则。
 ```
 
 ### ChatGPT 与 Codex
 
-**普通使用者：** STCA 插件公开后，在 Plugins 目录安装。新建对话，输入 `@STCA`，附上输入文件，并说明目标性质、方向、档位和相关列。
+STCA 插件公开后，从插件目录安装。
 
-**维护者：** 在本地构建 OpenAI 平台包：
+- **ChatGPT：** 新建对话，输入 `@STCA`，附上输入文件，并说明模式、profile 和百分位档位。
+- **Codex：** 选择已经安装的 STCA skill，或明确提及 `$stca`。
 
-```bash
-python3 tools/build_packages.py --output-dir "$HOME/Desktop/STCA-release-0.1.0"
-```
-
-上传到 OpenAI 插件发布门户的文件是：
+示例：
 
 ```text
-STCA-release-0.1.0/stca-openai-plugin-0.1.0.zip
+@STCA 对附件候选应用已发表的 Tg Top 20% 规则，并列出每条失败条件。
 ```
-
-这个 ZIP 是发布产物，不需要提交到 GitHub 源码目录。
 
 ### DeepSeek Harness
 
-在 macOS 上直接从源码安装：
+克隆仓库并复制 skill 目录：
 
 ```bash
 git clone https://github.com/foukusa/stca-agent-skill.git
@@ -166,112 +184,75 @@ rm -rf "$HOME/.dsh/skills/stca"
 cp -R stca-agent-skill/skills/stca "$HOME/.dsh/skills/stca"
 ```
 
-在 Harness 中调用：
+使用 `/stca` 调用：
 
 ```text
-/stca 使用 paper 的低 EC 5% 规则筛选 candidates.csv。
-标识列为 CandidateKey，H-cap 只用于计算，最终返回原始重复单元 SMILES 和每条失败条件。
+/stca 对 candidates.csv 应用已发表的 EC-low Bottom 10% 规则。保留原始重复单元 SMILES，并列出失败条件。
 ```
-
-维护者还可以把 `stca-deepseek-harness-0.1.0.zip` 放到 GitHub Release，供希望直接下载的人使用。
 
 ### WorkBuddy
 
-**普通使用者：** STCA 上架后从 WorkBuddy 技能市场安装。本地测试时，也可以使用维护者构建的平台 ZIP，在“添加技能 → 上传技能”中导入。
-
-**维护者：** 同一个构建命令会生成：
+从 WorkBuddy 技能市场安装 STCA，在任务中启用并明确点名：
 
 ```text
-STCA-release-0.1.0/stca-workbuddy-0.1.0.zip
+使用 STCA skill 的自定义数据模式，从 measured_tg.csv 的 Top 30%、Top 20% 和 Top 10% 阈值重新提取 Tg 规则。
 ```
 
-启用后，在任务中明确点名调用：
+## 功能一：应用已发表规则
 
-```text
-使用 STCA skill 筛选这份聚合物数据，目标是高 Tg 和低 EC。
-标识列为 SampleName。最终输出保留原始 SMILES，并把全部结果文件保存到工作区。
-```
+**输入：** 原始重复单元 SMILES，或已经验证的 167 位 MACCS 矩阵。
 
-## 如何调用 STCA
+**必须明确选择：**
 
-| 宿主 | 显式调用方式 | 示例 |
-| --- | --- | --- |
-| ChatGPT / ChatGPT Work | 输入 `@STCA` 并选择插件或 skill | `@STCA 使用低 EC 5% 规则筛选附件候选。` |
-| Codex | 选择或提及已经安装的 STCA skill | `使用 $stca 审计并筛选 candidates.csv。` |
-| DeepSeek Harness | 输入 `/stca` | `/stca 从 measured_td.csv 提取并冻结规则。` |
-| WorkBuddy | 启用 STCA 后，在任务中点名 | `使用 STCA skill 核验这些生成候选。` |
-| 其他 Agent Skills 宿主 | 在自然语言请求中明确写 STCA | `使用 STCA，并遵循 H-cap 与冻结规则流程。` |
-
-一个可执行请求最好说明：
-
-- 输入文件；
-- 原始重复单元 SMILES 列；
-- 可选的标识列；
-- 性质和方向，例如高 Tg 或低 EC；
-- 档位或严格程度，例如 `0.05`、`strict` 或 `extreme`；
-- 使用已发表规则，还是从新数据提取规则；
-- 输出目录或报告格式。
-
-## 功能一：使用冻结规则筛选候选
-
-**输入：** 原始重复单元 SMILES，或者已经验证的 167 位 MACCS 矩阵。
+- 已发表 profile：`tg-high`、`ec-low` 或 `ec-high`；
+- 该 profile 支持的明确百分位档位。
 
 **处理步骤：**
 
 1. 保留原始行和原始重复单元 SMILES。
 2. 对支持的末端单键 `*` 连接点建立 H-cap 计算副本。
 3. 计算 167 位 RDKit MACCS，并保留 K0 占位。
-4. 加载指定的 STCA 冻结 profile 和 tier。
+4. 加载所选 profile 与档位的冻结 paper 规则。
 5. 检查全部“必须出现”和“必须缺失”条件。
-6. 无效结构保留为未知／错误行，不把它当作真实负例。
+6. 无效结构保留为未知／错误行，不当作真实负例。
 
-**主结果：** `results.csv`，显示原始带星号的重复单元 SMILES。
+这个工作流不会生成新的训练划分。它直接把论文冻结结论应用到用户候选集。
 
-**审计结果：** `rows.csv`，额外记录 H-cap 计算结构和表示信息。
+## 功能二：在自己的数据上重新归纳规则
 
-可用的论文 profile：
-
-- `tg-high`：`0.30`、`0.20`、`0.10`；
-- `ec-low`：`0.20`、`0.15`、`0.10`、`0.05`；
-- `ec-high`：`0.20`、`0.15`、`0.10`、`0.05`。
-
-## 功能二：从实测数据提取规则
-
-**输入：** 结构、实测性能、单位、数据角色，以及可选的行标识／分组列。
+**输入：** 重复单元结构、实测性质、单位、明确百分位阈值，以及需要评价时的 source／evaluation 角色。
 
 **处理步骤：**
 
-1. 审计无效结构、重复测量、表示碰撞和跨集重叠。
-2. 在源数据上扫描性能阈值。
-3. 计算每个子结构频率轨迹与移动阈值的相关性。
+1. 审计无效结构、重复测量、表示碰撞和数据角色重叠。
+2. 在 source 数据上扫描用户定义的性能阈值。
+3. 计算子结构频率轨迹与移动阈值的相关性。
 4. 分别排序正向与负向 MACCS keys。
 5. 构建原始的纯正、纯负和混合前缀规则家族。
-6. 按声明的协议选择并冻结代表规则。
-7. 评价没有参与规则选择的数据。
+6. 仅使用声明的 source 角色选择并冻结代表规则。
+7. 在声明的 evaluation 角色上评价冻结规则。
 
-**输出：** 阈值轨迹、排序、完整规则家族、冻结 `model.json`、选择诊断和留出指标。
-
-行标识列可以任意命名，也可以省略。需要分组无重叠划分时，必须另外使用具有科学意义的分组键。
+用户可以根据自己的数据定义有科学意义的百分位阈值。这些规则属于新数据集。除非实际使用论文原始数据角色，否则不能把结果写成论文 ECFP2 划分的复现。
 
 ## 功能三：规则引导候选设计
 
-**输入：** 冻结规则、候选数量、连接点格式、允许的化学范围和设计目标。
+**输入：** 一个或多个冻结规则、明确百分位档位、候选数量、连接点格式和允许化学范围。
 
 **处理步骤：**
 
-1. 导出精确结构约束。
-2. 由宿主智能体提出指定数量的重复单元候选。
-3. 保留每条原始提案和原始带星号 SMILES。
+1. 导出精确的“必须出现／必须缺失”结构约束。
+2. 由宿主智能体提出指定数量的重复单元。
+3. 保留全部原始提案和原始带星号 SMILES。
 4. 建立临时 H-cap 计算结构。
 5. 计算 MACCS 并逐条核验冻结规则。
-6. 输出通过／未通过状态和精确失败原因。
+6. 输出通过／失败状态和精确失败条件。
 7. 多目标时先分别评价，再计算同一候选的交集。
 
-**输出：** 原始提案、完整审计记录、逐规则结果、失败条件和最终交集。结构规则符合不等于实测性能，也不保证可合成性。
+结构规则符合不等于实测性能，也不保证可合成性。
 
-## 命令行使用
+## 命令行示例
 
-最简单的单规则候选命令可以直接读取带星号的原始结构，并在 `results.csv` 中保留原结构：
+### 应用一个已发表规则
 
 ```bash
 export SKILL_DIR="$PWD/skills/stca"
@@ -284,18 +265,18 @@ STCA_PY="$(python3.12 -c 'import json; print(json.load(open("stca-setup.json"))[
 export STCA_SOURCE="$(python3.12 -c 'import json; print(json.load(open("stca-setup.json"))["source"])')"
 
 "$STCA_PY" "$SKILL_DIR/scripts/stca_tools.py" screen-candidates \
-  --profile ec-low \
+  --profile tg-high \
   --protocol paper \
-  --tier 0.05 \
+  --tier 0.20 \
   --input candidates.csv \
   --id-column CandidateKey \
   --smiles-column SMILES \
-  --output-dir out/ec-low-05
+  --output-dir out/tg-top20
 ```
 
-输入没有标识列时，删除 `--id-column CandidateKey`；适配器会生成运行回执 ID。原始 `SMILES` 保留在 `results.csv`，H-cap 计算细节保存在 `rows.csv`。
+输入没有标识列时，删除 `--id-column CandidateKey`。
 
-多目标可以使用以下目标文件。标识列是可选的，结构列应指向原始重复单元：
+### 使用明确百分位规划多规则筛选
 
 ```json
 {
@@ -304,27 +285,53 @@ export STCA_SOURCE="$(python3.12 -c 'import json; print(json.load(open("stca-set
   "smiles_column": "SMILES",
   "hcap_before_maccs": true,
   "objectives": [
-    {"property": "Tg", "direction": "high", "strictness": "standard"},
-    {"property": "EC", "direction": "low", "strictness": "extreme"}
+    {"property": "Tg", "direction": "high", "tier": 0.20},
+    {"property": "EC", "direction": "low", "tier": 0.10}
   ]
 }
 ```
 
-更多命令和数据合同见 [`skills/stca/references/commands.md`](skills/stca/references/commands.md)。
+```bash
+"$STCA_PY" "$SKILL_DIR/scripts/stca_tools.py" plan-objectives \
+  --objectives objectives.json \
+  --output-dir out/objective-plan
+
+"$STCA_PY" "$SKILL_DIR/scripts/stca_tools.py" joint-screen \
+  --input candidates.csv \
+  --config out/objective-plan/joint_config.json \
+  --output-dir out/joint-screen
+```
+
+更多命令见 [`skills/stca/references/commands.md`](skills/stca/references/commands.md)。
+
+## 输出文件
+
+| 文件 | 用途 |
+| --- | --- |
+| `results.csv` | 面向用户的主结果，显示原始重复单元 SMILES |
+| `rows.csv` | 审计表，另含计算专用 H-cap 表示 |
+| `summary.json` | profile、百分位档位、规则签名、表示合同和运行元数据 |
+| `objective_plan.json` | 多规则任务的性质／profile／档位连接方案 |
+| `joint_config.json` | 可执行的同候选多规则配置 |
+| 冻结 `model.json` | 已发表或自定义结构规则工件 |
 
 ## 科学边界
 
-- STCA 是透明的筛选和规则提取方法，不是数值物性预测器。
-- 候选通过冻结规则只表示**结构规则符合**，不等于实验确认。
-- 多性能筛选是分别定义的结构规则的交集；真实联合性能评价需要同一材料、可比条件下的配对标签。
+- STCA 是透明的筛选与规则提取方法，不是数值物性预测器。
+- 通过冻结规则只表示**结构规则符合**，不等于实验确认。
+- 已发表规则模式保留论文 ECFP2 划分来源，并把冻结结论直接应用到新候选。
+- 自定义数据模式允许用户自定义百分位阈值和数据角色；输出是针对新数据集的规则。
+- 多性能筛选是分别指定的结构规则在同一候选上的交集。
 - 保留原始 STCA 的前缀规则家族构建，不替换成任意组合搜索或 beam search。
-- `paper` 流程与 `source_locked` 外部评价结果分别报告。
-- H-cap 是计算表示步骤；原始重复单元结构始终是最终输出中的权威结构。
+- H-cap 是计算表示；原始重复单元始终是最终输出中的权威结构。
 
-## 论文、源码与引用
+## 论文、源码与作者主页
 
 - **论文：** [Interpretable substructure-based screening of multi-property polymer dielectrics with prompt-ready rules for rational design](https://doi.org/10.1038/s41524-026-02345-x)
 - **原始实现：** [foukusa/polymer-stca](https://github.com/foukusa/polymer-stca)
+- **ORCID：** [0009-0005-4445-7074](https://orcid.org/0009-0005-4445-7074)
+- **Google Scholar：** [Weihao Wang](https://scholar.google.com/citations?user=d9WIMyMAAAAJ)
+- **ResearchGate：** [Weihao Wang](https://www.researchgate.net/profile/Weihao-Wang-23)
 - **软件引用信息：** [`CITATION.cff`](CITATION.cff)
 
 ## 许可

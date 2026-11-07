@@ -5,20 +5,20 @@
     "name": "stca",
     "display_name": "STCA 聚合物筛选",
     "display_name_en": "STCA Polymer Screening",
-    "description": "调用 STCA 进行聚合物子结构筛选、实测数据规则提取、多性能目标自动连接、规则引导候选设计与核验。触发词：STCA、滑动阈值相关分析、H-cap、多性能筛选、子结构规则、候选设计、生成约束。",
-    "description_zh": "执行已发表规则筛选、从实测数据提取可读规则，并将 Tg、Tm、Td、TC、EC 与 ε-AC 目标按各自档位自动连接到同一候选筛选。",
-    "description_en": "Apply STCA to screen polymers, extract interpretable rules from measured data, connect independently scaled thermal and electrical objectives, and verify rule-guided candidate proposals.",
+    "description": "调用 STCA 应用已发表的明确百分位结构规则，或在用户实测数据上按自定义百分位重新提取规则，并完成规则引导候选设计与核验。触发词：STCA、滑动阈值相关分析、H-cap、子结构规则、候选设计、生成约束。",
+    "description_zh": "应用论文冻结的 Tg／EC 规则，或在用户自己的实测数据上按明确百分位重新归纳可读规则，再对候选逐条核验。",
+    "description_en": "Apply published STCA rules with explicit percentage tiers, derive new readable rules from user-supplied measured data, and verify rule-guided polymer candidates.",
     "version": "0.1.0",
     "author": "Weihao Wang",
     "examples_zh": [
-      "用 STCA 筛选这个候选表，目标是高 Tg、低 EC 和高 TC；每个目标独立选择档位，再给出同候选交集和失败条件。",
-      "用我的实测 Td 数据提取并冻结 STCA 规则，再评价独立留出集并导出完整规则家族。",
-      "导出低 ε-AC 与高热稳定性的结构约束，提出候选，并逐条核验每条冻结规则。"
+      "应用已发表的 Tg Top 20% 和 EC-low Bottom 10% 规则筛选候选表，并给出同候选交集和失败条件。",
+      "在我的实测 Td 数据上按我指定的百分位重新提取并冻结 STCA 规则，再评价 evaluation 数据。",
+      "导出所选冻结规则的结构约束，提出候选，并逐条核验每条规则。"
     ],
     "examples_en": [
-      "Screen this candidate table for high Tg, low EC and high TC; choose each objective tier independently and report the same-candidate intersection.",
-      "Extract and freeze STCA rules from my measured Td data, evaluate the independent holdout, and export the full rule family.",
-      "Export structural constraints for low epsilon-AC and high thermal stability, propose candidates, and verify every frozen rule."
+      "Apply the published Tg top-20% and EC-low bottom-10% rules and report the same-candidate intersection.",
+      "Derive and freeze STCA rules from my measured Td data using the percentage thresholds and data roles I provide.",
+      "Export the selected frozen constraints, propose candidates, and verify every rule."
     ]
   },
   "entry_note": "本包用于 WorkBuddy。以当前 SKILL.md 所在目录定位资源；首次运行先读 @references/platform-runtime.md，安装与市场提交见 @references/workbuddy.md。用宿主实际提供的终端执行包内 Python 脚本，选择与当前操作系统一致的命令；结果写入用户工作目录。",

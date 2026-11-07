@@ -8,7 +8,7 @@
 - 对 SMILES 使用上游 `maccs_from_smiles`：RDKit MACCS 共 167 个位置，K0 是空位，K1–K166 保留原编号。不要改成 166 列后重新编号，也不要替换成 110 类、Morgan、Core8 或配方编码。
 - 上游 `maccs_from_smiles` 本身不执行 H-cap，它只处理传入的已准备 SMILES；这不是否定上游之前的预处理。适配层的 H-cap 仅处理末端单键通配原子，内部或多键通配原子应报错。不要生成低聚物、去盐或做互变异构归一。原始与 H-cap canonical 图分别保留；H-cap 碰撞不证明完整聚合物相同，也不是外推距离。
 - 无效结构必须保留为错误或明确失败。上游错误行的特征是 -1，不能用全零替代，否则缺失型规则可能错误放行。
-- 训练/评价同时检查材料 ID、重复单元结构和条件；不同 ID 不能自动证明结构独立。上游 `train-profile --group-column` 会使用给定 ID 作为分组，适配器仍应检查 canonical SMILES 的重复。
+- 行标识只用于记录追踪，不进入模型，也不会自动定义 source／evaluation 角色。自定义数据模式应使用用户明确提供的数据角色；论文复现只能使用论文原始 ECFP2 interpolation／extrapolation 角色。
 - 适配层的 CSV 读取器逐记录检查字段数并保留所有文本（含 `001` 等前导零 ID）。运行时只替换上游 CLI 的 CSV 读取边界并在调用后恢复，计算与规则选择仍由锁定源码执行。未经该适配层建立的旧模型可能已把 ID 数值化；不要猜测修复其分组哈希，应从原输入重新训练并审计。
 
 ## 2. 阈值扫描与排名
@@ -31,18 +31,20 @@
 
 ## 4. 档位、选优与协议
 
+论文冻结规则来自原研究中基于 ECFP2 的 interpolation／extrapolation 划分。对新候选应用 `paper` 规则时直接加载冻结结论，不重新划分候选库；在用户新数据上重新提取规则时属于自定义数据分析。
+
 每个 tier q 的源数据真实目标：高方向用 `y >= quantile(y, 1-q)`；低方向用 `y <= quantile(y, q)`。分位数使用线性插值，边界包含相等值。并列值可使真实正例比例超过 q；q 也不控制新候选中最终选中的比例。
 
 `AS = (MCC + precision + F1) / 3`。有效规则要求两类目标都存在、选择数达到配置支持数、precision 高于目标流行率，并满足 MCC 条件。默认支持数是 1；普通/Tg 要求 MCC > 0，EC 接受 MCC >= -1e-12。少于 20 个类别样本是诊断标记，不可默认为新增拒绝条件。
 
 | 协议 | 家族 | 代表规则选择 | 数据含义 |
 |---|---|---|---|
-| `paper` | Tg 源 F1 家族；EC V15 模板 | 源/显式 selection/合并集 AS 的严格调和均值 | 历史结果重建；selection 标签参与选优 |
-| `source_locked` | 同一对应任务家族 | 源数据有效 AS 最大值 | 新数据源内选规则，再冻结外评 |
+| `paper` | Tg 源 F1 家族；EC V15 模板 | 源/显式 selection/合并集 AS 的严格调和均值 | 论文冻结规则；保留原始 ECFP2 划分来源，selection 标签参与选优 |
+| `source_locked` | 同一对应任务家族 | 源数据有效 AS 最大值 | 自定义数据内部协议：只在用户声明的 source 角色选规则，再冻结到 evaluation 角色 |
 | `generic` | 完整前缀池的源 F1 家族 | 源数据有效 AS 最大值 | 明确的通用探索协议，不能冒充 EC 主分析家族 |
 | `legacy_snapshot` | 旧 SI 静态规则 | 已保存规则 | 只加载，无完整训练配方或数值训练阈值 |
 
-`load_pretrained` 和 `STCA.for_profile` 默认是 `paper`。`paper` 训练必须显式给 selection 数据并设置 `acknowledge_selection_labels=True`；这是程序的数据角色声明。`source_locked` 拒绝 selection 数据。不要把缺失 selection 数据当作自动改协议的理由。无有效家族成员时保留无规则状态及诊断，不自动放松规则。
+`load_pretrained` 和 `STCA.for_profile` 默认是 `paper`。已发表规则直接应用到新候选，不重新划分候选集。`paper` 训练必须显式给论文 selection 数据并设置 `acknowledge_selection_labels=True`；这是程序的数据角色声明。`source_locked` 只用于自定义数据模式，拒绝 selection 数据。不要把缺失论文角色当作自动改协议的理由。无有效家族成员时保留无规则状态及诊断，不自动放松规则。
 
 ## 5. 任务预设、单位与跨性质连接
 
@@ -60,7 +62,7 @@ EC 高方向交换榜后仍执行正榜 bit=1、负榜 bit=0；不要再次翻�
 
 ### 论文中的跨性质连接
 
-多性能目标不是把所有性质放到同一个数值刻度，而是为每个目标独立选择方向和 tier，再连接对应规则：
+多性能目标不是把所有性质放到同一个数值刻度，而是为每个目标独立指定 profile、方向和明确百分位 tier，再连接对应规则：
 
 | 用户目标 | 使用规则 | 角色 |
 |---|---|---|
@@ -88,13 +90,13 @@ Tm、Td、TC 和 ε-AC 没有独立的预置模型文件；跨性质筛选复用
 
 EC 的参考档位保存在 `stca_tools.py` 中并统一转换到 `log10(S/cm)`。绝对 cutoff 只用于选择最近的可用论文档位或评价冻结规则；它不会创造新的 tier，也不会把一种性质的数值直接当成另一种性质的数值。
 
-`plan-objectives` 接受 `property + direction + tier/strictness/cutoff`，输出每个目标的 profile、tier、迁移角色和联合配置。多个目标始终作用于同一候选表，再按 AND 连接结构规则。
+`plan-objectives` 接受 `property + direction + tier`；也可在明确报告映射依据时用数值 cutoff 映射到最近的论文 tier。它不接受或自动推断 `standard / strict / extreme`。多个目标始终作用于同一候选表，再按 AND 连接结构规则。
 
 ## 6. 冻结筛选、评价与输出解释
 
 - `screen(smiles, tier=..., errors=...)` / `screen_fingerprints(...)` 只应用冻结规则。输出 selected、规则名、缺少的必需 bit、出现的禁止 bit 等；selected 是结构规则匹配，不是性能预测值、概率或实验达标证明。
 - `evaluate(..., cutoff_mode="fixed_train")` 默认使用保存的训练阈值；`dataset_relative` 重新定义外评集分位目标，只用于评价，不改规则。二者不可混报。显式数值 `cutoff` 也是评价阈值，不会重新学习该阈值对应的规则。
-- 行标识可以任意命名，也可以由适配器按行序生成；它不进入模型。用于划分的 `group_column` 则必须具有真实材料或结构分组意义。不能把随机行 ID 当作分组键，也不能把 canonical SMILES 与另一种材料 ID 口径互换后声称无泄漏。`allow_overlap=True` 只能用于明确的重评，不可报告为独立测试。
+- 行标识可以任意命名，也可以由适配器按行序生成；它不进入模型。自定义数据模式必须由用户显式提供 source／evaluation 角色，或明确说明只在全量数据上归纳而没有独立评价。随机行 ID 不能替代数据角色。`allow_overlap=True` 只能用于明确重评，不可报告为独立测试。
 - 输出 TP/FP/TN/FN、MCC、precision、recall、specificity、F1、coverage、enrichment factor、AS 及阈值/数据角色。不要删掉无效数据集以提高调和分数。
 - `model.new_trainer()` 重建训练配方，不复制旧排名或获胜规则。`trainer.export_diagnostics()` 保存相关性、阈值/支持数、候选规则、选择范围指标和模板审计。
 - 多个模型可以逐个筛选同一候选；在适配层做结果交集时注明模型、tier 和 AND 条件。没有配对真实性能时，不产生联合精度等真实标签指标。

@@ -58,10 +58,6 @@ PROPERTY_SLUGS = {
 }
 THERMAL_TIERS = (0.30, 0.20, 0.10)
 ELECTRICAL_TIERS = (0.20, 0.15, 0.10, 0.05)
-STRICTNESS_TIERS = {
-    "thermal": {"broad": 0.30, "standard": 0.20, "strict": 0.10, "extreme": 0.10},
-    "electrical": {"broad": 0.20, "standard": 0.15, "strict": 0.10, "extreme": 0.05},
-}
 # Reference thresholds reported in the paper/SI. They are explanatory and are
 # not used to overwrite a user-specified tier or measured-data cutoff.
 PAPER_REFERENCE_THRESHOLDS = {
@@ -411,7 +407,7 @@ def _nearest_reference_tier(prop: str, direction: str, cutoff, unit) -> tuple[fl
     if not table:
         raise ValueError(
             f"No paper reference threshold table is available for {PROPERTY_LABELS[prop]} {direction}; "
-            "provide tier or strictness instead."
+            "provide an explicit tier instead."
         )
     converted, converted_unit = _cutoff_to_reference_value(prop, cutoff, unit)
     tier, reference = min(table.items(), key=lambda item: abs(converted - float(item[1]["value"])))
@@ -430,7 +426,7 @@ def _nearest_reference_tier(prop: str, direction: str, cutoff, unit) -> tuple[fl
 def _route_objective(objective: dict, index: int) -> tuple[dict, dict]:
     if not isinstance(objective, dict):
         raise ValueError("Each objective must be a JSON object.")
-    allowed = {"name", "property", "direction", "tier", "strictness", "cutoff", "unit", "protocol", "label"}
+    allowed = {"name", "property", "direction", "tier", "cutoff", "unit", "protocol", "label"}
     extras = set(objective) - allowed
     if extras:
         raise ValueError(f"Unknown objective fields: {sorted(extras)}")
@@ -448,28 +444,23 @@ def _route_objective(objective: dict, index: int) -> tuple[dict, dict]:
         transfer_role = "native" if prop == "ec" else "EC-derived electrical transfer"
         available = ELECTRICAL_TIERS
     tier_value = objective.get("tier")
-    strictness = objective.get("strictness")
     cutoff = objective.get("cutoff")
-    selectors = sum(value is not None for value in (tier_value, strictness, cutoff))
+    selectors = sum(value is not None for value in (tier_value, cutoff))
     if selectors > 1:
-        raise ValueError("Specify only one of tier, strictness or cutoff for each objective.")
+        raise ValueError("Specify only one of tier or cutoff for each objective.")
     cutoff_mapping = None
     if tier_value is not None:
         tier = _tier(tier_value)
-        strictness = None
         tier_source = "user_tier"
     elif cutoff is not None:
         tier, _, cutoff_mapping = _nearest_reference_tier(prop, direction, cutoff, objective.get("unit"))
-        strictness = None
         tier_source = "nearest_paper_reference_cutoff"
     else:
-        if strictness is None:
-            strictness = "standard"
-        if not isinstance(strictness, str) or strictness.lower() not in STRICTNESS_TIERS[domain]:
-            raise ValueError(f"Strictness for {domain} objectives must be broad, standard, strict or extreme.")
-        strictness = strictness.lower()
-        tier = STRICTNESS_TIERS[domain][strictness]
-        tier_source = "strictness_mapping"
+        raise ValueError(
+            "Each objective requires an explicit percentage tier. "
+            "For published rules choose one of the profile tiers; for custom rule extraction "
+            "define the percentage thresholds in the training command."
+        )
     if not any(abs(tier - allowed_tier) < 1e-12 for allowed_tier in available):
         raise ValueError(
             f"Tier {tier:g} is unavailable for {PROPERTY_LABELS[prop]}; choose one of {list(available)}."
@@ -491,7 +482,6 @@ def _route_objective(objective: dict, index: int) -> tuple[dict, dict]:
         "domain": domain,
         "tier": tier,
         "tier_source": tier_source,
-        "strictness": strictness,
         "profile": profile,
         "protocol": protocol,
         "source_property": source_property,

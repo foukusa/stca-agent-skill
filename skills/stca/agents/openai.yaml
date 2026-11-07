@@ -1,7 +1,7 @@
 interface:
   display_name: STCA 聚合物筛选
-  short_description: 筛选聚合物、提取可读规则，并自动连接独立的热学与电学目标
-  default_prompt: 使用 $stca 分析我的聚合物数据。根据每个性能目标分别确定方向和档位，执行结构筛选或规则提取，并输出逐候选结果与失败条件。
+  short_description: 应用已发表规则，或从实测数据按明确百分位重新提取规则
+  default_prompt: 使用 $stca 分析我的聚合物数据。请先区分已发表规则模式和自定义数据模式；每个目标都显式指定 profile、方向和百分位档位，并输出逐候选结果与失败条件。
   icon_small: assets/stca-logo.png
   icon_large: assets/stca-logo.png
   brand_color: '#167D8D'

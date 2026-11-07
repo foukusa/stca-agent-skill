@@ -188,9 +188,10 @@ STCA 插件公开后：
 5. 附上 CSV，并发出明确请求，例如：
 
 ```text
-@STCA Screen candidates.csv for high Tg and bottom-5% EC.
-Use CandidateKey as an arbitrary identifier column. Keep the original star-containing SMILES in the final results,
-use H-cap only for MACCS calculation, and report row-level pass/fail results with failed rule conditions.
+@STCA Use published-rule mode to screen candidates.csv.
+Apply Tg top 20% and EC-low bottom 10%. CandidateKey is only a row label.
+Keep the original star-containing SMILES in the final results, use H-cap only for MACCS calculation,
+and report row-level pass/fail results with failed rule conditions.
 ```
 
 ### 2.2 维护者提交哪个文件
@@ -240,7 +241,7 @@ python3 tools/build_packages.py \
 发布或私测安装后，至少运行三条：
 
 ```text
-@STCA Apply the paper low-EC 5% rule to the attached candidates.
+@STCA Apply the published Tg top-20% and EC-low bottom-10% rules to the attached candidates.
 Use H-cap only for calculation and return the original star-containing SMILES.
 ```
 
@@ -314,7 +315,7 @@ open "$HOME/.dsh/skills"
 在 Harness 输入：
 
 ```text
-/stca Screen candidates.csv with the paper low-EC 5% rule.
+/stca Apply the published EC-low bottom-10% rule to candidates.csv.
 Use H-cap only for MACCS calculation, restore the original repeat-unit SMILES in the final results,
 and report every failed condition.
 ```
@@ -397,7 +398,7 @@ WorkBuddy 中进入：
 | 平台 | 调用方式 | 最小示例 |
 | --- | --- | --- |
 | GitHub / skills.sh 安装后的兼容 agent | 在请求中明确写“Use STCA” | `Use STCA to screen candidates.csv for low EC.` |
-| ChatGPT | `@STCA` | `@STCA Apply the paper EC 5% rule.` |
+| ChatGPT | `@STCA` | `@STCA Apply the published Tg top-20% rule.` |
 | Codex | 选择或提及 `$stca` | `Use $stca to audit and screen this dataset.` |
 | DeepSeek Harness | `/stca` | `/stca Extract rules from measured Tg data.` |
 | WorkBuddy | 启用后在任务中写“使用 STCA skill” | `使用 STCA skill 核验这些候选。` |
@@ -407,8 +408,8 @@ WorkBuddy 中进入：
 1. 输入文件；
 2. 原始 SMILES 列、可选的任意标识列，以及性能列；
 3. 目标性质与方向；
-4. tier／strictness；
-5. 使用 paper 规则还是从数据提取规则；
+4. 明确百分位 tier；
+5. 使用已发表冻结规则，还是在自己的实测数据上重新提取规则；
 6. 输出目录。
 
 ## 6. 修改后重新生成平台包
@@ -471,7 +472,7 @@ python3 tools/build_packages.py \
 ### 科学功能
 
 - [ ] H-cap 只作为计算副本，最终主结果恢复显示原始重复单元 SMILES。
-- [ ] paper 与 source_locked 协议分开报告。
-- [ ] EC 5% 规则可实际筛选候选。
+- [ ] 已发表规则模式与自定义数据模式分开报告。
+- [ ] 所选 profile 与明确百分位档位可实际筛选候选。
 - [ ] 输出逐候选失败条件。
 - [ ] 规则通过不表述为实验性能确认。
