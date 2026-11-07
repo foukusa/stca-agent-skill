@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "stca",
-  "version": "0.1.0",
-  "description": "Apply original STCA rules to polymer repeat units, fit interpretable rules from measured data, and guide candidate proposals with executable structural checks.",
+  "version": "0.1.1",
+  "description": "Screen polymer repeat units with STCA, extract readable rules from measured data, connect thermal and electrical objectives, and verify rule-guided candidates.",
   "author": {
     "name": "Weihao Wang"
   },
@@ -17,14 +17,14 @@
     "com.openai": {
       "interface": {
         "displayName": "STCA",
-        "shortDescription": "Polymer screening with rules",
-        "longDescription": "Use Weihao Wang's original Sliding Threshold Correlation Analysis for polymer repeat units. Screen candidate structures with frozen published rules; extract readable presence/absence rules from measured datasets and evaluate frozen models; export exact rules for agent-assisted candidate proposal followed by computational verification. Applies the confirmed H-cap representation before RDKit MACCS. Calls the pinned author implementation. Requires a Python/RDKit execution environment and initial access to the source and dependencies. A selected candidate satisfies structural rules; its physical properties still require separate evidence.",
+        "shortDescription": "Polymer screening and design rules",
+        "longDescription": "Use Sliding Threshold Correlation Analysis (STCA) for polymer repeat units. Apply frozen structural rules to candidate libraries; extract readable rule families from measured data; connect independently scaled Tg, Tm, Td, TC, EC and ε-AC objectives; and export executable constraints for agent-assisted candidate design followed by explicit structural verification. The skill preserves the H-cap representation used by STCA and calls the pinned polymer-stca implementation. It requires a Python/RDKit execution environment.",
         "developerName": "Weihao Wang",
         "category": "Developer Tools",
         "defaultPrompt": [
-          "Screen my polymer SMILES with original STCA low-EC 5% rules, applying H-cap before MACCS.",
-          "Extract STCA rules from measured polymer data, freeze the model, and evaluate a held-out dataset.",
-          "Propose polymer candidates under STCA constraints, H-cap them, and verify them against the frozen rules."
+          "Screen this polymer candidate table for high Tg, low EC and high TC. Choose the tier for each objective independently, then report the same-candidate intersection and failed rule conditions.",
+          "Extract and freeze STCA rules from this measured Td dataset, then evaluate the independent holdout and export the readable rule family.",
+          "Export structural constraints for low ε-AC and high thermal stability, propose candidates, and verify every proposal against the frozen rules."
         ],
         "brandColor": "#167D8D",
         "composerIcon": "./assets/stca-logo.png",
@@ -33,4 +33,3 @@
     }
   }
 }
-

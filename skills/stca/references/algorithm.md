@@ -44,7 +44,9 @@
 
 `load_pretrained` 和 `STCA.for_profile` 默认是 `paper`。`paper` 训练必须显式给 selection 数据并设置 `acknowledge_selection_labels=True`；这是程序的数据角色声明。`source_locked` 拒绝 selection 数据。不要把缺失 selection 数据当作自动改协议的理由。无有效家族成员时保留无规则状态及诊断，不自动放松规则。
 
-## 5. 任务预设与单位
+## 5. 任务预设、单位与跨性质连接
+
+### 原生 profile
 
 | Profile | 存储目标 | 扫描 | 步长 | Tier |
 |---|---|---|---:|---|
@@ -54,7 +56,39 @@
 
 EC 高方向交换榜后仍执行正榜 bit=1、负榜 bit=0；不要再次翻转字面条件。使用 `ec_to_log10_s_cm(values, unit)` 转换四种明确单位：`S/cm`、`S/m`、`log10(S/cm)`、`log10(S/m)`。从 S/m 转为存储目标是 `log10(value)-2`；从 log10(S/m) 转换是减 2。原始电导率必须 >0，禁止猜单位或二次取对数。
 
-`train-profile --tg-unit K` 会减 273.15；直接 Python 训练 Tg 时应先显式转换到 degC。没有预置 TC、Tm、Td、介电常数模型。使用自有对应数据训练时必须记录单独的目标、单位与扫描配置。
+`train-profile --tg-unit K` 会减 273.15；直接 Python 训练 Tg 时应先显式转换到 degC。
+
+### 论文中的跨性质连接
+
+多性能目标不是把所有性质放到同一个数值刻度，而是为每个目标独立选择方向和 tier，再连接对应规则：
+
+| 用户目标 | 使用规则 | 角色 |
+|---|---|---|
+| 高 Tg | `tg-high` | 原生热学筛选 |
+| 高 Tm、高 Td、高 TC | `tg-high` | Tg-derived thermal transfer |
+| 高 EC / 低 EC | `ec-high` / `ec-low` | 原生电学筛选 |
+| 高 ε-AC / 低 ε-AC | `ec-high` / `ec-low` | EC-derived electrical transfer |
+
+Tm、Td、TC 和 ε-AC 没有独立的预置模型文件；跨性质筛选复用对应规则家族，并在有真实标签时按目标性质自己的 cutoff 评价。
+
+论文/SI 中的参考档位用于把绝对目标连接到最近的结构规则：
+
+| Tier | Tg high (°C) | Tm high (°C) | Td high (°C) | TC high (W/(m·K)) |
+|---:|---:|---:|---:|---:|
+| 0.30 | 204 | 274 | 472 | 0.26 |
+| 0.20 | 238 | 284 | 500 | 0.32 |
+| 0.10 | 275 | 340 | 537 | 0.40 |
+
+| Tier | ε-AC high | ε-AC low |
+|---:|---:|---:|
+| 0.20 | 4.47 | 2.69 |
+| 0.15 | 5.01 | 2.60 |
+| 0.10 | 6.03 | 2.50 |
+| 0.05 | 9.33 | 2.29 |
+
+EC 的参考档位保存在 `stca_tools.py` 中并统一转换到 `log10(S/cm)`。绝对 cutoff 只用于选择最近的可用论文档位或评价冻结规则；它不会创造新的 tier，也不会把一种性质的数值直接当成另一种性质的数值。
+
+`plan-objectives` 接受 `property + direction + tier/strictness/cutoff`，输出每个目标的 profile、tier、迁移角色和联合配置。多个目标始终作用于同一候选表，再按 AND 连接结构规则。
 
 ## 6. 冻结筛选、评价与输出解释
 

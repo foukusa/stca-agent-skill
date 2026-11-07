@@ -30,6 +30,70 @@ NAMED_PROTOCOL_RECIPES = {
     "ec_v15_family_source_as_v1": ("source_locked", "source_as", False),
 }
 
+# User-facing property routing. STCA has native Tg/EC profiles; the published
+# paper also evaluates transfer of Tg-derived thermal rules to Tm/Td/TC and
+# EC-derived electrical rules to epsilon-AC. Each objective keeps its own
+# direction and tier; there is no shared global "joint tier".
+PROPERTY_ALIASES = {
+    "tg": "tg", "glass_transition": "tg", "glass transition": "tg",
+    "glass-transition temperature": "tg", "玻璃化转变温度": "tg",
+    "tm": "tm", "melting_temperature": "tm", "melting temperature": "tm", "熔点": "tm",
+    "td": "td", "decomposition_temperature": "td", "decomposition temperature": "td",
+    "thermal_decomposition_temperature": "td", "分解温度": "td",
+    "tc": "tc", "thermal_conductivity": "tc", "thermal conductivity": "tc", "导热系数": "tc",
+    "ec": "ec", "electrical_conductivity": "ec", "electrical conductivity": "ec", "电导率": "ec",
+    "epsilon": "epsilon_ac", "epsilon_ac": "epsilon_ac", "eps": "epsilon_ac",
+    "eps_ac": "epsilon_ac", "ε": "epsilon_ac", "ε-ac": "epsilon_ac",
+    "permittivity": "epsilon_ac", "dielectric_constant": "epsilon_ac",
+    "dielectric constant": "epsilon_ac", "介电常数": "epsilon_ac",
+}
+PROPERTY_LABELS = {
+    "tg": "Tg", "tm": "Tm", "td": "Td", "tc": "TC",
+    "ec": "EC", "epsilon_ac": "ε-AC",
+}
+PROPERTY_SLUGS = {
+    "tg": "tg", "tm": "tm", "td": "td", "tc": "tc",
+    "ec": "ec", "epsilon_ac": "epsilon_ac",
+}
+THERMAL_TIERS = (0.30, 0.20, 0.10)
+ELECTRICAL_TIERS = (0.20, 0.15, 0.10, 0.05)
+STRICTNESS_TIERS = {
+    "thermal": {"broad": 0.30, "standard": 0.20, "strict": 0.10, "extreme": 0.10},
+    "electrical": {"broad": 0.20, "standard": 0.15, "strict": 0.10, "extreme": 0.05},
+}
+# Reference thresholds reported in the paper/SI. They are explanatory and are
+# not used to overwrite a user-specified tier or measured-data cutoff.
+PAPER_REFERENCE_THRESHOLDS = {
+    ("tg", "high"): {0.30: {"value": 204.0, "unit": "degC"},
+                       0.20: {"value": 238.0, "unit": "degC"},
+                       0.10: {"value": 275.0, "unit": "degC"}},
+    ("tm", "high"): {0.30: {"value": 274.0, "unit": "degC"},
+                       0.20: {"value": 284.0, "unit": "degC"},
+                       0.10: {"value": 340.0, "unit": "degC"}},
+    ("td", "high"): {0.30: {"value": 472.0, "unit": "degC"},
+                       0.20: {"value": 500.0, "unit": "degC"},
+                       0.10: {"value": 537.0, "unit": "degC"}},
+    ("tc", "high"): {0.30: {"value": 0.26, "unit": "W/(m·K)"},
+                       0.20: {"value": 0.32, "unit": "W/(m·K)"},
+                       0.10: {"value": 0.40, "unit": "W/(m·K)"}},
+    ("ec", "high"): {0.20: {"value": -4.26760624, "unit": "log10(S/cm)"},
+                         0.15: {"value": -3.467070153, "unit": "log10(S/cm)"},
+                         0.10: {"value": -2.37675071, "unit": "log10(S/cm)"},
+                         0.05: {"value": -1.050233376, "unit": "log10(S/cm)"}},
+    ("ec", "low"): {0.20: {"value": -12.7721133, "unit": "log10(S/cm)"},
+                        0.15: {"value": -13.64915558, "unit": "log10(S/cm)"},
+                        0.10: {"value": -14.7212464, "unit": "log10(S/cm)"},
+                        0.05: {"value": -15.979303655, "unit": "log10(S/cm)"}},
+    ("epsilon_ac", "high"): {0.20: {"value": 4.47, "unit": "dimensionless"},
+                               0.15: {"value": 5.01, "unit": "dimensionless"},
+                               0.10: {"value": 6.03, "unit": "dimensionless"},
+                               0.05: {"value": 9.33, "unit": "dimensionless"}},
+    ("epsilon_ac", "low"): {0.20: {"value": 2.69, "unit": "dimensionless"},
+                              0.15: {"value": 2.60, "unit": "dimensionless"},
+                              0.10: {"value": 2.50, "unit": "dimensionless"},
+                              0.05: {"value": 2.29, "unit": "dimensionless"}},
+}
+
 
 def _sha256(path: Path) -> str:
     h = hashlib.sha256()
@@ -274,6 +338,232 @@ def export_rules(args, stca) -> int:
     return 0
 
 
+def _normalise_property(value: str) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError("Each objective needs a nonempty property name.")
+    key = value.strip().lower().replace("–", "-").replace("—", "-")
+    key = re.sub(r"\s+", " ", key)
+    canonical = PROPERTY_ALIASES.get(key)
+    if canonical is None:
+        raise ValueError(
+            f"Unsupported property {value!r}. Supported properties are Tg, Tm, Td, TC, EC and ε-AC."
+        )
+    return canonical
+
+
+def _normalise_direction(value, property_name: str) -> str:
+    if value is None and property_name in {"tg", "tm", "td", "tc"}:
+        return "high"
+    if not isinstance(value, str):
+        raise ValueError("Each EC or ε-AC objective needs direction='high' or direction='low'.")
+    aliases = {
+        "high": "high", "higher": "high", "max": "high", "maximize": "high",
+        "top": "high", "高": "high", "提高": "high",
+        "low": "low", "lower": "low", "min": "low", "minimize": "low",
+        "bottom": "low", "低": "low", "降低": "low",
+    }
+    result = aliases.get(value.strip().lower())
+    if result is None:
+        raise ValueError("Objective direction must be high or low.")
+    if property_name in {"tg", "tm", "td", "tc"} and result != "high":
+        raise ValueError("Published thermal transfer rules support the high direction for Tg, Tm, Td and TC.")
+    return result
+
+
+def _cutoff_to_reference_value(prop: str, value, unit) -> tuple[float, str]:
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+        raise ValueError("Objective cutoff must be a finite number.")
+    raw_unit = "" if unit is None else str(unit).strip().lower().replace(" ", "")
+    if prop in {"tg", "tm", "td"}:
+        if raw_unit in {"", "degc", "c", "°c", "celsius"}:
+            return float(value), "degC"
+        if raw_unit in {"k", "kelvin"}:
+            return float(value) - 273.15, "degC"
+        raise ValueError(f"Unsupported temperature unit {unit!r}; use degC or K.")
+    if prop == "tc":
+        if raw_unit in {"", "w/(m·k)", "w/(m*k)", "w/mk", "w/(m.k)"}:
+            return float(value), "W/(m·K)"
+        raise ValueError(f"Unsupported thermal-conductivity unit {unit!r}; use W/(m·K).")
+    if prop == "epsilon_ac":
+        if raw_unit in {"", "dimensionless", "1", "relative"}:
+            return float(value), "dimensionless"
+        raise ValueError("ε-AC cutoff is dimensionless.")
+    if prop == "ec":
+        if raw_unit in {"log10(s/cm)", "logs/cm", "log10s/cm"}:
+            return float(value), "log10(S/cm)"
+        if raw_unit in {"log10(s/m)", "logs/m", "log10s/m"}:
+            return float(value) - 2.0, "log10(S/cm)"
+        if raw_unit in {"s/cm", "scm-1"}:
+            if value <= 0:
+                raise ValueError("Electrical conductivity must be positive before log conversion.")
+            return math.log10(float(value)), "log10(S/cm)"
+        if raw_unit in {"", "s/m", "sm-1"}:
+            if value <= 0:
+                raise ValueError("Electrical conductivity must be positive before log conversion.")
+            return math.log10(float(value)) - 2.0, "log10(S/cm)"
+        raise ValueError(f"Unsupported EC unit {unit!r}; use S/m, S/cm, log10(S/m) or log10(S/cm).")
+    raise ValueError(f"No cutoff conversion is defined for {prop}.")
+
+
+def _nearest_reference_tier(prop: str, direction: str, cutoff, unit) -> tuple[float, dict, dict]:
+    table = PAPER_REFERENCE_THRESHOLDS.get((prop, direction))
+    if not table:
+        raise ValueError(
+            f"No paper reference threshold table is available for {PROPERTY_LABELS[prop]} {direction}; "
+            "provide tier or strictness instead."
+        )
+    converted, converted_unit = _cutoff_to_reference_value(prop, cutoff, unit)
+    tier, reference = min(table.items(), key=lambda item: abs(converted - float(item[1]["value"])))
+    mapping = {
+        "input_cutoff": float(cutoff),
+        "input_unit": unit,
+        "converted_cutoff": converted,
+        "converted_unit": converted_unit,
+        "nearest_reference_tier": tier,
+        "nearest_reference_threshold": reference,
+        "absolute_distance": abs(converted - float(reference["value"])),
+    }
+    return tier, reference, mapping
+
+
+def _route_objective(objective: dict, index: int) -> tuple[dict, dict]:
+    if not isinstance(objective, dict):
+        raise ValueError("Each objective must be a JSON object.")
+    allowed = {"name", "property", "direction", "tier", "strictness", "cutoff", "unit", "protocol", "label"}
+    extras = set(objective) - allowed
+    if extras:
+        raise ValueError(f"Unknown objective fields: {sorted(extras)}")
+    prop = _normalise_property(objective.get("property"))
+    direction = _normalise_direction(objective.get("direction"), prop)
+    domain = "thermal" if prop in {"tg", "tm", "td", "tc"} else "electrical"
+    if prop in {"tg", "tm", "td", "tc"}:
+        profile = "tg-high"
+        source_property = "Tg"
+        transfer_role = "native" if prop == "tg" else "Tg-derived thermal transfer"
+        available = THERMAL_TIERS
+    else:
+        profile = "ec-high" if direction == "high" else "ec-low"
+        source_property = "EC"
+        transfer_role = "native" if prop == "ec" else "EC-derived electrical transfer"
+        available = ELECTRICAL_TIERS
+    tier_value = objective.get("tier")
+    strictness = objective.get("strictness")
+    cutoff = objective.get("cutoff")
+    selectors = sum(value is not None for value in (tier_value, strictness, cutoff))
+    if selectors > 1:
+        raise ValueError("Specify only one of tier, strictness or cutoff for each objective.")
+    cutoff_mapping = None
+    if tier_value is not None:
+        tier = _tier(tier_value)
+        strictness = None
+        tier_source = "user_tier"
+    elif cutoff is not None:
+        tier, _, cutoff_mapping = _nearest_reference_tier(prop, direction, cutoff, objective.get("unit"))
+        strictness = None
+        tier_source = "nearest_paper_reference_cutoff"
+    else:
+        if strictness is None:
+            strictness = "standard"
+        if not isinstance(strictness, str) or strictness.lower() not in STRICTNESS_TIERS[domain]:
+            raise ValueError(f"Strictness for {domain} objectives must be broad, standard, strict or extreme.")
+        strictness = strictness.lower()
+        tier = STRICTNESS_TIERS[domain][strictness]
+        tier_source = "strictness_mapping"
+    if not any(abs(tier - allowed_tier) < 1e-12 for allowed_tier in available):
+        raise ValueError(
+            f"Tier {tier:g} is unavailable for {PROPERTY_LABELS[prop]}; choose one of {list(available)}."
+        )
+    protocol = objective.get("protocol", "paper")
+    if protocol not in PROTOCOLS:
+        raise ValueError("Objective protocol must be paper or source_locked.")
+    raw_name = objective.get("name") or f"{PROPERTY_SLUGS[prop]}_{direction}_{index + 1}"
+    safe_name = re.sub(r"[^A-Za-z0-9_]", "_", str(raw_name))
+    if not re.match(r"[A-Za-z]", safe_name):
+        safe_name = "objective_" + safe_name
+    safe_name = safe_name[:48]
+    label = objective.get("label") or f"{PROPERTY_LABELS[prop]} {direction} ({tier:g})"
+    reference = PAPER_REFERENCE_THRESHOLDS.get((prop, direction), {}).get(tier)
+    normalised = {
+        "name": safe_name,
+        "property": PROPERTY_LABELS[prop],
+        "direction": direction,
+        "domain": domain,
+        "tier": tier,
+        "tier_source": tier_source,
+        "strictness": strictness,
+        "profile": profile,
+        "protocol": protocol,
+        "source_property": source_property,
+        "transfer_role": transfer_role,
+        "paper_reference_threshold": reference,
+        "cutoff_mapping": cutoff_mapping,
+        "label": label,
+    }
+    requirement = {
+        "name": safe_name, "label": label, "profile": profile, "protocol": protocol, "tier": tier,
+        "property": PROPERTY_LABELS[prop], "direction": direction,
+        "source_property": source_property, "transfer_role": transfer_role,
+        "tier_source": tier_source,
+        "objective_cutoff": cutoff,
+        "objective_unit": objective.get("unit"),
+    }
+    return normalised, requirement
+
+
+def plan_objectives(args) -> int:
+    source_path = Path(args.objectives).expanduser().resolve()
+    source = _json(source_path)
+    if not isinstance(source, dict):
+        raise ValueError("Objective specification must be a JSON object.")
+    allowed = {"schema", "id_column", "smiles_column", "objectives"}
+    extras = set(source) - allowed
+    if extras:
+        raise ValueError(f"Unknown objective specification fields: {sorted(extras)}")
+    if source.get("schema", "stca-objectives-v1") != "stca-objectives-v1":
+        raise ValueError("Unsupported objective specification schema.")
+    objectives = source.get("objectives")
+    if not isinstance(objectives, list) or not objectives:
+        raise ValueError("Provide at least one objective.")
+    id_column = source.get("id_column", "ID")
+    smiles_column = source.get("smiles_column", "SMILES_hcap")
+    for field, value in (("id_column", id_column), ("smiles_column", smiles_column)):
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError(f"{field} must be a nonempty string.")
+    normalised, requirements, names = [], [], set()
+    for index, objective in enumerate(objectives):
+        plan, requirement = _route_objective(objective, index)
+        if requirement["name"] in names:
+            raise ValueError(f"Repeated generated objective name: {requirement['name']}")
+        names.add(requirement["name"])
+        normalised.append(plan)
+        requirements.append(requirement)
+    config = {
+        "schema": "stca-joint-config-v1",
+        "id_column": id_column,
+        "smiles_column": smiles_column,
+        "requirements": requirements,
+    }
+    result = {
+        "schema": "stca-objective-plan-v1",
+        "source": {"path": str(source_path), "sha256": _sha256(source_path)},
+        "combiner": "AND" if len(requirements) > 1 else "single_objective",
+        "objective_count": len(requirements),
+        "objectives": normalised,
+        "joint_config": config,
+        "interpretation": (
+            "Each objective keeps its own property, direction and tier. Tm/Td/TC reuse the published "
+            "Tg-derived thermal family; ε-AC reuses the corresponding EC-derived electrical family. "
+            "The generated config applies every frozen structural rule to the same candidate rows."
+        ),
+    }
+    output = _new_directory(args.output_dir)
+    _write_json(output / "objective_plan.json", result)
+    _write_json(output / "joint_config.json", config)
+    print(json.dumps({"output_directory": str(output), "objective_count": len(requirements),
+                      "joint_config": str(output / "joint_config.json")}, ensure_ascii=False))
+    return 0
+
+
 def _config(path: Path) -> dict:
     config = _json(path)
     if not isinstance(config, dict):
@@ -296,13 +586,17 @@ def _config(path: Path) -> dict:
         if config["id_column"] in features:
             raise ValueError("The identifier must not be used as a binary descriptor.")
     requirements = config.get("requirements")
-    if not isinstance(requirements, list) or len(requirements) < 2:
-        raise ValueError("Joint screening requires at least two frozen model requirements.")
+    if not isinstance(requirements, list) or len(requirements) < 1:
+        raise ValueError("Screening requires at least one frozen model requirement.")
     names = set()
     for requirement in requirements:
         if not isinstance(requirement, dict):
             raise ValueError("Each requirement must be an object.")
-        extras = set(requirement) - {"name", "label", "profile", "model", "protocol", "tier"}
+        extras = set(requirement) - {
+            "name", "label", "profile", "model", "protocol", "tier",
+            "property", "direction", "source_property", "transfer_role", "tier_source",
+            "objective_cutoff", "objective_unit",
+        }
         if extras:
             raise ValueError(f"Unknown requirement fields: {sorted(extras)}")
         name = requirement.get("name")
@@ -426,13 +720,22 @@ def joint_screen(args, stca) -> int:
         out[prefix + "missing_required_present"] = missing
         out[prefix + "unexpected_present"] = unexpected
         masks.append(selected)
-        requirement_reports.append({"name": name, "label": requirement.get("label", name),
-                                    "tier": tier, "status": constraint["status"],
-                                    "assessed_count": int(selected.notna().sum()),
-                                    "selected_count": int(selected.fillna(False).sum()),
-                                    "unknown_count": int(selected.isna().sum()),
-                                    "target": constraint["target"], "rule": constraint["rule"],
-                                    "model": metadata})
+        requirement_reports.append({
+            "name": name, "label": requirement.get("label", name),
+            "property": requirement.get("property"),
+            "direction": requirement.get("direction"),
+            "source_property": requirement.get("source_property"),
+            "transfer_role": requirement.get("transfer_role"),
+            "tier_source": requirement.get("tier_source"),
+            "objective_cutoff": requirement.get("objective_cutoff"),
+            "objective_unit": requirement.get("objective_unit"),
+            "tier": tier, "status": constraint["status"],
+            "assessed_count": int(selected.notna().sum()),
+            "selected_count": int(selected.fillna(False).sum()),
+            "unknown_count": int(selected.isna().sum()),
+            "target": constraint["target"], "rule": constraint["rule"],
+            "model": metadata,
+        })
     flags = pd.concat(masks, axis=1)
     assessed = valid & flags.notna().all(axis=1)
     joint = pd.Series(pd.NA, index=frame.index, dtype="boolean")
@@ -483,6 +786,12 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", help="Clean pinned STCA source checkout; otherwise use the runtime cache.")
     commands = parser.add_subparsers(dest="command", required=True)
+    plan = commands.add_parser(
+        "plan-objectives",
+        help="Map user property objectives to independent STCA profiles/tiers and write a joint-screen config.",
+    )
+    plan.add_argument("--objectives", required=True, help="JSON file using schema stca-objectives-v1.")
+    plan.add_argument("--output-dir", required=True, help="A new output directory.")
     export = commands.add_parser("export-rules", help="Export the complete retained family and frozen representative constraints.")
     model_group = export.add_mutually_exclusive_group(required=True)
     model_group.add_argument("--profile", choices=PROFILES)
@@ -496,6 +805,8 @@ def main(argv=None) -> int:
     joint.add_argument("--output-dir", required=True, help="A new output directory.")
     args = parser.parse_args(argv)
     try:
+        if args.command == "plan-objectives":
+            return plan_objectives(args)
         stca = load_stca(args.source)
         return export_rules(args, stca) if args.command == "export-rules" else joint_screen(args, stca)
     except (ValueError, RuntimeError, ImportError, OSError, KeyError, TypeError) as exc:

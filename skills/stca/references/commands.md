@@ -9,7 +9,7 @@
 - [自定义二值输入](#4-自定义二值输入)
 - [冻结评价](#5-冻结评价)
 - [精确约束及-prompt-导出](#6-精确约束及-prompt-导出)
-- [同候选多性能筛选](#7-同候选多性能筛选)
+- [自动规划并执行多性能筛选](#7-自动规划并执行多性能筛选)
 - [原始研究结果重建](#8-原始研究结果重建)
 
 ## 环境
@@ -139,28 +139,56 @@ Tg 评价的上游 CLI 没有 `--tg-unit`；如果输入是 K，先明确转换�
 
 生成任务继续由宿主 agent 提出候选，再执行本页数据审计与联合筛选。逐候选保留失败原因、用户要求的连接点格式和 canonical 去重记录；上游化学接口在 `stca.chemistry.maccs_from_smiles`，不是包顶层的同名函数。没有真实标签时只交付结构规则命中，不生成预测性能、联合精度或新颖性结论。
 
-## 7. 同候选多性能筛选
+## 7. 自动规划并执行多性能筛选
 
-```bash
-"$STCA_PY" "$SKILL_DIR/scripts/stca_tools.py" joint-screen \
-  --input candidates.csv --config "$SKILL_DIR/assets/joint_example.json" \
-  --output-dir joint_screen
-```
-
-配置形如：
+先把用户目标写成独立 objective。每个 objective 有自己的性质、方向和 tier/strictness/cutoff；不同性质不共享一个固定档位。
 
 ```json
 {
+  "schema": "stca-objectives-v1",
   "id_column": "ID",
-  "smiles_column": "SMILES",
-  "requirements": [
-    {"name": "high_tg", "profile": "tg-high", "protocol": "paper", "tier": 0.20},
-    {"name": "low_ec", "profile": "ec-low", "protocol": "paper", "tier": 0.20}
+  "smiles_column": "SMILES_hcap",
+  "objectives": [
+    {"property": "Tg", "direction": "high", "strictness": "standard"},
+    {"property": "EC", "direction": "low", "strictness": "extreme"},
+    {"property": "TC", "direction": "high", "cutoff": 0.32, "unit": "W/(m·K)"}
   ]
 }
 ```
 
-用模型 JSON 路径可替代 profile；具体支持参数以脚本 `--help` 为准。结构交集输出 `rows.csv` 与 `summary.json`，含各模型选择状态、联合状态、输入/模型哈希和运行版本。精度等联合真实性能需另一项明确的配对标签评价。
+自动生成目标连接方案和 joint 配置：
+
+```bash
+"$STCA_PY" "$SKILL_DIR/scripts/stca_tools.py" plan-objectives \
+  --objectives objectives.json \
+  --output-dir objective_plan
+```
+
+路由关系：
+
+- Tg → `tg-high`；
+- Tm / Td / TC → `tg-high` 的热学迁移规则；
+- EC high / low → `ec-high` / `ec-low`；
+- ε-AC high / low → 对应方向的 EC 迁移规则。
+
+`plan-objectives` 支持三种指定方式：
+
+1. 直接给 tier；
+2. 给 `broad / standard / strict / extreme`；
+3. 给绝对 cutoff 与单位，映射到最近的论文参考档位。
+
+随后对同一候选表执行：
+
+```bash
+"$STCA_PY" "$SKILL_DIR/scripts/stca_tools.py" joint-screen \
+  --input candidates_hcap.csv \
+  --config objective_plan/joint_config.json \
+  --output-dir multi_property_screen
+```
+
+输出 `rows.csv`、`summary.json`、`joint_constraints.json` 与运行清单。每个要求都会保留用户目标性质、方向、tier、规则来源和迁移角色。结构交集表示同一候选同时满足这些冻结结构规则；真实性能的联合评价仍需同一材料、可比条件下的配对多性能标签。
+
+若用户只要求一个目标，直接使用对应 profile 的 `screen`；objective plan 主要用于两个及以上目标的自动连接。
 
 ## 8. 原始研究结果重建
 

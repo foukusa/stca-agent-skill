@@ -42,7 +42,7 @@ def main(argv: list[str] | None = None) -> int:
         linux_x86 = sys.platform == "linux" and platform.machine().lower() in ("x86_64", "amd64")
         mode = args.dependency_mode or ("linux-hashed" if linux_x86 else "portable-pinned")
         if mode == "linux-hashed" and not linux_x86:
-            raise ValueError("linux-hashed is only for Linux x86_64. Use portable-pinned and run the release smoke test on this platform.")
+            raise ValueError("linux-hashed is only for Linux x86_64. Use portable-pinned and verify the installation on this platform.")
         assets = Path(__file__).resolve().parent.parent / "assets"
         lock_name = "requirements-py312-linux-x86_64.lock" if mode == "linux-hashed" else "requirements-py312.txt"
         lock = assets / lock_name
@@ -81,8 +81,8 @@ def main(argv: list[str] | None = None) -> int:
             "dependency_file": lock_name,
             "dependency_file_sha256": hashlib.sha256(lock.read_bytes()).hexdigest(),
             "runtime_platform": platform.platform(),
-            "release_validation_scope": "Linux x86_64 / CPython 3.12; macOS and Windows require their own release smoke check.",
-            "next_step": "Use this python and set STCA_SOURCE to source (or pass --source). Run the release smoke test. Do not run bootstrap afterward.",
+            "release_validation_scope": "Linux x86_64 / CPython 3.12; macOS and Windows require their own installation check.",
+            "next_step": "Use this python and set STCA_SOURCE to source (or pass --source). Run the requested STCA task with this recorded environment. Do not run bootstrap afterward.",
         })
         (destination / "stca-environment.json").write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
         print(json.dumps(receipt, indent=2))

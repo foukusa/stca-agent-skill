@@ -1,7 +1,7 @@
 {
   "schema": "stca-agent-skill-public-validation-v1",
   "audit_date": "2026-11-07",
-  "integration_version": "0.1.0",
+  "integration_version": "0.1.1",
   "upstream": {
     "repository": "https://github.com/foukusa/polymer-stca",
     "package_version": "1.0",
@@ -694,13 +694,27 @@
     "Installation on every operating system and agent platform."
   ],
   "data_distribution": "No original measured per-material records or original train/holdout membership lists are included.",
-  "public_release_smoke": {
+  "objective_planning_validation": {
     "status": "PASS",
-    "report": "public_smoke.json",
-    "sha256": "d7b87ad2802c380c7a439469649c6e42cb519b73489203db4f80c965615dfa0a",
-    "environment": "Fresh isolated CPython 3.12 on Linux x86-64; locked dependency installation verified separately.",
-    "ec_low_05_selected": 9,
-    "candidate_count": 10,
-    "joint_tg20_ec05_selected": 9
+    "properties": [
+      "Tg",
+      "Tm",
+      "Td",
+      "TC",
+      "EC",
+      "ε-AC"
+    ],
+    "native_profiles": {
+      "Tg": "tg-high",
+      "EC high": "ec-high",
+      "EC low": "ec-low"
+    },
+    "transfer_routes": {
+      "Tm/Td/TC": "Tg-derived thermal transfer",
+      "ε-AC high/low": "corresponding EC-derived electrical transfer"
+    },
+    "independent_tiers": true,
+    "absolute_cutoff_mapping_checked": true,
+    "single_or_multiple_objectives_supported": true
   }
 }

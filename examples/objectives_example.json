@@ -1,0 +1,26 @@
+{
+  "schema": "stca-objectives-v1",
+  "id_column": "ID",
+  "smiles_column": "SMILES_hcap",
+  "objectives": [
+    {
+      "name": "thermal_stability",
+      "property": "Tg",
+      "direction": "high",
+      "strictness": "standard"
+    },
+    {
+      "name": "electrical_insulation",
+      "property": "EC",
+      "direction": "low",
+      "strictness": "extreme"
+    },
+    {
+      "name": "heat_dissipation",
+      "property": "TC",
+      "direction": "high",
+      "cutoff": 0.32,
+      "unit": "W/(m·K)"
+    }
+  ]
+}

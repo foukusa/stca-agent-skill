@@ -1,0 +1,23 @@
+STCA Agent Skill — license scope notice
+PUBLISHER REVIEW DRAFT; confirm the new integration license before public distribution.
+
+This preparation file preserves the license of the original polymer-stca
+implementation at revision 5951b0ef23d63edc8f7e803aaaffa5e4168288f6.
+The quoted upstream grant applies to that upstream software. It is not a
+license grant for newly written skill integration scripts, documentation,
+visual assets or example fixtures. Those rights are to be specified by their
+authorized publisher. See PUBLISHER_LICENSE_NOTES.md.
+
+BEGIN UNCHANGED UPSTREAM LICENSE
+
+Copyright (c) 2025, The University of Tokyo, University College London
+
+Permission is granted to use and modify this software for non-commercial academic research, education, and reproduction of scientific results.
+
+Commercial use and redistribution, including distribution of modified versions, require prior written permission from the copyright holders.
+
+This copyright notice and license text must be retained in copies of the software.
+
+The software is provided "AS IS", without warranty of any kind. The copyright holders are not liable for claims or damages arising from its use.
+
+END UNCHANGED UPSTREAM LICENSE

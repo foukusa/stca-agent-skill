@@ -3,7 +3,7 @@
 The final release uses the deep-navy and teal S emblem with a gold stepped threshold accent and the exact wordmark STCA. The S and integrated node details are an abstract brand symbol, not a particular chemical structure. The stepped cut represents the sliding-threshold idea.
 
 - Final asset: `assets/stca-logo.png`.
-- Native output: 1254 × 1254 pixels, RGBA PNG, transparent background.
+- Packaged output: 512 × 512 pixels, RGBA PNG, transparent background; the README displays it at 88 pixels wide.
 - Standalone download name: `STCA_logo.png`.
 - OpenAI listing and composer fields both reference the same PNG.
 - Suggested interface accent: `#167D8D`.

@@ -49,4 +49,4 @@ Code Ocean：[10.24433/CO.1601774.v1](https://doi.org/10.24433/CO.1601774.v1)。
 
 上游版权声明为 `Copyright (c) 2025, The University of Tokyo, University College London`，使用 `LicenseRef-STCA-Academic-NonCommercial`。许可允许非商业学术研究、教学和结果复现中的使用与修改；商业使用及再分发（包括修改版）要求版权所有者事先书面许可；副本须保留版权及许可文字。
 
-本 skill 的适配器调用原作者实现，并保留作者、论文、代码与协议来源；不要把封装工作表述为另行发明 STCA，不将 C-STCA、SC-SHAP、Auto-Select、BO 或 PolymerLLM 的结果冒充本实现的内置功能。
+本 skill 的适配器调用原作者实现，并保留作者、论文、代码与协议来源；不要把封装工作表述为另行发明 STCA，也不要把其他独立方法的结果冒充本实现的内置功能。

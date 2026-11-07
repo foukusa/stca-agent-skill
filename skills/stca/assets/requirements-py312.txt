@@ -1,7 +1,7 @@
-# STCA agent skill 0.1.0
+# STCA agent skill 0.1.1
 # Exact active runtime dependencies for CPython 3.12.
 # Fresh isolated installation verified on Linux x86_64, 2026-11-07.
-# macOS and Windows are not yet verified; run the release smoke test there.
+# macOS and Windows are not yet verified; verify installation and execution there.
 # Version pins only; platform wheel hashes are not pinned in this portable file.
 numpy==2.3.5
 pandas==2.2.3

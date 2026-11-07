@@ -1,20 +1,19 @@
-STCA Agent Skill — OpenAI listing text (0.1.0)
+STCA Agent Skill — OpenAI listing text (0.1.1)
 
 Display name: STCA
-Short description: Polymer screening with rules
+Short description: Polymer screening and design rules
 Developer name: Weihao Wang
 Category: Developer Tools
 
 Long description:
-Use Weihao Wang's original Sliding Threshold Correlation Analysis for polymer repeat units. Screen candidate structures with frozen published rules; extract readable presence/absence rules from measured datasets and evaluate frozen models; export exact rules for agent-assisted candidate proposal followed by computational verification. Applies the confirmed H-cap representation before RDKit MACCS. Calls the pinned author implementation. Requires a Python/RDKit execution environment and initial access to the source and dependencies. A selected candidate satisfies structural rules; its physical properties still require separate evidence.
+Use Sliding Threshold Correlation Analysis (STCA) for polymer repeat units. Apply frozen structural rules to candidate libraries; extract readable rule families from measured data; connect independently scaled Tg, Tm, Td, TC, EC and ε-AC objectives; and export executable constraints for agent-assisted candidate design followed by explicit structural verification. The skill preserves the H-cap representation used by STCA and calls the pinned polymer-stca implementation. It requires a Python/RDKit execution environment.
 
 Starter prompts:
-1. Screen my polymer SMILES with original STCA low-EC 5% rules, applying H-cap before MACCS.
-2. Extract STCA rules from measured polymer data, freeze the model, and evaluate a held-out dataset.
-3. Propose polymer candidates under STCA constraints, H-cap them, and verify them against the frozen rules.
+1. Screen this polymer candidate table for high Tg, low EC and high TC. Choose the tier for each objective independently, then report the same-candidate intersection and failed rule conditions.
+2. Extract and freeze STCA rules from this measured Td dataset, then evaluate the independent holdout and export the readable rule family.
+3. Export structural constraints for low ε-AC and high thermal stability, propose candidates, and verify every proposal against the frozen rules.
 
 Primary icon and composer icon: assets/stca-logo.png
 
 Publisher checks:
 Use the developer identity actually verified in the submission portal. Match its display name if it differs. Confirm the category in the portal. Optional website/support/privacy/terms fields are omitted; no service URL or contact address has been invented. No MCP server is included.
-
