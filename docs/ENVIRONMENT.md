@@ -8,7 +8,7 @@ The setup helper prepares a new environment without changing STCA rules or algor
 
 ```bash
 python3.12 skills/stca/scripts/setup_locked_environment.py \
-  --env-dir "$HOME/.venvs/stca-0.1.1"
+  --env-dir "$HOME/.venvs/stca-0.1.2"
 ```
 
 Read `python` and `source` from the generated `stca-environment.json`, export

@@ -1,7 +1,7 @@
 {
   "schema": "stca-agent-skill-public-validation-v1",
   "audit_date": "2026-11-07",
-  "integration_version": "0.1.1",
+  "integration_version": "0.1.2",
   "upstream": {
     "repository": "https://github.com/foukusa/polymer-stca",
     "package_version": "1.0",

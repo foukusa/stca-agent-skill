@@ -1,4 +1,4 @@
-STCA Agent Skill — OpenAI listing text (0.1.1)
+STCA Agent Skill — OpenAI listing text (0.1.2)
 
 Display name: STCA
 Short description: Polymer screening and design rules

@@ -1,6 +1,6 @@
 # STCA WorkBuddy 版：安装、使用与市场发布
 
-核对日期：2026-11-07。适配文件为 `stca-workbuddy-0.1.1.zip`；这是 WorkBuddy 原生技能包。它使用同一套 STCA 计算脚本、H-cap 契约和固定作者代码版本，增加 WorkBuddy 展示元数据及安装说明。
+核对日期：2026-11-07。适配文件为 `stca-workbuddy-0.1.2.zip`；这是 WorkBuddy 原生技能包。它使用同一套 STCA 计算脚本、H-cap 契约和固定作者代码版本，增加 WorkBuddy 展示元数据及安装说明。
 
 ## 1. 文件结构与平台要求
 

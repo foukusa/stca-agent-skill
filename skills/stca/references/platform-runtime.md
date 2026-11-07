@@ -8,7 +8,7 @@
 
 ```bash
 SKILL_DIR="/absolute/path/to/stca"
-STCA_ENV_DIR="$HOME/.venvs/stca-0.1.1"
+STCA_ENV_DIR="$HOME/.venvs/stca-0.1.2"
 export PYTHONUTF8=1
 
 python3.12 "$SKILL_DIR/scripts/setup_locked_environment.py" \
@@ -24,7 +24,7 @@ export STCA_SOURCE="$(python3.12 -c 'import json,sys; print(json.load(open(sys.a
 
 ```powershell
 $SkillDir = (Resolve-Path "C:ctual\path\stca").Path
-$StcaEnvDir = Join-Path $env:USERPROFILE ".venvs\stca-0.1.1"
+$StcaEnvDir = Join-Path $env:USERPROFILE ".venvs\stca-0.1.2"
 $env:PYTHONUTF8 = "1"
 
 py -3.12 (Join-Path $SkillDir "scripts\setup_locked_environment.py") --env-dir $StcaEnvDir
