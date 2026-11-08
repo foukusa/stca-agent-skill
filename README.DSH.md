@@ -21,7 +21,7 @@ Learn readable polymer structure–property rules, screen candidates, or generat
 2. In the field for a package name, GitHub repository URL or local directory, enter:
 
 ```text
-https://github.com/foukusa/stca-agent-skill.git
+github:foukusa/stca-agent-skill
 ```
 
 3. Click Install, enable STCA, then enter `/stca` or say “Start STCA”.
@@ -30,14 +30,14 @@ https://github.com/foukusa/stca-agent-skill.git
 
 | Route | Value for Add plugin |
 |---|---|
-| **GitHub repository, recommended now** | `https://github.com/foukusa/stca-agent-skill.git` |
+| **GitHub repository, recommended now** | `github:foukusa/stca-agent-skill` |
 | Downloaded plugin ZIP | Full path to the extracted [plugin ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.zip) directory that directly contains `package.json` |
 | npm name, after publication | `dsh-plugin-stca` |
 | Plugin center | — (link to be added after listing) |
 
 <!-- DSH_PLUGIN_CENTER_URL: add the actual listing URL after publication. -->
 
-If STCA is already listed, check and enable that entry. To replace it, manage only the old STCA plugin and preserve your data, results and saved rules. If repeating the HTTPS URL produces a dependency-identification error, enter `github:foukusa/stca-agent-skill` in the same field; this is still a GitHub source and requires no npm publication. See the [installation guide](https://github.com/foukusa/stca-agent-skill/blob/main/docs/INSTALL.md#deepseek-harness) for installation errors and optional CLI use.
+Use the `github:` address above in Add plugin. If a previous HTTPS installation reported “Unable to determine the installed package from dependency changes,” retry with this address. If STCA is already listed, check and enable that entry; preserve your data, results and saved rules when replacing an old copy. See the [installation guide](https://github.com/foukusa/stca-agent-skill/blob/main/docs/INSTALL.md#deepseek-harness) for installation errors and optional CLI use.
 
 Local-directory installation is a fallback: open the plugin ZIP page, click **Download raw file**, extract it, then enter the full plugin-directory path. The separate [standalone skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip) is for manually placing the complete `stca` folder containing `SKILL.md`; it uses a different installation route from a plugin directory.
 

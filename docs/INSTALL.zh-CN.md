@@ -56,22 +56,22 @@ Codex 如何发现和调用 skill，参见 [OpenAI 官方说明](https://learn.c
 
 ## DeepSeek Harness
 
-当前推荐在 **插件 → 添加插件** 中直接填写 GitHub 仓库地址。**GitHub 安装不需要先发布 npm 包**；DSH 从仓库根目录读取 `package.json`、插件入口和完整 skill。插件中心链接：—（上架后补充）。
+当前推荐在 **插件 → 添加插件** 中填写下方 `github:` 安装地址。**GitHub 安装不需要先发布 npm 包**；DSH 从仓库根目录读取 `package.json`、插件入口和完整 skill。插件中心链接：—（上架后补充）。
 
 <!-- DSH_PLUGIN_CENTER_URL: add the actual listing URL after publication. -->
 
-### 用 GitHub 仓库地址安装
+### 从 GitHub 安装
 
 1. 在 DSH 打开 **插件 → 添加插件**。
-2. 填写下面的完整仓库地址，点击安装：
+2. 填写下面的 GitHub 安装地址，点击安装：
 
 ```text
-https://github.com/foukusa/stca-agent-skill.git
+github:foukusa/stca-agent-skill
 ```
 
 3. 安装并在当前 profile 启用 STCA，然后输入 `/stca` 或“开始使用 STCA”。
 
-填写仓库地址，不使用 `/tree/main` 浏览页面，也不把终端命令粘贴进输入框。尚未发布 npm 时继续使用这个 GitHub 入口；只有直接填写 npm 包名 `dsh-plugin-stca` 才要求该包已在 npm 发布。
+在此输入框使用上面的 `github:` 地址。`/tree/main` 浏览页面和终端命令都不是安装地址。尚未发布 npm 时继续使用这个 GitHub 入口；只有直接填写 npm 包名 `dsh-plugin-stca` 才要求该包已在 npm 发布。
 
 ### 可选：下载插件 ZIP 后按本地目录安装
 
@@ -94,7 +94,7 @@ https://github.com/foukusa/stca-agent-skill.git
 dsh plugin --profile web add 'dsh-plugin-stca@github:foukusa/stca-agent-skill'
 ```
 
-**这条命令仍从 GitHub 安装，不需要 npm 发布。** `plugin` 是 DSH 的命令名称，`@github:...` 指定 GitHub 来源。`web` 换成实际 profile。这是终端命令，不放进图形界面的输入框；图形界面按上面的仓库地址安装。
+**这条命令仍从 GitHub 安装，不需要 npm 发布。** `plugin` 是 DSH 的命令名称，`@github:...` 指定 GitHub 来源。`web` 换成实际 profile。这是终端命令，不放进图形界面的输入框；图形界面填写上面的 `github:` 地址。
 
 ### npm 包名：发布后可用
 
@@ -122,21 +122,15 @@ dsh-plugin-stca
 dsh plugin --profile web add 'dsh-plugin-stca@file:/Users/你的用户名/Downloads/dsh-plugin-stca-0.1.0.tgz'
 ```
 
-这个命名文件参数仅用于 CLI；图形界面使用仓库地址或解压后的插件目录。
+这个命名文件参数仅用于 CLI；图形界面使用上面的 `github:` 地址或解压后的插件目录。
 
 ### “无法从依赖变更中确定安装了哪一个包”
 
-这是 DSH 插件管理器在加载 STCA 之前，未能从安装前后的依赖变化中识别唯一目标包。它不表示必须先发布 npm，也与 Python、RDKit 或 STCA 计算无关。
+这是 DSH 插件管理器在包管理器执行后未能识别唯一目标包。即使 pnpm 已显示 `Packages: +1` 和 `Done`，DSH 仍可能无法将安装地址对应到已保存的依赖名称。此错误发生在加载 STCA 之前，不需要发布 npm，也不需要修改 Python 或 RDKit。
 
-先检查插件列表：已有 STCA 时直接启用，不反复添加；需要替换旧版时，只通过插件管理处理旧 STCA，保留自己的数据、结果和规则包。
+若之前填写的是 HTTPS 仓库地址，在同一个**添加插件**输入框改用上面的 `github:foukusa/stca-agent-skill` 重试。该 GitHub 写法已通过 DSH 安装器验证。
 
-若重复添加 HTTPS 地址触发此报错，在同一个“添加插件”输入框改用仓库的 GitHub 简写：
-
-```text
-github:foukusa/stca-agent-skill
-```
-
-这是同一 GitHub 仓库的来源写法，不是 npm 包名，也不要求发布 npm；已在真实 DSH 安装器中验证该简写可以识别已有的 GitHub 依赖。若仍失败，可使用上面的本地插件目录作为备选。仍失败时保留完整安装日志、DSH 版本、安装来源和实际错误，不修改计算代码来处理安装器报错。
+已有 STCA 条目时先检查并启用；替换旧版时仅处理 STCA，保留数据、结果和保存的规则，不清空 DSH 配置。若仍失败，可使用上面的本地插件目录方式，并保留完整安装日志和 DSH 版本号。
 
 参见 [DSH 官方插件安装说明](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/develop/basic/publish.zh.md)与[本地 skill 说明](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/skill/skill-filesystem/README.zh.md)。
 

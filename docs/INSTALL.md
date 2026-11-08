@@ -56,22 +56,22 @@ See the [official skill guide](https://learn.chatgpt.com/docs/build-skills) for 
 
 ## DeepSeek Harness
 
-The recommended route is **Plugins → Add plugin**, using the GitHub repository URL. **GitHub installation does not require npm publication.** DSH reads `package.json`, the plugin entry and complete skill from the repository root. Plugin-center link: — (to be added after listing).
+The recommended route is **Plugins → Add plugin**, using the `github:` installation address below. **GitHub installation does not require npm publication.** DSH reads `package.json`, the plugin entry and complete skill from the repository root. Plugin-center link: — (to be added after listing).
 
 <!-- DSH_PLUGIN_CENTER_URL: add the actual listing URL after publication. -->
 
-### Install using the GitHub repository URL
+### Install from GitHub
 
 1. In DSH, open **Plugins → Add plugin**.
-2. Enter this full repository URL and click Install:
+2. Enter this GitHub installation address and click Install:
 
 ```text
-https://github.com/foukusa/stca-agent-skill.git
+github:foukusa/stca-agent-skill
 ```
 
 3. Enable STCA in your current profile, then enter `/stca` or say “Start STCA”.
 
-Use the repository URL, not a `/tree/main` browsing page or a terminal command. This GitHub route remains available before npm publication. Only entering the bare npm name `dsh-plugin-stca` requires a published npm package.
+Use the `github:` address above in this field. A `/tree/main` browsing page and a terminal command are not installation addresses. This GitHub route remains available before npm publication. Only entering the bare npm name `dsh-plugin-stca` requires a published npm package.
 
 ### Optional: extract the plugin ZIP and install its directory
 
@@ -94,7 +94,7 @@ In a terminal, the DSH CLI can explicitly name the package and its GitHub source
 dsh plugin --profile web add 'dsh-plugin-stca@github:foukusa/stca-agent-skill'
 ```
 
-**This command still installs from GitHub and does not require npm publication.** `plugin` is a DSH command name; `@github:...` specifies the GitHub source. Replace `web` with your actual profile. Run this in a terminal, not the graphical input field; use the repository URL in the interface.
+**This command still installs from GitHub and does not require npm publication.** `plugin` is a DSH command name; `@github:...` specifies the GitHub source. Replace `web` with your actual profile. Run this in a terminal, not the graphical input field; use the `github:` address above in the interface.
 
 ### npm package name: after publication
 
@@ -122,21 +122,15 @@ Download [dsh-plugin-stca-0.1.0.tgz](https://github.com/foukusa/stca-agent-skill
 dsh plugin --profile web add 'dsh-plugin-stca@file:/Users/your-name/Downloads/dsh-plugin-stca-0.1.0.tgz'
 ```
 
-This named file argument is for the CLI. The graphical interface uses a repository URL or an extracted plugin directory.
+This named file argument is for the CLI. The graphical interface uses the `github:` address above or an extracted plugin directory.
 
 ### “Unable to determine the installed package from dependency changes”
 
-This means the DSH plugin manager could not identify one target package from the dependency changes, before loading STCA. It does not mean npm publication is required, and it is unrelated to Python, RDKit or STCA calculations.
+The DSH plugin manager could not identify one target package after the package-manager step. Even when pnpm reports `Packages: +1` and `Done`, DSH can still fail to match the installation address to the saved dependency name. This error occurs before STCA loads and does not require npm publication or changes to Python or RDKit.
 
-Check the plugin list first: enable an existing STCA entry instead of repeatedly adding it. To replace an old copy, manage only the old STCA plugin while preserving your data, results and rule bundles.
+If you previously used an HTTPS repository URL, retry with the `github:foukusa/stca-agent-skill` address shown above in the same **Add plugin** field. This GitHub form has been verified with the DSH installer.
 
-If repeating the HTTPS URL triggers this error, enter the repository’s GitHub shorthand in the same Add plugin field:
-
-```text
-github:foukusa/stca-agent-skill
-```
-
-This names the same GitHub source, not an npm package, and requires no npm publication. A real DSH installer test confirmed that this form identifies an existing GitHub dependency. If it still fails, use the local plugin-directory fallback above. Preserve the complete installation log, DSH version, source and actual error if installation still fails; do not modify computation code to address an installer error.
+If STCA is already listed, check and enable that entry. To replace an old copy, manage only STCA and preserve your data, results and saved rules; do not clear the DSH configuration. If installation still fails, use the local plugin-directory option above and retain the complete installation log and DSH version.
 
 See the [official plugin installation guide](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/develop/basic/publish.md) and [filesystem skill guide](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/skill/skill-filesystem/README.md).
 
