@@ -520,6 +520,11 @@ def render_user_summary(summary):
         setting = summary["WRAcc_search"]["maximum_literals"]
         lines.insert(3, "WRAcc 条件数：训练分区内自动比较 1、2、3、5、10 条与不限制条件数；评价折只用于评价。" if setting == "auto"
                      else f"WRAcc 条件数：按用户要求设置为 {setting}；不限制时搜索至所有可变键或候选耗尽。")
+    if summary.get("storage_warnings"):
+        warning_lines = ["**规则计算与两方法筛选已完成，但规则目录保存或规则包导出未全部完成。** 本次输出中的模型、约束、prompt 和筛选表仍保留；不能将规则目录保存报告为成功。", ""]
+        warning_lines.extend(f"存储提示（{warning['method']}，{warning['operation']}）：{warning['error_type']}：{warning['error']}"
+                             for warning in summary["storage_warnings"])
+        lines[2:2] = warning_lines + [""]
     for item in summary["tiers"]:
         left, right = item["methods"]["STCA"], item["methods"]["WRAcc"]
         threshold = f"{item['operator']} {number(item['physical_cutoff'])} {item['unit']}"
@@ -552,6 +557,33 @@ def render_user_summary(summary):
     return "\n".join(lines)
 
 
+def save_rule_delivery(*, library_dir, name, method, model_path, constraints, output, count, preferences):
+    """A library write failure must not discard another method's computed files."""
+    from user_rule_library import save_entry, export_entry
+    if not constraints:
+        return {"status": "not_saved_no_valid_rule",
+                "reason": "No exact nonempty rule is available; no reusable rule or prompt was invented."}
+    def failed(operation, error):
+        return {"method": method, "operation": operation,
+                "error_type": type(error).__name__, "error": str(error),
+                "requires_permission_review": isinstance(error, PermissionError),
+                "model_retained_at": str(model_path),
+                "next_action": "review_specific_storage_error; do_not_patch_verification_or_repeat_learning"}
+    try:
+        receipt = save_entry(library_dir, name, model_path, constraints, count, preferences)
+    except OSError as error:
+        return {"status": "not_saved_storage_error", "storage_warning": failed("save_rule_library", error),
+                "model": str(model_path), "computed_files_retained": True}
+    archive = output / f"saved_{method.lower()}_rules.zip"
+    try:
+        exported = export_entry(library_dir, receipt["entry"]["id"], archive)
+    except OSError as error:
+        return {"status": "saved_export_failed", "save": receipt,
+                "storage_warning": failed("export_rule_bundle", error),
+                "computed_files_retained": True}
+    return {"status": "saved_and_exported", "save": receipt, "export": exported}
+
+
 def run(args):
     from stca_runtime import load_stca, environment_receipt
     stca = load_stca(args.source)
@@ -560,7 +592,6 @@ def run(args):
     from auto_screen import read_auto_frame
     from frozen_literal_model import create_model_artifact
     from stca_tools import export_rules, screen_candidates
-    from user_rule_library import save_entry, export_entry
 
     tiers = parse_tiers(args.tiers)
     if args.folds < 2 or args.repeats < 1:
@@ -658,7 +689,7 @@ def run(args):
                 "original_smiles_column": resolve(args.smiles_column), "target_column": resolve(args.target),
                 "all_original_rows_preserved_in_screening": True,
                 "fit_scope": "full_prepared_data_deployment", "evaluation_evidence_status": EVIDENCE}
-    methods_delivered, saved = {}, {}
+    methods_delivered, saved, pending_saves = {}, {}, {}
     aggregate = raw.copy()
     for method in ("STCA", "WRAcc"):
         method_dir = output / method.lower()
@@ -732,16 +763,16 @@ def run(args):
             delivered_tiers.append({"tier": tier, "bundle": str(bundle), "status": constraint["status"],
                                     "complete_prompt_status": constraint.get("prompt_generation", {}).get("status")})
         methods_delivered[method] = {"model": str(model_path), "tiers": delivered_tiers}
-        if constraints:
-            receipt = save_entry(args.library_dir, f"{target_name} {args.direction} {method} in-range full-data rules",
-                                 model_path, constraints, args.count, args.preferences)
-            archive = output / f"saved_{method.lower()}_rules.zip"
-            exported = export_entry(args.library_dir, receipt["entry"]["id"], archive)
-            saved[method] = {"save": receipt, "export": exported}
-        else:
-            saved[method] = {"status": "not_saved_no_valid_rule", "reason": "No exact nonempty rule is available; no reusable rule or prompt was invented."}
+        pending_saves[method] = {"model_path": model_path, "constraints": constraints}
     aggregate.to_csv(output / "all_rows_screening.csv", index=False)
     write_json(output / "deployment_rules_and_cutoffs.json", deployment)
+    # Deliver both learners before attempting the separate user rule directory.
+    for method, pending in pending_saves.items():
+        saved[method] = save_rule_delivery(library_dir=args.library_dir,
+            name=f"{target_name} {args.direction} {method} in-range full-data rules",
+            method=method, output=output, count=args.count, preferences=args.preferences, **pending)
+    storage_warnings = [entry["storage_warning"] for entry in saved.values() if entry.get("storage_warning")]
+    workflow_status = "completed_with_storage_warning" if storage_warnings else "completed"
     write_json(output / "saved_rule_receipts.json", saved)
     rows, recommendation = [], []
     for tier in tiers:
@@ -806,9 +837,14 @@ def run(args):
     summary["WRAcc_search"] = learners.wracc_settings()
     summary["fingerprint_contract"] = {"status": fingerprint_contract["status"],
         "path": "fingerprint_contract.json", "representation": fingerprint_contract["representation"]}
+    summary["status"] = workflow_status
+    summary["storage_warnings"] = storage_warnings
+    summary["all_available_rule_sets_saved_and_exported"] = not storage_warnings
     write_json(output / "screening_summary.json", summary)
     (output / "recommendation.md").write_text(render_user_summary(summary), encoding="utf-8")
-    manifest = {"schema": "stca-inrange-workflow-v1", "status": "completed", "next_action": "continue_conversation",
+    manifest = {"schema": "stca-inrange-workflow-v1", "status": workflow_status, "next_action": "continue_conversation",
+        "calculation_status": "completed", "storage_warnings": storage_warnings,
+        "all_available_rule_sets_saved_and_exported": not storage_warnings,
         "entrypoint": "inrange_evaluation.py",
         "entrypoint_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         "fingerprint_contract": {"path": "fingerprint_contract.json", "status": fingerprint_contract["status"],
@@ -832,7 +868,8 @@ def run(args):
     write_json(output / "run_manifest.json", manifest)
     delivery_check = verify_run_artifacts(output)
     write_json(output / "delivery_verification.json", delivery_check)
-    print(json.dumps({"status": "completed", "output_directory": str(output), "next_action": "continue_conversation",
+    print(json.dumps({"status": workflow_status, "output_directory": str(output), "next_action": "continue_conversation",
+                      "storage_warnings": storage_warnings,
                       "screening_summary": str(output / "screening_summary.json"),
                       "tiers": summary["tiers"]}, ensure_ascii=False))
     return 0

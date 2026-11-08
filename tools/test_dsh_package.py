@@ -1,6 +1,7 @@
 """Validate the npm tarball consumed by DSH Add plugin."""
 import hashlib
 import json
+import os
 from pathlib import Path
 import subprocess
 import tarfile
@@ -48,6 +49,51 @@ class DshPackageTests(unittest.TestCase):
         for lang in ['en','zh-cn']:
             meta=json.loads(self.files[f'dsh/locale/{lang}.json'])['meta']
             self.assertTrue(meta['title']);self.assertTrue(meta['description'])
+
+    def test_unpacked_gui_directory_registers_without_peer_module_resolution(self):
+        # pnpm links local directories. Its node_modules is not an ancestor of
+        # the unpacked plugin's real path, so the entry must use host services
+        # without importing a provider package from that external directory.
+        directory=Path(self.temp.name)/'GUI plugin outside profile'
+        for relative,data in self.files.items():
+            target=directory/relative
+            target.parent.mkdir(parents=True,exist_ok=True)
+            target.write_bytes(data)
+        self.assertFalse(self.manifest.get('dependencies'))
+        self.assertFalse(self.manifest.get('peerDependencies'))
+        script=r'''
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import {pathToFileURL} from 'node:url';
+const root=process.argv[1];
+const plugin=await import(pathToFileURL(path.join(root,'dsh/index.js')).href);
+let provider;
+plugin.apply({skills:{registerProvider(factory){provider=factory({});}}});
+assert.equal(provider.name,'stca');
+const listed=await provider.list({});
+assert.equal(listed.length,1);
+assert.equal(listed[0].name,'stca');
+assert.equal(listed[0].rank,600);
+assert.equal(listed[0].resourceBase.path,path.join(root,'skills/stca'));
+const loaded=await provider.get(listed[0],{});
+assert.equal(loaded.provider,'stca');
+assert(loaded.content.startsWith('# STCA'));
+assert(!loaded.content.startsWith('---'));
+assert(loaded.invocation.modelInvocable && loaded.invocation.userInvocable);
+const catalog=JSON.parse(fs.readFileSync(path.join(loaded.resourceBase.path,'assets/rule_library/catalog.json'),'utf8'));
+assert.equal(catalog.entries.length,149);
+for(const entry of catalog.entries)for(const p of [entry.constraints,...Object.values(entry.prompts)])assert(fs.existsSync(path.join(loaded.resourceBase.path,'assets/rule_library',p)));
+assert.equal(await provider.get({name:'other',provider:'other'},{}),undefined);
+const cancel=new AbortController();cancel.abort();
+await assert.rejects(provider.list({signal:cancel.signal}));
+console.log(JSON.stringify({registered:true,external_dependencies:0,rules:catalog.entries.length}));
+'''
+        result=subprocess.run(['node','--input-type=module','-e',script,str(directory)],
+                              cwd=self.temp.name,capture_output=True,text=True,
+                              env={**os.environ,'NODE_PATH':''})
+        self.assertEqual(result.returncode,0,result.stderr)
+        self.assertTrue(json.loads(result.stdout)['registered'])
 
     def test_all_frozen_rules_prompts_and_computational_scripts_preserved(self):
         prefix='skills/stca/'

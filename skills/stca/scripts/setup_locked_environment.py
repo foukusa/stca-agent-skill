@@ -25,7 +25,7 @@ def run(command: list[str], *, timeout: int = 300) -> None:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--env-dir", required=True, help="New directory for the isolated Python environment; must not exist.")
-    parser.add_argument("--source", help="Optional existing clean checkout at the pinned STCA revision; otherwise clone into the new environment.")
+    parser.add_argument("--source", help="Optional verified author snapshot or clean pinned checkout; defaults to the bundled offline source.")
     parser.add_argument("--dependency-mode", choices=("compatible", "linux-hashed", "portable-pinned"), default="compatible",
                         help="Default: minimum compatible dependencies. Exact historical locks are opt-in.")
     args = parser.parse_args(argv)
@@ -52,8 +52,7 @@ def main(argv: list[str] | None = None) -> int:
         runtime = Path(__file__).resolve().with_name("stca_runtime.py")
         if not runtime.is_file():
             raise ValueError("Place this script next to stca_runtime.py inside the complete STCA skill.")
-        source = verify_source(args.source) if args.source else None
-        run(["git", "--version"], timeout=15)
+        source = verify_source(args.source)
         # Some host-managed Python builds omit ensurepip; reuse an available
         # environment manager so ordinary users never have to repair Python.
         uv = shutil.which("uv")
@@ -81,10 +80,6 @@ def main(argv: list[str] | None = None) -> int:
         compatibility = json.loads(checked.stdout)
         if checked.returncode or not compatibility.get("ready"):
             raise RuntimeError("Prepared backend failed its functional compatibility checks: " + checked.stdout[-4000:])
-        if source is None:
-            source = destination / "stca-source"
-            run(["git", "clone", "--no-checkout", UPSTREAM_URL, str(source)], timeout=120)
-            run(["git", "-C", str(source), "checkout", "--detach", UPSTREAM_COMMIT], timeout=30)
         source = verify_source(source)
         result = subprocess.run([str(python), str(runtime), "--source", str(source), "doctor"],
                                 capture_output=True, text=True, check=True, timeout=60)
@@ -105,7 +100,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     except (ValueError, RuntimeError, OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as error:
         print(f"stca-setup: {error}", file=sys.stderr)
-        print("The host agent should inspect the setup error and continue with a compatible backend; existing environments were not modified.", file=sys.stderr)
+        print("The host agent should report the failed operation and exact path. Use an authorized compatible backend; do not patch verification, fabricate Git metadata or repeatedly retry a denied operation. Existing environments were not modified.", file=sys.stderr)
         return 2
 
 

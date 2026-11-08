@@ -24,9 +24,6 @@
   "engines": {
     "dsh": ">=0.0.1-rc.3 <0.3.0"
   },
-  "peerDependencies": {
-    "@deepseek-ai/dsh-skill-filesystem": "*"
-  },
   "keywords": [
     "dsh-plugin",
     "deepseek-harness",

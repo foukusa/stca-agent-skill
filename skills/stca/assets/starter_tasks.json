@@ -448,5 +448,17 @@
       "row_policy": "all_original_rows_preserved",
       "relearn_equality": "same_model_and_tier_reapplication_is_identical; adaptive_refit_may_differ_from_legacy_frozen_profile"
     }
-  ]
+  ],
+  "execution_error_policy": {
+    "author_source": "verify_bundled_unchanged_source; ordinary_calculation_requires_no_git",
+    "on_permission_denial": "stop_affected_operation; retain_first_command_exit_code_and_stderr; use_platform_permission_flow",
+    "forbidden_recovery": [
+      "forge_git_metadata",
+      "patch_source_or_verification",
+      "change_security_policy",
+      "retry_with_other_interfaces_or_directories_to_evade_denial"
+    ],
+    "partial_delivery": "read_status_and_storage_warnings; return_both_existing_method_outputs; never_claim_failed_rule_save_succeeded; do_not_retrain_for_storage_errors",
+    "progress": "brief_task_status_and_actual_error; no_serial_patch_exploration"
+  }
 }

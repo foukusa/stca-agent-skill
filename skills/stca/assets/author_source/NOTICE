@@ -1,0 +1,27 @@
+STCA / polymer-stca
+
+Related paper:
+Interpretable Substructure-Based Screening of Multi-Property Polymer Dielectrics with Prompt-Ready Rules for Rational Design
+Journal: npj Computational Materials
+
+Copyright (c) 2025, The University of Tokyo, University College London
+See LICENSE for non-commercial academic-use terms and permission requirements
+for commercial use and redistribution.
+
+Maintainer contact: wang@hvg.t.u-tokyo.ac.jp
+Laboratory: Kumada-Sato-Fujii-Umemoto Laboratory
+Institution: Department of Electrical Engineering & Information Systems,
+University of Tokyo
+
+Recommended online research reproduction:
+https://doi.org/10.24433/CO.1601774.v1
+This DOI identifies the Code Ocean research capsule, not the journal article.
+The capsule and any data it supplies remain subject to their own stated terms.
+
+Pretrained Tg and EC models and their source records are described in
+README.md and docs/SOURCES.md. Original measurement databases are not
+included in this package.
+
+Third-party dependencies remain subject to their respective licenses.
+This notice does not relicense RDKit, NumPy, pandas, SciPy or other upstream
+software. Naming the journal does not imply journal authorship or endorsement.

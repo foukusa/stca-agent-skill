@@ -9,10 +9,8 @@ import json
 import math
 from pathlib import Path, PurePosixPath
 import secrets
-import shutil
 import stat
 import sys
-import tempfile
 import zipfile
 
 from generation_prompt import render_prompt
@@ -163,19 +161,22 @@ def validate_constraint(model, constraint):
 
 
 def save_entry(root, name, model_path, constraint_paths, count=20, preferences="", imported_from=None):
+    """Save a new rule set without overwriting or renaming existing files."""
+    model_bytes = Path(model_path).resolve().read_bytes()
+    constraints = [Path(path).resolve().read_bytes() for path in constraint_paths]
+    return _save_entry_bytes(root, name, model_bytes, constraints, count, preferences, imported_from)
+
+
+def _save_entry_bytes(root, name, model_bytes, constraints, count=20, preferences="", imported_from=None):
     root = library_root(root)
     name = _name(name)
     if not isinstance(preferences, str):
         raise ValueError("Chemical preferences must be text.")
-    model_path = Path(model_path).resolve()
-    model_bytes = model_path.read_bytes()
     model = parse_json(model_bytes)
     validate_model(model)
     payload = {"model.json": model_bytes}
     rules, seen = [], set()
-    for supplied in constraint_paths:
-        path = Path(supplied).resolve()
-        captured = path.read_bytes()
+    for captured in constraints:
         constraint = parse_json(captured)
         key = validate_constraint(model, constraint)
         if key in seen:
@@ -211,18 +212,20 @@ def save_entry(root, name, model_path, constraint_paths, count=20, preferences="
               "source_csv_copied": False}
     if imported_from:
         record["imported_from"] = imported_from
-    stage = Path(tempfile.mkdtemp(prefix=".saving-", dir=root))
-    try:
-        for relative, data in payload.items():
-            path = stage / relative
-            path.parent.mkdir(parents=True, exist_ok=True)
-            with path.open("xb") as handle:
-                handle.write(data)
-        (stage / "record.json").write_bytes(json_bytes(record))
-        stage.rename(destination)
-    finally:
-        if stage.exists():
-            shutil.rmtree(stage)
+    # Validate the complete intended record before creating its directory.
+    # A missing/partial record.json never becomes a usable library entry.
+    _validate_record_data(record, identifier, payload)
+    destination.mkdir(exist_ok=False)
+    for relative, data in payload.items():
+        path = destination / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("xb") as handle:
+            handle.write(data)
+    # Commit marker LAST: a failed write leaves an incomplete unique entry for
+    # inspection, rather than requiring delete/rename permissions to roll back.
+    # Filesystem PermissionError is deliberately not suppressed or bypassed.
+    with (destination / "record.json").open("xb") as handle:
+        handle.write(json_bytes(record))
     return {"status": "saved", "next_action": "continue_conversation", "entry": show_entry(root, identifier)}
 
 
@@ -237,8 +240,25 @@ def _entry_path(root, identifier):
 
 
 def _validate_record(path):
-    record = read_json(path / "record.json")
-    if not isinstance(record, dict) or record.get("schema") != SCHEMA or record.get("id") != path.name or not valid_identifier(path.name):
+    if path.is_symlink() or not path.is_dir():
+        raise ValueError("Saved rule set must be a regular directory.")
+    resources = {}
+    for resource in path.rglob("*"):
+        if resource.is_symlink():
+            raise ValueError("Saved rule resources cannot be symlinks.")
+        if resource.is_file():
+            resources[resource.relative_to(path).as_posix()] = resource.read_bytes()
+        elif not resource.is_dir():
+            raise ValueError("Saved rule resources must be regular files.")
+    if "record.json" not in resources:
+        raise ValueError("Saved rule set is incomplete: record.json was not committed.")
+    record = parse_json(resources.pop("record.json"))
+    return _validate_record_data(record, path.name, resources)
+
+
+def _validate_record_data(record, identifier, resources):
+    """Validate the same bounded record contract on disk or in an archive."""
+    if not isinstance(record, dict) or record.get("schema") != SCHEMA or record.get("id") != identifier or not valid_identifier(identifier):
         raise ValueError("Invalid saved-rule record.")
     files, rules = record.get("files"), record.get("rules")
     if not isinstance(files, dict) or not files or not isinstance(rules, list) or not rules:
@@ -258,14 +278,15 @@ def _validate_record(path):
         referenced.update(references)
     if referenced != set(files):
         raise ValueError("Saved record contains unexpected resources.")
+    if set(resources) != set(files):
+        raise ValueError("Saved rule set has unexpected or missing resource files.")
     for relative, expected in files.items():
         item = PurePosixPath(relative)
         if item.is_absolute() or ".." in item.parts or "\\" in relative or ":" in relative or str(item) != relative:
             raise ValueError("Saved resource escapes its rule directory.")
-        resource = path / relative
-        if resource.is_symlink() or not resource.resolve().is_relative_to(path.resolve()) or not resource.is_file() or digest(resource.read_bytes()) != expected:
+        if digest(resources[relative]) != expected:
             raise ValueError(f"Saved resource is missing or has changed: {relative}")
-    model = read_json(path / record["model"]["file"])
+    model = parse_json(resources[record["model"]["file"]])
     validate_model(model)
     if record["model"].get("artifact_sha256") != canonical_hash(model):
         raise ValueError("Saved model hash differs from its record.")
@@ -279,7 +300,7 @@ def _validate_record(path):
             raise ValueError(f"Saved display {field} differs from its model.")
     actual_tiers = []
     for rule in record["rules"]:
-        constraint = read_json(path / rule["constraints"])
+        constraint = parse_json(resources[rule["constraints"]])
         key = validate_constraint(model, constraint)
         if float(key) != rule["tier"]:
             raise ValueError("Saved rule tier differs from its constraints.")
@@ -349,20 +370,15 @@ def import_entry(root, archive_path):
         expected = {identifier + "/record.json", *(identifier + "/" + name for name in record.get("files", {}))}
         if names != expected:
             raise ValueError("Saved-rule archive contains unexpected or missing resources.")
-        with tempfile.TemporaryDirectory(prefix="stca-rule-import-") as temporary:
-            directory = Path(temporary) / identifier
-            directory.mkdir()
-            for name in names:
-                relative = PurePosixPath(name).relative_to(identifier)
-                target = directory.joinpath(*relative.parts)
-                target.parent.mkdir(parents=True, exist_ok=True)
-                target.write_bytes(archive.read(name))
-            verified = _validate_record(directory)
-            defaults = verified.get("generation_defaults", {})
-            return save_entry(root, verified["name"], directory / "model.json",
-                              [directory / rule["constraints"] for rule in verified["rules"]],
-                              defaults.get("count", 20), defaults.get("preferences", ""),
-                              imported_from={"id": identifier, "archive_sha256": digest(Path(archive_path).read_bytes())})
+        # Read only the declared, bounded files; do not extract an archive or
+        # create temporary directories whose cleanup may require extra rights.
+        resources = {name: archive.read(identifier + "/" + name) for name in record["files"]}
+        verified = _validate_record_data(record, identifier, resources)
+        defaults = verified.get("generation_defaults", {})
+        return _save_entry_bytes(root, verified["name"], resources["model.json"],
+                                 [resources[rule["constraints"]] for rule in verified["rules"]],
+                                 defaults.get("count", 20), defaults.get("preferences", ""),
+                                 imported_from={"id": identifier, "archive_sha256": digest(Path(archive_path).read_bytes())})
 
 
 def main(argv=None):

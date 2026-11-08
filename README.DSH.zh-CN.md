@@ -17,31 +17,34 @@
 
 ## 安装与开始
 
-1. 打开 **插件 → 添加插件**。
-2. 填写下列任一来源，完成安装并启用 STCA。
-3. 输入 `/stca`，直接说明希望完成的任务。
+1. 打开本仓库的[插件 ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.zip)文件页，点击 **Download raw file** 下载，再解压。
+2. 在 DSH 打开 **插件 → 添加插件**，填写解压后插件文件夹的完整本地路径，例如：
 
-| 方式 | 填写内容 |
+```text
+/Users/你的用户名/Downloads/dsh-plugin-stca-0.1.0
+```
+
+3. 确认该目录直接包含 `package.json`、`dsh` 和 `skills`，完成安装并启用 STCA，然后输入 `/stca`。
+
+| 方式 | 在“添加插件”中填写 |
 |---|---|
-| GitHub 仓库 | `https://github.com/foukusa/stca-agent-skill.git` |
+| 下载插件 ZIP 后安装 | 解压后的 `dsh-plugin-stca-0.1.0` 完整目录路径 |
 | npm 包名 | `dsh-plugin-stca`，npm 发布后可用 |
 | 插件中心 | —（上架后补充链接） |
 
 <!-- DSH_PLUGIN_CENTER_URL: add the actual listing URL after publication. -->
 
-使用 CLI 时，选择实际使用的 profile。以下命令以 `web` 为例：
+[源码仓库](https://github.com/foukusa/stca-agent-skill)提供 GitHub 源码；[插件 TGZ](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz)也可供 CLI 安装。具体命令与安装报错处理见[安装说明](https://github.com/foukusa/stca-agent-skill/blob/main/docs/INSTALL.zh-CN.md#deepseek-harness)。
+
+直接从 GitHub 安装可在 DSH CLI 执行：
 
 ```bash
-dsh plugin --profile web add github:foukusa/stca-agent-skill
+dsh plugin --profile web add 'dsh-plugin-stca@github:foukusa/stca-agent-skill'
 ```
 
-npm 发布完成后，可按包名安装：
+`web` 换成实际 profile。此带包名的参数用于 CLI；图形界面填写解压目录，避免将 CLI 参数作为包名查询。
 
-```bash
-dsh plugin --profile web add dsh-plugin-stca
-```
-
-下面的安装包链接均指向本仓库内的文件页，打开后点击 **Download raw file** 下载。也可在[GitHub 仓库](https://github.com/foukusa/stca-agent-skill)选择 **Code → Download ZIP** 下载源码，其中 DSH skill 位于 `skills/stca`。下载[插件 TGZ](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz)，在“添加插件”中填写其完整本地路径。[skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip) 则采用解压后放置文件夹的方式，具体见[安装说明](https://github.com/foukusa/stca-agent-skill/blob/main/docs/INSTALL.zh-CN.md#deepseek-harness)。
+需要手动安装 skill 时，下载另一份 [skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip)，将解压得到的完整 `stca` 文件夹放入 DSH 的 skill 根目录；这个 `stca` 文件夹含 `SKILL.md`，与插件 ZIP 解压后含 `package.json` 的目录用途不同。
 
 启用后输入 **`/stca`**，或直接说 **“开始使用 STCA”**。
 
@@ -104,7 +107,7 @@ STCA 通过当前 LLM 对话工作。你可以直接提出任务；只说“开�
 - DSH 版本要求：**`>=0.0.1-rc.3 <0.3.0`**。
 - 计算使用 **CPU 与 Python 3.10 及以上环境**。筛选和结构核验需要 RDKit，学习还使用数值计算依赖。STCA 自动查找并检查普通 Python、虚拟环境或 Conda 环境，**不要求安装 Conda，也不要求手工填写 Python 路径**。优先复用兼容环境，缺少依赖时可在用户缓存中准备独立环境。
 - 当前 DSH 会话需允许读取指定数据、写入结果目录及执行本地命令。原输入保留，结果另存；查询规则和读取现成 prompt 不需要 RDKit。计算环境无法运行时，生成提案会标为“待核验”，不会据此把结构记为无效或规则不匹配。
-- 准备依赖时可能访问 PyPI；学习时准备作者代码可能访问 GitHub，并需要 Git。生成使用当前 DSH 会话已配置的模型／服务商，STCA 无需另配模型 API；数据处理仍遵循当前会话与服务商的规则。
+- 包内已包含经校验的作者实现，普通计算无需 Git，也不再克隆源码；准备缺失的 Python 依赖时可能访问 PyPI。生成使用当前 DSH 会话已配置的模型／服务商，STCA 无需另配模型 API；数据处理仍遵循当前会话与服务商的规则。
 
 ## 许可与来源
 

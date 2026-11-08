@@ -17,33 +17,36 @@ Learn readable polymer structure–property rules, screen candidates, or generat
 
 ## Install and start
 
-1. Open **Plugins → Add plugin**.
-2. Enter one of the sources below, complete installation and enable STCA.
-3. Enter `/stca` and describe the task you want to perform.
+1. Open the repository’s [plugin ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.zip) page, click **Download raw file**, and extract the download.
+2. In DSH, open **Plugins → Add plugin** and enter the full local path to the extracted plugin folder, for example:
 
-| Source | Value |
+```text
+/Users/your-name/Downloads/dsh-plugin-stca-0.1.0
+```
+
+3. Check that this folder directly contains `package.json`, `dsh` and `skills`. Complete installation, enable STCA and enter `/stca`.
+
+| Route | Value for Add plugin |
 |---|---|
-| GitHub repository | `https://github.com/foukusa/stca-agent-skill.git` |
+| Downloaded plugin ZIP | Full path to the extracted `dsh-plugin-stca-0.1.0` directory |
 | npm package name | `dsh-plugin-stca` — available after npm publication |
-| Plugin center | — (link will be added after listing) |
+| Plugin center | — (link to be added after listing) |
 
 <!-- DSH_PLUGIN_CENTER_URL: add the actual listing URL after publication. -->
 
-For the CLI, use your active profile. These commands use `web` as an example:
+The [source repository](https://github.com/foukusa/stca-agent-skill) provides GitHub source; the [plugin TGZ](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz) is also available for CLI installation. See the [installation guide](https://github.com/foukusa/stca-agent-skill/blob/main/docs/INSTALL.md#deepseek-harness) for commands and installation-error handling.
+
+For direct GitHub installation with the DSH CLI:
 
 ```bash
-dsh plugin --profile web add github:foukusa/stca-agent-skill
+dsh plugin --profile web add 'dsh-plugin-stca@github:foukusa/stca-agent-skill'
 ```
 
-After npm publication, the package-name command is:
+Replace `web` with your profile. This named argument is for the CLI; use the extracted directory in the graphical interface instead of submitting the CLI argument as a package-name lookup.
 
-```bash
-dsh plugin --profile web add dsh-plugin-stca
-```
+For manual skill installation, download the separate [skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip) and put its complete extracted `stca` folder in the DSH skill root. That folder contains `SKILL.md`; it serves a different purpose from the plugin ZIP’s root folder containing `package.json`.
 
-Package links below open files inside this GitHub repository; click **Download raw file** on the file page. From the [GitHub repository](https://github.com/foukusa/stca-agent-skill), **Code → Download ZIP** downloads the source; the DSH skill is at `skills/stca`. You can also download the [plugin TGZ](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz) and enter its complete local path in Add plugin. The [skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip) uses manual folder installation; see the [installation guide](https://github.com/foukusa/stca-agent-skill/blob/main/docs/INSTALL.md#deepseek-harness).
-
-After enabling the plugin, enter **`/stca`** or say **“Start STCA.”**
+After enabling STCA, enter **`/stca`** or say **“Start STCA”**.
 
 ## Choose a task
 
@@ -104,7 +107,7 @@ See [five actual generated proposals and their verification](https://github.com/
 - Required DSH version: **`>=0.0.1-rc.3 <0.3.0`**.
 - Calculations use a **CPU and Python 3.10+**. Screening and verification need RDKit; learning also uses the numerical stack. STCA automatically discovers and checks local interpreters, including ordinary Python, virtual environments and Conda environments. **Conda and manual Python-path entry are not required.** Compatible environments are reused; missing dependencies can be prepared in a separate user-cache environment.
 - The DSH session needs permission to read the selected data, write the output directory and run local commands. Input files are retained and results are written separately. Rule lookup and reading saved prompts do not require RDKit. If the computation environment fails, proposals remain unverified; that failure does not mean their SMILES or rules failed.
-- Dependency preparation can access PyPI; preparing the author implementation for learning can access GitHub and requires Git. Generation uses the model/provider already configured for the current DSH session, with no separate model API setup for STCA. Session and provider data policies still apply.
+- The checked author implementation is bundled, so ordinary calculations do not require Git or clone source. Preparing missing Python dependencies can access PyPI. Generation uses the model/provider already configured for the current DSH session, with no separate model API setup for STCA. Session and provider data policies still apply.
 
 ## License and sources
 

@@ -18,6 +18,7 @@ import shutil
 import stat
 import subprocess
 import sys
+import tarfile
 import tempfile
 import zipfile
 
@@ -124,6 +125,27 @@ def write_archive(path: Path, files: dict[str, bytes], prefix: str) -> None:
             archive.writestr(info, data)
 
 
+def dsh_directory_payload(tarball: Path) -> dict[str, bytes]:
+    """Make the GUI local-directory installer from the exact npm payload."""
+    payload = {}
+    with tarfile.open(tarball, "r:gz") as archive:
+        for member in archive.getmembers():
+            relative = Path(member.name)
+            if relative.is_absolute() or ".." in relative.parts or not relative.parts or relative.parts[0] != "package":
+                raise ValueError("Unsafe path in DSH npm package.")
+            if member.isdir():
+                continue
+            if not member.isfile() or member.issym() or member.islnk():
+                raise ValueError("DSH package must contain ordinary files only.")
+            name = Path(*relative.parts[1:]).as_posix()
+            if name in payload:
+                raise ValueError("Duplicate resource in DSH npm package.")
+            payload[name] = archive.extractfile(member).read()
+    if "package.json" not in payload or "dsh/index.js" not in payload:
+        raise ValueError("DSH GUI directory requires its package manifest and plugin entry.")
+    return payload
+
+
 def native_skill_payload(files: dict[str, bytes]) -> dict[str, bytes]:
     """Export a complete standalone skill, without repository wrappers."""
     prefix = "skills/stca/"
@@ -212,6 +234,7 @@ def main() -> int:
         *(f"stca-{platform}-{platform_versions[platform]}.zip" for platform in PLATFORMS),
         f"stca-openai-plugin-{version}.zip",
         f"dsh-plugin-stca-{version}.tgz",
+        f"dsh-plugin-stca-{version}.zip",
     ]
     downloads_before = snapshot_downloads(root, [*installer_names, "manifest.json"])
 
@@ -265,6 +288,9 @@ def main() -> int:
         packed_info = json.loads(packed.stdout)
         if len(packed_info) != 1 or packed_info[0].get("filename") != f"dsh-plugin-stca-{version}.tgz":
             raise ValueError("npm pack did not produce the expected DSH plugin tarball.")
+        write_archive(prepared / f"dsh-plugin-stca-{version}.zip",
+                      dsh_directory_payload(prepared / f"dsh-plugin-stca-{version}.tgz"),
+                      f"dsh-plugin-stca-{version}/")
         downloads = {name: (prepared / name).read_bytes() for name in installer_names}
         download_manifest = {
             "schema": "stca-direct-downloads-v1", "version": version,

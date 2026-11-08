@@ -2,15 +2,18 @@
 import base64
 import hashlib
 import importlib.util
+import io
 import json
 import os
 import re
 import shutil
+from contextlib import redirect_stderr
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 import zipfile
 import zlib
 
@@ -60,6 +63,13 @@ class WorkBuddyPackageTests(unittest.TestCase):
 
     def prepare(self):
         return json.loads(self.invoke('prepare').stdout)
+
+    def loader(self):
+        spec = importlib.util.spec_from_file_location('workbuddy_loader_' + self._testMethodName, self.script)
+        module = importlib.util.module_from_spec(spec)
+        with mock.patch.object(sys, 'dont_write_bytecode', True):
+            spec.loader.exec_module(module)
+        return module
 
     def test_zip_root_and_maximum_two_path_components(self):
         self.assertIn('SKILL.md', self.names)
@@ -197,6 +207,97 @@ class WorkBuddyPackageTests(unittest.TestCase):
         script=runtime/'scripts/task_menu.py';script.write_bytes(script.read_bytes()+b'\n# tampered\n')
         result=self.invoke('run','--script','task_menu.py','--',expected=2)
         self.assertIn(b'changed',result.stderr)
+
+    def test_restore_and_menu_require_no_rename_replace_or_delete(self):
+        runtime = self.loader()
+        denied = PermissionError('Simulated protected rename/delete operation')
+        with mock.patch.dict(os.environ, self.env, clear=True), \
+             mock.patch.object(Path, 'cwd', return_value=self.workspace), \
+             mock.patch.object(Path, 'rename', side_effect=denied), \
+             mock.patch.object(Path, 'replace', side_effect=denied), \
+             mock.patch.object(Path, 'unlink', side_effect=denied), \
+             mock.patch.object(os, 'rename', side_effect=denied), \
+             mock.patch.object(os, 'replace', side_effect=denied), \
+             mock.patch.object(os, 'unlink', side_effect=denied), \
+             mock.patch.object(os, 'rmdir', side_effect=denied), \
+             mock.patch.object(shutil, 'rmtree', side_effect=denied):
+            first = runtime.prepare()
+            second = runtime.prepare()
+            self.assertFalse(first['cache_hit'])
+            self.assertTrue(second['cache_hit'])
+            self.assertEqual(first['runtime_skill_dir'], second['runtime_skill_dir'])
+            self.assertTrue((Path(first['runtime_skill_dir']) / runtime.CACHE_MARKER).is_file())
+            # The actual restored task-menu entry executes after verification.
+            self.assertEqual(runtime.main(['run', '--script', 'task_menu.py', '--', '--language', 'en']), 0)
+
+    def test_workspace_cache_default_and_backend_environment(self):
+        runtime = self.loader()
+        work = self.workspace / self._testMethodName
+        work.mkdir()
+        env = dict(self.env)
+        env.pop('STCA_WORKBUDDY_CACHE_DIR', None)
+        env.pop('STCA_CACHE_DIR', None)
+        with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(Path, 'cwd', return_value=work):
+            ready = runtime.prepare()
+            self.assertTrue(Path(ready['runtime_skill_dir']).is_relative_to(work))
+            expected = str(work / '.stca-runtime' / 'backend')
+            self.assertEqual(ready['backend_cache_dir'], expected)
+            with mock.patch.object(runtime.subprocess, 'run', return_value=mock.Mock(returncode=0)) as run:
+                self.assertEqual(runtime.run_agent_runtime(['--help']), 0)
+                forwarded = run.call_args.kwargs['env']
+                self.assertEqual(forwarded['STCA_CACHE_DIR'], expected)
+                self.assertEqual(forwarded['PYTHONDONTWRITEBYTECODE'], '1')
+            with mock.patch.dict(os.environ, {'STCA_CACHE_DIR': str(work / 'explicit backend')}):
+                self.assertEqual(runtime._runtime_environment()['STCA_CACHE_DIR'], str(work / 'explicit backend'))
+
+    def test_incomplete_cache_is_not_executed_changed_or_cleaned(self):
+        runtime = self.loader()
+        expected, _ = runtime.load_payload()
+        base = Path(self.env['STCA_WORKBUDDY_CACHE_DIR'])
+        root = base / expected
+        root.mkdir(parents=True)
+        partial = root / 'SKILL.md'
+        partial.write_text('partial interrupted output')
+        errors = io.StringIO()
+        with mock.patch.dict(os.environ, self.env, clear=True), \
+             mock.patch.object(runtime.subprocess, 'run', side_effect=AssertionError('Must not execute incomplete cache')), \
+             mock.patch.object(Path, 'unlink', side_effect=AssertionError('Must not delete incomplete cache')), \
+             mock.patch.object(shutil, 'rmtree', side_effect=AssertionError('Must not clean incomplete cache')), \
+             redirect_stderr(errors):
+            self.assertEqual(runtime.main(['run', '--script', 'task_menu.py']), 2)
+        self.assertIn('incomplete', errors.getvalue())
+        self.assertEqual(partial.read_text(), 'partial interrupted output')
+        self.assertFalse((root / runtime.CACHE_MARKER).exists())
+
+    def test_file_creation_denial_retains_original_error_and_no_completion_marker(self):
+        runtime = self.loader()
+        expected, _ = runtime.load_payload()
+        original_open = Path.open
+
+        def deny_resource_write(path, mode='r', *args, **kwargs):
+            if path.name == 'SKILL.md' and 'x' in mode:
+                raise PermissionError(13, 'Simulated workspace write denial', str(path))
+            return original_open(path, mode, *args, **kwargs)
+
+        with mock.patch.dict(os.environ, self.env, clear=True), \
+             mock.patch.object(Path, 'open', new=deny_resource_write):
+            with self.assertRaisesRegex(PermissionError, 'Simulated workspace write denial'):
+                runtime.prepare()
+        root = Path(self.env['STCA_WORKBUDDY_CACHE_DIR']) / expected
+        self.assertTrue(root.is_dir())
+        self.assertFalse((root / runtime.CACHE_MARKER).exists())
+
+    def test_unexpected_bytecode_is_rejected_without_deleting_it(self):
+        runtime = self.loader()
+        with mock.patch.dict(os.environ, self.env, clear=True):
+            root = Path(runtime.prepare()['runtime_skill_dir'])
+            bytecode = root / 'scripts' / '__pycache__' / 'task_menu.cpython-310.pyc'
+            bytecode.parent.mkdir()
+            bytecode.write_bytes(b'Unverified bytecode')
+            with mock.patch.object(Path, 'unlink', side_effect=AssertionError('Must not delete bytecode')):
+                with self.assertRaisesRegex(RuntimeError, 'Unexpected cached runtime directory'):
+                    runtime.prepare()
+            self.assertEqual(bytecode.read_bytes(), b'Unverified bytecode')
 
 
 if __name__ == '__main__':

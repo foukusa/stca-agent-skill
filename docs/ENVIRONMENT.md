@@ -8,6 +8,10 @@ The runtime accepts compatible Python 3.10+ environments. Rule screening checks 
 
 The bundled rules and bilingual prompts are readable without scientific dependencies. The agent uses `scripts/launch_runtime.sh` on macOS/Linux to start `scripts/agent_runtime.py`. WorkBuddy's packaged entry restores the complete rule resources before calculation. These are internal operations, not setup commands for ordinary users. See [agent workflows](../skills/stca/references/agent_workflows.md) and [runtime reference](../skills/stca/references/platform-runtime.md).
 
+The package includes the unmodified author implementation and a trusted file-hash inventory. Ordinary loading verifies those files locally and does not run Git or download source. An explicitly selected external source must pass its own verification; an invalid explicit path is not silently replaced. Missing scientific Python dependencies may still require a permitted PyPI download.
+
+WorkBuddy keeps its default runtime cache within the current task workspace. New cache and rule entries are written into unique directories, verified, and marked complete only after their required files are present; normal operation does not depend on renaming or deleting a temporary directory. A blocked write remains a permission error. The assistant reports the exact stage and affected path, preserves completed calculation files, and does not change verification code, fabricate Git metadata, or repeatedly retry blocked operations. A saved rule is reported as ready only after its completion record validates.
+
 After learning valid rules, the agent returns reusable models, exact constraints, complete bilingual prompts and their screening results. A natural-language request can continue through current-LLM generation and frozen-rule verification.
 
 Version remains **0.1.0**. Original polymer SMILES and attachment points are retained; H-cap is calculation-only. Already capped input remains as supplied.

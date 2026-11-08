@@ -46,6 +46,18 @@ class UserSummaryContract(unittest.TestCase):
         return inrange.user_summary([row], deployment, target_name="test_property",
                                     direction=direction, unit=unit, original_input_rows=10)
 
+    def test_storage_warning_keeps_the_comparison_table_intact(self):
+        row, deployment = fixture()
+        summary = self.summary(row, deployment)
+        summary["storage_warnings"] = [{"method": "STCA", "operation": "save_rule_library",
+                                        "error_type": "PermissionError", "error": "Denied test rule directory"}]
+        lines = inrange.render_user_summary(summary).splitlines()
+        header = next(i for i, line in enumerate(lines) if line.startswith("| 档位 |"))
+        self.assertTrue(lines[header + 1].startswith("|---"))
+        self.assertTrue(lines[header + 2].startswith("| Top 15% |"))
+        warning = next(i for i, line in enumerate(lines) if line.startswith("存储提示"))
+        self.assertLess(warning, header)
+
     def test_high_physical_units_and_distinct_method_deliveries(self):
         row, deployment = fixture()
         summary = self.summary(row, deployment)

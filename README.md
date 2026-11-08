@@ -95,7 +95,7 @@ Choose your platform below. The [installation guide](docs/INSTALL.md) includes e
 | Platform | Installation route | Start |
 |---|---|---|
 | **Codex** | Install the GitHub skill folder or the [Codex ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-codex-0.1.0.zip). | `Use $stca` |
-| **DeepSeek Harness** | Add the GitHub repository as a plugin; use the npm package name after publication. | `/stca` |
+| **DeepSeek Harness** | Download the plugin ZIP and add its extracted local plugin directory; use the npm name after publication. | `/stca` |
 | **WorkBuddy** | Import the [WorkBuddy ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.1.zip). | “Start STCA” |
 | **ChatGPT** | Import the [OpenAI skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-openai-skill-0.1.0.zip) using a client with skill installation support. | Select STCA or ask to use it. |
 
@@ -111,23 +111,22 @@ Use $skill-installer to install https://github.com/foukusa/stca-agent-skill/tree
 
 ### DeepSeek Harness
 
-1. Open **Plugins → Add plugin**, enter `https://github.com/foukusa/stca-agent-skill.git`, then install and enable the plugin.
-2. Enter `/stca` or say “Start STCA”. Describe your task and attach data where needed; continue in the same conversation.
-3. After the npm package is published, the Add plugin field also accepts `dsh-plugin-stca`. Alternatively, download the [plugin TGZ](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz) and enter its complete local path.
+1. Download the repository’s [plugin ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.zip) using **Download raw file**, then extract it.
+2. Open **Plugins → Add plugin** and enter the complete local path to the extracted `dsh-plugin-stca-0.1.0` folder. That folder directly contains `package.json`, `dsh` and `skills`; keep its contents together.
+3. Install and enable the plugin, then enter `/stca` or say “Start STCA”, describe your task and attach data when needed.
+4. After npm publication, the Add plugin field also accepts `dsh-plugin-stca`.
 
-CLI installation with the `web` profile:
+Source repository: [foukusa/stca-agent-skill](https://github.com/foukusa/stca-agent-skill). See [DSH installation](docs/INSTALL.md#deepseek-harness) for GitHub source and downloaded [TGZ](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz) CLI installation.
 
-```bash
-dsh plugin --profile web add github:foukusa/stca-agent-skill
-```
-
-After npm publication:
+To install directly from GitHub using the DSH CLI:
 
 ```bash
-dsh plugin --profile web add dsh-plugin-stca
+dsh plugin --profile web add 'dsh-plugin-stca@github:foukusa/stca-agent-skill'
 ```
 
-Replace `web` with the profile you use. A downloaded [DSH skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip) is a different installation route: extract it and place the complete `stca` folder in your DSH skill root, normally `~/.dsh/skills/stca`, with the filesystem skill provider enabled. See the [DSH guide](README.DSH.md).
+Replace `web` with your profile. This named installation argument is for the CLI; the graphical interface uses the local plugin directory above.
+
+The separate [local skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip) uses manual folder installation: extract it and place the complete `stca` folder in the DSH skill root, normally `~/.dsh/skills/stca`, with the filesystem provider enabled. The plugin ZIP above is instead installed by giving Add plugin its extracted plugin-root directory. See the [DSH guide](README.DSH.md).
 
 Plugin-center link: — (to be added after listing).
 
@@ -139,7 +138,7 @@ Plugin-center link: — (to be added after listing).
 2. Open WorkBuddy’s skill management page and choose the action to add/upload a local skill package. Select the ZIP directly, complete import and enable **STCA Polymer Rules and Design**.
 3. Say “Start STCA”, attach your file, then describe whether you want to learn rules, screen candidates or generate repeat units.
 
-The marketplace installation link will be added after approval and publication.
+The marketplace installation link will be added after approval and publication. Use a separate task folder; WorkBuddy keeps STCA runtime files and results there. If a file operation is denied, the assistant reports the blocked step and preserves completed results. See [permission troubleshooting](docs/INSTALL.md#workbuddy-file-permissions).
 
 ### ChatGPT
 
@@ -151,7 +150,7 @@ The marketplace installation link will be added after approval and publication.
 
 The ZIP and TGZ links open file pages in this repository’s [`downloads` folder](https://github.com/foukusa/stca-agent-skill/tree/main/downloads). On a file page, click **Download raw file** to save the package, then import the local file in your platform. You can also open the [repository homepage](https://github.com/foukusa/stca-agent-skill), choose **Code → Download ZIP**, and extract it. The source contains `skills/stca`; platform packages are under `downloads` when included in that repository version. A source ZIP is extracted before folder-based installation; WorkBuddy’s upload accepts its platform ZIP directly.
 
-At the first calculation, STCA looks for and checks a suitable local Python environment. You can use ordinary Python or a virtual environment; Conda is optional. The assistant needs access to your selected files, an output directory and local command execution. Preparing missing dependencies may access PyPI and the author’s public code repository; generation uses the current conversation’s LLM. See [environment behavior](docs/INSTALL.md#calculation-environment).
+At the first calculation, STCA looks for and checks a suitable local Python environment. You can use ordinary Python or a virtual environment; Conda is optional. The assistant needs access to your selected files, an output directory and local command execution. The checked author implementation is included in the package, so ordinary calculations do not clone a Git repository. Preparing missing Python dependencies may access PyPI; generation uses the current conversation’s LLM. See [environment behavior](docs/INSTALL.md#calculation-environment).
 
 ## Existing rules and generation prompts
 

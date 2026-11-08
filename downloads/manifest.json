@@ -13,38 +13,43 @@
   "files": [
     {
       "file": "dsh-plugin-stca-0.1.0.tgz",
-      "size_bytes": 750869,
-      "sha256": "c47685f521ea4e83fee135f4509d380c50d04f7e9435ba883ae025dffb331f2f"
+      "size_bytes": 1493590,
+      "sha256": "55ea5b066adcf4194e251292bb42c6a3573e2ffd35e0530f906db2968a433e0d"
+    },
+    {
+      "file": "dsh-plugin-stca-0.1.0.zip",
+      "size_bytes": 2626797,
+      "sha256": "dd2b84eaa603ab54f01f4baf51bbcdb869e7796f520ebd97cbeaaa84e5d3f59a"
     },
     {
       "file": "stca-chatgpt-0.1.0.zip",
-      "size_bytes": 1676059,
-      "sha256": "9071b7029ea4efe4eca4f06d9758125d77e6e1bb3cb22f4c12c3184360a36945"
+      "size_bytes": 2472336,
+      "sha256": "a000a8ef6cf561829bc32a4ee14611db9a52dd6c655f6830f5cd234c03ca2fc7"
     },
     {
       "file": "stca-codex-0.1.0.zip",
-      "size_bytes": 1676059,
-      "sha256": "9071b7029ea4efe4eca4f06d9758125d77e6e1bb3cb22f4c12c3184360a36945"
+      "size_bytes": 2472336,
+      "sha256": "a000a8ef6cf561829bc32a4ee14611db9a52dd6c655f6830f5cd234c03ca2fc7"
     },
     {
       "file": "stca-deepseek-harness-0.1.0.zip",
-      "size_bytes": 1687974,
-      "sha256": "a93862e25970e15220664e7e96c6f2ef419a5218103ce44a1b28f3471c3f1b09"
+      "size_bytes": 2485563,
+      "sha256": "0232894265ac242dc388d3b65c72c2e0ea8951689050604ae021587359976900"
     },
     {
       "file": "stca-openai-plugin-0.1.0.zip",
-      "size_bytes": 1986643,
-      "sha256": "d530e6589a03f2285659dffea9aaf32d2ac77c9ea968bfcbf29ad81c9bf1e651"
+      "size_bytes": 2800758,
+      "sha256": "e4d0fe1b71c7dd48fa77a61e3ddb241c13e865770dc658ca5106d78181665a8f"
     },
     {
       "file": "stca-openai-skill-0.1.0.zip",
-      "size_bytes": 1676059,
-      "sha256": "9071b7029ea4efe4eca4f06d9758125d77e6e1bb3cb22f4c12c3184360a36945"
+      "size_bytes": 2472336,
+      "sha256": "a000a8ef6cf561829bc32a4ee14611db9a52dd6c655f6830f5cd234c03ca2fc7"
     },
     {
       "file": "stca-workbuddy-0.1.1.zip",
-      "size_bytes": 1617470,
-      "sha256": "639f6dfe70f9d55af4109e369103a146f04ce67b63e2a93f6b8550bd9415e241"
+      "size_bytes": 2610808,
+      "sha256": "1ecb25dd6d03f5c50de5425417efba8f374b1701f5b5bbb45c2f8e2119050487"
     }
   ]
 }

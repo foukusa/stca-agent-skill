@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -11,7 +12,6 @@ import secrets
 import shutil
 import subprocess
 import sys
-import tempfile
 import time
 
 from stca_runtime import UPSTREAM_COMMIT, UPSTREAM_URL, cache_root, verify_source
@@ -26,11 +26,33 @@ ALLOWED = {"rule_library.py", "auto_screen.py", "custom_fit.py", "evaluate_custo
 
 
 def receipt():
+    """Read the newest complete receipt; incomplete writes never become state."""
     try:
-        value = json.loads(RECEIPT.read_text())
-        return value if isinstance(value, dict) else {}
-    except (OSError, ValueError):
+        paths = [RECEIPT, *RECEIPT.parent.glob(RECEIPT.stem + "-*.json")]
+        paths = sorted((path for path in paths if path.is_file() and not path.is_symlink()),
+                       key=lambda path: (path.stat().st_mtime_ns, path.name), reverse=True)
+    except OSError:
         return {}
+    complete, legacy = [], None
+    for path in paths:
+        try:
+            value = json.loads(path.read_text(encoding="utf-8"))
+            if not isinstance(value, dict):
+                continue
+            if value.get("schema") == "stca-agent-runtime-receipt-v2":
+                record = value["record"]
+                payload = json.dumps(record, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+                if (isinstance(record, dict) and value.get("complete") is True
+                        and hashlib.sha256(payload).hexdigest() == value.get("record_sha256")):
+                    complete.append((int(value.get("created_at_ns", path.stat().st_mtime_ns)),
+                                     path.name, record))
+            elif path == RECEIPT and "schema" not in value:
+                # Read-only compatibility for previous interpreter hints. The
+                # interpreter is still probed; cached source is never trusted.
+                legacy = value
+        except (OSError, ValueError, KeyError, TypeError):
+            continue
+    return max(complete, key=lambda item: item[:2])[2] if complete else legacy or {}
 
 
 _last_discovery = {}
@@ -87,31 +109,37 @@ def probe(python, mode, dependency_mode="compatible", timeout=30):
 
 
 def existing_source(explicit=None):
-    for path in [explicit, os.environ.get("STCA_SOURCE"), receipt().get("source"), cache_root() / "source"]:
-        if not path:
-            continue
-        try:
-            return str(verify_source(path))
-        except (ValueError, RuntimeError, OSError):
-            continue
-    return None
+    # Explicit configuration is authoritative: a damaged selected tree must
+    # produce one clear error rather than silently trigger another clone.
+    selected = explicit or os.environ.get("STCA_SOURCE")
+    return str(verify_source(selected))
 
 
 def save(value):
-    RECEIPT.parent.mkdir(parents=True, exist_ok=True)
-    temporary = None
+    """Create a new complete record without rename, deletion or overwriting."""
+    payload = json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+    envelope = {"schema": "stca-agent-runtime-receipt-v2", "complete": True,
+                "created_at_ns": time.time_ns(),
+                "record_sha256": hashlib.sha256(payload).hexdigest(), "record": value}
+    data = (json.dumps(envelope, indent=2, allow_nan=False) + "\n").encode()
     try:
-        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=RECEIPT.parent,
-                                         prefix=RECEIPT.stem + "-", suffix=".tmp",
-                                         delete=False) as handle:
-            temporary = Path(handle.name)
-            handle.write(json.dumps(value, indent=2, allow_nan=False) + "\n")
+        RECEIPT.parent.mkdir(parents=True, exist_ok=True)
+        path = RECEIPT if not RECEIPT.exists() else RECEIPT.with_name(
+            f"{RECEIPT.stem}-{time.time_ns()}-{secrets.token_hex(6)}.json")
+        try:
+            handle = path.open("xb")
+        except FileExistsError:
+            # A concurrent first writer won; create our own immutable record.
+            path = RECEIPT.with_name(f"{RECEIPT.stem}-{time.time_ns()}-{secrets.token_hex(6)}.json")
+            handle = path.open("xb")
+        with handle:
+            handle.write(data)
             handle.flush()
             os.fsync(handle.fileno())
-        temporary.replace(RECEIPT)
-    finally:
-        if temporary is not None:
-            temporary.unlink(missing_ok=True)
+    except PermissionError as exc:
+        raise PermissionError(f"Cannot save the runtime receipt in {RECEIPT.parent}. "
+            "Use an authorized writable task workspace or authorize this exact cache path. "
+            "No permissions, source verifier or existing files were changed.") from exc
     return value
 
 
@@ -190,18 +218,8 @@ def prepare_chem(python, destination, dependency_mode="compatible"):
 
 
 def prepare_source():
-    """Obtain only the pinned author source when a compatible runtime exists."""
-    if not shutil.which("git"):
-        raise RuntimeError("This host cannot prepare the pinned STCA source because Git is unavailable.")
-    destination = cache_root() / ("source-" + secrets.token_hex(4))
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    commands = (["git", "clone", "--no-checkout", UPSTREAM_URL, str(destination)],
-                ["git", "-C", str(destination), "checkout", "--detach", UPSTREAM_COMMIT])
-    for command in commands:
-        result = subprocess.run(command, capture_output=True, text=True, timeout=120)
-        if result.returncode:
-            raise RuntimeError("Agent source preparation failed: " + result.stderr[-6000:])
-    return str(verify_source(destination))
+    """Verify the packaged author snapshot; ordinary preparation is offline."""
+    return str(verify_source())
 
 
 def ensure(mode="fit", python=None, source=None, allow_install=True, dependency_mode="compatible"):
@@ -272,7 +290,7 @@ def stdlib_operation(script, arguments):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--python", help="Agent-provided existing interpreter, if known")
-    parser.add_argument("--source", help="Agent-provided pinned source, if known")
+    parser.add_argument("--source", help="Explicit verified author snapshot or clean checkout; ordinarily use the bundled offline source")
     parser.add_argument("--no-install", action="store_true")
     parser.add_argument("--dependency-mode", choices=("compatible", "locked"), default="compatible",
                         help="Compatible installed packages by default; locked is an explicit archival option")

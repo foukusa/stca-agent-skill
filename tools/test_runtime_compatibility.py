@@ -122,15 +122,10 @@ class CompatibleRuntimeTests(unittest.TestCase):
                 runtime.ensure('fit',allow_install=False)
 
     def test_source_only_preparation_is_pinned(self):
-        calls=[]
-        def run(command,**kwargs):
-            calls.append(command)
-            return subprocess.CompletedProcess(command,0,'','')
-        with tempfile.TemporaryDirectory() as directory,patch.object(runtime,'cache_root',return_value=Path(directory)),patch.object(runtime.shutil,'which',return_value='/bin/git'),patch.object(runtime.subprocess,'run',side_effect=run),patch.object(runtime,'verify_source',side_effect=lambda x:x):
+        with patch.object(runtime.subprocess,'run',side_effect=AssertionError('offline source must not invoke Git')),patch.object(runtime,'verify_source',return_value=Path('verified-bundled-source')) as verify:
             result=runtime.prepare_source()
-        self.assertIn('source-',result)
-        self.assertEqual(calls[0][:3],['git','clone','--no-checkout'])
-        self.assertEqual(calls[1][-2:],['--detach',runtime.UPSTREAM_COMMIT])
+        self.assertEqual(result,'verified-bundled-source')
+        verify.assert_called_once_with()
 
     def test_uv_python_preparation_stays_in_user_cache(self):
         with tempfile.TemporaryDirectory() as directory:

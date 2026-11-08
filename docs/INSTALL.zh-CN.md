@@ -10,6 +10,7 @@
 - [WorkBuddy](#workbuddy)
 - [ChatGPT 桌面端](#chatgpt-桌面端)
 - [计算环境](#计算环境)
+- [WorkBuddy 文件权限](#workbuddy-文件权限)
 - [保存与继续使用](#保存与继续使用)
 - [自然语言使用案例](USAGE.zh-CN.md)
 
@@ -21,7 +22,8 @@
 |---|---|
 | Codex | [stca-codex-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-codex-0.1.0.zip) |
 | DeepSeek Harness：本地 skill | [stca-deepseek-harness-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip) |
-| DeepSeek Harness：插件 | [dsh-plugin-stca-0.1.0.tgz](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz) |
+| DeepSeek Harness：图形界面插件 | [dsh-plugin-stca-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.zip) |
+| DeepSeek Harness：CLI 插件 | [dsh-plugin-stca-0.1.0.tgz](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz) |
 | WorkBuddy | [stca-workbuddy-0.1.1.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.1.zip) |
 | ChatGPT 桌面端 | [stca-openai-skill-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-openai-skill-0.1.0.zip) |
 
@@ -54,32 +56,39 @@ Codex 如何发现和调用 skill，参见 [OpenAI 官方说明](https://learn.c
 
 ## DeepSeek Harness
 
-在 **插件 → 添加插件** 中可填写 GitHub 仓库地址，或在 npm 发布后填写包名 `dsh-plugin-stca`。插件中心链接：—（上架后补充）。也可下载 skill ZIP 手动安装，安装后均通过 `/stca` 调用。
+推荐在图形界面使用**插件 ZIP 解压后的本地目录**。也可通过 CLI 从 GitHub 或 TGZ 安装；手动 skill ZIP 另有独立路径。插件中心链接：—（上架后补充）。
 
 <!-- DSH_PLUGIN_CENTER_URL: add the actual listing URL after publication. -->
 
-### Git 安装
+### 图形界面安装插件
 
-1. 打开 **插件 → 添加插件**。
-2. 填写以下仓库地址，完成安装：
+1. 下载 [dsh-plugin-stca-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.zip)，在仓库文件页点击 **Download raw file**，然后解压。
+2. 打开 **插件 → 添加插件**，填写解压后插件文件夹的完整本地路径，例如：
 
 ```text
-https://github.com/foukusa/stca-agent-skill.git
+/Users/你的用户名/Downloads/dsh-plugin-stca-0.1.0
 ```
 
-3. 在当前使用的 profile 中启用 STCA，输入 `/stca`。
+3. 打开该文件夹，确认它直接包含 `package.json`、`dsh` 和 `skills`。这是要交给“添加插件”的插件根目录。
+4. 安装后，在当前 profile 中启用 STCA，输入 `/stca`。
 
-使用 DSH CLI 和 `web` profile 时，对应的源码安装命令为：
+请使用实际用户名和解压位置。Finder 中可按住 Option 键右键点击文件夹，选择拷贝路径名称，再粘贴到输入框。
+
+### GitHub 源码与 CLI
+
+源码仓库是 [foukusa/stca-agent-skill](https://github.com/foukusa/stca-agent-skill)。也可用 **Code → Download ZIP** 获取源码，解压后将直接包含 `package.json` 的仓库根目录交给“添加插件”。GitHub 的 `/tree/main` 页面是浏览地址，不能作为插件文件夹路径。
+
+直接从 GitHub 安装时，在 DSH CLI 执行带明确包名的命令：
 
 ```bash
-dsh plugin --profile web add github:foukusa/stca-agent-skill
+dsh plugin --profile web add 'dsh-plugin-stca@github:foukusa/stca-agent-skill'
 ```
 
-使用其他 profile 时，将 `web` 换成实际名称。GitHub 的 `/tree/main` 是浏览网页地址；“添加插件”中应使用上面的仓库地址。
+该参数用于 CLI；图形界面按上面的步骤填写本地插件目录。不要把 `dsh-plugin-stca@github:…` 整段填入图形界面的包名输入框。
 
 ### npm 包名安装
 
-npm 发布完成后，在 **插件 → 添加插件** 的同一输入框填写：
+npm 发布完成后，在 **插件 → 添加插件** 填写：
 
 ```text
 dsh-plugin-stca
@@ -91,7 +100,7 @@ CLI 对应命令为：
 dsh plugin --profile web add dsh-plugin-stca
 ```
 
-插件中心入口暂留空，取得实际公开链接后补充。
+`web` 换成实际使用的 profile。插件中心入口暂留空，取得实际公开链接后补充。
 
 ### 下载 skill ZIP
 
@@ -100,17 +109,23 @@ dsh plugin --profile web add dsh-plugin-stca
 3. 保留 `SKILL.md` 旁的 `scripts`、`references` 和 `assets`；当前 DSH profile 需启用本地文件 skill 提供器。
 4. 输入 `/stca` 或“开始使用 STCA”。
 
-skill ZIP 采用解压后放置文件夹的方式安装，不应将 ZIP 填进“添加插件”地址框。
+这个 ZIP 内是 `SKILL.md` 所在的 skill 文件夹，用于手动放置。图形界面的插件 ZIP 则包含插件根目录的 `package.json`，两者应按各自步骤安装。
 
-### 下载插件 TGZ
+### 下载 TGZ 并通过 CLI 安装
 
-希望通过“添加插件”安装、又不使用 Git 时，可下载 [dsh-plugin-stca-0.1.0.tgz](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz)，在“添加插件”中填写该文件的完整本地路径。使用 CLI 时，在下载文件所在目录执行：
+下载 [dsh-plugin-stca-0.1.0.tgz](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz)；TGZ 是已打好的插件包，无需解压或重新打包。使用 CLI 时明确指定包名和实际文件路径：
 
 ```bash
-dsh plugin --profile web add ./dsh-plugin-stca-0.1.0.tgz
+dsh plugin --profile web add 'dsh-plugin-stca@file:/Users/你的用户名/Downloads/dsh-plugin-stca-0.1.0.tgz'
 ```
 
-TGZ 已经是插件包，无需解压或重新打包。
+这条含包名的文件安装语法用于 **CLI**；图形界面按上面的步骤填写解压目录，不将整条 CLI 参数粘进输入框。
+
+### 提示“无法从依赖变更中确定安装了哪一个包”
+
+这是 DSH 插件管理器未能从安装前后的依赖变化中识别唯一目标包，发生在加载 STCA 之前。先检查插件列表：已有 STCA 时直接启用使用，无需重复添加；需要替换已有安装时，通过插件管理界面正常卸载该插件后再安装新版，保留自己的数据、结果和规则包。
+
+尚未安装成功时，使用上面的**插件 ZIP → 解压 → 插件根目录**方式。若仍失败，保留完整安装日志及 DSH 版本、安装来源和实际错误；不要连续重试同一地址，或修改 Python／STCA 代码来处理插件安装错误。
 
 参见 [DSH 官方插件安装说明](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/develop/basic/publish.zh.md)与[本地 skill 说明](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/skill/skill-filesystem/README.zh.md)。
 
@@ -137,9 +152,19 @@ OpenAI skill ZIP 与 Codex skill ZIP 包含相同的 STCA 工作流程。当前�
 
 计算支持 CPU 与 Python 3.10 及以上环境，不要求 Conda。首次计算时，AI 助手会自动查找合适的本地 Python，检查本次任务需要的依赖。可以复用已有 RDKit 环境，包括发现的 Conda 环境，并记住成功的选择。缺少依赖且平台允许准备时，会创建独立环境，不修改已有环境。
 
+包内包含未修改的作者实现，并按可信文件清单在本地校验。普通计算不再克隆 Git 仓库，也不要求 Git 可执行程序。准备缺失的 Python 依赖时仍可能需要获准访问 PyPI。
+
 正常使用无需填写 Python 路径。希望固定使用某个环境时，直接说“使用这个路径的 Python”，并提供解释器路径；系统会检查并保留这一明确选择，失败时说明原因，不静默换用别处。自动发现和准备均无法完成时，才会说明具体缺少的条件。
 
 读取现成规则和 prompt 不需要 RDKit。结构筛选与精确核验需要 RDKit，总结规则还需数值分析依赖。生成使用当前 AI 助手，无需另外配置 LLM API。计算环境无法运行时，生成提案保留为待核验；环境错误不等于 SMILES 解析失败，也不等于零条规则匹配。
+
+### WorkBuddy 文件权限
+
+为本次任务准备独立文件夹，并将它作为当前工作区。STCA 默认将 WorkBuddy 运行缓存、新保存的规则和输出文件放在任务工作区，并返回实际位置。程序直接校验包内作者源码；执行计算时不应反复 `git clone`、创建伪造的 `.git`，或修改源码验证逻辑。
+
+AI 助手会报告第一条失败操作、涉及路径及实际报错。WorkBuddy 出现权限确认时，核对这一个操作和路径；通过**查看拦截规则**或安全审计记录确认是否存在明确拒绝。仅凭残留的 Git 锁文件，不能确定是哪条平台规则导致失败。不要为继续任务而全局关闭安全保护。
+
+计算完成后，后续保存仍可能被拒绝。此时 STCA 会保留已经产生的模型和筛选文件，并单独说明规则库的保存状态，不把整个任务说成已成功保存。新条目只有在必要文件及其哈希校验完成后才标为可用；不完整条目不能当作已保存规则复用。解决具体权限问题后，再从返回的结果继续。 界面与审计入口见 [WorkBuddy 默认权限与安全沙箱](https://www.workbuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Permission-Modes)。
 
 ## 保存与继续使用
 

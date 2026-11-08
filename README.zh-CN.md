@@ -95,7 +95,7 @@ AI 助手将模型、规则、物理阈值和完整中英文生成 prompt 保存
 | 平台 | 安装方式 | 调用 |
 |---|---|---|
 | **Codex** | 安装 GitHub 中的 skill 目录，或使用 [Codex ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-codex-0.1.0.zip)。 | `使用 $stca` |
-| **DeepSeek Harness** | 在“添加插件”中填写 GitHub 仓库地址；npm 发布后也可填写包名。 | `/stca` |
+| **DeepSeek Harness** | 下载插件 ZIP，解压后在“添加插件”中填写本地插件目录；npm 发布后也可填写包名。 | `/stca` |
 | **WorkBuddy** | 导入 [WorkBuddy ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.1.zip)。 | “开始使用 STCA” |
 | **ChatGPT** | 在支持 skill 安装的客户端中导入 [OpenAI skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-openai-skill-0.1.0.zip)。 | 选择 STCA 或要求使用 STCA。 |
 
@@ -111,23 +111,22 @@ AI 助手将模型、规则、物理阈值和完整中英文生成 prompt 保存
 
 ### DeepSeek Harness
 
-1. 打开 **插件 → 添加插件**，填写 `https://github.com/foukusa/stca-agent-skill.git`，安装并启用。
-2. 输入 `/stca` 或“开始使用 STCA”，说明任务，按需上传数据，在同一对话中继续。
-3. npm 发布后，“添加插件”也可填写 `dsh-plugin-stca`；或下载[插件 TGZ](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz)，填写其完整本地路径。
+1. 下载仓库中的[插件 ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.zip)，点击文件页的 **Download raw file**，然后解压。
+2. 打开 **插件 → 添加插件**，填写解压后 `dsh-plugin-stca-0.1.0` 文件夹的完整本地路径。这个目录直接包含 `package.json`、`dsh` 和 `skills`；填写目录路径，保持其内容完整。
+3. 安装并启用后输入 `/stca` 或“开始使用 STCA”，说明任务，按需上传数据。
+4. npm 发布后，“添加插件”也可填写 `dsh-plugin-stca`。
 
-使用 DSH CLI、`web` profile 时：
+源码地址：[foukusa/stca-agent-skill](https://github.com/foukusa/stca-agent-skill)。GitHub 源码安装与本地 [TGZ](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz) 安装的 CLI 方式见 [DSH 安装说明](docs/INSTALL.zh-CN.md#deepseek-harness)。
 
-```bash
-dsh plugin --profile web add github:foukusa/stca-agent-skill
-```
-
-npm 发布后：
+希望直接从 GitHub 安装时，在 DSH CLI 执行：
 
 ```bash
-dsh plugin --profile web add dsh-plugin-stca
+dsh plugin --profile web add 'dsh-plugin-stca@github:foukusa/stca-agent-skill'
 ```
 
-`web` 替换为自己实际使用的 profile。另有[本地 DSH skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip)：解压后，将完整 `stca` 文件夹放入 DSH 的 skill 目录，通常为 `~/.dsh/skills/stca`，并启用 filesystem skill provider。详见 [DSH 专用说明](README.DSH.zh-CN.md)。
+`web` 换成实际 profile；这条带包名的安装参数用于 CLI，图形界面仍填写上面的本地插件目录。
+
+另有[本地 skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip)：解压后，将其中完整 `stca` 文件夹放入 DSH 的 skill 目录，通常为 `~/.dsh/skills/stca`，并启用 filesystem skill provider。这是手动 skill 安装方式；上面的插件 ZIP 则交给“添加插件”读取解压后的插件根目录。详见 [DSH 专用说明](README.DSH.zh-CN.md)。
 
 插件中心链接：—（上架后补充）。
 
@@ -139,7 +138,7 @@ dsh plugin --profile web add dsh-plugin-stca
 2. 打开 WorkBuddy 的 skill 管理页面，选择添加／上传本地 skill 包，直接选择 ZIP，完成导入并启用 **STCA Polymer Rules and Design**。
 3. 输入“开始使用 STCA”，上传文件，再说明要总结规则、筛选候选还是生成重复单元。
 
-商店安装链接将在审核通过并发布后补充。
+商店安装链接将在审核通过并发布后补充。 建议在独立任务文件夹运行，STCA 的运行文件和结果会保存在该工作区。遇到文件操作被拒绝时，AI 助手会说明受阻步骤并保留已完成的结果。见[权限问题处理](docs/INSTALL.zh-CN.md#workbuddy-文件权限)。
 
 ### ChatGPT
 
@@ -151,7 +150,7 @@ dsh plugin --profile web add dsh-plugin-stca
 
 ZIP 和 TGZ 链接均指向本仓库 [`downloads` 目录](https://github.com/foukusa/stca-agent-skill/tree/main/downloads)内的文件页。打开后点击 **Download raw file** 下载，再到对应平台导入本地文件。也可打开[仓库首页](https://github.com/foukusa/stca-agent-skill)，选择 **Code → Download ZIP**，解压后获取 `skills/stca` 源码目录；该仓库版本包含的各平台安装包位于 `downloads`。源码 ZIP 需先解压再按文件夹安装，WorkBuddy 则直接上传其专用 ZIP。
 
-首次计算会查找并检查合适的本地 Python 环境。普通 Python、虚拟环境均可使用，不要求 Conda。AI 助手需要读取指定文件、写入结果目录和执行本地计算；准备缺失依赖时可能访问 PyPI 和作者公开代码仓库，生成使用当前对话的 LLM。详见[环境处理方式](docs/INSTALL.zh-CN.md#计算环境)。
+首次计算会查找并检查合适的本地 Python 环境。普通 Python、虚拟环境均可使用，不要求 Conda。AI 助手需要读取指定文件、写入结果目录和执行本地计算；包内已包含经校验的作者实现，普通计算不再克隆 Git 仓库；准备缺失的 Python 依赖时可能访问 PyPI，生成使用当前对话的 LLM。详见[环境处理方式](docs/INSTALL.zh-CN.md#计算环境)。
 
 ## 现成规则与生成 prompt
 

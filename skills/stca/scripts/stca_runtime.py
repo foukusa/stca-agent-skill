@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
-"""Run the author's pinned STCA implementation without copying its algorithm."""
+"""Run the unchanged author implementation from a verified offline snapshot."""
 from __future__ import annotations
 
 import argparse
 import hashlib
 import importlib
+import importlib.abc
+import importlib.machinery
 import importlib.metadata
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -15,6 +18,8 @@ import sys
 import venv
 
 from stca_io import CSV_POLICY, read_csv_frame, read_csv_records
+from source_integrity import (bundled_source_root, verify_snapshot, trusted_manifest,
+                              source_identity)
 
 UPSTREAM_URL = "https://github.com/foukusa/polymer-stca.git"
 UPSTREAM_COMMIT = "5951b0ef23d63edc8f7e803aaaffa5e4168288f6"
@@ -31,7 +36,7 @@ def cache_root() -> Path:
 
 def source_root(source_path=None) -> Path:
     value = source_path or os.environ.get("STCA_SOURCE")
-    return Path(value).expanduser().resolve() if value else cache_root() / "source"
+    return Path(value).expanduser().absolute() if value else bundled_source_root()
 
 
 def _git(root: Path, *args: str) -> str:
@@ -46,20 +51,55 @@ def _git(root: Path, *args: str) -> str:
 def verify_source(source_path=None) -> Path:
     root = source_root(source_path)
     if not root.is_dir():
-        raise RuntimeError("STCA source is not available. Run stca_runtime.py bootstrap --chem first.")
-    if not shutil.which("git"):
-        raise RuntimeError("Git is required to verify the pinned STCA source.")
-    if Path(_git(root, "rev-parse", "--show-toplevel")).resolve() != root.resolve():
-        raise RuntimeError("--source must name the STCA checkout root.")
-    if _git(root, "rev-parse", "HEAD") != UPSTREAM_COMMIT:
-        raise RuntimeError(f"Source revision does not match the skill's pinned revision {UPSTREAM_COMMIT}.")
-    # Include untracked importable code: an extra module could shadow the reviewed implementation.
-    changed = _git(root, "status", "--porcelain", "--untracked-files=all", "--", "src", "pyproject.toml", "LICENSE", "NOTICE")
-    if changed:
-        raise RuntimeError("STCA source or licensing files have local changes. Use a clean pinned checkout.")
-    if not (root / "src" / "stca" / "__init__.py").is_file():
-        raise RuntimeError("The pinned checkout has no STCA package.")
-    return root
+        raise RuntimeError("The specified STCA source is unavailable. Use the complete bundled source or an unchanged verified snapshot; no clone or verifier patch was attempted.")
+    if root.is_symlink():
+        raise RuntimeError("The specified STCA source must not be a symlink.")
+    bundled = root.resolve() == bundled_source_root().resolve()
+    if (root / ".git").exists() and not bundled:
+        if not shutil.which("git"):
+            raise RuntimeError("Git is required only for this explicitly selected Git checkout. The ordinary bundled source does not require Git.")
+        if Path(_git(root, "rev-parse", "--show-toplevel")).resolve() != root.resolve():
+            raise RuntimeError("--source must name the STCA checkout root.")
+        if _git(root, "rev-parse", "HEAD") != UPSTREAM_COMMIT:
+            raise RuntimeError(f"Source revision does not match the skill's pinned revision {UPSTREAM_COMMIT}.")
+        changed = _git(root, "status", "--porcelain", "--untracked-files=all", "--", "src", "pyproject.toml", "LICENSE", "NOTICE")
+        if changed:
+            raise RuntimeError("STCA source or licensing files have local changes. Use the unchanged bundled source or a clean pinned checkout.")
+    # A downloaded author snapshot is accepted only when all reviewed source,
+    # resources and licensing bytes match this release's trusted inventory.
+    return verify_snapshot(root, strict_root=bundled)
+
+
+class _VerifiedAuthorLoader(importlib.machinery.SourceFileLoader):
+    """Read verified .py bytes directly, without reading or writing .pyc caches."""
+    def __init__(self, fullname, path, expected_hash):
+        super().__init__(fullname, path)
+        self.expected_hash = expected_hash
+
+    def get_code(self, fullname):
+        payload = self.get_data(self.path)
+        if hashlib.sha256(payload).hexdigest() != self.expected_hash:
+            raise ImportError(f"Author module changed after source verification: {fullname}")
+        return self.source_to_code(payload, self.path)
+
+
+class _VerifiedAuthorFinder(importlib.abc.MetaPathFinder):
+    def __init__(self, root):
+        self.root = root
+        self.files = trusted_manifest()["files"]
+
+    def find_spec(self, fullname, path=None, target=None):
+        if fullname != "stca" and not fullname.startswith("stca."):
+            return None
+        base = "src/" + fullname.replace(".", "/")
+        package = base + "/__init__.py"
+        relative = package if package in self.files else base + ".py"
+        if relative not in self.files:
+            raise ModuleNotFoundError(f"Module is absent from the trusted author source: {fullname}")
+        location = self.root / relative
+        loader = _VerifiedAuthorLoader(fullname, str(location), self.files[relative])
+        return importlib.util.spec_from_file_location(fullname, str(location), loader=loader,
+            submodule_search_locations=[str(location.parent)] if relative == package else None)
 
 
 def load_stca(source_path=None):
@@ -69,7 +109,8 @@ def load_stca(source_path=None):
     expected = root / "src" / "stca" / "__init__.py"
     if existing is not None and Path(existing.__file__).resolve() != expected.resolve():
         raise RuntimeError("Another STCA installation is already imported in this process.")
-    sys.path.insert(0, str(root / "src"))
+    if not any(isinstance(finder, _VerifiedAuthorFinder) and finder.root == root for finder in sys.meta_path):
+        sys.meta_path.insert(0, _VerifiedAuthorFinder(root))
     module = importlib.import_module("stca")
     if Path(module.__file__).resolve() != expected.resolve():
         raise RuntimeError("Imported STCA does not match the verified source.")
@@ -88,6 +129,9 @@ def environment_receipt(source_path=None) -> dict:
         "repository": UPSTREAM_URL,
         "commit": UPSTREAM_COMMIT,
         "source": str(root),
+        "source_integrity": source_identity(root,
+            "bundled_author_snapshot" if root == bundled_source_root().resolve() else
+            "clean_pinned_git_checkout" if (root / ".git").exists() else "checksum_verified_author_snapshot"),
         "python": sys.executable,
         "python_version": sys.version.split()[0],
         "packages": versions,
@@ -101,14 +145,7 @@ def environment_receipt(source_path=None) -> dict:
 
 
 def bootstrap(args) -> int:
-    root = source_root(args.source)
-    if not root.exists():
-        if args.source:
-            raise RuntimeError("The explicitly supplied source directory does not exist.")
-        root.parent.mkdir(parents=True, exist_ok=True)
-        subprocess.run(["git", "clone", "--no-checkout", UPSTREAM_URL, str(root)], check=True)
-        subprocess.run(["git", "-C", str(root), "checkout", "--detach", UPSTREAM_COMMIT], check=True)
-    verify_source(root)
+    root = verify_source(args.source)
     env_root = cache_root() / f"python-{sys.version_info.major}.{sys.version_info.minor}"
     python = env_root / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
     if not python.is_file():
@@ -213,9 +250,9 @@ def run_upstream(args) -> int:
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source", help="Clean checkout at the exact pinned revision; defaults to the skill cache.")
+    parser.add_argument("--source", help="Explicit verified author snapshot or clean pinned checkout; defaults to the bundled offline source.")
     subs = parser.add_subparsers(dest="command", required=True)
-    boot = subs.add_parser("bootstrap", help="Fetch pinned author source and prepare a separate Python environment.")
+    boot = subs.add_parser("bootstrap", help="Verify bundled author source and prepare a separate Python environment.")
     boot.add_argument("--chem", action="store_true", help="Install the recorded RDKit version for SMILES workflows.")
     subs.add_parser("doctor", help="Verify source identity and show actual runtime versions.")
     run = subs.add_parser("run", help="Call the original CLI, with explicit protocol/tier checks.")

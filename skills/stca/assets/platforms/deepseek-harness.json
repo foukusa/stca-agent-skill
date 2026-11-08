@@ -13,5 +13,9 @@
   ],
   "plugin_install_spec": "https://github.com/foukusa/stca-agent-skill.git",
   "plugin_package": "dsh-plugin-stca",
-  "plugin_tarball": "dsh-plugin-stca-0.1.0.tgz"
+  "plugin_tarball": "dsh-plugin-stca-0.1.0.tgz",
+  "preferred_gui_install": "extract_dsh_plugin_zip_and_select_local_directory_containing_package_json",
+  "plugin_directory_archive": "dsh-plugin-stca-0.1.0.zip",
+  "plugin_cli_install_spec": "dsh-plugin-stca@github:foukusa/stca-agent-skill",
+  "install_identity_error": "raw_GitHub_reinstallation_can_have_zero_dependency_change; use_existing_entry_or_named_CLI_install"
 }
