@@ -1,7 +1,7 @@
 {
   "name": "dsh-plugin-stca",
   "version": "0.1.0",
-  "description": "Learn readable polymer rules, screen candidates, and generate and verify repeat units with STCA.",
+  "description": "Learn readable polymer structure-property rules, screen candidates, and generate and verify polymer repeat units with STCA.",
   "type": "module",
   "main": "./dsh/index.js",
   "exports": {

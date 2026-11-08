@@ -12,8 +12,10 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 
 from stca_runtime import UPSTREAM_COMMIT, UPSTREAM_URL, cache_root, verify_source
+from runtime_discovery import discover_interpreters
 
 SCRIPTS = Path(__file__).resolve().parent
 RECEIPT = cache_root() / "agent-runtime.json"
@@ -31,34 +33,57 @@ def receipt():
         return {}
 
 
+_last_discovery = {}
+
+
 def candidates(explicit=None):
-    saved = receipt()
-    values = [explicit, sys.executable, os.environ.get("STCA_PY"), saved.get("python")]
-    for name in ("VIRTUAL_ENV", "CONDA_PREFIX"):
-        if os.environ.get(name):
-            values.append(str(Path(os.environ[name]) / ("Scripts/python.exe" if os.name == "nt" else "bin/python")))
-    for command in ("python3", "python", "python3.10", "python3.11", "python3.12",
-                    "python3.13", "python3.14", "python3.15"):
-        values.append(shutil.which(command))
-    unique = []
-    for value in values:
-        if value and str(value) not in unique:
-            unique.append(str(value))
-    return unique
+    global _last_discovery
+    _last_discovery = discover_interpreters(explicit, receipt().get("python"))
+    return [record["python"] for record in _last_discovery["candidates"]]
 
 
-def probe(python, mode, dependency_mode="compatible"):
+def inspect_runtimes(mode="fit", python=None, dependency_mode="compatible"):
+    """Read-only discovery and actual dependency checks; never installs."""
+    global _last_discovery
+    _last_discovery = {}
+    paths = candidates(python)
+    discovery = dict(_last_discovery)
+    origins = {item["python"]: item["origin"] for item in discovery.get("candidates", [])}
+    examined, ready = [], None
+    deadline = time.monotonic() + 35
+    for candidate in paths:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            discovery.setdefault("notes", []).append("runtime_probe_time_budget_reached")
+            break
+        value = probe(candidate, mode, dependency_mode, timeout=min(12, remaining))
+        examined.append({"python": candidate, "origin": origins.get(candidate, "candidate"),
+                         "ready": bool(value.get("ready")),
+                         "errors": value.get("errors", [value["error"]] if value.get("error") else []),
+                         "diagnostic": value.get("diagnostic")})
+        if value.get("ready"):
+            ready = value
+            break
+    discovery.update({"examined": examined, "candidate_count": len(paths),
+                      "selected_python": ready.get("python") if ready else None,
+                      "installs_performed": False})
+    return ready, discovery
+
+
+def probe(python, mode, dependency_mode="compatible", timeout=30):
     command = [python, str(SCRIPTS / "runtime_compat.py"), "--mode", mode]
     if dependency_mode == "locked":
         command.append("--locked")
+    result = None
     try:
-        result = subprocess.run(command, capture_output=True, text=True, timeout=30)
+        result = subprocess.run(command, capture_output=True, text=True, timeout=timeout)
         value = json.loads(result.stdout)
         if not isinstance(value, dict) or "ready" not in value:
             raise ValueError("Runtime probe did not return a readiness record.")
         return value
     except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
-        return {"ready": False, "python": python, "error": str(exc)}
+        return {"ready": False, "python": python, "error": str(exc),
+                "diagnostic": result.stderr[-2000:] if result is not None else None}
 
 
 def existing_source(explicit=None):
@@ -183,12 +208,11 @@ def ensure(mode="fit", python=None, source=None, allow_install=True, dependency_
     if dependency_mode not in {"compatible", "locked"}:
         raise ValueError("dependency_mode must be compatible or locked.")
     found_source = existing_source(source)
-    ready = None
-    for candidate in candidates(python):
-        inspected = probe(candidate, mode, dependency_mode)
-        if inspected.get("ready"):
-            ready = inspected
-            break
+    ready, discovery = inspect_runtimes(mode, python, dependency_mode)
+    if python and not ready:
+        raise RuntimeError("The explicitly selected Python did not pass the required runtime checks; "
+                           "no alternative interpreter or environment was substituted. " +
+                           json.dumps(discovery, ensure_ascii=False))
     if ready:
         prepared_source = False
         if mode == "fit" and not found_source:
@@ -199,9 +223,9 @@ def ensure(mode="fit", python=None, source=None, allow_install=True, dependency_
         # Existing dependencies stay in place, including Python 3.10 hosts.
         return save({**ready, "mode": mode, "source": found_source,
                      "managed_by_agent": True, "installed_now": False,
-                     "source_prepared_now": prepared_source})
+                     "source_prepared_now": prepared_source, "runtime_discovery": discovery})
     if not allow_install:
-        raise RuntimeError("No compatible prepared runtime. Agent runtime preparation is required before calculation.")
+        raise RuntimeError("No compatible prepared runtime. Agent runtime preparation is required before calculation. " + json.dumps(discovery, ensure_ascii=False))
     setup_python = setup_interpreter(mode, python, dependency_mode)
     if not setup_python:
         setup_python = acquire_interpreter(dependency_mode)
@@ -211,7 +235,7 @@ def ensure(mode="fit", python=None, source=None, allow_install=True, dependency_
     destination = cache_root() / ("managed-0.1.0-" + secrets.token_hex(4))
     destination.parent.mkdir(parents=True, exist_ok=True)
     if mode == "chem":
-        return save(prepare_chem(setup_python, destination, dependency_mode))
+        return save({**prepare_chem(setup_python, destination, dependency_mode), "runtime_discovery": discovery})
     command = [setup_python, str(SCRIPTS / "setup_locked_environment.py"), "--env-dir", str(destination),
                "--dependency-mode", "portable-pinned" if dependency_mode == "locked" else "compatible"]
     if found_source:
@@ -224,7 +248,7 @@ def ensure(mode="fit", python=None, source=None, allow_install=True, dependency_
     check = probe(prepared["python"], mode, dependency_mode)
     if not check.get("ready"):
         raise RuntimeError("Prepared runtime did not pass verification: " + json.dumps(check))
-    return save({**prepared, "mode": mode, "managed_by_agent": True, "installed_now": True})
+    return save({**prepared, "mode": mode, "managed_by_agent": True, "installed_now": True, "runtime_discovery": discovery})
 
 
 def stdlib_operation(script, arguments):
@@ -255,17 +279,28 @@ def main(argv=None):
     sub = parser.add_subparsers(dest="action", required=True)
     check = sub.add_parser("ensure")
     check.add_argument("--mode", choices=("fit", "chem"), default="fit")
+    inspect = sub.add_parser("discover", help="Read-only interpreter and dependency discovery; never installs")
+    inspect.add_argument("--mode", choices=("fit", "chem"), default="fit")
     run = sub.add_parser("run")
     run.add_argument("--script", choices=sorted(ALLOWED), required=True)
     run.add_argument("arguments", nargs=argparse.REMAINDER)
     args = parser.parse_args(argv)
     try:
+        if args.action == "discover":
+            ready, discovery = inspect_runtimes(args.mode, args.python, args.dependency_mode)
+            print(json.dumps({"ready": bool(ready), "runtime": ready, "discovery": discovery}, ensure_ascii=False))
+            return 0 if ready else 2
         if args.action == "ensure":
             print(json.dumps(ensure(args.mode, args.python, args.source, not args.no_install, args.dependency_mode)))
             return 0
         arguments = args.arguments[1:] if args.arguments[:1] == ["--"] else args.arguments
         if stdlib_operation(args.script, arguments):
-            return subprocess.run([sys.executable, str(SCRIPTS / args.script), *arguments]).returncode
+            interpreter = sys.executable
+            if args.python:
+                interpreter = setup_interpreter("stdlib", args.python, args.dependency_mode)
+                if not interpreter:
+                    raise RuntimeError("The explicitly selected Python is unavailable or incompatible; no substitute was used.")
+            return subprocess.run([interpreter, str(SCRIPTS / args.script), *arguments]).returncode
         # The standalone cleaning CLI imports pandas; prepare_hcap also records
         # a verified author-source receipt. Only bundled-rule checks are RDKit-only.
         mode = "chem" if args.script == "rule_library.py" else "fit"

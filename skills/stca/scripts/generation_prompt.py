@@ -20,9 +20,91 @@ _SCHEMAS = {"stca-library-constraints-v1", "stca-constraints-v1"}
 _PLACEHOLDERS = {
     "COUNT", "OBJECTIVES", "EXACT_AND_CONDITIONS",
     "MACCS_LITERAL_SEMANTICS", "CHEMICAL_PREFERENCES",
+    "GENERATION_TITLE", "CANDIDATE_KIND", "STRUCTURE_SUBJECT", "STRUCTURE_REPRESENTATION",
 }
 _SLOT = re.compile(r"\{\{([A-Z_]+)\}\}")
 _LOG_UNIT = re.compile(r"log10\s*\(\s*([^()]+?)\s*\)", re.IGNORECASE)
+STRUCTURE_KINDS = ("molecule", "polymer_repeat_unit")
+
+
+def infer_structure_kind(smiles):
+    """Describe valid original SMILES notation, not the material/property domain.
+
+    Callers supply already parsed, valid SMILES. A dummy attachment atom is
+    written with ``*`` in SMILES; unstarred input needs no invented attachments.
+    Mixed notation is retained explicitly and needs a generation-time choice.
+    """
+    forms = {"polymer_repeat_unit" if "*" in value else "molecule" for value in smiles}
+    return next(iter(forms)) if len(forms) == 1 else ("mixed" if forms else "unspecified")
+
+
+def resolve_structure_kind(constraints, structure_kind=None):
+    """Resolve output notation from an explicit choice or saved rule metadata.
+
+    Legacy rules without this metadata keep their repeat-unit convention.
+    Conflicting or mixed saved notation requires an explicit output choice.
+    The MACCS representation and every frozen bit condition remain unchanged.
+    """
+    if structure_kind is not None:
+        if structure_kind not in STRUCTURE_KINDS:
+            raise ValueError("structure_kind must be 'molecule' or 'polymer_repeat_unit'.")
+        return structure_kind
+    values = [constraints] if isinstance(constraints, dict) else constraints
+    if not isinstance(values, list) or not values:
+        raise ValueError("constraints must be an object or a nonempty list of objects.")
+    resolved = []
+    for constraint in values:
+        if not isinstance(constraint, dict):
+            raise ValueError("Constraints must be objects.")
+        declarations = []
+        for source in (constraint, constraint.get("metadata"), constraint.get("model")):
+            if not isinstance(source, dict):
+                continue
+            for metadata in (source, source.get("custom_data_contract")):
+                if isinstance(metadata, dict) and metadata.get("structure_kind") is not None:
+                    declarations.append(metadata["structure_kind"])
+        if any(value not in STRUCTURE_KINDS for value in declarations):
+            raise ValueError("Saved structure kind is mixed or unspecified; choose molecule or polymer_repeat_unit explicitly.")
+        if len(set(declarations)) > 1:
+            raise ValueError("Saved structure-kind declarations disagree; choose the output notation explicitly.")
+        resolved.append(declarations[0] if declarations else "polymer_repeat_unit")
+    if len(set(resolved)) > 1:
+        raise ValueError("Selected rules use different structure kinds; choose the output notation explicitly.")
+    return resolved[0]
+
+
+def _structure_text(kind, zh):
+    if kind == "molecule":
+        return {
+            "GENERATION_TITLE": "根据冻结 STCA 规则生成分子" if zh else "Generate molecules with frozen STCA rules",
+            "CANDIDATE_KIND": "分子" if zh else "molecule",
+            "STRUCTURE_SUBJECT": "分子" if zh else "molecule",
+            "STRUCTURE_REPRESENTATION": (
+                "## 分子表示\n\n"
+                "- 在 `SMILES` 字段返回有效的普通分子 SMILES，使用合理价态，表示为单一连通分子。不要人为添加 `*` 连接原子。\n"
+                "- 最终结果保留原始分子 SMILES。沿用冻结的 MACCS 计算契约：普通分子没有连接点时，H-cap 不改变结构；不要为计算添加星号或改变分子。\n"
+                "- 返回不同的提案；没有证据时，不声称数据库新颖性、合成可行性或实测性质数值。" if zh else
+                "## Molecular representation\n\n"
+                "- Return valid ordinary molecular SMILES in the `SMILES` field, with chemically plausible valences and one connected molecule. Do not add artificial `*` attachment atoms.\n"
+                "- Preserve each original molecular SMILES in the final output. Follow the frozen MACCS calculation contract: H-cap leaves molecules without attachment atoms unchanged. Do not add stars or alter the molecule for calculation.\n"
+                "- Return distinct proposals; do not claim database novelty, synthetic feasibility, or measured property values without evidence."
+            ),
+        }
+    return {
+        "GENERATION_TITLE": "根据冻结 STCA 规则生成聚合物重复单元" if zh else "Generate polymer repeat units with frozen STCA rules",
+        "CANDIDATE_KIND": "聚合物重复单元" if zh else "polymer repeat-unit",
+        "STRUCTURE_SUBJECT": "重复单元" if zh else "repeat unit",
+        "STRUCTURE_REPRESENTATION": (
+            "## 重复单元表示\n\n"
+            "- 在 `SMILES` 字段返回原始重复单元，恰好保留两个末端 `*` 连接原子。每个 `*` 仅有一个相邻原子，以单键连接。使用合理价态，表示为单一连通的重复单元。\n"
+            "- 最终结构保留两个连接点。H-cap 仅是用于计算 MACCS 的独立副本：按照冻结模型的表示契约，将两个受支持的末端单键星号换成氢。不要用 H-cap 分子代替最终重复单元，也不要从 H-cap 反推连接点。\n"
+            "- 返回不同的提案；没有证据时，不声称数据库新颖性、合成可行性或实测性质数值。" if zh else
+            "## Repeat-unit representation\n\n"
+            "- Return each original repeat unit in the `SMILES` field with exactly two terminal `*` attachment atoms. Each `*` must have one neighbor and a single attachment bond. Use chemically plausible valences and a single connected repeat unit.\n"
+            "- Keep both attachment sites in the reported structure. H-cap is a separate computational copy used to calculate MACCS: replace the two supported terminal single-bond stars with hydrogen using the frozen model's representation contract. Never return the H-capped molecule in place of the repeat unit or reconstruct attachment sites from it.\n"
+            "- Return distinct proposals; do not claim database novelty, synthetic feasibility, or measured property values without evidence."
+        ),
+    }
 
 
 def _learner(constraint):
@@ -325,7 +407,7 @@ def _semantics_line(key, value, definition, zh):
     return prefix + "; ".join(pieces) + "."
 
 
-def render_prompt(constraints, language="zh-CN", count=20, preferences=""):
+def render_prompt(constraints, language="zh-CN", count=20, preferences="", structure_kind=None):
     """Return a complete prompt for one rule or the AND intersection of rules.
 
     Accept ``stca-library-constraints-v1`` or exported
@@ -346,6 +428,7 @@ def render_prompt(constraints, language="zh-CN", count=20, preferences=""):
         constraints = [constraints]
     if not isinstance(constraints, list) or not constraints:
         raise ValueError("constraints must be an object or a nonempty list of objects.")
+    kind = resolve_structure_kind(constraints, structure_kind)
     normalized, seen, shared_definitions = [], {}, {}
     for index, constraint in enumerate(constraints, start=1):
         if not isinstance(constraint, dict) or constraint.get("schema") not in _SCHEMAS:
@@ -376,6 +459,7 @@ def render_prompt(constraints, language="zh-CN", count=20, preferences=""):
                     "EXACT_AND_CONDITIONS": "\n\n".join(rules),
                     "MACCS_LITERAL_SEMANTICS": semantics,
                     "CHEMICAL_PREFERENCES": preferences.strip()}
+    replacements.update(_structure_text(kind, zh))
     template_path = Path(__file__).resolve().parents[1] / "assets" / "prompts" / f"generate.{language}.md"
     template = template_path.read_text(encoding="utf-8")
     if set(_SLOT.findall(template)) != _PLACEHOLDERS:
@@ -409,6 +493,8 @@ def main(argv=None):
     parser.add_argument("--language", choices=("zh-CN", "en"), default="zh-CN")
     parser.add_argument("--count", type=int, default=20)
     parser.add_argument("--preferences", default="")
+    parser.add_argument("--structure-kind", choices=STRUCTURE_KINDS,
+                        help="Output notation; defaults to the saved contract or legacy repeat-unit format.")
     parser.add_argument("--output", type=Path, required=True, help="New Markdown file; existing files are not overwritten.")
     args = parser.parse_args(argv)
     try:
@@ -416,7 +502,7 @@ def main(argv=None):
         for path in args.constraints:
             value = json.loads(path.read_text(encoding="utf-8-sig"), parse_constant=_reject_json_constant)
             constraints.extend(value if isinstance(value, list) else [value])
-        prompt = render_prompt(constraints, args.language, args.count, args.preferences)
+        prompt = render_prompt(constraints, args.language, args.count, args.preferences, args.structure_kind)
         with args.output.open("x", encoding="utf-8", newline="\n") as stream:
             stream.write(prompt)
     except (OSError, ValueError, TypeError) as exc:
@@ -424,6 +510,7 @@ def main(argv=None):
         return 2
     print(json.dumps({"output": str(args.output), "language": args.language,
                       "requested_count": args.count, "objectives": len(constraints),
+                      "structure_kind": resolve_structure_kind(constraints, args.structure_kind),
                       "status": "prompt_rendered"}, ensure_ascii=False))
     return 0
 

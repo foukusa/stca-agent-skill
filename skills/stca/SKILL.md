@@ -1,13 +1,13 @@
 ---
 name: stca
-description: "Use STCA (Sliding Threshold Correlation Analysis) for polymer repeat units: learn and save readable STCA/WRAcc rules from uploaded data, screen with bundled paper or validated open-data rules, or generate and verify candidates with complete rule-guided prompts. Trigger for STCA、滑动阈值相关分析、聚合物性质筛选、开源数据集规则、规则归纳、多性能交集、生成prompt、气体渗透率. Preserve the author's implementation, original star-containing SMILES, exact learner identity and evaluation scope."
+description: "Use STCA (Sliding Threshold Correlation Analysis) for polymer structure-property data and repeat units: learn and save readable STCA/WRAcc rules from uploaded data, screen with bundled paper or validated open-data rules, or generate and verify candidates with complete rule-guided prompts. Trigger for STCA、滑动阈值相关分析、聚合物性质筛选、开源数据集规则、规则归纳、多性能交集、生成prompt、气体渗透率. Preserve the author's implementation, original polymer SMILES and repeat-unit attachment points, exact learner identity and evaluation scope."
 ---
 
 # STCA skill
 
 [内置任务](assets/starter_tasks.json) · [规则目录](assets/rule_library/index.md) · [执行流程](references/agent_workflows.md) · [使用范例](references/usage_examples.md) · [后台](references/platform-runtime.md) · [数据与评价](references/custom_data.md)
 
-版本保持 **0.1.0**。用自然语言完成三条路径。用户提供目标或文件，agent 自动识别列、读取规则、准备兼容 CPU 后台并交付结果；不要求用户操作 Python、配置路径或部署生成模型。生成由当前 AI 助手完成。
+版本保持 **0.1.0**。面向聚合物结构与性质数据；用自然语言完成三条路径。用户提供目标或文件，agent 自动识别列、读取规则、准备兼容 CPU 后台并交付结果；不要求用户操作 Python、配置路径或部署生成模型。生成由当前 AI 助手完成。
 
 面向用户介绍时，Tg/EC称为“作者STCA论文中实现的规则”，开源数据注明原始来源及STCA归纳/筛选验证。AS称为作者论文提出并在筛选评价中验证使用的综合指标。普通操作说明聚焦目标、选择、结果与继续使用；不要主动展示提交号、快照日期、审计日志或历史核验过程。只有用户明确要求严格复现或版本核对时，才按实际证据解释相应范围，不能把未运行的任务说成已经运行。筛选不匹配统一称“未满足的规则条件”。
 
@@ -23,7 +23,9 @@ description: "Use STCA (Sliding Threshold Correlation Analysis) for polymer repe
 
 ## 1. 上传数据总结规则，并给出对应筛选结果
 
-读取结构列、性质、单位、方向、实测/计算含义及可用条件。ID 可任意命名或省略，绝不作为特征或材料身份。只补问无法可靠确定的科学信息。
+读取聚合物结构列、性质、单位、方向、实测/计算含义及可用条件。保留原始重复单元 SMILES 和原有 `*`；已封端的聚合物输入照原样读取，不凭空补连接点，也不因没有星号改变性质含义。ID 可任意命名或省略，绝不作为特征或材料身份。只补问无法可靠确定的科学信息。
+
+学习和生成由 agent 明确选用 `--structure-kind polymer_repeat_unit`，随模型保存，避免把无星号的聚合物输入误判为其他生成任务；不要求用户填写参数。生成新候选时使用带两个末端单键连接点的聚合物重复单元表示。已有规则按其原性质和来源选择，单体计算能隙保留其真实标签含义。
 
 **默认范围内分析：**没有指定 source/holdout 或固定外推协议时，通过 `agent_runtime.py run --script inrange_evaluation.py -- ARGS` 执行：透明数据准备、保护结构分组的 5 折交叉验证重复 3 次、STCA 与 WRAcc 比较、全量冻结与逐档筛选。用户可自定任意合法百分比，含 15%、25%；未指定时直接执行默认 10%、20%、30%，不为百分比再补问。每档报告 Top/Bottom、原始物理尺度阈值、>=/<= 与单位，并同时列出两方法的入选/未入选/未知数、未满足的规则条件结果表、AS与明确主推理由。读取`screening_summary.json`和`recommendation.md`交付，不能只给百分比或模型路径。实际命令与文件见 [agent_workflows.md](references/agent_workflows.md)。
 
@@ -55,7 +57,7 @@ description: "Use STCA (Sliding Threshold Correlation Analysis) for polymer repe
 
 只选“3”或说“用已有规则生成”时，先显示“我的规则”、STCA论文、GAS、RadonPy、ADEPT的简洁目录，等待选定具体目标规则；每条冻结规则自带档位及数值阈值。未指定方法时使用该档主推并明确告知，用户可改用备选。若“刚保存的规则”仍包含多个性质/档位，只补问未明确的目标选择；用户明确要求多档生成时各档独立准备、生成、核验，不将同性质不同档位合成一个AND任务。
 
-选择完成后读取已存完整 prompt：内置用 `rule_library.py prompt ID --language zh-CN`；保存条目用其精确 constraints/prompt。数量、偏好、多目标组合用标准库 `generation_prompt.py` 渲染。prompt 标明真实方法、性质、来源、阈值、全部 AND 条件、MACCS计数及特殊键语义、H-cap计算约定、原始星号 SMILES 格式与核验要求。
+选择完成后读取已存完整 prompt：内置用 `rule_library.py prompt ID --language zh-CN`；保存条目用其精确 constraints/prompt。数量、偏好、多目标组合用标准库 `generation_prompt.py` 渲染。prompt 标明真实方法、性质、来源、阈值、全部 AND 条件、MACCS计数及特殊键语义、H-cap计算约定、聚合物重复单元 SMILES 格式与核验要求。
 
 规则选定后提供两种生成方式；用户已明确说“先看 prompt”或“直接生成”时按其选择执行：
 
@@ -68,10 +70,11 @@ description: "Use STCA (Sliding Threshold Correlation Analysis) for polymer repe
 
 ## 共同约定
 
-- 保留原始带 `*` 的重复单元 SMILES；H-cap只用于计算副本，MACCS167原编号及特殊/计数语义不变。不能把 K=0 一律解释为完全无该子结构。
+- 保留原始聚合物 SMILES；重复单元保留原有 `*` 连接点，H-cap只用于计算副本，MACCS167原编号及特殊/计数语义不变。不能把 K=0 一律解释为完全无该子结构。
 - 输入只读、输出另存。保存来源、版本、精确方法、模型哈希、尺度与角色。用户数据和规则库不写入安装目录。
 - 使用运行配置指定的原作者 STCA 实现。WRAcc 是单独的备选规则学习器。每条精确规则内部为 AND。
 - 区分已有规则、零覆盖、零TP、无正例、无规则、计算错误和未定义指标。外推附录的零覆盖不用于覆盖当前全量规则的支持或CV证据。
+- 首次计算由 agent 使用随包 `scripts/launch_runtime.sh`（macOS/Linux）或 `scripts/launch_runtime.ps1`（Windows）自动发现解释器，再进入 `agent_runtime.py`；优先复用成功记录并检查未激活 Conda 与常见环境，不要求用户填写路径。明确指定的路径验证失败时如实报告，不静默换用其他环境。
 - 复用 Python **3.10及以上**兼容 CPU 环境；历史依赖锁仅在明确复现时使用。由 `agent_runtime.py` 自动管理后台，不给普通用户安装命令。
 
 ## 按需读取

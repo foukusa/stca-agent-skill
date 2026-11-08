@@ -11,9 +11,10 @@ authors:
     orcid: https://orcid.org/0009-0005-4445-7074
 abstract: >-
   Agent workflows for applying published Sliding Threshold Correlation
-  Analysis rules, deriving and evaluating rules from measured data, and
-  proposing polymer repeat-unit candidates followed by explicit H-cap,
-  MACCS generation and frozen structural-rule verification. This integration
+  Analysis rules, deriving and evaluating rules from polymer property data,
+  and proposing polymer repeat units followed by MACCS calculation and
+  frozen structural-rule verification. Original SMILES are
+  preserved; repeat-unit H-cap is calculation-only. This integration
   calls the pinned original polymer-stca implementation.
 keywords:
   - STCA

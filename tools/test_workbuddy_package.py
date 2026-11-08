@@ -1,8 +1,11 @@
 """Integration checks for the actual shallow WorkBuddy upload artifact."""
 import base64
 import hashlib
+import importlib.util
 import json
 import os
+import re
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -11,7 +14,8 @@ import unittest
 import zipfile
 import zlib
 
-SKILL = Path(__file__).resolve().parents[1] / 'skills' / 'stca'
+SKILL = Path(os.environ.get('STCA_TEST_SKILL_DIR',
+                          Path(__file__).resolve().parents[1] / 'skills' / 'stca'))
 
 
 class WorkBuddyPackageTests(unittest.TestCase):
@@ -59,11 +63,51 @@ class WorkBuddyPackageTests(unittest.TestCase):
         self.assertIn('SKILL.md', self.names)
         self.assertIn('assets/stca-logo.png', self.names)
         self.assertIn('scripts/workbuddy_runtime.py', self.names)
+        self.assertIn('scripts/agent_runtime.py', self.names)
+        self.assertIn('scripts/launch_runtime.sh', self.names)
+        self.assertIn('scripts/launch_runtime.ps1', self.names)
         self.assertTrue(all(len(Path(name).parts) <= 2 for name in self.names))
         entry=(self.install/'SKILL.md').read_text()
         self.assertIn('skill_instructions',entry)
         self.assertIn('runtime_skill_dir',entry)
         self.assertNotIn('](assets/rule_library/',entry)
+
+    def test_every_entry_resource_reference_is_bundled(self):
+        entry=(self.install/'SKILL.md').read_text()
+        references=set(re.findall(r'\b(?:scripts|assets|references)/[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*',entry))
+        self.assertIn('scripts/agent_runtime.py', references)
+        self.assertTrue(references)
+        self.assertFalse(references-set(self.names))
+        manifest=json.loads((self.install/'assets/platform-release.json').read_bytes())
+        self.assertEqual(manifest['core_scripts_location'],'verified_runtime_payload')
+        for relative,digest in manifest['public_entrypoints_sha256'].items():
+            self.assertEqual(hashlib.sha256((self.install/relative).read_bytes()).hexdigest(),digest)
+        spec=importlib.util.spec_from_file_location('workbuddy_builder', SKILL/'scripts/build_platform_packages.py')
+        builder=importlib.util.module_from_spec(spec);spec.loader.exec_module(builder)
+        with self.assertRaisesRegex(ValueError, 'scripts/missing_runtime.py'):
+            builder.validate_workbuddy_entry_resources({'SKILL.md':b'Use `scripts/missing_runtime.py`.'})
+
+    def test_visible_agent_entry_runs_complete_runtime_and_preserves_workdir(self):
+        script=self.install/'scripts/agent_runtime.py'
+        result=self.invoke('--help',script=script)
+        self.assertIn(b'--python',result.stdout)
+        self.assertIn(b'ensure',result.stdout)
+        result=self.invoke('run','--script','task_menu.py','--','--language','en',script=script)
+        for number in (b'1.',b'2.',b'3.'):
+            self.assertIn(number,result.stdout)
+        # The dispatcher is functional, while the actual implementation stays
+        # in the verified payload and is not replaced with a placeholder.
+        runtime=Path(self.prepare()['runtime_skill_dir'])
+        self.assertNotEqual(script.read_bytes(),(runtime/'scripts/agent_runtime.py').read_bytes())
+        self.assertFalse((self.install/'agent-runtime.json').exists())
+
+    @unittest.skipIf(os.name=='nt', 'POSIX launcher is exercised on POSIX hosts')
+    def test_visible_launcher_restores_with_explicit_bootstrap_interpreter(self):
+        result=subprocess.run([shutil.which('sh') or '/bin/sh',str(self.install/'scripts/launch_runtime.sh'),
+                               '--bootstrap-python',sys.executable,'--script',str(self.script),'prepare'],
+                              cwd=self.workspace,env=self.env,capture_output=True,text=True)
+        self.assertEqual(result.returncode,0,result.stderr)
+        self.assertIn('skill_instructions',json.loads(result.stdout))
 
     def test_cold_hot_cache_and_installation_unchanged(self):
         before={p.relative_to(self.install).as_posix():p.read_bytes() for p in self.install.rglob('*') if p.is_file()}

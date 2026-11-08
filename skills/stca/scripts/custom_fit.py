@@ -17,6 +17,7 @@ import sys
 from stca_io import read_csv_frame
 from stca_runtime import load_stca, environment_receipt
 from prepare_hcap import hcap_smiles
+from generation_prompt import infer_structure_kind, STRUCTURE_KINDS
 
 
 def write_json(path, data):
@@ -111,6 +112,8 @@ def fit_one(X, y, groups, mask, args, transform, min_subset, override_step=None)
     if grid_n > args.max_grid_points:
         raise ValueError(f"Explicit/effective scan step needs about {grid_n} grid points, exceeding --max-grid-points. Choose a coarser step explicitly.")
     model_unit = f"log10({args.unit})" if transform == "log10" else args.unit
+    observed_kind = infer_structure_kind(groups[mask])
+    requested_kind = getattr(args, "structure_kind", None)
     trainer = STCA(direction=args.direction, tiers=args.tiers,
                    scan=ScanConfig(mode="value", step=step, min_subset_size=min_subset,
                                    max_points=args.max_grid_points),
@@ -121,7 +124,10 @@ def fit_one(X, y, groups, mask, args, transform, min_subset, override_step=None)
         "property": args.target_name or args.target, "input_target_column": args.target,
         "original_unit": args.unit, "model_unit": model_unit,
         "transform": transform, "already_log": bool(args.already_log),
-        "representation": "hcap_maccs167", "group_identity": "canonical_original_repeat_unit",
+        "representation": "hcap_maccs167", "group_identity": "canonical_original_structure",
+        "structure_kind": requested_kind or observed_kind,
+        "input_structure_kind": observed_kind,
+        "structure_kind_basis": "user_specified" if requested_kind else "original_smiles_notation",
         "input_smiles_column": args.smiles_column, "id_column": args.id_column,
         "ids_are_features": False, "source_owned_preprocessing": True,
         "analysis_kind": "custom_STCA_adaptive_adapter",
@@ -222,7 +228,7 @@ def run(args):
         raise ValueError("Configured group column contains empty group labels.")
     overlap = overlap_audit(rows, source, evaluation, args.group_column)
     if overlap.get("stca_original_identity") or (args.group_column and overlap.get(args.group_column)):
-        raise ValueError(f"Source/evaluation identity overlap: {overlap}. Keep related repeat units in one role.")
+        raise ValueError(f"Source/evaluation identity overlap: {overlap}. Keep related structures in one role.")
     # Use original structure identities for duplicate protection, never random record IDs.
     groups = rows.stca_original_identity.to_numpy()
     args._hcap_groups = rows.stca_hcap_identity.to_numpy()
@@ -310,7 +316,7 @@ def run(args):
         readiness["hcap_collision_group_count"] = int((cap_groups > 1).sum())
         readiness["hcap_collisions_never_aggregated"] = True
         readiness["hcap_collisions_block_independence_claim"] = bool(overlap.get("stca_hcap_identity"))
-        readiness["group_identity_kind"] = "canonical_original_repeat_unit"
+        readiness["group_identity_kind"] = "canonical_original_structure"
         write_json(output/"source_audit.json", readiness)
         write_json(output/"source_settings.json", {"preprocessing_fit_report": report, "scan": scan,
                    "actual_scan_step": model.artifact["training_config"]["scan"]["step"],
@@ -365,6 +371,8 @@ def main(argv=None):
         p.add_argument("--"+name, required=True)
     p.add_argument("--target-name")
     p.add_argument("--smiles-column", default="SMILES")
+    p.add_argument("--structure-kind", choices=STRUCTURE_KINDS,
+                   help="Generation output notation; otherwise infer it from valid source SMILES.")
     p.add_argument("--id-column")
     p.add_argument("--group-column")
     p.add_argument("--source-value", default="source")

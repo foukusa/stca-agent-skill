@@ -84,7 +84,7 @@ Apply every tier to the separate candidates.csv I uploaded and return its screen
 
 A tier with fewer than 20 positives is marked as having insufficient evaluation support; rules can still be learned and saved. Unavailable rules or uncomputable tiers retain their status and reason.
 
-If you supply source/holdout roles or request extrapolation testing, STCA uses the corresponding independent-holdout workflow, choosing settings within source only. Default in-range evaluation groups repeat-unit structures; its scores are conditional on the automatically preprocessed data.
+If you supply source/holdout roles or request extrapolation testing, STCA uses the corresponding independent-holdout workflow, choosing settings within source only. Default in-range evaluation groups molecular structures; its scores are conditional on the automatically preprocessed data.
 
 ## 2 Screen candidates with existing rules
 
@@ -146,7 +146,7 @@ Use the high-Tg Top 20% rule from the STCA paper to generate 20 candidates direc
 
 The current LLM starts generation with the selected rules immediately. No additional LLM API setup is needed. If you have not specified a mode, STCA offers both choices after rule selection.
 
-Both modes retain every original proposal, star-containing SMILES, rule decisions and unmet rule conditions. The number generated and the number passing are reported separately; the task finishes by returning to the main menu.
+Both modes retain every original proposal, molecular SMILES, rule decisions and unmet rule conditions. The number generated and the number passing are reported separately; the task finishes by returning to the main menu.
 
 ## Get only the generation prompt
 

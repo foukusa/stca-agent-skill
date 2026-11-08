@@ -15,7 +15,7 @@ import json
 from pathlib import Path
 import sys
 
-from generation_prompt import render_prompt
+from generation_prompt import render_prompt, resolve_structure_kind, STRUCTURE_KINDS
 
 
 SCHEMA = "stca-generation-session-v1"
@@ -54,7 +54,10 @@ def _resource(root, relative):
 
 
 def _compose(constraints, state):
-    text = render_prompt(constraints, state["language"], state["requested_count"], state["preferences"])
+    # Old sessions predate output-notation metadata and retain their exact
+    # repeat-unit prompt when reopened.
+    kind = state.get("structure_kind", "polymer_repeat_unit")
+    text = render_prompt(constraints, state["language"], state["requested_count"], state["preferences"], kind)
     if state["language"] == "zh-CN":
         notice = ("\n\n## 用户调整与执行约定\n\n"
                   "上述性质、阈值、精确 AND 条件、MACCS 语义及 H-cap 约定保持冻结。"
@@ -144,6 +147,7 @@ def _response(path, state, include_prompt=False):
     root = path.parent
     ready = state["generation_allowed"]
     result = dict(state)
+    result.setdefault("structure_kind", "polymer_repeat_unit")
     result.update(session_path=str(path), prompt_path=str(_resource(root, state["prompt_path"])),
                   approved_prompt_path=(str(_resource(root, state["approved_prompt_path"])) if ready else None),
                   next_action="invoke_current_llm_and_verify" if ready else "show_full_prompt_and_wait_for_user_confirmation",
@@ -154,7 +158,8 @@ def _response(path, state, include_prompt=False):
     return result
 
 
-def prepare_session(constraint_paths, output_dir, *, mode, count=20, preferences="", language="zh-CN"):
+def prepare_session(constraint_paths, output_dir, *, mode, count=20, preferences="", language="zh-CN",
+                    structure_kind=None):
     if mode not in {"preview", "direct"}:
         raise ValueError("mode must be preview or direct.")
     output = Path(output_dir).expanduser().resolve()
@@ -169,6 +174,7 @@ def prepare_session(constraint_paths, output_dir, *, mode, count=20, preferences
         snapshots.append((f"constraints-{index:02d}.json", data))
     state = {"schema": SCHEMA, "mode": mode, "status": "awaiting_confirmation",
              "generation_allowed": False, "revision": 1, "language": language,
+             "structure_kind": resolve_structure_kind(values, structure_kind),
              "requested_count": count, "preferences": preferences, "editable_instructions": "",
              "approved_prompt_path": None, "approved_prompt_sha256": None,
              "approved_revision": None, "authorization": None,
@@ -187,16 +193,18 @@ def prepare_session(constraint_paths, output_dir, *, mode, count=20, preferences
     return _response(path, state)
 
 
-def revise_session(session, *, count=None, preferences=None, draft_file=None):
+def revise_session(session, *, count=None, preferences=None, draft_file=None, structure_kind=None):
     path, state, constraints = _load(session)
-    if all(value is None for value in (count, preferences, draft_file)):
-        raise ValueError("Supply a count, preferences or editable draft file.")
+    if all(value is None for value in (count, preferences, draft_file, structure_kind)):
+        raise ValueError("Supply a count, preferences, editable draft file or structure kind.")
     if count is not None:
         state["requested_count"] = count
     if preferences is not None:
         state["preferences"] = preferences
     if draft_file is not None:
         state["editable_instructions"] = Path(draft_file).read_text(encoding="utf-8-sig")
+    state["structure_kind"] = resolve_structure_kind(
+        constraints, structure_kind if structure_kind is not None else state.get("structure_kind", "polymer_repeat_unit"))
     _compose(constraints, state)
     state.update(revision=state["revision"] + 1, status="awaiting_confirmation", generation_allowed=False,
                  approved_prompt_path=None, approved_prompt_sha256=None, approved_revision=None, authorization=None)
@@ -232,12 +240,14 @@ def main(argv=None):
     prepare.add_argument("--count", type=int, default=20)
     prepare.add_argument("--preferences", default="")
     prepare.add_argument("--language", choices=("zh-CN", "en"), default="zh-CN")
+    prepare.add_argument("--structure-kind", choices=STRUCTURE_KINDS)
     prepare.add_argument("--output-dir", type=Path, required=True)
     revise = actions.add_parser("revise")
     revise.add_argument("--session", type=Path, required=True)
     revise.add_argument("--count", type=int)
     revise.add_argument("--preferences")
     revise.add_argument("--draft-file", type=Path)
+    revise.add_argument("--structure-kind", choices=STRUCTURE_KINDS)
     confirm = actions.add_parser("confirm")
     confirm.add_argument("--session", type=Path, required=True)
     confirm.add_argument("--confirmation-text", required=True,
@@ -249,9 +259,11 @@ def main(argv=None):
     try:
         if args.action == "prepare":
             result = prepare_session(args.constraints, args.output_dir, mode=args.mode,
-                                     count=args.count, preferences=args.preferences, language=args.language)
+                                     count=args.count, preferences=args.preferences, language=args.language,
+                                     structure_kind=args.structure_kind)
         elif args.action == "revise":
-            result = revise_session(args.session, count=args.count, preferences=args.preferences, draft_file=args.draft_file)
+            result = revise_session(args.session, count=args.count, preferences=args.preferences,
+                                    draft_file=args.draft_file, structure_kind=args.structure_kind)
         elif args.action == "confirm":
             result = confirm_session(args.session, confirmation_text=args.confirmation_text)
         else:

@@ -1,6 +1,6 @@
 <p align="center"><img src="assets/stca-logo.png" alt="STCA logo" width="104"></p>
 <h1 align="center">STCA Agent Skill</h1>
-<p align="center">Learn rules from data, screen with existing rules, or generate new structures.</p>
+<p align="center">Learn polymer structure–property rules, screen candidates, or generate repeat units.</p>
 <p align="center"><strong>0.1.0</strong> · English · <a href="README.zh-CN.md">简体中文</a></p>
 
 ## Contents
@@ -16,7 +16,7 @@
 
 ## Start here
 
-After installation, say **“Start STCA”** and choose a task below. See the [natural-language examples](docs/USAGE.md) for complete conversations:
+STCA works with polymer structure–property data and repeat units. After installation, say **“Start STCA”** and choose a task below. See the [natural-language examples](docs/USAGE.md) for complete conversations:
 
 | Choice | Goal | A short request |
 |---|---|---|
@@ -59,27 +59,46 @@ After you choose **3**, STCA **shows the available rule catalog first**, includi
 - **Preview and confirm**: view the complete prompt, adjust the candidate count, structural preferences or output format, then say “Confirm and generate.” The current LLM generates only after your confirmation.
 - **Generate directly**: the current LLM uses the selected rules immediately to generate candidates and verify every proposal.
 
-Both modes return the original proposals, star-containing SMILES, passed/failed decisions and every unmet rule condition, then return to the main menu. If your request already says “generate directly,” STCA uses that mode. Changes to the target or frozen rule conditions require choosing and confirming the corresponding rule. No additional LLM API setup is needed.
+Both modes return the original proposals, molecular SMILES, passed/failed decisions and every unmet rule condition, then return to the main menu. If your request already says “generate directly,” STCA uses that mode. Changes to the target or frozen rule conditions require choosing and confirming the corresponding rule. No additional LLM API setup is needed.
 
 Say **“Main menu”** or **“Back”** at any time. Returning preserves saved rules. To use them on another device or platform, download the rule bundle and upload it in the new session.
 
 ## Download and install
 
-ChatGPT and Codex use the same standalone skill package. See the [installation guide](docs/INSTALL.md).
+Install directly from GitHub or a downloaded package. Store listing links will be added after approval. See the [installation guide](docs/INSTALL.md) for the complete steps.
 
-| Platform | Download | Official guidance and invocation |
+| Platform | Install | Start |
 |---|---|---|
-| **ChatGPT + Codex** | [OpenAI skill ZIP](downloads/stca-openai-skill-0.1.0.zip?raw=true) | [ChatGPT Skills help](https://help.openai.com/en/articles/20001066-skills-in-chatgpt/) · [Codex skill guide](https://learn.chatgpt.com/docs/build-skills). Select STCA in ChatGPT; say “Use $stca” in Codex. |
-| **DeepSeek Harness** | [DSH plugin TGZ](downloads/dsh-plugin-stca-0.1.0.tgz?raw=true) · [local skill ZIP](downloads/stca-deepseek-harness-0.1.0.zip?raw=true) | [Product](https://www.deepseek.com/harness/) · [Install](docs/INSTALL.md#deepseek-harness). Enter `/stca`. |
-| **WorkBuddy** | [WorkBuddy ZIP](downloads/stca-workbuddy-0.1.0.zip?raw=true) | [Official skill management](https://www.workbuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Skills-Market). Select STCA and describe the task. |
+| **Codex** | Ask `$skill-installer` to install the [STCA skill folder](https://github.com/foukusa/stca-agent-skill/tree/main/skills/stca), or download the [Codex skill ZIP](downloads/stca-codex-0.1.0.zip?raw=true). | `Use $stca` |
+| **DeepSeek Harness** | Enter the GitHub URL in Add plugin, or use `dsh-plugin-stca` after its npm publication. See the plugin-center entry below. A [local skill ZIP](downloads/stca-deepseek-harness-0.1.0.zip?raw=true) is also available. | `/stca` |
+| **WorkBuddy** | Import the [WorkBuddy ZIP](downloads/stca-workbuddy-0.1.0.zip?raw=true) as a local skill. | Select STCA and say “Start STCA”. |
+| **ChatGPT desktop** | Use the [OpenAI skill ZIP](downloads/stca-openai-skill-0.1.0.zip?raw=true) with the skill installation options available in your app. | Select STCA. |
 
-You can also ask Codex:
+In Codex, send:
 
 ```text
 Use $skill-installer to install https://github.com/foukusa/stca-agent-skill/tree/main/skills/stca
 ```
 
-ChatGPT creation and import depend on account and workspace access. ChatGPT and Codex use the same skill contents; load them with the installation method supported by each client.
+In DeepSeek Harness, open **Plugins → Add plugin** and choose an installation source:
+
+| Source | Value or entry |
+|---|---|
+| **GitHub repository** | `https://github.com/foukusa/stca-agent-skill.git` |
+| **npm package name** | `dsh-plugin-stca` (available after npm publication) |
+| **Plugin center** | — (listing link will be added after publication) |
+
+<!-- DSH_PLUGIN_CENTER_URL: add the actual listing URL after publication. -->
+
+You can also download the [plugin TGZ](downloads/dsh-plugin-stca-0.1.0.tgz?raw=true) and enter its full local path in Add plugin. After installation and activation, enter `/stca`.
+
+For GitHub installation with the DSH CLI and the `web` profile:
+
+```bash
+dsh plugin --profile web add github:foukusa/stca-agent-skill
+```
+
+The first calculation automatically looks for and checks a suitable local Python environment. A Python path is an optional fallback, not an installation requirement. See [environment behavior](docs/INSTALL.md#calculation-environment). Codex can use the standalone skill immediately; a public OpenAI directory listing is a separate publication route.
 
 ## Existing rules and generation prompts
 
@@ -98,15 +117,21 @@ The Tg and electrical-conductivity rules implement the experimental-property scr
 
 ## Prepare your data
 
-Screening needs repeat-unit SMILES; learning also needs numeric property values:
+Screening needs polymer repeat-unit SMILES; learning also needs numeric property values:
 
 ```csv
 CandidateKey,SMILES
-sample-A7,*CC*
-42-blue,*CCO*
+sample-A7,*CCO*
+42-blue,*CC*
 ```
 
-Identifiers are optional and may have any name. Original `*` connection points are preserved; hydrogen capping is calculation-only. The AI assistant reads the table and asks only about unclear targets, units, experimental/computed origin or direction. You can preserve an existing data split.
+Identifiers are optional and may have any name. Original polymer SMILES and attachment points such as `*CCO*` are preserved; hydrogen capping applies only to a calculation copy. Already capped input is kept as supplied. Choose existing rules for their stated property and source, or learn new rules from your polymer data. The AI assistant reads the table and asks only about unclear targets, units, experimental/computed origin or direction. You can preserve an existing data split.
+
+For example, with a polymer thermal-conductivity table, ask:
+
+```text
+Learn high-thermal-conductivity rules from this polymer dataset, return the screening results and save the rules. Then use the recommended rule to directly generate and verify 20 polymer repeat units.
+```
 
 ## Paper and author
 

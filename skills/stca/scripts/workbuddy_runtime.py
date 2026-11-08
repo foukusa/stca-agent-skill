@@ -245,6 +245,22 @@ def prepare(payload_path=PAYLOAD):
     }
 
 
+def run_agent_runtime(arguments):
+    """Run the full bundled agent through the visible shallow entry point."""
+    try:
+        ready = prepare()
+        runtime = Path(ready["runtime_skill_dir"])
+        env = dict(os.environ)
+        env["PYTHONDONTWRITEBYTECODE"] = "1"
+        return subprocess.run(
+            [sys.executable, str(runtime / "scripts" / "agent_runtime.py"), *arguments],
+            env=env,
+        ).returncode
+    except (ValueError, OSError, RuntimeError) as exc:
+        print("stca-workbuddy-runtime: " + str(exc), file=sys.stderr)
+        return 2
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="action", required=True)

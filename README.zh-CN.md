@@ -1,6 +1,6 @@
 <p align="center"><img src="assets/stca-logo.png" alt="STCA logo" width="104"></p>
 <h1 align="center">STCA Agent Skill</h1>
-<p align="center">从数据总结规则，使用已有规则筛选，或按规则生成新结构。</p>
+<p align="center">从聚合物结构与性质数据总结规则，筛选候选，或按规则生成重复单元。</p>
 <p align="center"><strong>0.1.0</strong> · <a href="README.md">English</a> · 简体中文</p>
 
 ## 目录
@@ -16,7 +16,7 @@
 
 ## 开始使用
 
-安装后输入 **“开始使用 STCA”**，选择以下任务。完整对话范例见[自然语言使用案例](docs/USAGE.zh-CN.md)：
+STCA 面向聚合物结构与性质数据。安装后输入 **“开始使用 STCA”**，选择以下任务。完整对话范例见[自然语言使用案例](docs/USAGE.zh-CN.md)：
 
 | 选择 | 做什么 | 简短请求 |
 |---|---|---|
@@ -59,27 +59,46 @@ AI 助手会使用原始实测 `CO2` 列，自动准备数据、返回规则及�
 - **先预览，确认后生成**：展示完整 prompt，可调整候选数量、结构偏好或输出格式；你回复“确认，开始生成”后，当前 LLM 才生成候选。
 - **直接生成**：当前 LLM 立即按选定规则生成候选，并逐条核验。
 
-两种方式都会返回原始提案、带星号 SMILES、通过／未通过判断及每条未满足的规则条件，完成后返回主菜单。请求中已说明“直接生成”时，就直接使用该方式。修改目标或冻结规则条件时，会重新选择并确认对应规则。无需另外配置 LLM API。
+两种方式都会返回原始提案、分子 SMILES、通过／未通过判断及每条未满足的规则条件，完成后返回主菜单。请求中已说明“直接生成”时，就直接使用该方式。修改目标或冻结规则条件时，会重新选择并确认对应规则。无需另外配置 LLM API。
 
 随时说 **“返回主菜单”** 或 **“上一级”**。返回会保留已保存的规则。需要换设备或平台时，下载规则包并在新会话上传，即可继续使用。
 
 ## 下载与安装
 
-ChatGPT 和 Codex 使用同一份 skill 包，按各自客户端的[安装说明](docs/INSTALL.zh-CN.md)加载即可。
+现在可直接通过 GitHub 或下载包安装；各平台审核通过后，再补充对应商店的安装链接。完整步骤见[安装说明](docs/INSTALL.zh-CN.md)。
 
-| 平台 | 下载 | 官方说明与调用 |
+| 平台 | 安装方式 | 调用 |
 |---|---|---|
-| **ChatGPT＋Codex** | [OpenAI skill ZIP](downloads/stca-openai-skill-0.1.0.zip?raw=true) | [ChatGPT 安装帮助](https://help.openai.com/en/articles/20001066-skills-in-chatgpt/) · [Codex skill 说明](https://learn.chatgpt.com/docs/build-skills)。ChatGPT 选择 STCA；Codex 输入“使用 $stca”。 |
-| **DeepSeek Harness** | [DSH 插件 TGZ](downloads/dsh-plugin-stca-0.1.0.tgz?raw=true) · [本地 skill ZIP](downloads/stca-deepseek-harness-0.1.0.zip?raw=true) | [产品入口](https://www.deepseek.com/harness/) · [安装说明](docs/INSTALL.zh-CN.md#deepseek-harness)。输入 `/stca`。 |
-| **WorkBuddy** | [WorkBuddy ZIP](downloads/stca-workbuddy-0.1.0.zip?raw=true) | [官方 skill 管理说明](https://www.workbuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Skills-Market)。选择 STCA 后直接描述任务。 |
+| **Codex** | 让 `$skill-installer` 安装 [STCA skill 目录](https://github.com/foukusa/stca-agent-skill/tree/main/skills/stca)，或下载 [Codex skill ZIP](downloads/stca-codex-0.1.0.zip?raw=true)。 | `使用 $stca` |
+| **DeepSeek Harness** | 在“添加插件”中填写 GitHub 地址，或在 npm 发布后填写包名 `dsh-plugin-stca`；插件中心入口见下表。也可下载[本地 skill ZIP](downloads/stca-deepseek-harness-0.1.0.zip?raw=true)。 | `/stca` |
+| **WorkBuddy** | 下载 [WorkBuddy ZIP](downloads/stca-workbuddy-0.1.0.zip?raw=true)，作为本地 skill 导入。 | 选择 STCA，输入“开始使用 STCA”。 |
+| **ChatGPT 桌面端** | 按客户端开放的 skill 安装方式加载 [OpenAI skill ZIP](downloads/stca-openai-skill-0.1.0.zip?raw=true)。 | 选择 STCA。 |
 
-Codex 也可在对话中请求：
+在 Codex 对话中发送：
 
 ```text
 使用 $skill-installer 安装 https://github.com/foukusa/stca-agent-skill/tree/main/skills/stca
 ```
 
-ChatGPT 的创建和导入入口依账号与工作区权限开放。ChatGPT 和 Codex 使用同一份 skill 内容，按各自客户端的安装方式加载即可。
+在 DeepSeek Harness 打开 **插件 → 添加插件**，按所选方式填写：
+
+| 安装方式 | 填写内容或入口 |
+|---|---|
+| **GitHub 仓库地址** | `https://github.com/foukusa/stca-agent-skill.git` |
+| **npm 包名** | `dsh-plugin-stca`（npm 发布后可用） |
+| **插件中心** | —（上架后补充链接） |
+
+<!-- DSH_PLUGIN_CENTER_URL: add the actual listing URL after publication. -->
+
+也可下载[插件 TGZ](downloads/dsh-plugin-stca-0.1.0.tgz?raw=true)，在“添加插件”中填写其完整本地路径。安装并启用后输入 `/stca`。
+
+使用 DSH CLI 和 `web` profile 时，GitHub 安装命令为：
+
+```bash
+dsh plugin --profile web add github:foukusa/stca-agent-skill
+```
+
+首次计算会自动查找并检查合适的本地 Python 环境；路径仅作为可选备用项，不是安装必填项，详见[环境处理方式](docs/INSTALL.zh-CN.md#计算环境)。Codex 可直接使用独立 skill，OpenAI 公开目录上架属于另一条发布流程。
 
 ## 现成规则与生成 prompt
 
@@ -98,15 +117,21 @@ Tg 与电导率规则用于作者 STCA 论文中展示的实验性质筛选任�
 
 ## 准备数据
 
-筛选候选需要重复单元 SMILES；学习规则还需数值性质列：
+筛选候选需要聚合物重复单元 SMILES；学习规则还需数值性质列：
 
 ```csv
 CandidateKey,SMILES
-sample-A7,*CC*
-42-blue,*CCO*
+sample-A7,*CCO*
+42-blue,*CC*
 ```
 
-标识列可省略或任意命名。原始 `*` 连接点会保留，氢封端仅用于计算。AI 助手会识别表格，只询问尚不明确的目标、单位、实验或计算来源及高低方向；已有划分可要求保留。
+标识列可省略或任意命名。保留原始聚合物 SMILES 和 `*CCO*` 等形式中的连接点，H-cap 仅作用于计算副本；已封端输入照原样保留。根据现成规则注明的性质和来源选择使用，也可上传自己的聚合物数据总结新规则。AI 助手会识别表格，只询问尚不明确的目标、单位、实验或计算来源及高低方向；已有划分可要求保留。
+
+例如，上传聚合物热导率数据后，可以直接说：
+
+```text
+从这份聚合物热导率数据总结高值规则，返回筛选结果并保存；再按推荐规则直接生成 20 个聚合物重复单元并核验。
+```
 
 ## 论文与作者
 

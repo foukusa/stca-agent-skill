@@ -73,7 +73,7 @@ obs-c,*CF*,25,holdout,
 示例仅说明字段，三条记录不足以训练真实规则。`Role` 决定 source/holdout，`InnerRole` 只在 nested 选择时使用；ID 不自动定义材料身份。真实结构不能跨 source/holdout 而声称独立。
 
 ```bash
-"$STCA_PY" "$SKILL_DIR/scripts/custom_fit.py" \
+"$STCA_PY" "$SKILL_DIR/scripts/custom_fit.py" --structure-kind polymer_repeat_unit \
   --input measured.csv --smiles-column SMILES \
   --target Permeability --unit Barrer --direction high --tiers 0.30,0.20,0.10 \
   --role-column Role --source-value source --evaluation-value holdout \
@@ -84,7 +84,7 @@ obs-c,*CF*,25,holdout,
 用户请求 source-only nested 适配时，改用：
 
 ```bash
-"$STCA_PY" "$SKILL_DIR/scripts/custom_fit.py" \
+"$STCA_PY" "$SKILL_DIR/scripts/custom_fit.py" --structure-kind polymer_repeat_unit \
   --input measured.csv --smiles-column SMILES \
   --target Permeability --unit Barrer --direction high --tiers 0.30,0.20,0.10 \
   --role-column Role --source-value source --evaluation-value holdout \

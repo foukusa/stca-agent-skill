@@ -4,6 +4,8 @@ When a user asks how to use STCA, show the three choices and short examples in t
 
 可用 [内置结构示例 CSV](../assets/examples/candidates.csv) 试用筛选；该文件仅含结构，没有性质标签，不能拿来归纳物性规则。
 
+面向聚合物结构与性质数据，保留原始重复单元及连接点。例如：“从这份聚合物热导率数据总结高值规则，返回筛选结果并保存；再按推荐规则直接生成 20 个聚合物重复单元并核验。”
+
 ## 内置快速试用
 
 收到“用内置含氟候选示例试用筛选”等请求时，使用[五条候选](../assets/examples/quick_start_candidates.csv)。按用户明确指定的RadonPy高密度Top30% STCA方法，读取`latest-pi-rho-stca-high-30`，直接screen并交付全部5行及未满足的规则条件。该结构演示表的PVDF/PTFE/PVF匹配K42=1，PE/PEO不匹配；实际计数仍以运行输出为准。此表没有性质标签，不能用来训练或评价密度预测。

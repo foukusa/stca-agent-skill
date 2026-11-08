@@ -1,6 +1,6 @@
-# Generate polymer repeat units with frozen STCA rules
+# {{GENERATION_TITLE}}
 
-Propose {{COUNT}} distinct polymer repeat-unit candidates for the goals below. Generate the structures in this conversation; the user does not need to configure Python or an external model API.
+Propose {{COUNT}} distinct {{CANDIDATE_KIND}} candidates for the goals below. Generate the structures in this conversation; the user does not need to configure Python or an external model API.
 
 ## Design goals
 
@@ -12,7 +12,7 @@ Each percentage describes the desired tail of its source dataset, not the percen
 
 {{EXACT_AND_CONDITIONS}}
 
-Satisfy every literal within each selected rule using AND. For multiple goals, apply all selected rules to the same repeat unit and require their intersection. Preserve the key numbers and required 0/1 values. Do not substitute a rule from another percentage, weaken a condition, or combine alternative family members into a new rule. Report a conflict if the requirements cannot be satisfied together.
+Satisfy every literal within each selected rule using AND. For multiple goals, apply all selected rules to the same {{STRUCTURE_SUBJECT}} and require their intersection. Preserve the key numbers and required 0/1 values. Do not substitute a rule from another percentage, weaken a condition, or combine alternative family members into a new rule. Report a conflict if the requirements cannot be satisfied together.
 
 ## MACCS activation semantics
 
@@ -26,11 +26,7 @@ Use the complete RDKit MACCS167 calculation as the authority. A required zero me
 
 Respect explicit chemical exclusions and required motifs. Use the remaining preferences to diversify candidates. If a hard preference conflicts with a frozen rule, explain the conflict instead of silently relaxing it.
 
-## Repeat-unit representation
-
-- Return each original repeat unit in the `SMILES` field with exactly two terminal `*` attachment atoms. Each `*` must have one neighbor and a single attachment bond. Use chemically plausible valences and a single connected repeat unit.
-- Keep both attachment sites in the reported structure. H-cap is a separate computational copy used to calculate MACCS: replace the two supported terminal single-bond stars with hydrogen using the frozen model's representation contract. Never return the H-capped molecule in place of the repeat unit or reconstruct attachment sites from it.
-- Return distinct proposals; do not claim database novelty, synthetic feasibility, or measured property values without evidence.
+{{STRUCTURE_REPRESENTATION}}
 
 ## Output and checking
 

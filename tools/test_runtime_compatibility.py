@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -7,7 +8,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-SKILL = Path(__file__).resolve().parents[1]/'skills'/'stca'
+SKILL = Path(os.environ.get('STCA_TEST_SKILL_DIR', Path(__file__).resolve().parents[1]/'skills'/'stca'))
 sys.path.insert(0, str(SKILL/'scripts'))
 import agent_runtime as runtime
 import runtime_compat as compat

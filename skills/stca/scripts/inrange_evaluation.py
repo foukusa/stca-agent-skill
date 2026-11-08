@@ -25,6 +25,7 @@ import pandas as pd
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+from generation_prompt import infer_structure_kind, STRUCTURE_KINDS
 
 TIE = 0.02
 METRICS = ("precision", "recall", "f1", "mcc", "AS")
@@ -479,12 +480,15 @@ def run(args):
         raise FileExistsError(f"Output directory already exists: {output}; choose a new directory.")
     output.mkdir(parents=True)
     target_name = args.target_name or args.property or args.target
+    requested_kind = getattr(args, "structure_kind", None)
+    property_domain = {"molecule": "molecule", "polymer_repeat_unit": "polymer"}.get(requested_kind, "auto")
     prepared = prepare_dataset(args.input, smiles_column=args.smiles_column, target=args.target,
         property_name=args.property or target_name, output_dir=output / "preparation", unit=args.unit,
         already_log=args.already_log, direction=args.direction, tiers=tiers, id_column=args.id_column,
         condition_columns=column_list(args.condition_columns), text_columns=column_list(args.metadata_columns),
-        skip_influence=args.skip_influence, source=args.source)
+        skip_influence=args.skip_influence, source=args.source, property_domain=property_domain)
     data, audit = prepared["data"], prepared["audit"]
+    observed_kind = infer_structure_kind(data["original_canon"].tolist())
     transform = audit.get("D3_transform", "none")
     if isinstance(transform, dict):
         transform = transform.get("transform", transform.get("name", "none"))
@@ -551,6 +555,10 @@ def run(args):
                 "uploaded_target_already_logarithmic": bool(args.already_log),
                 "unit_conversion": audit.get("unit_conversion"),
                 "transform": transform, "representation": "hcap_maccs167",
+                "structure_kind": requested_kind or observed_kind,
+                "input_structure_kind": observed_kind,
+                "structure_kind_basis": "user_specified" if requested_kind else "original_smiles_notation",
+                "property_domain": audit.get("property_domain", property_domain),
                 "original_smiles_column": resolve(args.smiles_column), "target_column": resolve(args.target),
                 "all_original_rows_preserved_in_screening": True,
                 "fit_scope": "full_prepared_data_deployment", "evaluation_evidence_status": EVIDENCE}
@@ -716,6 +724,8 @@ def main(argv=None):
     parser.add_argument("--direction", choices=("high", "low"), default="high")
     parser.add_argument("--tiers", nargs="+", default=[".10", ".20", ".30"])
     parser.add_argument("--smiles-column", default="SMILES")
+    parser.add_argument("--structure-kind", choices=STRUCTURE_KINDS,
+                        help="Structure context and generation notation; molecule disables bulk-polymer range heuristics.")
     parser.add_argument("--id-column")
     parser.add_argument("--metadata-columns", "--text-columns", nargs="*", default=[])
     parser.add_argument("--condition-columns", nargs="*", default=[])

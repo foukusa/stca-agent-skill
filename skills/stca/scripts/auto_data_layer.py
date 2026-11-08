@@ -291,7 +291,7 @@ def tier_table(ym, srcm, outer, cid, tiers, direction, transform, unit):
 def prepare_dataset(input, *, smiles_column="SMILES", target, property_name=None, property=None, target_name=None,
                     output_dir=None, unit=None, already_log=False, direction="high", tiers=(0.30, 0.20, 0.10),
                     id_column=None, condition_columns=(), text_columns=(), skip_influence=False,
-                    source=None, fingerprint_radius=2):
+                    source=None, fingerprint_radius=2, property_domain="auto"):
     """Return traceable prepared data plus audits; IDs never determine row joins.
 
     ``input`` is an original CSV path. ``condition_columns`` and ``text_columns``
@@ -299,6 +299,10 @@ def prepare_dataset(input, *, smiles_column="SMILES", target, property_name=None
     metadata. D4 combines equal canonical original units with equal explicit
     conditions, or equal other original metadata when no conditions are declared.
     H-cap collisions protect groups, never merge records.
+    ``property_domain="molecule"`` disables the registry's bulk-homopolymer
+    plausibility bounds while retaining its units and conversions. ``auto``
+    preserves the registered defaults: absence of attachment points does not
+    establish whether an input represents an ordinary molecule or a polymer.
     ``property`` is a compatibility alias for ``property_name``. Explicit held-out
     data should be handled by auto_screen instead of this full-data API.
     """
@@ -310,6 +314,8 @@ def prepare_dataset(input, *, smiles_column="SMILES", target, property_name=None
 
     if direction not in ("high", "low"):
         raise ValueError("direction must be high or low.")
+    if property_domain not in ("auto", "molecule", "polymer"):
+        raise ValueError("property_domain must be auto, molecule or polymer.")
     tiers = tuple(float(q) for q in (tiers.split(",") if isinstance(tiers, str) else tiers))
     if not tiers or len(set(tiers)) != len(tiers) or any(not math.isfinite(q) or not 0 < q < 1 for q in tiers):
         raise ValueError("Specify distinct finite tier fractions strictly between zero and one.")
@@ -348,6 +354,8 @@ def prepare_dataset(input, *, smiles_column="SMILES", target, property_name=None
     if registration is None:
         key, profile, input_unit, conversion, registration = _property_config(requested_property, unit, registry)
     canonical_unit = profile["unit"]
+    registered_plausible = profile.get("plausible_range")
+    plausible = None if property_domain == "molecule" else registered_plausible
     occupied = set(frame)
     renames = {}
     for column in frame:
@@ -361,6 +369,8 @@ def prepare_dataset(input, *, smiles_column="SMILES", target, property_name=None
     archival = frame.rename(columns=renames).copy()
     archived = lambda column: renames.get(column, column)
     audit = {"schema": "stca-auto-data-layer-v2", "property": key, "property_registration": registration,
+             "property_domain": property_domain,
+             "property_domain_policy": "registered_defaults" if property_domain == "auto" else "explicit_" + property_domain,
              "unit": canonical_unit, "input_unit": input_unit, "input_rows": len(frame), "direction": direction,
              "input_format_audit": format_audit, "reserved_column_renames": renames,
              "input_field_mapping": {"smiles_column": archived(smiles_column), "target": archived(target),
@@ -510,7 +520,6 @@ def prepare_dataset(input, *, smiles_column="SMILES", target, property_name=None
     residual_scale = rsd(residual[observed]) if observed.sum() > 10 else None
     data["flag_neighbour_inconsistent"] = (observed & (np.abs(np.nan_to_num(residual)) > 4 * residual_scale)
                                             if residual_scale is not None and residual_scale > 0 else False)
-    plausible = profile.get("plausible_range")
     data["flag_implausible"] = ((data.y < plausible[0]) | (data.y > plausible[1])) if plausible else False
     audit.update(D4_replicate_measurements_dropped=dropped, D4_replicate_scale_floor=floor,
                  D4_aggregation_identity="canonical_original_repeat_unit_and_exact_declared_conditions",
@@ -518,7 +527,10 @@ def prepare_dataset(input, *, smiles_column="SMILES", target, property_name=None
                  D4_condition_policy="explicit_columns" if conditions else "all_other_original_metadata_exact_match",
                  D4_hcap_aggregation=False,
                  D5_flagged=int(data.flag_neighbour_inconsistent.sum()), D5_residual_scale=residual_scale,
-                 D6_flagged=int(data.flag_implausible.sum()), D6_plausible_range=plausible)
+                 D6_flagged=int(data.flag_implausible.sum()), D6_plausible_range=plausible,
+                 D6_registered_polymer_range=registered_plausible, D6_range_applied=bool(plausible),
+                 D6_range_reason=("explicit_molecule_domain_skips_bulk_homopolymer_bounds" if property_domain == "molecule"
+                                  else "registered_bulk_homopolymer_heuristic" if plausible else "no_registered_range"))
     quarantine, influence = [], {"enabled": not skip_influence, "scope": "full_prepared_modelling_data",
                                  "threshold": 0.3, "candidates": [], "status": "not_run"}
     if n and not skip_influence:
@@ -588,6 +600,8 @@ def prepare_dataset(input, *, smiles_column="SMILES", target, property_name=None
     for flag, values in (("--metadata-columns", scanned_text), ("--condition-columns", conditions)):
         if values:
             evaluation_argv.extend((flag, *values))
+    if property_domain != "auto":
+        evaluation_argv.extend(("--structure-kind", "molecule" if property_domain == "molecule" else "polymer_repeat_unit"))
     if already_log:
         evaluation_argv.append("--already-log")
     if skip_influence:
@@ -633,6 +647,8 @@ def main(argv=None):
     parser.add_argument("--smiles-column", required=True)
     parser.add_argument("--target", required=True)
     parser.add_argument("--property", dest="property_name", help="Registry key/alias; otherwise infer from target name")
+    parser.add_argument("--property-domain", choices=("auto", "molecule", "polymer"), default="auto",
+                        help="Explicit molecule data skip bulk-homopolymer plausibility bounds; auto preserves registered defaults")
     parser.add_argument("--target-name", help="Display/property alias fallback for the API")
     parser.add_argument("--unit", help="Physical unit of the input column, including when already logged")
     parser.add_argument("--already-log", action="store_true")

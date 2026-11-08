@@ -365,6 +365,7 @@ def run(args):
                             ("--unit", args.unit), ("--direction", args.direction), ("--tiers", args.tiers),
                             ("--role-column", args.role_column), ("--source-value", args.source_value),
                             ("--evaluation-value", args.evaluation_value), ("--smiles-column", args.smiles_column),
+                            ("--structure-kind", getattr(args, "structure_kind", None)),
                             ("--id-column", args.id_column), ("--group-column", args.group_column),
                             ("--inner-role-column", args.inner_role_column if args.scan_policy == "nested" else None),
                             ("--inner-train-value", args.inner_train_value), ("--inner-validation-value", args.inner_validation_value),
@@ -483,6 +484,8 @@ def main(argv=None):
     p.add_argument("--source", help="Clean pinned author source checkout")
     p.add_argument("--target-name")
     p.add_argument("--smiles-column", default="SMILES")
+    p.add_argument("--structure-kind", choices=("molecule", "polymer_repeat_unit"),
+                   help="Generation output notation forwarded to custom_fit; omitted preserves source inference.")
     p.add_argument("--id-column")
     p.add_argument("--group-column")
     p.add_argument("--role-column", help="Preserve explicit source/holdout roles; omit for protected ECFP4 t-SNE roles")

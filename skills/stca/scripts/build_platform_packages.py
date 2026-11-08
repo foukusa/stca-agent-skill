@@ -22,7 +22,7 @@ CORE_SCRIPTS = (
     "data_readiness.py", "custom_fit.py", "evaluate_custom.py",
     "data_cleaning.py", "auto_screen.py", "learning_results.py",
     "auto_data_layer.py", "inrange_evaluation.py", "frozen_literal_model.py",
-    "agent_runtime.py", "rule_library.py", "generation_prompt.py", "generation_session.py", "runtime_compat.py", "task_menu.py", "user_rule_library.py",
+    "agent_runtime.py", "runtime_discovery.py", "rule_library.py", "generation_prompt.py", "generation_session.py", "runtime_compat.py", "task_menu.py", "user_rule_library.py",
 )
 PUBLICATION_FILES = (
     "LICENSE", "THIRD_PARTY_NOTICES.md", "CITATION.cff",
@@ -51,6 +51,7 @@ def source_payload(skill: Path) -> dict[str, bytes]:
     for name in PUBLICATION_FILES:
         files[name] = (skill / "assets" / "publication" / name).read_bytes()
     required = ["scripts/" + n for n in CORE_SCRIPTS] + [
+        "scripts/launch_runtime.sh", "scripts/launch_runtime.ps1",
         "assets/stca-logo.png", "assets/objectives_example.json",
         "assets/rule_library/catalog.json", "assets/rule_library/index.md",
         "assets/prompts/generate.en.md", "assets/prompts/generate.zh-CN.md",
@@ -81,9 +82,16 @@ def frontmatter(meta: dict) -> str:
         raise ValueError("Keep the STCA skill identity.")
     if len(fields["description"]) > 500:
         raise ValueError("Keep the routing description within the default Harness catalog limit.")
-    return "---\n" + "".join(
-        f"{key}: {json.dumps(value, ensure_ascii=False)}\n" for key, value in fields.items()
-    ) + "---\n"
+    lines = ["---\n"]
+    for key, value in fields.items():
+        if isinstance(value, list):
+            if not value or not all(isinstance(item, str) and item.strip() for item in value):
+                raise ValueError(f"Invalid {meta['platform']} metadata list: {key}")
+            lines.append(f"{key}:\n")
+            lines.extend(f"  - {json.dumps(item, ensure_ascii=False)}\n" for item in value)
+        else:
+            lines.append(f"{key}: {json.dumps(value, ensure_ascii=False)}\n")
+    return "".join(lines) + "---\n"
 
 
 def workbuddy_payload(files: dict[str, bytes]) -> bytes:
@@ -104,18 +112,23 @@ def workbuddy_entry(meta: dict) -> bytes:
     body = '''
 # STCA skill
 
-Use natural language to learn and save rules from uploaded data, screen with
-existing rules, or ask the current LLM to generate and verify candidates.
-Keep version **0.1.0**, original starred SMILES, and all frozen rule conditions.
+Use natural language to learn and save rules from uploaded polymer data, screen
+with existing rules, or ask the current LLM to generate and verify polymer repeat units.
+Keep version **0.1.0**, original polymer SMILES and repeat-unit attachment points, and all frozen rule conditions.
 
 ## Prepare once, then continue the user's task
 
 1. Resolve `SKILL_DIR` as the directory containing this installed `SKILL.md`.
-   With an available Python 3.10+ interpreter (`python3` or `python`), execute:
+   On macOS or Linux, use the bundled launcher to find Python automatically:
 
    ```bash
-   python3 "$SKILL_DIR/scripts/workbuddy_runtime.py" prepare
+   sh "$SKILL_DIR/scripts/launch_runtime.sh" --script "$SKILL_DIR/scripts/workbuddy_runtime.py" prepare
    ```
+
+   On Windows, use `scripts/launch_runtime.ps1` with the same `--script`
+   target and `prepare` argument. Both launchers are self-contained; the user
+   does not enter a Python path. An explicit `--bootstrap-python` path is an optional
+   override, and must not silently fall back to another interpreter.
 
 2. Read the **entire** file at `skill_instructions` in the returned JSON.
    Follow that file immediately and continue the user's request in this turn.
@@ -128,8 +141,10 @@ Keep version **0.1.0**, original starred SMILES, and all frozen rule conditions.
 4. Never read `assets/runtime_payload.json` into the conversation. The bundled
    preparation script verifies and restores it automatically, without network
    access, scientific dependencies, or writes to the installed skill directory.
-   Ordinary dependency preparation remains managed by the restored
-   `scripts/agent_runtime.py` when a calculation is requested.
+   Dependency discovery and preparation are managed by
+   `scripts/agent_runtime.py` when a calculation is requested. This actual
+   entry point is also included in this upload package: it restores the
+   verified resources and forwards every argument to the complete runtime.
 
 If no execution tool or Python is available, explain the actual missing
 capability; do not claim that preparation or screening has completed.
@@ -153,16 +168,30 @@ def shallow_workbuddy_files(skill: Path, files: dict[str, bytes], meta: dict) ->
     payload = workbuddy_payload(files)
     payload_metadata = json.loads(payload)
     manifest = json.loads(files["assets/platform-release.json"])
+    entrypoints = {
+        "scripts/workbuddy_runtime.py": (skill / "scripts/workbuddy_runtime.py").read_bytes(),
+        "scripts/agent_runtime.py": workbuddy_agent_entry(),
+        "scripts/launch_runtime.sh": (skill / "scripts/launch_runtime.sh").read_bytes(),
+        "scripts/launch_runtime.ps1": (skill / "scripts/launch_runtime.ps1").read_bytes(),
+    }
     manifest.update({
         "archive_layout": "root_SKILL_and_direct_child_files_only",
         "maximum_archive_path_components": 2,
         "runtime_payload_sha256": payload_metadata["payload_sha256"],
         "runtime_payload_files": len(files),
+        "core_scripts_location": "verified_runtime_payload",
+        "public_entrypoints_sha256": {name: sha256(data) for name, data in entrypoints.items()},
+        "public_entrypoints": {
+            "scripts/agent_runtime.py": "verified_restore_and_forward_agent_runtime",
+            "scripts/workbuddy_runtime.py": "verified_runtime_restoration",
+            "scripts/launch_runtime.sh": "posix_python_discovery_launcher",
+            "scripts/launch_runtime.ps1": "windows_python_discovery_launcher",
+        },
     })
     shallow = {name: files[name] for name in PUBLICATION_FILES}
+    shallow.update(entrypoints)
     shallow.update({
         "SKILL.md": workbuddy_entry(meta),
-        "scripts/workbuddy_runtime.py": (skill / "scripts/workbuddy_runtime.py").read_bytes(),
         "assets/runtime_payload.json": payload,
         "assets/stca-logo.png": files["assets/stca-logo.png"],
         "assets/platform-release.json": (json.dumps(manifest, ensure_ascii=False, indent=2) + "\n").encode("utf-8"),
@@ -172,7 +201,34 @@ def shallow_workbuddy_files(skill: Path, files: dict[str, bytes], meta: dict) ->
     ).encode("utf-8")
     if any(len(Path(name).parts) > 2 or Path(name).is_absolute() or ".." in Path(name).parts for name in shallow):
         raise ValueError("WorkBuddy export must contain only root or direct-child files.")
+    validate_workbuddy_entry_resources(shallow)
     return shallow
+
+
+def workbuddy_agent_entry() -> bytes:
+    """Expose the referenced, usable runtime entry within the shallow upload."""
+    return b'''#!/usr/bin/env python3
+"""Run the complete STCA agent after verified WorkBuddy resource restoration.
+
+This public entry preserves every command-line argument and the user's working
+directory. The full calculation implementation is bundled in the verified
+runtime payload; no network or scientific dependency is needed for restoration.
+"""
+import sys
+from workbuddy_runtime import run_agent_runtime
+
+if __name__ == "__main__":
+    raise SystemExit(run_agent_runtime(sys.argv[1:]))
+'''
+
+
+def validate_workbuddy_entry_resources(files: dict[str, bytes]) -> None:
+    """Reject upload instructions that refer to an absent visible resource."""
+    entry = files["SKILL.md"].decode("utf-8")
+    paths = set(re.findall(r"\b(?:scripts|assets|references)/[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*", entry))
+    missing = sorted(path for path in paths if path not in files)
+    if missing:
+        raise ValueError("WorkBuddy entry references missing bundled resources: " + ", ".join(missing))
 
 
 def main() -> int:

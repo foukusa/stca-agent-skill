@@ -7,7 +7,7 @@
 识别SMILES、数值目标、单位、高低方向、实测/计算含义。复用兼容后台，若没有用户指定holdout/外推协议：
 
 ```text
-PY SKILL_DIR/scripts/agent_runtime.py run --script inrange_evaluation.py -- --input materials.csv --target TC --target-name Thermal_conductivity --property thermal_conductivity --unit "W/(m K)" --direction high --tiers 0.10 0.20 0.30 --smiles-column SMILES --output-dir out/analysis --library-dir USER_RULES_DIR
+PY SKILL_DIR/scripts/agent_runtime.py run --script inrange_evaluation.py -- --structure-kind polymer_repeat_unit --input materials.csv --target TC --target-name Thermal_conductivity --property thermal_conductivity --unit "W/(m K)" --direction high --tiers 0.10 0.20 0.30 --smiles-column SMILES --output-dir out/analysis --library-dir USER_RULES_DIR
 ```
 
 参数按实际文件填写，ID可省略或用--id-column。未定义百分比时直接用10/20/30，明确百分比时按请求（包括15/25）计算，不为缺省档位再问。读取screening_summary.json/recommendation.md，向用户同时显示每档物理cutoff、比较符、单位，两方法各自入选/未知数、AS及主推理由和结果表。先读取文件单位及是否已log；`--metadata-columns`只传样品加工描述，`--condition-columns`传可比测量条件，Reference/DOI/Journal是书目信息，不能作为加工描述扫描。用户可给任意合法档位，例如0.10 0.15 0.20 0.25 0.30；内置目录只有已供给的10/20/30，不能插值伪造15/25。
@@ -23,7 +23,7 @@ PY SKILL_DIR/scripts/agent_runtime.py run --script inrange_evaluation.py -- --in
 保留用户角色和参数，通过原auto_screen.py执行，不能用全量D7或CV选择跨入该holdout。设置和档位建议只在source/inner中形成，冻结后评价holdout。原自动入口仍支持保护ECFP4/t-SNE角色。
 
 ```text
-PY SKILL_DIR/scripts/agent_runtime.py run --script auto_screen.py -- --input materials.csv --target TC --unit "W/(m K)" --direction high --tiers 0.10,0.15,0.20 --role-column Role --source-value source --evaluation-value holdout --smiles-column SMILES --output-dir out/heldout
+PY SKILL_DIR/scripts/agent_runtime.py run --script auto_screen.py -- --structure-kind polymer_repeat_unit --input materials.csv --target TC --unit "W/(m K)" --direction high --tiers 0.10,0.15,0.20 --role-column Role --source-value source --evaluation-value holdout --smiles-column SMILES --output-dir out/heldout
 ```
 
 该路径自动返回upload_screening的全档长表、summary和每档results/selected；随后逐档export-rules→user_rule_library save/export，并返回主菜单。固定参数或论文精确成员用custom_fit并同样补齐筛选和保存。不要用另一种评价改写明确协议。
@@ -54,12 +54,12 @@ PY SKILL_DIR/scripts/agent_runtime.py run --script stca_tools.py -- screen-candi
 
 ```text
 PY SKILL_DIR/scripts/rule_library.py prompt RULE_ID --language zh-CN
-PY SKILL_DIR/scripts/generation_prompt.py --constraints CONSTRAINTS --count 20 --language zh-CN --output out/prompt.md
+PY SKILL_DIR/scripts/generation_prompt.py --structure-kind polymer_repeat_unit --constraints CONSTRAINTS --count 20 --language zh-CN --output out/prompt.md
 ```
 
 新模型使用stca_tools export-rules导出精确约束。规则确定后，让用户选择“先查看并调整prompt，再生成”或“直接生成并核验”；已在自然语言中说明方式时直接采用。
 
-用`generation_session.py prepare --constraints CONSTRAINTS --mode preview|direct --count 20 --language zh-CN --output-dir SESSION_DIR`准备会话。preview时展示完整prompt并等待；按要求revise后重新展示，只有用户明确确认后才调用confirm。direct时无需确认。具体接口见[generation.md](generation.md)。
+用`generation_session.py prepare --structure-kind polymer_repeat_unit --constraints CONSTRAINTS --mode preview|direct --count 20 --language zh-CN --output-dir SESSION_DIR`准备会话。preview时展示完整prompt并等待；按要求revise后重新展示，只有用户明确确认后才调用confirm。direct时无需确认。具体接口见[generation.md](generation.md)。
 
 当`generation_allowed=true`时，当前AI助手必须读取最终批准的完整prompt并实际生成SMILES，保存全部提案，连续执行同一冻结规则的精确核验，交付通过表与每条未满足的规则条件。确认或准备脚本本身没有调用LLM，不能据此声称已生成。用户只要prompt时交付完整可复制文本；不用执行生成链路。明确显示STCA或WRAcc，规则匹配不当作物性预测。
 

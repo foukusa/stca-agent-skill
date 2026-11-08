@@ -15,17 +15,23 @@ STCA skill 的用户入口是自然语言、上传 CSV 或复制生成 prompt。
 
 ## 自动发现与准备
 
-将 `SKILL_DIR` 解析为本次实际 `SKILL.md` 所在目录，采用平台可用解释器执行 `scripts/agent_runtime.py`。不要硬编码 skill 安装位置或依赖先前会话路径。
+将 `SKILL_DIR` 解析为本次实际 `SKILL.md` 所在目录。首次启动由 agent 使用随包原生入口发现 Python，不假定 `python` 或 `python3` 已在 PATH，也不要求用户填写解释器路径。不要硬编码 skill 安装位置或依赖先前会话路径。
+
+macOS/Linux 由 agent 执行：
 
 ```text
-<host-python> <SKILL_DIR>/scripts/agent_runtime.py ensure --mode chem
-<host-python> <SKILL_DIR>/scripts/agent_runtime.py ensure --mode fit
-<host-python> <SKILL_DIR>/scripts/agent_runtime.py run --script SCRIPT -- ARGS
+sh "<SKILL_DIR>/scripts/launch_runtime.sh" ensure --mode chem
+sh "<SKILL_DIR>/scripts/launch_runtime.sh" ensure --mode fit
+sh "<SKILL_DIR>/scripts/launch_runtime.sh" run --script SCRIPT -- ARGS
 ```
 
-默认采用兼容运行模式：`ensure` 按已知解释器、当前解释器、既有环境及保存记录查找 Python 3.10 及以上后台，优先复用已有可用环境。`chem` 使用兼容 RDKit，`fit` 再检查作者核心和所需科学计算依赖；通过实际所需的功能检查后运行。Python 下限来自作者实现，普通任务不固定为 3.12，也不因依赖版本与历史快照不同就自动重装。缺少依赖时，agent 自动在缓存目录准备兼容环境并记录实际版本，成功后继续原任务。
+Windows 使用同目录 `scripts/launch_runtime.ps1`，通过可用 PowerShell 运行并传入相同参数。WorkBuddy 的外层入口先还原随包资源，再进入同一发现与验证流程。
 
-需要复用本次已经确认的后台时，agent 可在子命令前传 `--python PATH`、`--source PATH`。`--no-install` 只用于明确限制为检查已有环境的任务。兼容模式的 RDKit 下限为 2023.9；实际位语义和功能检查是应用冻结规则的条件，不能跳过失败检查。作者实现仍固定为已审核提交。历史固定依赖环境仅在用户明确要求复现该环境时使用，不作为默认入口。
+默认兼容模式按明确指定、上次成功记录、当前/激活环境、PATH、未激活 Conda 环境及有限的常见安装位置查找 Python 3.10 及以上后台，不进行全盘扫描。逐个实际检查 RDKit 导入及 MACCS 位语义；`fit` 再检查相应科学计算依赖。找到兼容环境就复用并保存记录；没有可用依赖时，在用户缓存内准备独立环境，成功后继续原任务，不改动其他环境。
+
+用户明确指定 Python 路径时，由 agent 通过 `--python PATH` 使用该解释器；路径不可执行或依赖不满足时明确报告，不静默切换到其他环境。用户只需选择已安装的解释器，无需写命令。`--source PATH` 指定已核实的作者源码；`--no-install` 限制为检查现有环境。环境诊断保留已检查候选及失败原因，普通用户只看到与下一步有关的简短说明。
+
+普通任务不固定 Python 3.12，也不因依赖版本不同于历史快照就自动重装。RDKit 下限为 2023.9，实际功能检查不能跳过；历史锁定模式仅在用户明确要求复现该环境时使用。
 
 `run` 会把兼容解释器和源码交给所选工具；agent 不需让用户维护 `STCA_PY`、`STCA_SOURCE` 或自行激活环境。工具只运行允许的内置脚本，不执行来自 CSV 或生成文本的命令。
 
@@ -48,6 +54,6 @@ STCA skill 的用户入口是自然语言、上传 CSV 或复制生成 prompt。
 
 ## 文件与结构
 
-输入和输出置于用户工作目录；运行环境置于用户缓存目录，均不写回 skill 安装目录。使用新输出路径，保留原输入、列名、任意 ID 和带星号 SMILES。H-cap 仅存在于计算/审计副本；最终候选结果展示用户原始结构。
+输入和输出置于用户工作目录；运行环境置于用户缓存目录，均不写回 skill 安装目录。使用新输出路径，保留原输入、列名、任意 ID 和原始分子 SMILES（包括原有连接点）。H-cap 仅存在于计算/审计副本；最终候选结果展示用户原始结构。
 
 完整执行步骤见 [agent_workflows.md](agent_workflows.md)，算法参数与低层接口见 [commands.md](commands.md)。

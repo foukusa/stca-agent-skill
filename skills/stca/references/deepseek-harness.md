@@ -10,7 +10,7 @@
 https://github.com/foukusa/stca-agent-skill.git
 ```
 
-安装并启用后，输入 `/stca`。本地安装使用 `dsh-plugin-stca-0.1.0.tgz` 的完整文件路径；该文件是已打包的 DSH 插件，无需构建或重新打包。
+也可在 CLI 使用 `dsh plugin --profile web add github:foukusa/stca-agent-skill`。安装并启用后，输入 `/stca`。本地安装使用 `dsh-plugin-stca-0.1.0.tgz` 的完整文件路径；该文件是已打包的 DSH 插件，无需构建或重新打包。
 
 如需手动放置 skill，解压 `stca-deepseek-harness-0.1.0.zip`，将完整 `stca` 目录放入 `~/.dsh/skills` 或已配置的项目 skill 根目录。skill ZIP 用于此手动方式；“添加插件”使用 Git 仓库地址或 TGZ，不使用 GitHub `/tree/main` 网页地址。
 
@@ -21,6 +21,8 @@ https://github.com/foukusa/stca-agent-skill.git
 3. 根据已有规则直接生成。
 
 只选 2 或 3 时，先展示“我的规则”和内置的STCA论文、GAS、RadonPy、ADEPT目录，再选择来源、性质、方向、百分比和方法。每档STCA/WRAcc主推与备选是二选一，不能自动混合。用户已经明确选定某条规则或“刚保存的规则”时直接复用，不重复选择。
+
+首次计算由 AI 助手使用随包启动入口查找本地 Python 和 RDKit，检查 Conda 及常见环境，成功后自动记住；不要求用户手工填写路径。详细处理见 [platform-runtime.md](platform-runtime.md)。
 
 ## 生成方式
 
