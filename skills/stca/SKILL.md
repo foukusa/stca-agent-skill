@@ -19,13 +19,17 @@ description: "Use STCA (Sliding Threshold Correlation Analysis) for polymer stru
 
 ## RadonPy 密度使用案例
 
-用户要试用 RadonPy 密度筛选、重新归纳或生成时，先读取 [案例配置](assets/examples/radonpy_density_case.json)。同一份 PI1070.csv 的全部 1,077 行作为输入，结构为 `smiles`，目标为 `density`（第 27 列/AA，g/cm³，MD 计算），可选标识 `monomer_ID`。按列名识别，不让用户逐格选择；其他密度统计列不作为目标。现成示例固定选择当前目录的 `latest-pi-rho-stca-high-30`，不是同名旧变体，原始阈值随该规则保持。
+用户要试用 RadonPy 密度筛选、重新归纳或生成时，先读取 [案例配置](assets/examples/radonpy_density_case.json)。同一份 PI1070.csv 的全部 1,077 行作为输入，结构为 `smiles`，目标为 `density`（第 27 列/AA，g/cm³，MD 计算），可选标识 `monomer_ID`。按表头列名绑定，不让用户逐格选择；列号仅用于说明位置。学习前简短告知“PI1070.csv：1077行，结构smiles，目标density，单位g/cm³，高值方向”；`density_min`、`density_max`、`density_std`、`density_count`不作为目标。现成示例固定选择当前目录的 `latest-pi-rho-stca-high-30`，不是同名旧变体，原始阈值随该规则保持。
 
 新学习使用当前 H-cap 流程和自动设置，可与旧冻结规则不同，不能为追平旧结果合并不同连接图。向用户同时说明两种规则身份及差异。重新载入刚保存的同一模型、档位并筛选同一输入时，必须逐行一致，才报告保存复用已验证。生成使用用户刚选定的精确规则，分别提供预览确认和直接方式。静态生成示例仅供用户查看，实际生成必须由当前 LLM 重新提出候选，不可复制例表冒称新生成。
 
 ## 上传数据总结规则，并给出对应筛选结果
 
 读取聚合物结构列、性质、单位、方向、实测/计算含义及可用条件。保留原始重复单元 SMILES 和原有 `*`；已封端的聚合物输入照原样读取，不凭空补连接点，也不因没有星号改变性质含义。ID 可任意命名或省略，绝不作为特征或材料身份。只补问无法可靠确定的科学信息。
+
+**先绑定输入列：**学习前明确文件、数据行范围、结构列、数值目标列、单位及高/低方向，并向用户简短说明实际绑定。用户已指定的列名优先；已知案例或表头含义唯一明确时自动填写并直接继续，不要求额外确认。存在多个密度/性质列、重复表头、不同温度/条件，或实测与计算标签不能区分时，先展示候选列并询问，得到选择后才学习；不能只凭数值范围猜测。程序按准确列名传入 `--smiles-column` 和必填的 `--target`，核对 `run_manifest.json` 中实际保存的列绑定，不能把“用户无需写列号”解释为程序无需目标列。
+
+**星号与H-cap往返：**接收原始带 `*` 连接点的重复单元SMILES并保存；只在计算副本中将支持的末端单键连接点氢封端，用于MACCS指纹计算；筛选表及入选表返回保存的原始带星号SMILES。返回的星号及位置来自原始结构，不从H-cap结构反推，也不进行把氢字符替换为星号的文本操作。已封端输入按原样返回，不凭空补星号。
 
 学习和生成由 agent 明确选用 `--structure-kind polymer_repeat_unit`，随模型保存，避免把无星号的聚合物输入误判为其他生成任务；不要求用户填写参数。生成新候选时使用带两个末端单键连接点的聚合物重复单元表示。已有规则按其原性质和来源选择，单体计算能隙保留其真实标签含义。
 
@@ -53,7 +57,7 @@ WRAcc 默认通过训练部分内部的分组验证，在 1、2、3、5、10 条
 
 先读取 `task_menu.py --rules --library-dir USER_RULES_DIR` 的当前精选目录；仅当用户明确指定旧变体时再读取非默认条目。不能从全量目录任意挑选同名兼容变体。按来源 → 性质 → 方向/档位展示。目标已明确但未给百分比时，对实际支持的默认10%、20%、30%分别筛选，不再补问档位；缺档如实说明。默认分别返回STCA、WRAcc及每档主推，不能把方法/档位的多个结果自动AND；用户指定只用一种方法或“用推荐”时直接采用。已明确精确规则时直接执行，不重复询问。逐档显示实际物理阈值、比较符和单位。
 
-内置条目由 `rule_library.py show ID` 读取精确条件，用 `rule_library.py screen ID ...` 核验。已保存规则用 `user_rule_library.py list/show` 读取，再用 `stca_tools.py screen-candidates` 应用对应模型和档位。无需重新训练或再上传训练数据。
+内置条目由 `rule_library.py show ID` 读取精确条件，用 `rule_library.py screen ID ...` 核验。已保存规则用 `user_rule_library.py list/show` 读取，再用 `stca_tools.py screen-candidates` 应用对应模型和档位。无需重新训练或再上传训练数据。应用已有结构规则只需候选结构列，不要求候选表有密度等性质标签；仍须明确结构列，多个结构列含义不清时先询问。
 
 用户要求“内置含氟候选示例”时，候选表为`assets/examples/quick_start_candidates.csv`；按用户指定规则实际筛选。该表只有结构，不能用于学习或评价密度性质。简短试用见[usage_examples.md](references/usage_examples.md)。
 

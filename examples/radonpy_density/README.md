@@ -14,7 +14,13 @@ The file contains **1,077 records and 157 columns**. Spreadsheet row 1 is the he
 | Polymer repeat unit | `smiles` | B / column 2 |
 | Density target | `density` | AA / column 27, g/cm³ |
 
-Labels come from molecular-dynamics calculations. `density_min`, `density_max`, `density_std` and `density_count` are statistics, not this task's target. Fingerprints use `smiles`; other property columns are not structure-rule features. Keep original fields and attachment points. The assistant locates columns by name; manual cell selection is unnecessary.
+Labels come from molecular-dynamics calculations. `density_min`, `density_max`, `density_std` and `density_count` are statistics, not this task's target. Fingerprints use `smiles`; other property columns are not structure-rule features. Keep original fields and attachment points. The known-file mapping binds `smiles` to structures and `density` to the target; the assistant displays that binding and g/cm³ before learning. Manual cell selection is unnecessary. For a modified or unfamiliar file, ambiguous target columns are confirmed with you first; explicit column names in your request take precedence. Existing-rule screening itself needs no density labels.
+
+Upload the original repeat-unit SMILES **with their `*` attachment points retained**. STCA keeps that original text and creates a separate calculation copy: supported terminal single-bond attachment atoms are capped with hydrogen (**H-cap**) before fingerprints are calculated. Results return the preserved original SMILES with the same `*` positions. This is not a text replacement or an attempt to infer attachment positions from the capped molecule. Already capped inputs remain as supplied; attachment points are not invented.
+
+| Uploaded original | H-cap calculation copy | Returned structure |
+|---|---|---|
+| `*CCO*` | `CCO` | `*CCO*` |
 
 ## Screen with an existing rule
 
@@ -27,7 +33,7 @@ The frozen condition is `K42=1`, with a density target boundary **≥ 1.22234304
 ## Learn and check saved results
 
 ```text
-Learn high-density rules from the same RadonPy file. Return screening results, compare them with the existing rule and save the new rules.
+Learn high-density rules from all rows of this RadonPy file. Use smiles for structures and density for the target, in g/cm³. Return screening results, compare them with the existing rule and save the new rules.
 ```
 
 Default targets are Top 10%, 20% and 30%; other percentages are supported. The assistant selects transforms, scan steps and support settings, returns STCA and WRAcc separately and reports numerical cutoffs and recommendations.

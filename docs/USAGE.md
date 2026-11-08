@@ -7,6 +7,7 @@ STCA combines the skill's rules and calculation tools with your current LLM conv
 ## Contents
 
 - [Start a conversation](#start-a-conversation)
+- [Bind columns and preserve attachment points](#bind-columns-and-preserve-attachment-points)
 - [Try RadonPy density](#try-radonpy-density)
 - [Learn rules and receive screening results](#learn-rules-and-receive-screening-results)
 - [Screen candidates with existing rules](#screen-candidates-with-existing-rules)
@@ -22,6 +23,16 @@ Start STCA.
 ```
 
 The assistant can explain three workflows: learn from uploaded data, screen with existing rules, or generate with selected rules. You can state a complete task immediately and continue with requests such as “Use the rules just saved” or “Show other available rules.”
+
+## Bind columns and preserve attachment points
+
+Learning requires an explicitly bound **structure column, numeric property column and unit**. You can name them in your request. For a recognized source such as the RadonPy example below, the mapping is already supplied; otherwise the assistant reads the headers and displays the columns, target meaning and unit it will use before learning. If more than one column could mean the target—such as measured versus calculated density, different temperatures, or a mean versus a minimum/maximum—it asks you to choose first. Your explicit column names take precedence. Numeric ranges alone do not establish a column's meaning. Screening with an existing rule needs the structure column, without property labels for the candidates.
+
+Upload the original repeat-unit SMILES **with their `*` attachment points retained**. STCA keeps that original text and creates a separate calculation copy: supported terminal single-bond attachment atoms are capped with hydrogen (**H-cap**) before fingerprints are calculated. Results return the preserved original SMILES with the same `*` positions. This is not a text replacement or an attempt to infer attachment positions from the capped molecule. Already capped inputs remain as supplied; attachment points are not invented.
+
+| Uploaded original | H-cap calculation copy | Returned structure |
+|---|---|---|
+| `*CCO*` | `CCO` | `*CCO*` |
 
 ## Try RadonPy density
 
@@ -44,7 +55,7 @@ Use the existing RadonPy high-density Top 30% STCA rule to screen this dataset.
 **Learn from the same file and receive its screening results:**
 
 ```text
-Learn high-density Top 30% rules from this RadonPy dataset, return screening results, compare them with the existing rule and save the new rules.
+Learn high-density Top 30% rules from all rows of this RadonPy file. Use smiles for structures and density for the target, in g/cm³. Return screening results, compare them with the existing rule and save the new rules.
 ```
 
 The assistant reports the prepared data, chosen transform and scan step, both methods’ rules, numerical physical cutoffs and outputs. Reproducing an existing frozen rule requires matching its training cohort, preprocessing, fingerprints, learning parameters and software version; adaptive learning can choose different settings. To check reuse of your new model, ask:

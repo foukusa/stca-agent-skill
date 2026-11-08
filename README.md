@@ -27,6 +27,8 @@ STCA works with polymer structure–property data and repeat units. After instal
 
 STCA is a skill used by your AI assistant in the conversation. The task instructions are built in: describe what you need, attach your data when needed, and continue in natural language. The assistant reads files, offers relevant rules and asks only for missing information. When learning rules, omitted percentages use Top or Bottom **10%, 20% and 30%** automatically; you can specify any percentage strictly between 0% and 100%, such as **15% and 25%**. You do not enter rule IDs or manage Python. Calculations use a CPU and support Python 3.10 or later; generation uses your current AI assistant.
 
+Before learning, the assistant states the **structure column, property column, unit and direction** it will use. Known datasets have built-in column mappings; for your own table, you can name the columns directly. If several columns could represent the target, such as measured density, computed density or density at different temperatures, it asks you to choose before learning. See [Prepare your data](#prepare-your-data).
+
 ## Try RadonPy density
 
 Use the same [RadonPy `PI1070.csv`](https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv) for screening, learning and generation. Open the GitHub file page, download the CSV and upload it to the conversation. This fixed file contains **1,077 records and 157 columns**; the assistant selects columns by name, so you do not need to edit the integrated dataset.
@@ -50,7 +52,7 @@ This fixed file gives **137 rule matches, 940 non-matches and no unknowns**; the
 **Learn from the same data and save the result:**
 
 ```text
-Learn high-density Top 30% rules from this RadonPy dataset, return screening results, compare them with the existing rule and save the new rules.
+Learn high-density Top 30% rules from this RadonPy dataset. Use smiles for structures and density for the property, in g/cm³, and include all data rows. Return screening results, compare them with the existing rule and save the new rules.
 ```
 
 The assistant chooses the data transform and scan step, and returns STCA and WRAcc separately. With the same prepared data, fingerprints, learning settings and software version, repeating the fit should give the same rule; a new adaptive fit can differ from an existing frozen rule. To check saved-rule reuse, say **“Reload the Top 30% STCA rule just saved and screen the same dataset again.”** Its row-level decisions must match those returned when that rule was learned.
@@ -168,7 +170,31 @@ The Tg and electrical-conductivity rules implement the experimental-property scr
 
 ## Prepare your data
 
-Screening needs polymer repeat-unit SMILES; learning also needs numeric property values:
+### Specify the structure and property columns
+
+**Screening with existing rules needs a structure column; learning also requires an explicitly bound numeric property column and unit.** Identifiers are optional and may have any name; they are not learning features. Columns are bound by their header names; spreadsheet positions only help locate them.
+
+For your own data, you can say:
+
+```text
+Use STCA to learn high-density rules. The structure column is SMILES and the property column is Density, in g/cm³. Use all data rows, return screening results and save the rules.
+```
+
+Before learning, the assistant states the file, row count, structure column, property column, unit and direction. A unique, clear mapping can be used automatically. Multiple possible targets, duplicate headers or unclear units require clarification first. The RadonPy example explicitly uses `smiles` and `density`; density minima, maxima, standard deviations and counts are not its target. Your explicitly named columns take priority. You can also request that an existing data split be preserved.
+
+### Star input, H-cap calculation, star output
+
+Upload polymer repeat units with their **original `*` attachment points; you do not need to cap them yourself**. Processing follows these steps:
+
+| Stage | Example SMILES | What happens |
+|---|---|---|
+| Input | `*CCO*` | Preserve the original repeat unit and attachment-point positions |
+| Calculation | `CCO` | Replace terminal, single-bonded `*` attachment atoms with hydrogen in a calculation copy, then compute MACCS fingerprints |
+| Output | `*CCO*` | Return the preserved original star-containing SMILES, with its attachment positions and labels intact |
+
+**Original `*` input → H-cap calculation copy → original `*` output.** The H-cap copy does not overwrite the original SMILES. Screening and verification of generated proposals follow this same process. Already capped input without `*` is processed and returned as supplied.
+
+A candidate-only screening CSV can contain:
 
 ```csv
 CandidateKey,SMILES
@@ -176,13 +202,7 @@ sample-A7,*CCO*
 42-blue,*CC*
 ```
 
-Identifiers are optional and may have any name. Original polymer SMILES and attachment points such as `*CCO*` are preserved; hydrogen capping applies only to a calculation copy. Already capped input is kept as supplied. Choose existing rules for their stated property and source, or learn new rules from your polymer data. The AI assistant reads the table and asks only about unclear targets, units, experimental/computed origin or direction. You can preserve an existing data split.
-
-For example, with a polymer thermal-conductivity table, ask:
-
-```text
-Learn high-thermal-conductivity rules from this polymer dataset, return the screening results and save the rules. Then use the recommended rule to directly generate and verify 20 polymer repeat units.
-```
+For learning, add the corresponding numeric property column on each row and state whether its labels are measured or computed.
 
 ## Paper and author
 

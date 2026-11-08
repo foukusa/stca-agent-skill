@@ -10,6 +10,7 @@ Learn readable polymer structure–property rules, screen candidates, or generat
 
 - [Install and start](#install-and-start)
 - [Choose a task](#choose-a-task)
+- [Data columns and attachment points](#data-columns-and-attachment-points)
 - [Try RadonPy density](#try-radonpy-density)
 - [Runtime and permissions](#runtime-and-permissions)
 - [License and sources](#license-and-sources)
@@ -58,6 +59,16 @@ Complete task prompts are built in. Learning uses Top or Bottom **10%, 20% and 3
 
 When you have not selected a rule, the assistant shows the available rule catalog. Choose **preview and confirm** to inspect and adjust the prompt before generation, or **generate directly**. The assistant returns the saved rule files and their location. Continue with “Screen these candidates with the rules just saved” or “Generate with those rules.” See the [natural-language examples](https://github.com/foukusa/stca-agent-skill/blob/main/docs/USAGE.md) and [rule catalog](https://github.com/foukusa/stca-agent-skill/blob/main/docs/RULE_LIBRARY.md).
 
+## Data columns and attachment points
+
+Learning requires an explicitly bound **structure column, numeric property column and unit**. You can name them in your request. For a recognized source such as the RadonPy example below, the mapping is already supplied; otherwise the assistant reads the headers and displays the columns, target meaning and unit it will use before learning. If more than one column could mean the target—such as measured versus calculated density, different temperatures, or a mean versus a minimum/maximum—it asks you to choose first. Your explicit column names take precedence. Numeric ranges alone do not establish a column's meaning. Screening with an existing rule needs the structure column, without property labels for the candidates.
+
+Upload the original repeat-unit SMILES **with their `*` attachment points retained**. STCA keeps that original text and creates a separate calculation copy: supported terminal single-bond attachment atoms are capped with hydrogen (**H-cap**) before fingerprints are calculated. Results return the preserved original SMILES with the same `*` positions. This is not a text replacement or an attempt to infer attachment positions from the capped molecule. Already capped inputs remain as supplied; attachment points are not invented.
+
+| Uploaded original | H-cap calculation copy | Returned structure |
+|---|---|---|
+| `*CCO*` | `CCO` | `*CCO*` |
+
 ## Try RadonPy density
 
 Download [RadonPy `PI1070.csv`](https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv) from its GitHub file page and upload it in DSH. Use all **1,077 records**: row 1 is the header and rows 2–1078 are data. Select `smiles` (B / column 2) for structures and `density` (AA / column 27), in g/cm³, for the molecular-dynamics target. `monomer_ID` (A / column 1) is an optional identifier. The assistant reads column names; you do not need to extract cells. Other density statistics are not the target.
@@ -73,7 +84,7 @@ This fixed file gives **137 rule matches, 940 non-matches and no unknowns**; the
 **Learning, screening and saving:**
 
 ```text
-Learn high-density Top 30% rules from this RadonPy dataset, return screening results, compare them with the existing rule and save the new rules.
+Learn high-density Top 30% rules from all rows of this RadonPy file. Use smiles for structures and density for the target, in g/cm³. Return screening results, compare them with the existing rule and save the new rules.
 ```
 
 A repeat fit requires identical prepared data, fingerprints and settings to reproduce an existing rule. A new adaptive fit may differ. Reapplying the newly saved model to the same table must reproduce that model’s screening decisions: “Reload the Top 30% STCA rule just saved and screen the same dataset again.”

@@ -21,6 +21,8 @@
       "agent_steps": [
         "Run the bundled inrange_evaluation.py via agent_runtime for the default workflow; do not replace it with inline learning code or raw-star MACCS. Require the actual run manifest, fingerprint_contract.json, CV fold assignments and out-of-fold predictions before claiming verified completion. Execute fingerprint_contract.py --run-dir RUN_DIR to confirm H-cap preparation and matrix consistency. Missing receipts or mismatches are verification failures, not successful learning.",
         "Read the uploaded polymer structures, target, units, direction and experimental/computed meaning; preserve original SMILES and select polymer_repeat_unit as the generation structure kind. Ask only for missing scientific information.",
+        "Before learning, bind the exact input file and row scope, structure column, numeric target column, unit and high/low direction, and briefly show that mapping to the user. Honor explicit user column names. Continue automatically for a unique unambiguous mapping or a matching known dataset template; when duplicate or competing columns, measured/computed labels, temperatures, statistics or units are ambiguous, show candidates and wait for the user before learning. Never infer the scientific target from value range alone. Pass exact header names through --smiles-column and required --target, then verify the actual run_manifest.learning_settings mapping; spreadsheet positions are explanatory only.",
+        "Preserve original star-containing polymer SMILES as the primary input/output structure. Build a separate H-cap calculation copy by hydrogen-capping supported terminal single-bond attachment points, compute MACCS rule fingerprints only from that copy, and return the stored original SMILES with the same stars and positions. Returning stars means retrieving the original structure, never reverse-capping or replacing hydrogen text. Already capped input is returned unchanged.",
         "Accept the user’s explicitly requested percentages, including arbitrary valid tiers such as 7%, 15% or 25%. Once the scientific target is clear, omitted percentages automatically use Top or Bottom 10%, 20% and 30%; do not ask the user to choose percentages before starting.",
         "With no explicit holdout protocol, run inrange_evaluation.py: transparent data preparation, protected structural-group CV (5 folds x 3 repeats), per-tier STCA and WRAcc comparison by AS, then full-data frozen rules. Use the source-only auto_screen.py route when the user has supplied source/holdout roles or requested a fixed extrapolation protocol.",
         "By default use --wracc-max-literals auto --wracc-length-folds 3. Select the WRAcc length cap from 1,2,3,5,10,unlimited using grouped validation strictly inside each supplied training partition, with each inner cutoff fitted from inner training labels. Never use outer evaluation outcomes to select length. Repeat selection within full training data for the final model, save the chosen cap and actual length, and report insufficient selection evidence. Honor natural-language requests for a fixed positive maximum or unlimited; neither beam search nor STCA is exhaustive. Frozen catalog rules keep their exact saved conditions.",
@@ -34,6 +36,7 @@
       ],
       "ask_only_if_missing": [
         "labeled data file",
+        "unambiguous structure and numeric target column binding",
         "unambiguous property",
         "unit",
         "high or low direction",
@@ -134,6 +137,16 @@
           "cv_oof_predictions.csv"
         ],
         "on_missing_or_failed_evidence": "report_unverified; do_not_invent_or_summarize_as_success"
+      },
+      "column_binding_policy": {
+        "required_before_learning": true,
+        "show_file_row_scope_structure_target_unit_direction": true,
+        "honor_user_column_names": true,
+        "header_names_drive_execution": true,
+        "continue_when_unambiguous": true,
+        "ask_and_wait_if_ambiguous": true,
+        "never_guess_scientific_target_from_value_range": true,
+        "verify_saved_mapping": "run_manifest.json: learning_settings.target_column and smiles_column"
       }
     },
     {
@@ -155,7 +168,7 @@
         "By default, return separate STCA and WRAcc results for every requested available tier, together with their recorded AS evidence, primary method and recommendation reason. Apply methods separately, not as an AND or OR. Honor an explicit request for only STCA or only WRAcc. If the user accepts the recommendation for subsequent use, adopt the marked per-tier primary without another method-confirmation question. Show Top/Bottom, physical comparison, numeric cutoff and unit; mark missing evidence or an unavailable alternative honestly.",
         "If the user or conversation already unambiguously specifies the rules and tier, reuse that explicit selection directly. Otherwise display the grouped rule catalog (saved rule files, STCA paper, GAS, RadonPy, ADEPT → property → percentage) with concise evidence states, and ask only for the missing target choice before screening or generation. An already explicit natural-language rule selection needs no menu or repeated confirmation.",
         "Keep the first rule directory compact: source, property, direction and available percentages. Show the selected rule physical cutoff, exact conditions and relevant evidence after selection; do not dump all model thresholds or benchmark tables at entry.",
-        "Identify the uploaded candidate table and structure column from the file and conversation.",
+        "Identify and briefly state the uploaded candidate table and exact structure column from the file and conversation; ask if multiple structure columns are ambiguous. Applying a frozen structural rule does not require candidate density or other property labels. Preserve original star-containing SMILES, use a separate H-cap calculation copy, and return the stored original stars and attachment positions without reverse-capping.",
         "Show readable dataset, property and percentage choices when a rule has not been selected; keep catalog IDs internal.",
         "For a built-in rule, resolve its frozen catalog conditions and use the library screen; for a saved user rule, read user_rule_library.py show and apply its saved model and tier with stca_tools.py screen-candidates. Return original SMILES and every failed condition.",
         "Complete the requested operation and any already authorized continuation; report the actual result and saved file paths, retain available files, and continue the conversation without claiming a native menu or saved-rule tab.",

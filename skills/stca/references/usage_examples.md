@@ -10,15 +10,19 @@ STCA is used by the current LLM in the conversation. It does not create a fixed 
 
 ## 从公开数据总结规则后继续筛选
 
-用户上传 RadonPy 的 PI1070.csv，说明：从这份 RadonPy 数据总结高密度规则，返回筛选结果并保存规则。
+用户上传 RadonPy 的 PI1070.csv，说明：“从这份数据总结高密度规则。结构列为smiles，性质列为density，单位g/cm³，使用全部数据行，返回筛选结果并保存规则。”
 
-读取 `smiles` 与 `density` 列，目标单位 g/cm³，标签为分子动力学计算值。默认执行 Top 10%、20%、30%，用户明确给出的其他合法百分比按请求计算。自动准备数据、选择变换和步长；WRAcc 条件数上限仅在当前训练部分内部选择，也接受用户指定上限或不限制。不能按外部测试分数挑选长度。同时返回 STCA 与 WRAcc 在各档位的规则、原始物理阈值、比较符、单位、完整原表筛选和主推理由。读取实际文件后说明采用的设置，不能凭预期声称已自适应。
+学习前简短告知实际绑定：“PI1070.csv，1077行；结构列smiles；目标列density（第27列/AA），单位g/cm³，MD计算，高值方向。”按列名执行，其他密度统计列不作为目标。已知案例与用户列名一致时直接继续；不要求额外确认。自己的文件含多个候选密度列或单位/条件不清时，列出候选并等待选择，再开始学习。默认执行 Top 10%、20%、30%，用户明确给出的其他合法百分比按请求计算。自动准备数据、选择变换和步长；WRAcc 条件数上限仅在当前训练部分内部选择，也接受用户指定上限或不限制。不能按外部测试分数挑选长度。同时返回 STCA 与 WRAcc 在各档位的规则、原始物理阈值、比较符、单位、完整原表筛选和主推理由。读取实际文件后说明采用的设置，不能凭预期声称已自适应。
 
 检查run_manifest.json、fingerprint_contract.json、真实交叉验证分组和折外预测，再执行fingerprint_contract.py --run-dir输出目录。只有表示核对通过后才交付成功状态。保存成功后交付真实文件名、位置及便携规则包。用户可以接着说：
 
 > 用刚才保存的高密度 Top 20% 推荐规则筛选这份新候选表。
 
 读取实际保存的精确模型与档位，直接筛选，不重新要求训练数据。跨会话时让用户上传保存的规则包，不承诺临时文件自动保留。
+
+## 原始星号结构的处理
+
+用户上传的聚合物SMILES保留 `*` 连接点。先保存原始列，仅将计算副本的末端单键连接点换为氢（H-cap）以计算MACCS指纹；结果表和入选表返回原始带 `*` 的SMILES及相同连接位置。这里“返回时恢复星号”是取回原始结构，不是从H-cap分子反推星号。已封端输入保持原样。应用已有规则只需结构列，无需候选性质标签。
 
 ## 从自己的数据总结规则
 
@@ -71,7 +75,7 @@ STCA is used by the current LLM in the conversation. It does not create a fixed 
 
 ## English requests
 
-- **Learn:** “Learn high-density rules from this RadonPy dataset, return screening results and save the rules.” Use the `smiles` and `density` columns, g/cm³ and computed-label meaning; return independent methods and numerical cutoffs.
+- **Learn:** “Learn high-density rules from all rows of this RadonPy dataset. The structure column is `smiles`, the target is `density`, in g/cm³. Return screening results and save the rules.” State the actual binding before learning; resolve ambiguous columns with the user first. Return independent methods and numerical cutoffs.
 - **Reuse:** “Use the recommended Top 20% rule just saved to screen this new candidate table.” Read the actual files, apply the selected rule and retain all original inputs.
 - **Preview:** “Use the STCA-paper high-Tg Top 20% rule. Show the prompt for five repeat units first.” Display the complete prompt and wait for explicit confirmation.
 - **Direct:** “Generate and verify 20 polymer repeat units directly with the selected rule.” The current LLM generates; the calculation verifies. Preserve proposals as pending if verification cannot run.

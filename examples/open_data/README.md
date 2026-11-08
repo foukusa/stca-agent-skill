@@ -78,7 +78,15 @@ Use the original columns when uploading these source files:
 
 The ADEPT gap is the DFT HOMO–LUMO gap of a hydrogen-capped isolated monomer. The [source and field index](dataset_registry.csv) provides dataset links, original columns, units and licence information. Cite the original sources when using their data.
 
-Your own learning data needs structures and numeric property values. Supply units, experimental/computed origin and any existing split when needed. Identifiers are optional and may have any name. Candidate-only screening needs structures, with no property labels required.
+Your own learning data needs structures and numeric property values. Supply units, experimental/computed origin and any existing split when needed. Identifiers are optional and may have any name.
+
+Learning requires an explicitly bound **structure column, numeric property column and unit**. You can name them in your request. For a recognized source such as the RadonPy example below, the mapping is already supplied; otherwise the assistant reads the headers and displays the columns, target meaning and unit it will use before learning. If more than one column could mean the target—such as measured versus calculated density, different temperatures, or a mean versus a minimum/maximum—it asks you to choose first. Your explicit column names take precedence. Numeric ranges alone do not establish a column's meaning. Screening with an existing rule needs the structure column, without property labels for the candidates.
+
+Upload the original repeat-unit SMILES **with their `*` attachment points retained**. STCA keeps that original text and creates a separate calculation copy: supported terminal single-bond attachment atoms are capped with hydrogen (**H-cap**) before fingerprints are calculated. Results return the preserved original SMILES with the same `*` positions. This is not a text replacement or an attempt to infer attachment positions from the capped molecule. Already capped inputs remain as supplied; attachment points are not invented.
+
+| Uploaded original | H-cap calculation copy | Returned structure |
+|---|---|---|
+| `*CCO*` | `CCO` | `*CCO*` |
 
 ## Learn, save and continue
 

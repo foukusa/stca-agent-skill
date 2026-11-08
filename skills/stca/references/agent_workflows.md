@@ -4,7 +4,9 @@
 
 ## 1 默认：自己数据范围内归纳
 
-识别SMILES、数值目标、单位、高低方向、实测/计算含义。复用兼容后台，若没有用户指定holdout/外推协议：
+先绑定文件、全部或指定数据行、结构列、数值目标列、单位、高低方向及实测/计算含义。学习前给出一行实际绑定说明，例如“PI1070.csv：1077行；结构smiles；密度density，g/cm³；高值方向”。按真实表头传入 `--smiles-column` 与必填 `--target`；列号只作说明。遵从用户明确列名；唯一明确时直接继续，多列/重复表头、实测与计算或条件有歧义时先列候选并询问，不猜测目标。结果核对run_manifest.learning_settings的target_column和smiles_column。
+
+原始带 `*` 结构先保存，连接点仅在H-cap计算副本中换氢；输出以保存的原始SMILES恢复显示同一星号及位置，不从封端副本反推连接点。已封端输入保留原样。复用兼容后台，若没有用户指定holdout/外推协议：
 
 ```text
 PY SKILL_DIR/scripts/agent_runtime.py run --script inrange_evaluation.py -- --structure-kind polymer_repeat_unit --input materials.csv --target TC --target-name Thermal_conductivity --property thermal_conductivity --unit "W/(m K)" --direction high --tiers 0.10 0.20 0.30 --smiles-column SMILES --output-dir out/analysis --library-dir USER_RULES_DIR
@@ -31,6 +33,8 @@ PY SKILL_DIR/scripts/agent_runtime.py run --script auto_screen.py -- --structure
 该路径自动返回upload_screening的全档长表、summary和每档results/selected；随后逐档export-rules→user_rule_library save/export，并继续当前对话。固定参数或论文精确成员用custom_fit并同样补齐筛选和保存。不要用另一种评价改写明确协议。
 
 ## 2 选择并筛选已有规则
+
+只需候选结构列与所选规则，不要求候选密度或其他性质标签。明确结构列并保留原始带星号SMILES；H-cap只用于计算副本，返回时读取原始列。
 
 ```text
 PY SKILL_DIR/scripts/task_menu.py --rules --language zh-CN --library-dir USER_RULES_DIR
