@@ -1,48 +1,45 @@
 # STCA：DeepSeek Harness 使用说明
 
-版本 **0.1.0**。在能够加载本地 skill 的 **DeepSeek Harness** 中安装 STCA 后，用户提供文件和自然语言目标，由 AI 助手管理规则及计算。
+版本 **0.1.0**。安装并启用 STCA 后，在当前 DeepSeek Harness 对话中直接说明目标，由 LLM 读取 skill、管理文件及调用计算工具。
 
-## 安装与开始
+## 安装与调用
 
-优先在 DeepSeek Harness 的“插件 → 添加插件”中填写：
+在 **插件 → 添加插件** 中填写：
 
 ```text
 https://github.com/foukusa/stca-agent-skill.git
 ```
 
-也可在 CLI 使用 `dsh plugin --profile web add github:foukusa/stca-agent-skill`。安装并启用后，输入 `/stca`。本地安装使用 `dsh-plugin-stca-0.1.0.tgz` 的完整文件路径；该文件是已打包的 DSH 插件，无需构建或重新打包。
+或使用 CLI：`dsh plugin --profile web add github:foukusa/stca-agent-skill`，把 `web` 换成实际 profile。安装并启用后输入 `/stca`。已下载的插件通过 `dsh-plugin-stca-0.1.0.tgz` 完整本地路径安装，不需重打包。npm 发布后可填写包名 `dsh-plugin-stca`。
 
-如需手动放置 skill，解压 `stca-deepseek-harness-0.1.0.zip`，将完整 `stca` 目录放入 `~/.dsh/skills` 或已配置的项目 skill 根目录。skill ZIP 用于此手动方式；“添加插件”使用 Git 仓库地址或 TGZ，不使用 GitHub `/tree/main` 网页地址。
+手动安装 skill 时，解压 `stca-deepseek-harness-0.1.0.zip`，将完整 `stca` 目录放入已配置的 filesystem skill 根目录，例如 `~/.dsh/skills/stca`。GitHub `/tree/main` 是网页地址，不能作为 Add plugin 的 Git 安装源。
 
-输入 **`/stca`**，选择：
+## 直接描述任务
 
-1. 上传自己的文件总结规则。
-2. 根据已有规则直接筛选。
-3. 根据已有规则直接生成。
+- **从上传数据学习：**“从这份 RadonPy 数据总结高密度规则，返回筛选结果并保存。”读取 `smiles`、`density`，单位 g/cm³，标签来自计算。
+- **现成筛选：**“使用内置含氟候选示例，按 RadonPy 高密度 Top 30% STCA 规则筛选。”
+- **规则生成：**“先给我看高 Tg Top 20% 规则的生成 prompt。”或“用选定规则直接生成 10 个聚合物重复单元并核验。”
+- **继续复用：**“使用刚才保存的 Top 20% 推荐规则筛选这份新候选表。”
 
-只选 2 或 3 时，先展示“我的规则”和内置的STCA论文、GAS、RadonPy、ADEPT目录，再选择来源、性质、方向、百分比和方法。每档STCA/WRAcc主推与备选是二选一，不能自动混合。用户已经明确选定某条规则或“刚保存的规则”时直接复用，不重复选择。
+目标缺失时简短说明可选操作；筛选/生成尚未选规则时才展示来源、性质和可用百分比，已明确选择时直接执行。STCA 与 WRAcc 分别应用，不能自动混合。用户不必经过固定编号菜单，也不要求平台提供“我的规则”页面。
 
-首次计算由 AI 助手使用随包启动入口查找本地 Python 和 RDKit，检查 Conda 及常见环境，成功后自动记住；不要求用户手工填写路径。详细处理见 [platform-runtime.md](platform-runtime.md)。
+## 保存和生成
 
-## 生成方式
+学习默认使用 Top/Bottom 10%、20%、30%，允许自定义百分比。交付两方法的逐档规则、实际数值阈值/比较符/单位、原上传表的筛选结果和推荐理由。评分用交叉验证的平均筛选评分：马修斯相关系数、精确率和 F1 分数的平均值；向用户报告时解释名称。
 
-选定规则后，选择“先查看并调整 prompt，确认后生成”或“直接生成并核验”。前者展示完整文本并接受修改，明确确认后调用当前 LLM；后者立即调用当前 LLM。两者均保存全部候选并逐条核验，给出通过项和未满足的规则条件。用户已说明方式时直接执行，不要求配置模型 API。
+成功保存后显示真实文件名、位置和可下载规则包。用户可以继续筛选或生成，新会话上传规则包载入，不重新要求训练数据。
 
-## 简短范例
+预览生成时展示完整 prompt，允许调整并等待确认；明确要求直接生成时立即使用当前 LLM。保留全部提案并按相同冻结条件核验，报告实际生成、完成核验和匹配数量。无需为 STCA 再配置一个模型 API。
 
-- **上传归纳：**“1。从这份实测气体渗透率表总结高 CO₂ 规则，单位 Barrer。”
-- **现成筛选：**“2。选择 GAS 高 CO₂ 渗透率 Top 10%，筛选这份候选。”
-- **按规则生成：**“3。”从目录选好规则后说：“直接生成 10 个候选并核验。”
-- **复用：**“使用刚才保存的规则生成 20 个候选。”
-- **只要 prompt：**“把选中规则的完整生成 prompt 给我，我要在其他 LLM 中使用。”
+## 计算环境和状态
 
-归纳后默认交付上传表各档完整筛选结果、入选子表和逐条未满足的规则条件，同时保留原始星号结构、字段与数据角色。保存模型、各档约束、双语 prompt 和下载包后返回主菜单。用户不用手工导出或重新上传训练数据。
+由 AI 助手用随包启动器自动查找并检查 Python 3.10+ 和 RDKit，普通 Python、虚拟环境、Conda 均可，Conda 不是必需。查找及隔离环境准备见 [platform-runtime.md](platform-runtime.md)。筛选使用 chem 后台，学习使用 fit 后台。
 
-更多范例见 [usage_examples.md](usage_examples.md)。导出的完整 prompt 可用于其他 LLM；实际结构核验由具备计算能力的 STCA 平台执行。平台计算准备与能力边界见 [platform-runtime.md](platform-runtime.md)。
+macOS 签名、依赖导入或执行权限失败时，尝试其他兼容环境。仍无法核验则保留提案并标为待核验，不把未执行解析记成无效 SMILES、零入选或零覆盖。界面激活 skill、LLM 已生成文本、结构已解析和规则已核验是不同步骤，按实际结果报告。
 
-## 官方说明
+更多请求见 [usage_examples.md](usage_examples.md)。
 
-- [DeepSeek Harness 本地 skill 格式与扫描目录](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/skill/skill-filesystem/README.zh.md)
-- [DeepSeek Harness skill 加载与 `/name` 调用](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/skill/tool-skill/README.zh.md)
+## 平台说明
 
-当前开源目录提供12任务的Top10/20/30两方法主推与备选。新归纳默认按结构分组5折×3次比较STCA与WRAcc，分别回筛原表、保存模型/完整prompt并返回菜单；15/25等自定义档位可用自己的数据学习，不能冒称已有新版内置规则。
+- [DeepSeek Harness filesystem skill 格式](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/skill/skill-filesystem/README.zh.md)
+- [skill 加载与调用](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/skill/tool-skill/README.zh.md)

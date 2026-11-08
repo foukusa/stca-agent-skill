@@ -17,15 +17,15 @@
 
 ## 开始使用
 
-STCA 面向聚合物结构与性质数据。安装后输入 **“开始使用 STCA”**，选择以下任务。完整对话范例见[自然语言使用案例](docs/USAGE.zh-CN.md)：
+STCA 面向聚合物结构与性质数据。安装后输入 **“开始使用 STCA”**，或直接说明要完成的任务。完整对话范例见[自然语言使用案例](docs/USAGE.zh-CN.md)：
 
-| 选择 | 做什么 | 简短请求 |
+| 任务 | 做什么 | 简短请求 |
 |---|---|---|
-| **1 · 上传数据总结规则** | 学习规则并返回对应筛选结果 | “从这份数据总结高热导率规则。” |
-| **2 · 用已有规则筛选** | 使用内置规则或自己保存的规则 | “用已有规则筛选这份候选表。” |
-| **3 · 用已有规则生成** | 选规则后，预览确认 prompt 或直接生成 | “用这条规则直接生成 20 个候选。” |
+| **上传数据总结规则** | 学习规则并返回对应筛选结果 | “从这份数据总结高热导率规则。” |
+| **用已有规则筛选** | 使用内置规则或自己保存的规则 | “用已有规则筛选这份候选表。” |
+| **用已有规则生成** | 选规则后，预览确认 prompt 或直接生成 | “用这条规则直接生成 20 个候选。” |
 
-完整处理 prompt 已内置。AI 助手读取文件、展示相关来源，并补问必要信息。归纳规则时，未指定百分比就直接使用 Top 或 Bottom **10%、20%、30%**；也可指定 0% 与 100% 之间的任意百分比，例如 **15%、25%**。你无需输入规则编号或操作 Python。计算使用 CPU，兼容 Python 3.10 及以上环境，生成使用当前 AI 助手。
+STCA 是由当前 AI 助手在对话中使用的 skill，处理流程已内置。直接说明需求，按需上传数据，再用自然语言继续；AI 助手会读取文件、展示相关规则，并补问必要信息。归纳规则时，未指定百分比就直接使用 Top 或 Bottom **10%、20%、30%**；也可指定 0% 与 100% 之间的任意百分比，例如 **15%、25%**。你无需输入规则编号或操作 Python。计算使用 CPU，兼容 Python 3.10 及以上环境，生成使用当前 AI 助手。
 
 ## 简单试用
 
@@ -37,81 +37,101 @@ STCA 面向聚合物结构与性质数据。安装后输入 **“开始使用 ST
 
 这个示例会返回 3 条结构规则匹配和 2 条未匹配，保留原始带星号 SMILES。
 
-**从开源数据总结规则。** 下载 [GAS Dataset A CSV](https://github.com/jsunn-y/PolymerGasMembraneML/blob/30981d71e1e3f12a057e009cd79f119bc659c7f5/datasets/datasetA_imputed_all.csv)，上传后发送：
+**从开源数据总结规则。** 下载 [RadonPy 的 PI1070 CSV](https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv)，上传后发送：
 
 ```text
-从这份实测 CO₂ 渗透率数据总结高值规则，单位 Barrer，考虑 Top 10%、20%、30%。自动调整数据形式与步长，返回各档筛选结果并保存规则。
+从这份 RadonPy 数据总结高密度规则，返回筛选结果并保存规则。
 ```
 
-AI 助手会使用原始实测 `CO2` 列，自动准备数据、返回规则及筛选结果，再存入“我的规则”；不会把 Bayesian 或 Etree 插补列当作实测标签。
+AI 助手使用 `smiles` 结构列和 `density` 密度列，单位为 g/cm³，标签来自分子动力学计算。它会准备数据、调整数据形式与扫描步长，并返回默认 Top 10%、20%、30% 对应的两种方法规则及筛选结果。你也可以指定其他百分比。
 
 ## 保存规则并继续
 
-上传自己的数据后，STCA 自动清理不可用记录、调整数据形式与扫描设置，并在你的数据范围内比较 **STCA 与 WRAcc**。两种方法分别交付，每档明确主推、备选及推荐理由。推荐采用作者 [STCA 论文](https://doi.org/10.1038/s41524-026-02345-x)提出并在筛选任务评价中验证使用的综合衡量指标 **AS（Average Score）**：`AS = (MCC + Precision + F1) / 3`；两种方法均可评价时，WRAcc 的 CV AS 高出 STCA 超过 0.02 才主推 WRAcc，否则保留 STCA。说“使用推荐结果”即可直接继续，也可明确指定方法。
+上传自己的数据后，STCA 自动清理不可用记录、调整数据形式与扫描设置，并在你的数据范围内比较 **STCA 与 WRAcc**。两种方法分别交付，每档明确推荐结果及理由。推荐依据数据内部的**交叉验证**：多次用部分数据学习规则，再用其余数据评价。综合得分采用作者 [STCA 论文](https://doi.org/10.1038/s41524-026-02345-x)提出并验证使用的**马修斯相关系数、精确率和 F1 分数的平均值**；F1 综合衡量精确率与召回率。说“使用推荐规则”即可继续，也可明确指定方法。[评价方式说明](docs/USAGE.zh-CN.md)。
 
 总结完成后，同时交付**两种方法在每个档位的规则与对应筛选结果**：包含百分比对应的**具体物理数值、≥／≤ 比较符及单位**，以及原始 SMILES、入选判断、每条未满足的规则条件及不可计算记录。即使用 log10 归纳，也返回原始物理尺度的阈值。原上传表始终返回逐档结果；另传独立候选表时，其结果另列。
 
-模型、规则、物理阈值和完整中英文生成 prompt 会自动保存到“我的规则”，显示名称并返回主菜单。选 **2** 或 **3** 就能继续复用。
+AI 助手将模型、规则、物理阈值和完整中英文生成 prompt 保存为文件，并报告文件名与位置。接着说 **“用刚才保存的规则筛选这份表”**，或 **“用刚才的高密度规则生成 20 个重复单元”**，即可继续。需要在新会话或其他平台复用时，下载并携带规则包；本地文件能否长期保留取决于当前工作区。
 
 ![STCA 工作流程](assets/workflow.zh-CN.svg)
 
-选择 **3** 后，STCA **先显示可选规则目录**，包括内置规则和已载入的“我的规则”。选定来源、性质与百分比后，再选择生成方式：
+提出“用已有规则生成”时，STCA **先显示可选规则目录**，包括内置规则和本次对话已载入的规则包。选定来源、性质与百分比后，再选择生成方式：
 
 - **先预览，确认后生成**：展示完整 prompt，可调整候选数量、结构偏好或输出格式；你回复“确认，开始生成”后，当前 LLM 才生成候选。
 - **直接生成**：当前 LLM 立即按选定规则生成候选，并逐条核验。
 
-两种方式都会返回原始提案、分子 SMILES、通过／未通过判断及每条未满足的规则条件，完成后返回主菜单。请求中已说明“直接生成”时，就直接使用该方式。修改目标或冻结规则条件时，会重新选择并确认对应规则。无需另外配置 LLM API。
+两种方式都会返回原始提案和聚合物 SMILES，再给出实际计算的规则核验与未满足条件。无法执行计算时，会明确标为待核验。请求中已说明“直接生成”时，就直接使用该方式。修改目标或冻结规则条件时，会重新选择并确认对应规则。无需另外配置 LLM API。
 
-随时说 **“返回主菜单”** 或 **“上一级”**。返回会保留已保存的规则。需要换设备或平台时，下载规则包并在新会话上传，即可继续使用。
+可以直接提出下一项任务，或说 **“接下来可以做什么？”**，让 AI 助手说明可继续的操作。换设备或平台时，在新对话中上传已保存的规则包即可复用。
 
 ## 下载与安装
 
-现在可直接通过 GitHub 或下载包安装；各平台审核通过后，再补充对应商店的安装链接。完整步骤见[安装说明](docs/INSTALL.zh-CN.md)。
+按所用平台安装。下方分别列出步骤，[安装说明](docs/INSTALL.zh-CN.md)还提供环境处理方式与其他安装路径。
 
 | 平台 | 安装方式 | 调用 |
 |---|---|---|
-| **Codex** | 让 `$skill-installer` 安装 [STCA skill 目录](https://github.com/foukusa/stca-agent-skill/tree/main/skills/stca)，或下载 [Codex skill ZIP](downloads/stca-codex-0.1.0.zip?raw=true)。 | `使用 $stca` |
-| **DeepSeek Harness** | 在“添加插件”中填写 GitHub 地址，或在 npm 发布后填写包名 `dsh-plugin-stca`；插件中心入口见下表。也可下载[本地 skill ZIP](downloads/stca-deepseek-harness-0.1.0.zip?raw=true)。 | `/stca` |
-| **WorkBuddy** | 下载 [WorkBuddy ZIP](downloads/stca-workbuddy-0.1.1.zip?raw=true)，作为本地 skill 导入。 | 选择 STCA，输入“开始使用 STCA”。 |
-| **ChatGPT 桌面端** | 按客户端开放的 skill 安装方式加载 [OpenAI skill ZIP](downloads/stca-openai-skill-0.1.0.zip?raw=true)。 | 选择 STCA。 |
+| **Codex** | 安装 GitHub 中的 skill 目录，或使用 [Codex ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-codex-0.1.0.zip?raw=true)。 | `使用 $stca` |
+| **DeepSeek Harness** | 在“添加插件”中填写 GitHub 仓库地址；npm 发布后也可填写包名。 | `/stca` |
+| **WorkBuddy** | 导入 [WorkBuddy ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.1.zip?raw=true)。 | “开始使用 STCA” |
+| **ChatGPT** | 在支持 skill 安装的客户端中导入 [OpenAI skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-openai-skill-0.1.0.zip?raw=true)。 | 选择 STCA 或要求使用 STCA。 |
 
-在 Codex 对话中发送：
+### Codex
+
+1. 在 Codex 中发送下方安装请求。
+2. 安装完成后，输入 `$stca` 选择 STCA，或直接说“使用 $stca 筛选这份候选表”，按需附上文件。
+3. 如需手动安装，解压 Codex ZIP，将完整 `stca` 文件夹放在 `~/.agents/skills/stca`（Windows 为 `%USERPROFILE%\.agents\skills\stca`）。保留其中的 `SKILL.md`、`scripts`、`references` 和 `assets`。
 
 ```text
 使用 $skill-installer 安装 https://github.com/foukusa/stca-agent-skill/tree/main/skills/stca
 ```
 
-在 DeepSeek Harness 打开 **插件 → 添加插件**，按所选方式填写：
+### DeepSeek Harness
 
-| 安装方式 | 填写内容或入口 |
-|---|---|
-| **GitHub 仓库地址** | `https://github.com/foukusa/stca-agent-skill.git` |
-| **npm 包名** | `dsh-plugin-stca`（npm 发布后可用） |
-| **插件中心** | —（上架后补充链接） |
+1. 打开 **插件 → 添加插件**，填写 `https://github.com/foukusa/stca-agent-skill.git`，安装并启用。
+2. 输入 `/stca` 或“开始使用 STCA”，说明任务，按需上传数据，在同一对话中继续。
+3. npm 发布后，“添加插件”也可填写 `dsh-plugin-stca`；或下载[插件 TGZ](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz?raw=true)，填写其完整本地路径。
 
-<!-- DSH_PLUGIN_CENTER_URL: add the actual listing URL after publication. -->
-
-也可下载[插件 TGZ](downloads/dsh-plugin-stca-0.1.0.tgz?raw=true)，在“添加插件”中填写其完整本地路径。安装并启用后输入 `/stca`。
-
-使用 DSH CLI 和 `web` profile 时，GitHub 安装命令为：
+使用 DSH CLI、`web` profile 时：
 
 ```bash
 dsh plugin --profile web add github:foukusa/stca-agent-skill
 ```
 
-npm 包发布完成后，也可按包名安装：
+npm 发布后：
 
 ```bash
 dsh plugin --profile web add dsh-plugin-stca
 ```
 
-`web` 是示例 profile，请替换为自己实际使用的名称。安装、首次使用、权限与许可详见 [DSH 专用说明](README.DSH.zh-CN.md)。STCA 需要读取你指定的文件、写入结果目录及执行本地计算；准备缺失依赖时可能访问 PyPI 和作者公开代码仓库，生成使用当前 DSH 会话的 LLM。不要求使用 Conda。
+`web` 替换为自己实际使用的 profile。另有[本地 DSH skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip?raw=true)：解压后，将完整 `stca` 文件夹放入 DSH 的 skill 目录，通常为 `~/.dsh/skills/stca`，并启用 filesystem skill provider。详见 [DSH 专用说明](README.DSH.zh-CN.md)。
 
-首次计算会自动查找并检查合适的本地 Python 环境；路径仅作为可选备用项，不是安装必填项，详见[环境处理方式](docs/INSTALL.zh-CN.md#计算环境)。Codex 可直接使用独立 skill，OpenAI 公开目录上架属于另一条发布流程。
+插件中心链接：—（上架后补充）。
+
+<!-- DSH_PLUGIN_CENTER_URL: add the actual listing URL after publication. -->
+
+### WorkBuddy
+
+1. 从上表下载 `stca-workbuddy-0.1.1.zip`。
+2. 打开 WorkBuddy 的 skill 管理页面，选择添加／上传本地 skill 包，直接选择 ZIP，完成导入并启用 **STCA Polymer Rules and Design**。
+3. 输入“开始使用 STCA”，上传文件，再说明要总结规则、筛选候选还是生成重复单元。
+
+商店安装链接将在审核通过并发布后补充。
+
+### ChatGPT
+
+1. 从上表下载 `stca-openai-skill-0.1.0.zip`。
+2. 在支持安装 skill 的 ChatGPT 客户端中，通过导入入口加载；也可上传安装包并要求“请安装这个 STCA skill”。
+3. STCA 出现在可用 skill 中后，选择它或说“使用 STCA 筛选这份表”。计算还需要客户端提供文件访问和代码执行能力。如果当前客户端没有 skill 安装能力，使用上面的其他平台。
+
+### 下载文件
+
+ZIP 和 TGZ 链接对应仓库 [`downloads` 目录](https://github.com/foukusa/stca-agent-skill/tree/main/downloads)中的版本文件。也可打开[仓库首页](https://github.com/foukusa/stca-agent-skill)，选择 **Code → Download ZIP**，解压后获取 `skills/stca` 源码目录；该仓库版本包含的各平台安装包位于 `downloads`。源码 ZIP 需先解压再按文件夹安装，WorkBuddy 则直接上传其专用 ZIP。
+
+首次计算会查找并检查合适的本地 Python 环境。普通 Python、虚拟环境均可使用，不要求 Conda。AI 助手需要读取指定文件、写入结果目录和执行本地计算；准备缺失依赖时可能访问 PyPI 和作者公开代码仓库，生成使用当前对话的 LLM。详见[环境处理方式](docs/INSTALL.zh-CN.md#计算环境)。
 
 ## 现成规则与生成 prompt
 
-[规则与 prompt 目录](docs/RULE_LIBRARY.zh-CN.md)按**数据来源 → 性质 → 百分比**列出选择；“我的规则”保存你自己归纳的结果。开源数据规则覆盖 **12 项任务**，均提供 Top **10%、20%、30%** 及两种方法的主推／备选；也提供作者 STCA 论文中实现的 Tg 与电导率冻结规则。
+[规则与 prompt 目录](docs/RULE_LIBRARY.zh-CN.md)按**数据来源 → 性质 → 百分比**列出选择；也可载入你自己归纳并保存的规则包。开源数据规则覆盖 **12 项任务**，均提供 Top **10%、20%、30%** 及两种方法的主推／备选；也提供作者 STCA 论文中实现的 Tg 与电导率冻结规则。
 
 | 来源 | 可选性质 |
 |---|---|

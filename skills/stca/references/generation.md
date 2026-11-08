@@ -37,7 +37,7 @@ PY SKILL_DIR/scripts/generation_session.py status --session out/generation_sessi
 
 只有`generation_allowed=true`时才能进入实际生成。读取批准的完整prompt后由当前AI助手执行LLM生成，将所有结构写入候选表，再调用`rule_library.py screen`或保存模型的`stca_tools.py screen-candidates`精确核验。脚本渲染和会话状态都不执行LLM采样；不能把prompt文件或approved状态当作生成结果。无需外部API配置。平台若无法调用模型或计算，准确说明当前完成的步骤。
 
-只有用户明确要求单独导出prompt时，才以prompt文本交付结束。生成链路完成后交付最终prompt、全部提案、通过表和失败原因，返回主菜单。
+只有用户明确要求单独导出prompt时，才以prompt文本交付结束。生成链路完成后交付最终prompt、全部提案、通过表和失败原因，继续当前对话。
 
 使用 [generation_prompt.py](../scripts/generation_prompt.py) 的 `render_prompt(constraints, language='zh-CN', count=20, preferences='', structure_kind=None) -> str`，把单条约束 dict 或多条 dict 的列表渲染为完整 prompt。支持 `stca-constraints-v1` 和 `stca-library-constraints-v1`；列表表示所有规则的 AND 交集，矛盾位条件会被拒绝。渲染只依赖标准库，不运行生成模型或科学计算。
 

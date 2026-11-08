@@ -428,37 +428,37 @@ def user_summary(rows, deployment, *, target_name, direction, unit, original_inp
                        "direction": direction, "unit": unit, "original_input_rows": original_input_rows,
                        "CV_folds": folds, "CV_repeats": repeats, "method_choice_margin": TIE,
                        "method_score": "(MCC + Precision + F1) / 3", "tiers": tiers,
-                       "evaluation_scope": EVIDENCE, "next_action": "main_menu"})
+                       "evaluation_scope": EVIDENCE, "next_action": "continue_conversation"})
 
 
 def render_user_summary(summary):
     def number(value):
         return "不可评价" if value is None else format(float(value), ".10g")
     lines = [f"# {summary['property']}：规则与筛选结果", "",
-             "每档分别交付 STCA 和 WRAcc；沿用[作者 STCA 论文](https://doi.org/10.1038/s41524-026-02345-x)定义并在筛选评价中验证使用的 AS=(MCC+Precision+F1)/3，按分组交叉验证结果推荐方法。",
-             "WRAcc 的 AS 高于 STCA 超过 0.02 时主推 WRAcc，否则保留 STCA；无法比较时明确标注。", "",
-             "| 档位 | 具体物理阈值 | STCA 入选 / 未知 | STCA CV AS | WRAcc 入选 / 未知 | WRAcc CV AS | 主推 |",
+             "每档分别交付 STCA 和 WRAcc。按分组交叉验证推荐方法：多次用部分结构分组学习、其余分组评价。沿用[作者 STCA 论文](https://doi.org/10.1038/s41524-026-02345-x)的平均筛选评分，即马修斯相关系数、精确率和 F1 分数的平均值（Average Score，AS=(MCC+Precision+F1)/3）；F1 综合精确率与召回率。",
+             "WRAcc 的交叉验证平均筛选评分高于 STCA 超过 0.02 时主推 WRAcc，否则保留 STCA；无法比较时明确标注。", "",
+             "| 档位 | 具体物理阈值 | STCA 入选 / 未知 | STCA 交叉验证平均评分 | WRAcc 入选 / 未知 | WRAcc 交叉验证平均评分 | 主推 |",
              "|---|---|---:|---:|---:|---:|---|"]
     for item in summary["tiers"]:
         left, right = item["methods"]["STCA"], item["methods"]["WRAcc"]
         threshold = f"{item['operator']} {number(item['physical_cutoff'])} {item['unit']}"
         lines.append(f"| {item['label']} | {threshold} | {left['selected_n']} / {left['unknown_n']} | {number(left['cv_AS_mean'])} | {right['selected_n']} / {right['unknown_n']} | {number(right['cv_AS_mean'])} | {item['recommended_method'] or '无有效规则'} |")
-    reasons = {"WRAcc_AS_exceeds_STCA_by_more_than_0.02": "WRAcc 的 CV AS 高出 STCA 超过 0.02。",
-               "STCA_retained_WRAcc_advantage_not_more_than_0.02": "WRAcc 的 CV AS 未高出 STCA 超过 0.02，保留 STCA。",
-               "STCA_default_comparison_unavailable": "CV 比较证据不足，默认保留 STCA；不声称其得分更优。",
-               "only_method_with_valid_full_data_rule_CV_superiority_not_established": "只有这一方法有可应用的全量规则，CV 优越性未确立。",
+    reasons = {"WRAcc_AS_exceeds_STCA_by_more_than_0.02": "WRAcc 的交叉验证平均筛选评分高出 STCA 超过 0.02。",
+               "STCA_retained_WRAcc_advantage_not_more_than_0.02": "WRAcc 的交叉验证平均筛选评分未高出 STCA 超过 0.02，保留 STCA。",
+               "STCA_default_comparison_unavailable": "交叉验证比较证据不足，默认保留 STCA；不声称其得分更优。",
+               "only_method_with_valid_full_data_rule_CV_superiority_not_established": "只有这一方法有可应用的全量规则，交叉验证优越性未确立。",
                "no_valid_full_data_rule_for_either_method": "两方法均无有效规则。"}
     for item in summary["tiers"]:
         lines += ["", f"## {item['label']}", "",
                   f"主推：**{item['recommended_method'] or '无有效规则'}**；备选：{item['alternative_method'] or '无'}。",
                   reasons.get(item["recommendation_reason"], item["recommendation_reason"]), ""]
         for method, result in item["methods"].items():
-            lines += [f"- **{method}**：入选 {result['selected_n']}，未入选 {result['not_selected_n']}，未知 {result['unknown_n']}；CV 状态 {result['cv_status']}。",
+            lines += [f"- **{method}**：入选 {result['selected_n']}，未入选 {result['not_selected_n']}，未知 {result['unknown_n']}；交叉验证状态 {result['cv_status']}。",
                       f"  [全部原行及未满足的规则条件]({result['results_with_failed_conditions']}) · [入选表]({result['selected_rows']}) · [精确约束]({result['constraints']})。",
                       f"  规则：`{result['rule']}`。" if result['rule'] else "  无有效规则，结果保持未知。"]
     lines += ["", "百分比对应准备后数据的目标尾部，表中阈值为最终部署模型的原始物理尺度边界；不是候选入选配额。",
-              "CV 使用各训练折的阈值；最终原表回筛使用全量冻结阈值。二者不混同，条件性 CV 范围见 run_manifest.json。",
-              "完整中英文 prompt、模型和规则包已按保存凭据交付；完成后返回主菜单。", ""]
+              "交叉验证使用各训练折的阈值；最终原表回筛使用全量冻结阈值。二者不混同，评价范围见 run_manifest.json。",
+              "完整中英文 prompt、模型和规则包按保存凭据交付。可接着要求用刚保存的规则筛选或生成；具体文件位置见保存记录。", ""]
     return "\n".join(lines)
 
 
@@ -700,7 +700,7 @@ def run(args):
                            original_input_rows=len(raw), folds=args.folds, repeats=args.repeats)
     write_json(output / "screening_summary.json", summary)
     (output / "recommendation.md").write_text(render_user_summary(summary), encoding="utf-8")
-    manifest = {"schema": "stca-inrange-workflow-v1", "status": "completed", "next_action": "main_menu",
+    manifest = {"schema": "stca-inrange-workflow-v1", "status": "completed", "next_action": "continue_conversation",
         "generated_at_utc": datetime.now(timezone.utc).isoformat(), "input": str(Path(args.input).resolve()),
         "input_sha256": format_audit["input_sha256"], "original_input_row_n": len(raw),
         "prepared_measurement_n": len(data), "protected_group_n": len(set(groups)),
@@ -708,7 +708,7 @@ def run(args):
         "evidence_status": EVIDENCE, "limitation": LIMITATION, "tiers": tiers,
         "methods": methods_delivered, "saved_rules": saved, "runtime": environment_receipt(args.source)}
     write_json(output / "run_manifest.json", manifest)
-    print(json.dumps({"status": "completed", "output_directory": str(output), "next_action": "main_menu",
+    print(json.dumps({"status": "completed", "output_directory": str(output), "next_action": "continue_conversation",
                       "screening_summary": str(output / "screening_summary.json"),
                       "tiers": summary["tiers"]}, ensure_ascii=False))
     return 0

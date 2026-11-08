@@ -1,83 +1,72 @@
-# STCA: examples after installation
+# STCA: natural-language examples after installation
 
-When a user asks how to use STCA, show the three choices and short examples in their language. The exchanges below describe interaction and deliverables, not precomputed results. Fill result counts only after actual execution. Let the assistant identify columns and prepare the backend.
+STCA is used by the current LLM in the conversation. It does not create a fixed numbered application menu or a separate saved-rules page. Follow a complete request directly. When the goal is missing, briefly offer learning, screening or generation in the user's language. Use actual output files and execution receipts; fill counts only after running the requested calculation.
 
-可用 [内置结构示例 CSV](../assets/examples/candidates.csv) 试用筛选；该文件仅含结构，没有性质标签，不能拿来归纳物性规则。
+## 快速筛选
 
-面向聚合物结构与性质数据，保留原始重复单元及连接点。例如：“从这份聚合物热导率数据总结高值规则，返回筛选结果并保存；再按推荐规则直接生成 20 个聚合物重复单元并核验。”
+用户：使用内置含氟候选示例，按 RadonPy 高密度 Top 30% 的 STCA 规则筛选。
 
-## 内置快速试用
+读取[五条候选](../assets/examples/quick_start_candidates.csv)和 `latest-pi-rho-stca-high-30` 的精确冻结条件，实际执行筛选。交付全部原始行、入选表和未满足的条件。该结构示例中 PVDF/PTFE/PVF 匹配 K42=1，PE/PEO 不匹配；实际计数以运行结果为准。示例没有性质标签，不用于训练或评价密度性能。
 
-收到“用内置含氟候选示例试用筛选”等请求时，使用[五条候选](../assets/examples/quick_start_candidates.csv)。按用户明确指定的RadonPy高密度Top30% STCA方法，读取`latest-pi-rho-stca-high-30`，直接screen并交付全部5行及未满足的规则条件。该结构演示表的PVDF/PTFE/PVF匹配K42=1，PE/PEO不匹配；实际计数仍以运行输出为准。此表没有性质标签，不能用来训练或评价密度预测。
+## 从公开数据总结规则后继续筛选
 
-第二种简短试用是用户上传公开GAS原表，明确实测CO₂渗透率/Barrer/high及所需档位。读取`CO2`原始观测列，注册性质使用`permeability_CO2`，不使用Bayesian/Etree插补列作为实测目标。默认inrange流程自动决定变换、步长并回筛原表、保存规则，供下一次直接筛选。
+用户上传 RadonPy 的 PI1070.csv，说明：从这份 RadonPy 数据总结高密度规则，返回筛选结果并保存规则。
 
-## 中文范例
+读取 `smiles` 与 `density` 列，目标单位 g/cm³，标签为分子动力学计算值。默认执行 Top 10%、20%、30%，用户明确给出的其他合法百分比按请求计算。自动准备数据、选择变换和步长；同时返回 STCA 与 WRAcc 在各档位的规则、原始物理阈值、比较符、单位、完整原表筛选和主推理由。读取实际文件后说明采用的设置，不能凭预期声称已自适应。
 
-### 1. 上传自己的数据，总结规则并查看筛选结果
+保存成功后交付真实文件名、位置及便携规则包。用户可以接着说：
 
-用户：开始使用 STCA。
+> 用刚才保存的高密度 Top 20% 推荐规则筛选这份新候选表。
 
-STCA：1 上传自己的文件总结规则；2 根据已有规则直接筛选；3 根据已有规则直接生成。
+读取实际保存的精确模型与档位，直接筛选，不重新要求训练数据。跨会话时让用户上传保存的规则包，不承诺临时文件自动保留。
 
-用户：1。这是我的热导率数据，单位 W/(m K)，是计算值，我想筛高值。
+## 从自己的数据总结规则
 
-STCA：读取上传文件；只补问尚不明确的信息。用户未指定档位时直接使用默认10%、20%、30%；用户给出15%、25%等合法百分比时按其请求归纳，不再补问。每档同时给STCA与WRAcc的独立结果、实际物理阈值/比较符/单位及主推理由。交付各档完整规则、阈值、原表的完整筛选结果和入选子表，每条保留原始 SMILES、判断和未满足的规则条件；标明归纳/留出/未用于拟合的记录。保存规则、完整双语 prompt 和下载包后返回主菜单。
+用户：这是我的聚合物热导率数据，单位 W/(m K)，计算值。我想总结高值规则，考虑 Top 15% 和 25%。
 
-用户：2，使用刚保存的规则筛选这份新候选。
+只询问缺失的科学信息，使用用户的百分比，不替换为默认值。交付两方法独立结果和推荐理由。首次解释评分时，说明交叉验证用未参与本折训练的数据评价规则；平均筛选评分为马修斯相关系数、精确率和 F1 分数的平均值。不能只报“CV AS”缩写。精确条件、原始 SMILES 和全部未满足条件保留。
 
-STCA：读取保存模型，直接筛选新候选，不要求重新上传训练数据。
-
-### 2. 直接使用现成规则筛选
+## 从现成规则开始
 
 用户：用已有规则筛选这份候选表。
 
-STCA：展示规则目录：我的规则、论文、GAS、RadonPy、ADEPT；简洁列出性质、方向和可用百分比；选中后再显示该项实际阈值。
+目标尚不明确时，简短列出论文、RadonPy、ADEPT、GAS 及当前可读的已保存规则，按性质和可用百分比让用户选择。不要倾倒全部规则条件。若请求已明确来源、目标和档位，直接读取所选条件执行。
 
-用户：选 GAS 的高 CO₂ 渗透率，Top 10%。
+用户：使用作者 STCA 论文中的高 Tg Top 20% 规则。
 
-STCA：应用所选精确冻结规则，交付原始星号结构、逐条判断、所有未满足的规则条件及入选表，随后返回主菜单。
+执行冻结规则，报告原始 SMILES、逐条判断、未满足条件和入选表。交付后继续对话，不声称返回了平台不存在的菜单。
 
-### 3. 先选规则，再生成新结构
+## 预览和调整后生成
 
-用户：3。
+用户：使用作者 STCA 论文中的高 Tg Top 20% 规则，先给我看生成 10 个重复单元的 prompt。
 
-STCA：先展示相同规则目录，询问使用哪一项；保留“我的规则”的友好名称，不自行选默认项。
+读取完整冻结 prompt，保留全部条件，展示后等待确认。
 
-用户：选作者STCA论文中的高 Tg Top 20%。
+用户：改成 5 个，优先不含氟。
 
-STCA：选择生成方式：1 先查看并调整 prompt，确认后生成；2 直接生成并核验。
-
-用户：1，先给我看 prompt，生成 10 个。
-
-STCA：展示完整 prompt，保留全部冻结条件，等待确认。
-
-用户：改成 5 个，优先不含氟的结构。
-
-STCA：更新并展示完整 prompt，等待确认。
+更新并展示完整 prompt，继续等待确认。
 
 用户：确认，开始生成。
 
-STCA：使用确认后的完整 prompt 调用当前 LLM，实际生成候选并逐条核验，交付全部提案、通过表和未满足的规则条件，返回主菜单。
+当前 LLM 读取批准后的完整 prompt，实际生成候选并保存全部提案，再执行同一冻结规则的计算核验。交付生成数量、实际完成核验的数量、通过表及未满足条件。不能用 prompt 渲染或确认状态替代 LLM 生成。
 
-**直接方式：**“使用我选定的规则，直接生成 10 个候选并核验。”读取完整 prompt 后连续生成与核验。
+## 直接生成
 
-### 其他简短请求
+用户：用刚才选定的规则直接生成 20 个聚合物重复单元并核验。
 
-- “使用刚才选定的规则，直接生成 20 个候选并核验。”——复用明确的规则与直接方式。
-- “把这条规则的完整中文生成 prompt 给我。”——交付可复制的完整文本。
-- “返回主菜单。”——保留当前文件与保存规则。
-- “载入这个规则包，继续生成。”——导入旧规则并展示可选档位。
-- “用我选定的高热导率和低密度规则共同筛选。”——在同一候选表逐项核验并返回交集；有多个候选规则时先选择。
+复用明确选择，读取完整 prompt，连续生成和核验，不增加预览确认。若仍有多个性质或档位，只补问未明确的目标。生成的是带两个末端单键连接点的聚合物重复单元，H-cap 只用于计算副本，原始星号结构保持。
 
-## English examples
+## 状态必须与计算一致
 
-- **Learn and screen:** “Learn high thermal-conductivity rules from this uploaded computed dataset, in W/(m K).” Return each requested tier's rules, cutoffs, full screening results, selected records and failed conditions. Save the rules and prompts, deliver a portable rule bundle and return to the menu.
-- **Screen with existing rules:** “Screen this candidate table with existing rules.” Offer the rule directory first. “Choose measured GAS CO₂, high, Top 10%.” Apply the selected frozen rule and return original SMILES, decisions and failed conditions.
-- **Generate:** “3.” Offer My rules and the bundled source/property/tier directory and wait for selection. “Choose the STCA-paper high-Tg Top 20% rule.” Offer two modes: preview and edit the complete prompt, then generate after explicit confirmation; or generate and verify immediately. “Show me the prompt for 10 candidates first.” Show the full text and wait. “Make it 5, preferably fluorine-free.” Update the prompt and wait again. “Confirmed, generate now.” Invoke the current LLM with the approved prompt, generate the structures, and verify every proposal.
-- **Reuse:** “Use my selected saved rule to directly generate and verify 20 candidates.” Reuse the explicit selection and run the direct mode without extra confirmation.
-- **Continue elsewhere:** “Load this saved rule bundle and continue.” Import it, then let the user choose the relevant saved rule and tier.
+- Python/RDKit 因签名、导入或执行权限失败时，继续尝试兼容环境；仍失败则保留提案并标为待核验。未运行解析不等于 SMILES 无效，也不是零入选。
+- 分别统计实际生成、完成解析、结构有效和规则匹配的数量，说明真正阻塞的步骤。
+- 规则匹配不等于实测物性达标，不编造物性值或保证生成通过率。
+- 用户可以说“接下来可以做什么”，也可直接继续筛选、生成或载入规则包。数字只有在当前对话确实给过编号时才作为指代。
 
-Rule matching and property attainment are distinct. Report proposed structures as pending verification if the platform cannot run the exact calculation. Never invent measured properties or guaranteed generation yields for examples.
+## English requests
 
-当前开源目录提供12任务的Top10/20/30两方法主推与备选。新归纳默认按结构分组5折×3次比较STCA与WRAcc，分别回筛原表、保存模型/完整prompt并返回菜单；15/25等自定义档位可用自己的数据学习，不能冒称已有新版内置规则。
+- **Learn:** “Learn high-density rules from this RadonPy dataset, return screening results and save the rules.” Use the `smiles` and `density` columns, g/cm³ and computed-label meaning; return independent methods and numerical cutoffs.
+- **Reuse:** “Use the recommended Top 20% rule just saved to screen this new candidate table.” Read the actual files, apply the selected rule and retain all original inputs.
+- **Preview:** “Use the STCA-paper high-Tg Top 20% rule. Show the prompt for five repeat units first.” Display the complete prompt and wait for explicit confirmation.
+- **Direct:** “Generate and verify 20 polymer repeat units directly with the selected rule.” The current LLM generates; the calculation verifies. Preserve proposals as pending if verification cannot run.
+- **Continue elsewhere:** “Load this saved rule bundle and continue.” Import it, then resolve the intended saved target from the conversation.

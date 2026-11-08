@@ -2,8 +2,8 @@
   "schema": "stca-starter-tasks-v1",
   "version": "0.1.0",
   "menu_title": {
-    "zh-CN": "选择要做的事（回复 1、2 或 3，也可以直接说明目标）：",
-    "en": "Choose a task (reply 1, 2 or 3, or describe your goal):"
+    "zh-CN": "可以从以下事情开始，也可以直接告诉我目标：",
+    "en": "You can start with any of these tasks, or describe your goal:"
   },
   "tasks": [
     {
@@ -22,11 +22,13 @@
         "Read the uploaded polymer structures, target, units, direction and experimental/computed meaning; preserve original SMILES and select polymer_repeat_unit as the generation structure kind. Ask only for missing scientific information.",
         "Accept the user’s explicitly requested percentages, including arbitrary valid tiers such as 7%, 15% or 25%. Once the scientific target is clear, omitted percentages automatically use Top or Bottom 10%, 20% and 30%; do not ask the user to choose percentages before starting.",
         "With no explicit holdout protocol, run inrange_evaluation.py: transparent data preparation, protected structural-group CV (5 folds x 3 repeats), per-tier STCA and WRAcc comparison by AS, then full-data frozen rules. Use the source-only auto_screen.py route when the user has supplied source/holdout roles or requested a fixed extrapolation protocol.",
-        "Present each method and tier with exact cutoffs, CV mean/SD and full-data rule-application results as distinct outputs. Prefer WRAcc only when its CV AS exceeds STCA by more than 0.02; retain and deliver both methods. Method selection is not OR or AND fusion.",
-        "Always show a compact per-tier comparison table: Top/Bottom percentage, exact physical comparison, numeric cutoff and unit, both methods’ independent selected/unknown counts and CV AS, recommended method and reason. Keep full screening/failed-condition files for both methods; do not return only the winner or model-scale thresholds.",
+        "Present each method and tier with exact cutoffs, cross-validation mean and standard deviation and full-data rule-application results as distinct outputs. Prefer WRAcc only when its average cross-validation screening score exceeds STCA by more than 0.02; retain and deliver both methods. Define this score as the average of the Matthews correlation coefficient, precision and F1 score, summarized across validation folds. Method selection is not OR or AND fusion.",
+        "Always show a compact per-tier comparison table: Top/Bottom percentage, exact physical comparison, numeric cutoff and unit, both methods’ independent selected/unknown counts and the fully named average cross-validation screening score, recommended method and reason. Keep full screening/failed-condition files for both methods; do not return only the winner or model-scale thresholds.",
         "Return all original uploaded rows, original fields and molecular SMILES (including any original attachment points) for each requested method/tier, selected tables, full unmet rule conditions, unknown/no-rule states and input-preparation mapping. Deliver any independent candidate results separately.",
-        "Automatically save usable frozen models, exact constraints and complete bilingual prompts using the user rule library, export portable rule bundles, show friendly method-qualified names, then return to the main menu. Retain reports when no usable rule exists; never save empty conditions as an all-pass rule.",
-        "Describe CV from a globally prepared table as conditional on that preparation and scan policy, not an unbiased assessment of the complete preprocessing pipeline. Preserve explicit holdout boundaries and do not use heldout outcomes to tune settings."
+        "Automatically save usable frozen models, exact constraints and complete bilingual prompts using the user rule library, export portable rule bundles, show friendly method-qualified names, report actual saved file paths and continue the conversation without forcing a menu. Retain reports when no usable rule exists; never save empty conditions as an all-pass rule.",
+        "Describe CV from a globally prepared table as conditional on that preparation and scan policy, not an unbiased assessment of the complete preprocessing pipeline. Preserve explicit holdout boundaries and do not use heldout outcomes to tune settings.",
+        "The task IDs and numbers are internal routing compatibility fields, not a native app interface. Offer a short conversational overview only when needed; accept direct natural-language goals without requiring numeric input. Show the real saved file names and paths after a successful save, and do not claim a My rules tab exists.",
+        "Expand score names in user-facing reports: the average cross-validation screening score combines the Matthews correlation coefficient, precision and F1 score. Keep technical JSON field names internally; never expose CV AS as an unexplained user label."
       ],
       "ask_only_if_missing": [
         "labeled data file",
@@ -35,7 +37,7 @@
         "high or low direction",
         "experimental or computed label meaning"
       ],
-      "on_complete": "main_menu",
+      "on_complete": "continue_conversation",
       "default_tiers": [
         0.1,
         0.2,
@@ -118,18 +120,20 @@
         "The current open-data directory provides STCA and WRAcc rules as primary and alternative methods for each source/property/tier. Let the user select a method or accept the marked primary after choosing the target. Do not combine the alternative methods unless explicitly requested; a single rule contains AND literals.",
         "Honor user-defined percentages only when an exact frozen rule exists; never substitute a nearby tier or interpolate conditions/cutoffs. Once source, property and direction are clear, omitted percentages automatically apply the available exact Top/Bottom 10%, 20%, 30% defaults without another percentage question. Report any unavailable default tier. If the target is still unclear, offer target choices and wait; defaults do not choose a source or property.",
         "By default, return separate STCA and WRAcc results for every requested available tier, together with their recorded AS evidence, primary method and recommendation reason. Apply methods separately, not as an AND or OR. Honor an explicit request for only STCA or only WRAcc. If the user accepts the recommendation for subsequent use, adopt the marked per-tier primary without another method-confirmation question. Show Top/Bottom, physical comparison, numeric cutoff and unit; mark missing evidence or an unavailable alternative honestly.",
-        "If the user or conversation already unambiguously specifies the rules and tier, reuse that explicit selection directly. Otherwise display the grouped rule catalog (My rules, STCA paper, GAS, RadonPy, ADEPT → property → percentage) with concise evidence states, and wait for selection before screening or generation. Never select a default rule on the user’s behalf.",
+        "If the user or conversation already unambiguously specifies the rules and tier, reuse that explicit selection directly. Otherwise display the grouped rule catalog (saved rule files, STCA paper, GAS, RadonPy, ADEPT → property → percentage) with concise evidence states, and ask only for the missing target choice before screening or generation. An already explicit natural-language rule selection needs no menu or repeated confirmation.",
         "Keep the first rule directory compact: source, property, direction and available percentages. Show the selected rule physical cutoff, exact conditions and relevant evidence after selection; do not dump all model thresholds or benchmark tables at entry.",
         "Identify the uploaded candidate table and structure column from the file and conversation.",
         "Show readable dataset, property and percentage choices when a rule has not been selected; keep catalog IDs internal.",
         "For a built-in rule, resolve its frozen catalog conditions and use the library screen; for a saved user rule, read user_rule_library.py show and apply its saved model and tier with stca_tools.py screen-candidates. Return original SMILES and every failed condition.",
-        "Complete only the requested operation, then show the main menu while retaining uploaded files and saved rules."
+        "Complete the requested operation and any already authorized continuation; report the actual result and saved file paths, retain available files, and continue the conversation without claiming a native menu or saved-rule tab.",
+        "The task IDs and numbers are internal routing compatibility fields, not a native app interface. Offer a short conversational overview only when needed; accept direct natural-language goals without requiring numeric input. Show the real saved file names and paths after a successful save, and do not claim a My rules tab exists.",
+        "Expand score names in user-facing reports: the average cross-validation screening score combines the Matthews correlation coefficient, precision and F1 score. Keep technical JSON field names internally; never expose CV AS as an unexplained user label."
       ],
       "ask_only_if_missing": [
         "candidate file",
         "unambiguous property and frozen-rule choice"
       ],
-      "on_complete": "main_menu",
+      "on_complete": "continue_conversation",
       "rule_selection": {
         "required_before_execution": true,
         "show_grouped_catalog_if_missing": true,
@@ -220,14 +224,16 @@
         "The current open-data directory provides STCA and WRAcc rules as primary and alternative methods for each source/property/tier. Let the user select a method or accept the marked primary after choosing the target. Do not combine the alternative methods unless explicitly requested; a single rule contains AND literals.",
         "The selected exact frozen rule already defines its percentage. Do not implicitly expand generation to 10%, 20%, 30%. Honor user-defined percentages only when an exact frozen rule exists; if unavailable, offer a saved exact rule or learning from labelled data. If the user explicitly requests multiple tiers, prepare a separate session and prompt, generate and verify independently for every tier; never AND different tiers of the same property into a single prompt.",
         "If the user requests automatic method choice or accepts the recommendation, apply the marked per-tier primary method without another method-confirmation question. Honor an explicitly named STCA or WRAcc method. Show each selected tier as Top/Bottom, physical comparison, numeric cutoff and unit.",
-        "If the user or conversation already unambiguously specifies the rules and tier, reuse that explicit selection directly. Otherwise display the grouped rule catalog (My rules, STCA paper, GAS, RadonPy, ADEPT → property → percentage) with concise evidence states, and wait for selection before screening or generation. Never select a default rule on the user’s behalf.",
+        "If the user or conversation already unambiguously specifies the rules and tier, reuse that explicit selection directly. Otherwise display the grouped rule catalog (saved rule files, STCA paper, GAS, RadonPy, ADEPT → property → percentage) with concise evidence states, and ask only for the missing target choice before screening or generation. An already explicit natural-language rule selection needs no menu or repeated confirmation.",
         "Keep the first rule directory compact: source, property, direction and available percentages. Show the selected rule physical cutoff, exact conditions and relevant evidence after selection; do not dump all model thresholds or benchmark tables at entry.",
-        "Treat task 3 as a request to show and choose existing rules first unless the selection is already explicit. Do not start proposing structures until the user has chosen a rule.",
+        "Treat a general request to generate with existing rules as a request to show and choose existing rules first unless the selection is already explicit. Do not start proposing structures until the user has chosen a rule.",
         "Offer two generation modes when none was specified: preview the complete prompt, allow adjustments and wait for explicit confirmation; or generate directly and verify. An unambiguous natural-language request such as ‘直接生成’ or ‘generate directly’ already selects direct mode. Do not ask again, but never infer direct mode from the number 3 or the menu title alone.",
         "For saved user rules, read their exact constraints and complete prompts from user_rule_library.py show; for built-in rules, resolve the selected catalog item. Render the built-in generation template with the requested count and chemical preferences as necessary.",
         "Use generation_session.py prepare with the selected exact constraints and mode to preserve the complete prompt. In preview mode, display the full prompt without omissions, permit user adjustments, and stop before proposing or sampling any structures. Only after observing the user explicitly confirm the current prompt may the agent call generation_session.py confirm with the actual user wording. Any prompt revision clears approval and requires fresh confirmation.",
         "In direct mode, or after preview confirmation opens the session gate, invoke the current AI assistant on the prepared or approved complete prompt to actually generate the requested candidate structures. Then verify every original proposal with the same frozen rules and retain candidates, failures and counts. Writing a prompt file or reporting a dry run does not complete generation.",
-        "Complete only the requested operation, then show the main menu while retaining uploaded files and saved rules."
+        "Complete the requested operation and any already authorized continuation; report the actual result and saved file paths, retain available files, and continue the conversation without claiming a native menu or saved-rule tab.",
+        "The task IDs and numbers are internal routing compatibility fields, not a native app interface. Offer a short conversational overview only when needed; accept direct natural-language goals without requiring numeric input. Show the real saved file names and paths after a successful save, and do not claim a My rules tab exists.",
+        "If RDKit or a numerical dependency fails to import, report verification unavailable due to the runtime error. Keep generated proposals as generated_unverified; do not count them as invalid SMILES, zero coverage or zero rule matches. Report verified pass/fail counts only after successful per-structure computation."
       ],
       "ask_only_if_missing": [
         "unambiguous selected or learned rule",
@@ -271,9 +277,12 @@
         "prompt_file_alone_completes_generation": false,
         "implicit_multi_tier_generation": false,
         "explicit_multi_tier_request": "independent_sessions_per_tier",
-        "never_AND_same_property_different_tiers": true
+        "never_AND_same_property_different_tiers": true,
+        "runtime_failure_status": "generated_unverified",
+        "dependency_import_error_is_not_invalid_smiles": true,
+        "verification_counts_require_successful_computation": true
       },
-      "on_complete": "main_menu",
+      "on_complete": "continue_conversation",
       "rule_selection": {
         "required_before_execution": true,
         "show_grouped_catalog_if_missing": true,
@@ -341,12 +350,37 @@
     ]
   },
   "state_policy": {
-    "after_learning": "save_then_main_menu",
+    "after_learning": "save_report_actual_paths_then_continue_conversation",
     "retain_saved_rules_on_return": true,
     "retain_uploaded_files_on_return": true,
-    "explicit_combined_request": "finish_authorized_chain_then_main_menu",
+    "explicit_combined_request": "finish_authorized_chain_then_continue_conversation",
     "no_valid_rule": "report_unavailable_tiers_without_registering_an_empty_rule",
     "method_selection": "per_tier_STCA_or_WRAcc_primary; deliver_both_learning_outputs; accept_recommendation_without_reasking",
-    "percentage_selection": "learning: user_tiers_else_default_10_20_30; screening: user_tiers_else_available_default_10_20_30_after_target_choice; generation: selected_exact_rule_tier_no_implicit_expansion"
+    "percentage_selection": "learning: user_tiers_else_default_10_20_30; screening: user_tiers_else_available_default_10_20_30_after_target_choice; generation: selected_exact_rule_tier_no_implicit_expansion",
+    "native_menu_or_saved_rule_tab_required": false,
+    "overview_on_completion": "only_if_the_user_requests_it"
+  },
+  "interaction_policy": {
+    "interface": "current_llm_conversation",
+    "native_menu_or_saved_rule_tab_required": false,
+    "overview_when": "the_user_asks_what_can_be_done_or_the_goal_is_ambiguous",
+    "direct_request": "execute_the_requested_workflow_without_showing_a_menu_first",
+    "legacy_numeric_selection": "accepted_only_as_a_reference_to_choices_already_shown_in_the_conversation",
+    "completion": "report_actual_results_and_saved_file_paths_then_continue_the_conversation",
+    "saved_rules": "actual_workspace_files_or_imported_bundles; not_a_host_UI_tab",
+    "next_task_examples": {
+      "zh-CN": [
+        "用刚才保存的规则筛选这份候选表。",
+        "用刚才保存的规则直接生成 20 个候选并核验。"
+      ],
+      "en": [
+        "Screen this candidate table with the rules just saved.",
+        "Generate and verify 20 candidates directly with the rules just saved."
+      ]
+    }
+  },
+  "score_explanation": {
+    "zh-CN": "交叉验证平均筛选得分：先在各验证折计算马修斯相关系数、精确率和 F1 分数的平均值，再汇总各折；面向用户显示完整名称和三个组成指标，不单独使用 CV AS。",
+    "en": "Average cross-validation screening score: average the Matthews correlation coefficient, precision and F1 score within each validation fold, then summarize the folds. Show the full name and its components rather than the unexplained abbreviation CV AS."
   }
 }

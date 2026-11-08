@@ -125,8 +125,9 @@ class WorkBuddyPackageTests(unittest.TestCase):
         self.assertIn(b'--python',result.stdout)
         self.assertIn(b'ensure',result.stdout)
         result=self.invoke('run','--script','task_menu.py','--','--language','en',script=script)
-        for number in (b'1.',b'2.',b'3.'):
-            self.assertIn(number,result.stdout)
+        for task in (b'Upload my data and learn rules', b'Screen directly with existing rules', b'Generate directly with existing rules'):
+            self.assertIn(task,result.stdout)
+        self.assertNotRegex(result.stdout, rb'(?m)^[123]\.')
         # The dispatcher is functional, while the actual implementation stays
         # in the verified payload and is not replaced with a placeholder.
         runtime=Path(self.prepare()['runtime_skill_dir'])
@@ -174,8 +175,9 @@ class WorkBuddyPackageTests(unittest.TestCase):
     def test_menu_and_verbatim_prompt_from_unpacked_artifact(self):
         runtime=Path(self.prepare()['runtime_skill_dir'])
         menu=self.invoke('run','--script','task_menu.py','--').stdout.decode()
-        for number in [1,2,3]:
-            self.assertIn(f'{number}.',menu)
+        for task in ['上传自己的文件总结规则', '根据已有规则直接筛选', '根据已有规则直接生成']:
+            self.assertIn(task,menu)
+        self.assertNotRegex(menu, r'(?m)^[123]\.')
         catalog=json.loads((runtime/'assets/rule_library/catalog.json').read_bytes())
         entry=catalog['entries'][0]
         result=self.invoke('run','--script','rule_library.py','--','prompt',entry['id'],'--language','en')

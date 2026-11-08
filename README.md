@@ -17,15 +17,15 @@
 
 ## Start here
 
-STCA works with polymer structure–property data and repeat units. After installation, say **“Start STCA”** and choose a task below. See the [natural-language examples](docs/USAGE.md) for complete conversations:
+STCA works with polymer structure–property data and repeat units. After installation, say **“Start STCA”** or describe the task you want to complete. See the [natural-language examples](docs/USAGE.md) for complete conversations:
 
-| Choice | Goal | A short request |
+| Task | Goal | A short request |
 |---|---|---|
-| **1 · Upload data and learn rules** | Learn rules and return their screening results | “Learn high thermal-conductivity rules from this data.” |
-| **2 · Screen with existing rules** | Use bundled rules or your saved rules | “Screen this candidate table with existing rules.” |
-| **3 · Generate with existing rules** | Choose rules, then preview and confirm the prompt or generate directly | “Generate 20 candidates directly with this rule.” |
+| **Upload data and learn rules** | Learn rules and return their screening results | “Learn high thermal-conductivity rules from this data.” |
+| **Screen with existing rules** | Use bundled rules or your saved rules | “Screen this candidate table with existing rules.” |
+| **Generate with existing rules** | Choose rules, then preview and confirm the prompt or generate directly | “Generate 20 candidates directly with this rule.” |
 
-The complete task prompts are built in. The AI assistant reads files, offers relevant sources and asks only for missing information. When learning rules, omitted percentages use Top or Bottom **10%, 20% and 30%** automatically; you can specify any percentage strictly between 0% and 100%, such as **15% and 25%**. You do not enter rule IDs or manage Python. Calculations use a CPU and support Python 3.10 or later; generation uses your current AI assistant.
+STCA is a skill used by your AI assistant in the conversation. The task instructions are built in: describe what you need, attach your data when needed, and continue in natural language. The assistant reads files, offers relevant rules and asks only for missing information. When learning rules, omitted percentages use Top or Bottom **10%, 20% and 30%** automatically; you can specify any percentage strictly between 0% and 100%, such as **15% and 25%**. You do not enter rule IDs or manage Python. Calculations use a CPU and support Python 3.10 or later; generation uses your current AI assistant.
 
 ## Try a small example
 
@@ -37,81 +37,101 @@ Use the bundled fluorinated-candidate example. Screen it with the RadonPy high-d
 
 This example returns three structural-rule matches and two non-matches, preserving the original star-containing SMILES.
 
-**Learn rules from open data.** Download the [GAS Dataset A CSV](https://github.com/jsunn-y/PolymerGasMembraneML/blob/30981d71e1e3f12a057e009cd79f119bc659c7f5/datasets/datasetA_imputed_all.csv), upload it and ask:
+**Learn rules from open data.** Download [RadonPy’s PI1070 CSV](https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv), upload it and ask:
 
 ```text
-Learn high-CO₂-permeability rules from this measured data, in Barrer, for Top 10%, 20% and 30%. Automatically choose the data transform and scan step, return each tier's screening results and save the rules.
+Learn high-density rules from this RadonPy dataset, return the screening results and save the rules.
 ```
 
-The assistant uses the original measured `CO2` column, prepares the data, returns rules and screening results, then saves them under My rules. The Bayesian and Etree imputed columns are not used as measured labels.
+The assistant uses `smiles` for the polymer structures and `density` in g/cm³ for the calculated density. It prepares the data, chooses the data transform and scan step, and returns both methods’ rules and screening results for the default Top 10%, 20% and 30%. You can request other percentages.
 
 ## Save rules and continue
 
-With your own data, STCA automatically cleans unusable records, chooses data transforms and scan settings, and compares **STCA and WRAcc within your data range**. It returns both methods separately and names a primary and alternative for each tier, with the reason. The comparison uses **AS (Average Score), introduced and validated for screening evaluation in the author's [STCA paper](https://doi.org/10.1038/s41524-026-02345-x)**: `AS = (MCC + Precision + F1) / 3`. For evaluable comparisons, WRAcc becomes primary only when its CV AS exceeds STCA by more than 0.02. Say “Use the recommendation” to continue automatically, or specify either method.
+With your own data, STCA automatically cleans unusable records, chooses data transforms and scan settings, and compares **STCA and WRAcc within your data range**. It returns both methods separately and recommends one for each tier. The recommendation uses cross-validation: rules are repeatedly learned from part of the supplied data and evaluated on the remaining part. Its average screening score, introduced and validated in the author’s [STCA paper](https://doi.org/10.1038/s41524-026-02345-x), is the mean of the **Matthews correlation coefficient, precision and F1 score**; F1 combines precision and recall. The results explain the recommendation. Say “Use the recommended rule” to continue, or name either method. [Evaluation details](docs/USAGE.md).
 
 After learning, it returns **both methods’ rules and corresponding screening results for every tier**: the percentage and its **numeric physical cutoff, ≥/≤ comparison and unit**, original SMILES, selection decisions, every unmet rule condition and uncomputable records. Cutoffs use the original physical scale even when learning uses log10. Results always cover the original uploaded table; a separate candidate table receives its own results.
 
-The model, rules, physical cutoffs and complete bilingual generation prompts are saved under My rules. STCA shows the saved name and returns to the main menu. Choose **2** or **3** to reuse them.
+The assistant saves the model, rules, physical cutoffs and complete bilingual generation prompts as files, and reports their names and locations. Continue by saying **“Use the rules you just saved to screen this table”** or **“Use the saved high-density rule to generate 20 repeat units.”** Download the rule bundle for use in a new session or on another platform; availability of local files depends on the current workspace.
 
 ![STCA workflow](assets/workflow.en.svg)
 
-After you choose **3**, STCA **shows the available rule catalog first**, including bundled and loaded personal rules. Choose a source, property and percentage, then choose how to generate:
+When you ask to generate with existing rules, STCA **shows the available rule catalog first**, including bundled rules and saved rule bundles loaded in the conversation. Choose a source, property and percentage, then choose how to generate:
 
 - **Preview and confirm**: view the complete prompt, adjust the candidate count, structural preferences or output format, then say “Confirm and generate.” The current LLM generates only after your confirmation.
 - **Generate directly**: the current LLM uses the selected rules immediately to generate candidates and verify every proposal.
 
-Both modes return the original proposals, molecular SMILES, passed/failed decisions and every unmet rule condition, then return to the main menu. If your request already says “generate directly,” STCA uses that mode. Changes to the target or frozen rule conditions require choosing and confirming the corresponding rule. No additional LLM API setup is needed.
+Both modes return the original proposals and polymer SMILES, followed by the computed rule checks and unmet conditions. If calculation cannot run, the output identifies the proposals as awaiting verification. If your request already says “generate directly,” STCA uses that mode. Changes to the target or frozen rule conditions require choosing and confirming the corresponding rule. No additional LLM API setup is needed.
 
-Say **“Main menu”** or **“Back”** at any time. Returning preserves saved rules. To use them on another device or platform, download the rule bundle and upload it in the new session.
+You can continue with another task directly, or say **“What can I do next?”** to see the available actions. To reuse saved rules on another device or platform, upload the rule bundle in the new conversation.
 
 ## Download and install
 
-Install directly from GitHub or a downloaded package. Store listing links will be added after approval. See the [installation guide](docs/INSTALL.md) for the complete steps.
+Choose your platform below. The [installation guide](docs/INSTALL.md) includes environment behavior and alternative installation paths.
 
-| Platform | Install | Start |
+| Platform | Installation route | Start |
 |---|---|---|
-| **Codex** | Ask `$skill-installer` to install the [STCA skill folder](https://github.com/foukusa/stca-agent-skill/tree/main/skills/stca), or download the [Codex skill ZIP](downloads/stca-codex-0.1.0.zip?raw=true). | `Use $stca` |
-| **DeepSeek Harness** | Enter the GitHub URL in Add plugin, or use `dsh-plugin-stca` after its npm publication. See the plugin-center entry below. A [local skill ZIP](downloads/stca-deepseek-harness-0.1.0.zip?raw=true) is also available. | `/stca` |
-| **WorkBuddy** | Import the [WorkBuddy ZIP](downloads/stca-workbuddy-0.1.1.zip?raw=true) as a local skill. | Select STCA and say “Start STCA”. |
-| **ChatGPT desktop** | Use the [OpenAI skill ZIP](downloads/stca-openai-skill-0.1.0.zip?raw=true) with the skill installation options available in your app. | Select STCA. |
+| **Codex** | Install the GitHub skill folder or the [Codex ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-codex-0.1.0.zip?raw=true). | `Use $stca` |
+| **DeepSeek Harness** | Add the GitHub repository as a plugin; use the npm package name after publication. | `/stca` |
+| **WorkBuddy** | Import the [WorkBuddy ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.1.zip?raw=true). | “Start STCA” |
+| **ChatGPT** | Import the [OpenAI skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-openai-skill-0.1.0.zip?raw=true) using a client with skill installation support. | Select STCA or ask to use it. |
 
-In Codex, send:
+### Codex
+
+1. In Codex, send the installation request below.
+2. After installation, type `$stca` to select STCA, or send “Use $stca to screen this candidate table.” Attach the table when needed.
+3. For a manual installation, extract the Codex ZIP and put its complete `stca` folder at `~/.agents/skills/stca` (Windows: `%USERPROFILE%\.agents\skills\stca`). Keep `SKILL.md`, `scripts`, `references` and `assets` together.
 
 ```text
 Use $skill-installer to install https://github.com/foukusa/stca-agent-skill/tree/main/skills/stca
 ```
 
-In DeepSeek Harness, open **Plugins → Add plugin** and choose an installation source:
+### DeepSeek Harness
 
-| Source | Value or entry |
-|---|---|
-| **GitHub repository** | `https://github.com/foukusa/stca-agent-skill.git` |
-| **npm package name** | `dsh-plugin-stca` (available after npm publication) |
-| **Plugin center** | — (listing link will be added after publication) |
+1. Open **Plugins → Add plugin**, enter `https://github.com/foukusa/stca-agent-skill.git`, then install and enable the plugin.
+2. Enter `/stca` or say “Start STCA”. Describe your task and attach data where needed; continue in the same conversation.
+3. After the npm package is published, the Add plugin field also accepts `dsh-plugin-stca`. Alternatively, download the [plugin TGZ](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz?raw=true) and enter its complete local path.
 
-<!-- DSH_PLUGIN_CENTER_URL: add the actual listing URL after publication. -->
-
-You can also download the [plugin TGZ](downloads/dsh-plugin-stca-0.1.0.tgz?raw=true) and enter its full local path in Add plugin. After installation and activation, enter `/stca`.
-
-For GitHub installation with the DSH CLI and the `web` profile:
+CLI installation with the `web` profile:
 
 ```bash
 dsh plugin --profile web add github:foukusa/stca-agent-skill
 ```
 
-After the npm package is published, install by package name:
+After npm publication:
 
 ```bash
 dsh plugin --profile web add dsh-plugin-stca
 ```
 
-`web` is an example profile; replace it with the profile you use. The [DSH guide](README.DSH.md) covers installation, first use, permissions and licensing. STCA needs access to the files you select, an output directory and local command execution. Dependency preparation can contact PyPI and the author's public code repository; generation uses the current DSH conversation's LLM. Conda is optional.
+Replace `web` with the profile you use. A downloaded [DSH skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip?raw=true) is a different installation route: extract it and place the complete `stca` folder in your DSH skill root, normally `~/.dsh/skills/stca`, with the filesystem skill provider enabled. See the [DSH guide](README.DSH.md).
 
-The first calculation automatically looks for and checks a suitable local Python environment. A Python path is an optional fallback, not an installation requirement. See [environment behavior](docs/INSTALL.md#calculation-environment). Codex can use the standalone skill immediately; a public OpenAI directory listing is a separate publication route.
+Plugin-center link: — (to be added after listing).
+
+<!-- DSH_PLUGIN_CENTER_URL: add the actual listing URL after publication. -->
+
+### WorkBuddy
+
+1. Download `stca-workbuddy-0.1.1.zip` from the table above.
+2. Open WorkBuddy’s skill management page and choose the action to add/upload a local skill package. Select the ZIP directly, complete import and enable **STCA Polymer Rules and Design**.
+3. Say “Start STCA”, attach your file, then describe whether you want to learn rules, screen candidates or generate repeat units.
+
+The marketplace installation link will be added after approval and publication.
+
+### ChatGPT
+
+1. Download `stca-openai-skill-0.1.0.zip` from the table above.
+2. In a ChatGPT client that supports skill installation, use its import option or upload the package and ask to install the STCA skill.
+3. Once STCA appears among the available skills, select it or say “Use STCA to screen this table.” Calculations require file access and code execution in that client. If skill installation is unavailable in your client, use one of the other platforms above.
+
+### Downloading the files
+
+The ZIP and TGZ links point to versioned files under the repository’s [`downloads` folder](https://github.com/foukusa/stca-agent-skill/tree/main/downloads). You can also open the [repository homepage](https://github.com/foukusa/stca-agent-skill), choose **Code → Download ZIP**, and extract it. The source contains `skills/stca`; platform packages are under `downloads` when included in that repository version. A source ZIP is extracted before folder-based installation; WorkBuddy’s upload accepts its platform ZIP directly.
+
+At the first calculation, STCA looks for and checks a suitable local Python environment. You can use ordinary Python or a virtual environment; Conda is optional. The assistant needs access to your selected files, an output directory and local command execution. Preparing missing dependencies may access PyPI and the author’s public code repository; generation uses the current conversation’s LLM. See [environment behavior](docs/INSTALL.md#calculation-environment).
 
 ## Existing rules and generation prompts
 
-The [rule and prompt directory](docs/RULE_LIBRARY.md) offers **source → property → percentage** choices. My rules contains the results learned from your own data. The open-data library covers **12 tasks**, each with Top **10%, 20% and 30%** and primary/alternative rules from two methods. Frozen Tg and electrical-conductivity rules from the author’s STCA paper are also included.
+The [rule and prompt directory](docs/RULE_LIBRARY.md) offers **source → property → percentage** choices. You can also load a rule bundle learned from your own data. The open-data library covers **12 tasks**, each with Top **10%, 20% and 30%** and primary/alternative rules from two methods. Frozen Tg and electrical-conductivity rules from the author’s STCA paper are also included.
 
 | Source | Properties |
 |---|---|

@@ -15,27 +15,28 @@
 
 ## Choose a package
 
-Use a direct installation below. Store listing links will be added after the corresponding review and publication are complete.
+Choose your platform below. Download files are also available in the repository’s [downloads folder](https://github.com/foukusa/stca-agent-skill/tree/main/downloads): open a file and choose **Download raw file**. Alternatively, use **Code → Download ZIP** on the [repository home](https://github.com/foukusa/stca-agent-skill) and find the release files under `downloads`. WorkBuddy’s marketplace link will be added after publication.
 
 | Platform | Download |
 |---|---|
-| Codex | [stca-codex-0.1.0.zip](../downloads/stca-codex-0.1.0.zip?raw=true) |
-| DeepSeek Harness: local skill | [stca-deepseek-harness-0.1.0.zip](../downloads/stca-deepseek-harness-0.1.0.zip?raw=true) |
-| DeepSeek Harness: plugin | [dsh-plugin-stca-0.1.0.tgz](../downloads/dsh-plugin-stca-0.1.0.tgz?raw=true) |
-| WorkBuddy | [stca-workbuddy-0.1.1.zip](../downloads/stca-workbuddy-0.1.1.zip?raw=true) |
-| ChatGPT desktop | [stca-openai-skill-0.1.0.zip](../downloads/stca-openai-skill-0.1.0.zip?raw=true) |
+| Codex | [stca-codex-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-codex-0.1.0.zip?raw=true) |
+| DeepSeek Harness: local skill | [stca-deepseek-harness-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip?raw=true) |
+| DeepSeek Harness: plugin | [dsh-plugin-stca-0.1.0.tgz](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz?raw=true) |
+| WorkBuddy | [stca-workbuddy-0.1.1.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.1.zip?raw=true) |
+| ChatGPT desktop | [stca-openai-skill-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-openai-skill-0.1.0.zip?raw=true) |
 
 All STCA tasks accept natural language. The assistant handles calculation-environment discovery; you do not need to enter a Python path during installation.
 
 ## Codex
 
-**Install from GitHub.** In Codex, send:
+1. Open a Codex conversation.
+2. For GitHub installation, send:
 
 ```text
 Use $skill-installer to install https://github.com/foukusa/stca-agent-skill/tree/main/skills/stca
 ```
 
-**Or install the ZIP.** Download and extract `stca-codex-0.1.0.zip`. Put its complete `stca` folder in your personal skill directory:
+3. Alternatively, download and extract `stca-codex-0.1.0.zip`. Put its complete `stca` folder in your personal skill directory:
 
 ```text
 ~/.agents/skills/stca/SKILL.md
@@ -43,13 +44,13 @@ Use $skill-installer to install https://github.com/foukusa/stca-agent-skill/tree
 
 For use only in one project, put the same folder at `.agents/skills/stca` inside that project. On Windows, the personal location is `%USERPROFILE%\.agents\skills\stca`. Keep the scripts, references and assets beside `SKILL.md`; do not copy only the Markdown file.
 
-Open `/skills` or type `$stca` to select STCA, then send:
+4. Open `/skills` or type `$stca` to select STCA, then send:
 
 ```text
 Use $stca. Start STCA.
 ```
 
-This installs the local skill for Codex; no OpenAI directory submission is needed to use it. A future public plugin listing is a separate distribution route. See the [official OpenAI skill guide](https://learn.chatgpt.com/docs/build-skills).
+See the [official skill guide](https://learn.chatgpt.com/docs/build-skills) for Codex’s skill-discovery behavior.
 
 ## DeepSeek Harness
 
@@ -57,11 +58,15 @@ Choose **Git installation** or **downloaded skill ZIP**. Both make STCA availabl
 
 ### Git installation
 
-In **Plugins → Add plugin**, enter this repository address, install and enable STCA:
+1. Open **Plugins → Add plugin**.
+2. Enter this repository address and install the plugin:
+
 
 ```text
 https://github.com/foukusa/stca-agent-skill.git
 ```
+
+3. Enable STCA in the profile you use and enter `/stca`.
 
 With the DSH CLI and the `web` profile, the equivalent source installation is:
 
@@ -91,7 +96,7 @@ Plugin-center link: — (to be added after listing).
 
 ### Downloaded skill ZIP
 
-1. Download [stca-deepseek-harness-0.1.0.zip](../downloads/stca-deepseek-harness-0.1.0.zip?raw=true) and extract it.
+1. Download [stca-deepseek-harness-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip?raw=true) and extract it.
 2. Copy the complete `stca` folder into the DSH user skill root. With the default DSH home, the result is `~/.dsh/skills/stca/SKILL.md`. For a project-only skill, use `.dsh/skills/stca` under the project root. A custom DSH home or skill-root setting takes precedence.
 3. Keep `scripts`, `references` and `assets` with `SKILL.md`. The filesystem skill provider must be enabled in the selected DSH profile.
 4. Enter `/stca` or say “Start STCA”.
@@ -100,7 +105,7 @@ A local skill ZIP is installed by placing the extracted folder, not by pasting t
 
 ### Downloaded plugin TGZ
 
-If you prefer Add plugin without Git, download [dsh-plugin-stca-0.1.0.tgz](../downloads/dsh-plugin-stca-0.1.0.tgz?raw=true) and enter that file's full local path in Add plugin. For a CLI installation, run from the folder containing the download:
+If you prefer Add plugin without Git, download [dsh-plugin-stca-0.1.0.tgz](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz?raw=true) and enter that file's full local path in Add plugin. For a CLI installation, run from the folder containing the download:
 
 ```bash
 dsh plugin --profile web add ./dsh-plugin-stca-0.1.0.tgz
@@ -114,7 +119,7 @@ See the [official plugin installation guide](https://github.com/deepseek-ai/deep
 
 1. Open [WorkBuddy](https://www.workbuddy.cn/) and its skill management page.
 2. Choose the action for adding and uploading a local skill package.
-3. Select [stca-workbuddy-0.1.1.zip](../downloads/stca-workbuddy-0.1.1.zip?raw=true) directly, complete import and enable **STCA Polymer Rules and Design**. Do not extract it or wrap it in another folder before uploading.
+3. Select [stca-workbuddy-0.1.1.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.1.zip?raw=true) directly, complete import and enable **STCA Polymer Rules and Design**. Do not extract it or wrap it in another folder before uploading.
 4. Say “Start STCA”.
 
 The package includes its referenced startup resources and logo in the upload layout. The public marketplace installation link will be added after review and publication.
@@ -123,22 +128,26 @@ See [official WorkBuddy instructions](https://www.workbuddy.cn/docs/workbuddy/Fr
 
 ## ChatGPT desktop
 
-The [OpenAI skill ZIP](../downloads/stca-openai-skill-0.1.0.zip?raw=true) contains the same STCA workflow as the Codex skill ZIP. Use the skill creation/import options available in your desktop app, then select STCA. For a future public plugin listing, use the supported plugin installation surface when its listing is available. See the [official skill guide](https://learn.chatgpt.com/docs/build-skills) and [plugin guide](https://learn.chatgpt.com/docs/plugins).
+1. Download the [OpenAI skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-openai-skill-0.1.0.zip?raw=true).
+2. If your ChatGPT desktop app provides local skill creation/import, import the ZIP there and enable STCA. Availability depends on your app and account.
+3. Select STCA and describe the task. Calculations need file access and a command-execution environment; an ordinary file attachment alone does not install or execute the skill.
+
+The OpenAI skill ZIP and Codex skill ZIP contain the same STCA workflow. If local skill import is unavailable in your ChatGPT app, use the Codex installation above. See the [official skill guide](https://learn.chatgpt.com/docs/build-skills).
 
 ## Calculation environment
 
-At the first calculation, the assistant automatically discovers a suitable local Python environment and checks the dependencies needed by your task. It can reuse an existing RDKit environment, including a discovered Conda environment, and remembers a successful choice. If dependencies are missing, it prepares a separate environment when the platform allows it; your existing environments are not modified.
+Calculations support CPU execution with Python 3.10 or later; Conda is optional. At the first calculation, the assistant automatically discovers a suitable local Python environment and checks the dependencies needed by your task. It can reuse an existing RDKit environment, including a discovered Conda environment, and remembers a successful choice. If dependencies are missing, it prepares a separate environment when the platform allows it; your existing environments are not modified.
 
 You normally do not fill in any Python path. To use a particular environment, say “Use the Python interpreter at this path” and provide it. That explicit choice is checked and retained; a failure is explained instead of silently selecting another interpreter. If automatic discovery and preparation cannot complete, the assistant reports the specific missing requirement.
 
-Reading existing rules and prompts does not require RDKit. Structural screening and exact verification require RDKit; learning rules also needs the numerical analysis dependencies. Calculations use a CPU. Generation uses the current AI assistant and needs no separate LLM API configuration.
+Reading existing rules and prompts does not require RDKit. Structural screening and exact verification require RDKit; learning rules also needs the numerical analysis dependencies. Calculations use a CPU. Generation uses the current AI assistant and needs no separate LLM API configuration. If the computation environment fails, generated proposals remain unverified. That environment failure is not a SMILES parsing result or evidence of zero rule matches.
 
 ## Save and continue
 
-The menu order is **1 Upload data and learn, 2 Screen with existing rules, 3 Generate with existing rules**.
+STCA works through the LLM conversation. You can directly request learning, screening or generation; if the task is unclear, the assistant explains these options and asks what you want to do.
 
-- Task 1 returns STCA and WRAcc rules separately, with each tier's numeric physical cutoff, comparison, unit, screening results and recommendation. If percentages are omitted, it uses Top or Bottom 10%, 20% and 30%; you can specify other percentages, such as 15% or 25%. Results preserve the original table, polymer SMILES, unmet rule conditions and uncomputable records. The rules are saved before returning to the menu.
-- Task 2 screens uploaded candidates with bundled rules or My rules. The two methods' results remain separate, and the recommended method is clearly identified.
-- Task 3 first shows the rule catalog. After selecting a rule, choose **Preview and confirm** to review and adjust the complete prompt before saying “Confirm and generate,” or **Generate directly** to have the current LLM generate and verify immediately. Both modes preserve every proposal and unmet rule condition, then return to the menu.
+- **Learn from data:** receive separate STCA and WRAcc rules and screening results, each tier's physical cutoff, comparison, unit and recommendation. Defaults are Top or Bottom 10%, 20% and 30%; custom percentages are supported. The assistant saves reusable rule files and reports their actual location.
+- **Screen with rules:** ask for relevant bundled rules, or refer to the files saved earlier. The assistant lists sources and targets when a choice is needed.
+- **Generate with rules:** select a rule in conversation, then ask to preview and confirm the prompt or to generate directly. The current LLM produces the proposals; calculation tools verify their structures and rule conditions.
 
-Copy a short request from the [natural-language examples](USAGE.md). “Main menu” or “Back” preserves saved rules. To change sessions or platforms, download the rule bundle and upload it in the new session, then ask the assistant to load it.
+Continue the conversation with **“Screen these candidates with the rules just saved”** or **“Generate with those rules.”** To switch sessions or platforms, download the rule bundle and upload it in the new session. See the [natural-language examples](USAGE.md).

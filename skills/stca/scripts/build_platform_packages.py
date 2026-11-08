@@ -149,17 +149,15 @@ WorkBuddy package version **{{PACKAGE_VERSION}}**. Keep original polymer SMILES,
 If no execution tool or Python is available, explain the actual missing
 capability; do not claim that preparation or screening has completed.
 
-## Start and return
+## Continue the conversation
 
-用户说“开始使用 STCA”时，按完整执行说明展示：
-
-1. 上传自己的文件总结规则，并给出对应筛选结果、保存规则。
-2. 根据已有规则直接筛选。
-3. 根据已有规则直接生成，并逐条核验。
-
-任务已明确时直接继续。生成先选择规则，再按用户选择预览、调整并确认
-prompt 后调用当前 LLM，或直接生成并核验。完成后返回主菜单，保留已保存
-规则。其他默认百分比、STCA/WRAcc 双结果和推荐标准均遵循准备后的完整说明。
+直接理解并执行用户的自然语言目标：从上传数据学习并筛选、用已有规则筛选，
+或调用当前 LLM 按规则生成。目标不明确时才简短说明这些可选操作。
+不要求固定编号菜单或平台“我的规则”页面。保存成功后显示真实文件位置和规则包，
+用户接着说“用刚保存的规则筛选”或“按刚才的规则生成”即可。生成按用户选择
+预览、调整并确认 prompt 后调用当前 LLM，或直接生成并核验。无法运行计算时
+保留提案并标为待核验，不能把依赖导入失败计为无效结构或零通过。
+默认百分比、STCA/WRAcc 双结果和推荐标准均遵循准备后的完整说明。
 '''
     return (frontmatter(meta) + body.replace("{{PACKAGE_VERSION}}", meta["package_version"])).encode("utf-8")
 

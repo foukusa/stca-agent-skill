@@ -26,7 +26,7 @@ PY SKILL_DIR/scripts/agent_runtime.py run --script inrange_evaluation.py -- --st
 PY SKILL_DIR/scripts/agent_runtime.py run --script auto_screen.py -- --structure-kind polymer_repeat_unit --input materials.csv --target TC --unit "W/(m K)" --direction high --tiers 0.10,0.15,0.20 --role-column Role --source-value source --evaluation-value holdout --smiles-column SMILES --output-dir out/heldout
 ```
 
-该路径自动返回upload_screening的全档长表、summary和每档results/selected；随后逐档export-rules→user_rule_library save/export，并返回主菜单。固定参数或论文精确成员用custom_fit并同样补齐筛选和保存。不要用另一种评价改写明确协议。
+该路径自动返回upload_screening的全档长表、summary和每档results/selected；随后逐档export-rules→user_rule_library save/export，并继续当前对话。固定参数或论文精确成员用custom_fit并同样补齐筛选和保存。不要用另一种评价改写明确协议。
 
 ## 2 选择并筛选已有规则
 
@@ -38,7 +38,7 @@ PY SKILL_DIR/scripts/agent_runtime.py run --script rule_library.py -- screen RUL
 
 按用户来源、性质、档位与方法选择，允许接受标出的主推。两种方法是备选关系：比较时分别screen，不将同一目标主备自动AND。不同性质的明确联合请求才给选定规则交集。用户明确要求同目标方法交集时才使用--allow-method-intersection。
 
-读取“我的规则”：
+读取实际保存的用户规则目录（不是平台页面）：
 
 ```text
 PY SKILL_DIR/scripts/user_rule_library.py --library-dir USER_RULES_DIR list
@@ -50,7 +50,7 @@ PY SKILL_DIR/scripts/agent_runtime.py run --script stca_tools.py -- screen-candi
 
 ## 3 选规则后生成
 
-用户只选3时先给简洁目录并等待选择。目录包含我的规则、论文、GAS、RadonPy、ADEPT，先列性质和可用档位，选中后才展开主推/备选、阈值与条件。不能自动替用户改性质、档位或方法；指代明确时直接执行，仍有多档/多方法时只补问缺失选择。
+用户请求生成但尚未选定目标时，先给简洁目录并等待选择。目录包含当前可读的已保存规则、论文、GAS、RadonPy、ADEPT，先列性质和可用档位，选中后才展开主推/备选、阈值与条件。不能自动替用户改性质、档位或方法；指代明确时直接执行，仍有多档/多方法时只补问缺失选择。
 
 ```text
 PY SKILL_DIR/scripts/rule_library.py prompt RULE_ID --language zh-CN
@@ -63,7 +63,7 @@ PY SKILL_DIR/scripts/generation_prompt.py --structure-kind polymer_repeat_unit -
 
 当`generation_allowed=true`时，当前AI助手必须读取最终批准的完整prompt并实际生成SMILES，保存全部提案，连续执行同一冻结规则的精确核验，交付通过表与每条未满足的规则条件。确认或准备脚本本身没有调用LLM，不能据此声称已生成。用户只要prompt时交付完整可复制文本；不用执行生成链路。明确显示STCA或WRAcc，规则匹配不当作物性预测。
 
-## 保存与返回
+## 保存与继续对话
 
 新默认流程自动保存两方法。其他路径仍可：
 
@@ -73,4 +73,6 @@ PY SKILL_DIR/scripts/user_rule_library.py --library-dir USER_RULES_DIR export SA
 PY SKILL_DIR/scripts/user_rule_library.py --library-dir USER_RULES_DIR import --input my_rules.zip
 ```
 
-检查成功后交付友好名称和下载包，平台有持久文件能力时自动保存，再显示主菜单。用户可继续选2/3；新会话/跨平台导入包继续。无条件项不能作为有效规则保存，用户数据不写回skill安装目录。
+检查成功后交付真实文件名、保存路径和下载包。用户可直接说“用刚才的规则筛选”或“按刚才的规则生成”；新会话/跨平台导入包继续，不承诺临时文件自动持久保存。无条件项不能作为有效规则保存，用户数据不写回skill安装目录。
+
+计算状态必须来自实际运行。RDKit 导入、macOS 签名或执行权限失败时不能把未解析提案记作无效 SMILES、零入选或零覆盖；保留错误并将提案标为待核验，自动尝试其他兼容环境。向用户显示交叉验证结果时，把 AS 解释为马修斯相关系数、精确率和 F1 分数的平均筛选评分，不能只给 CV AS 缩写。

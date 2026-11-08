@@ -20,8 +20,11 @@ class StarterTaskTests(unittest.TestCase):
         self.assertEqual(len(result.stdout.strip().splitlines()), 5)
         self.assertNotIn('screen_existing', result.stdout)
         self.assertNotIn('Python', result.stdout)
+        for title in ('上传自己的文件总结规则', '根据已有规则直接筛选', '根据已有规则直接生成'):
+            self.assertIn('- '+title, result.stdout)
         for number in (1, 2, 3):
-            self.assertIn(f'{number}. ', result.stdout)
+            self.assertNotIn(f'{number}. ', result.stdout)
+        self.assertNotIn('我的规则', result.stdout)
 
     def test_number_and_task_name_resolve_the_same_bilingual_workflow(self):
         expected = json.loads((SKILL/'assets/starter_tasks.json').read_text())
@@ -37,6 +40,26 @@ class StarterTaskTests(unittest.TestCase):
                 self.assertEqual(id_data['user_prompt'], task['user_prompt'][language])
                 if task['number'] == 3:
                     self.assertEqual(id_data['default_count'], 20)
+
+    def test_conversation_completion_and_scores_are_defined(self):
+        result = self.call('1', '--language', 'en')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        data = json.loads(result.stdout)
+        self.assertEqual(data['on_complete'], 'continue_conversation')
+        self.assertFalse(data['interaction_policy']['native_menu_or_saved_rule_tab_required'])
+        self.assertIn('Matthews correlation coefficient', data['score_explanation'])
+        self.assertIn('precision and F1', data['score_explanation'])
+
+    def test_direct_generation_keeps_one_rule_and_marks_runtime_failures_unverified(self):
+        result = self.call('3', '--rule', 'latest-pi-rho-stca-high-30', '--generation-mode', 'direct')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        data = json.loads(result.stdout)
+        self.assertIsNone(data['rule_options'])
+        self.assertEqual([r['id'] for r in data['selected_rules']], ['latest-pi-rho-stca-high-30'])
+        self.assertEqual(data['next_action'], 'generate_with_current_llm_then_verify')
+        self.assertTrue(data['generation_policy']['dependency_import_error_is_not_invalid_smiles'])
+        self.assertEqual(data['generation_policy']['runtime_failure_status'], 'generated_unverified')
+        self.assertLess(len(result.stdout), 25000)
 
     def test_invalid_or_conflicting_choices_are_not_silently_routed(self):
         for arguments in [('4',), ('missing',), ('1', '--task', '2')]:

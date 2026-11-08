@@ -223,7 +223,7 @@ def save_entry(root, name, model_path, constraint_paths, count=20, preferences="
     finally:
         if stage.exists():
             shutil.rmtree(stage)
-    return {"status": "saved", "next_action": "main_menu", "entry": show_entry(root, identifier)}
+    return {"status": "saved", "next_action": "continue_conversation", "entry": show_entry(root, identifier)}
 
 
 def _entry_path(root, identifier):

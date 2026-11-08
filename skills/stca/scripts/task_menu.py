@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read STCA's short built-in task choices without scientific dependencies."""
+"""Read STCA's conversational task overview without scientific dependencies."""
 from __future__ import annotations
 
 import argparse
@@ -12,7 +12,7 @@ TASKS_FILE = Path(__file__).resolve().parents[1] / "assets" / "starter_tasks.jso
 CATALOG_ROOT = TASKS_FILE.parent / "rule_library"
 RETURN_COMMANDS = {"返回", "上一级", "主菜单", "返回主菜单", "back", "main menu", "return", "menu", "0"}
 SOURCE_LABELS = {
-    "my_rules": {"zh-CN": "我的规则", "en": "My saved rules"},
+    "my_rules": {"zh-CN": "已保存的规则文件", "en": "Saved rule files"},
     "paper": {"zh-CN": "STCA 论文", "en": "STCA paper"},
     "gas": {"zh-CN": "GAS 实测数据", "en": "GAS measured data"},
     "radonpy": {"zh-CN": "RadonPy 计算数据", "en": "RadonPy computed data"},
@@ -26,7 +26,7 @@ EVIDENCE_LABELS = {
     "no_reference_coverage": ("已评估数据中零覆盖", "Zero coverage in reference data"),
     "no_demonstrated_enrichment": ("尚未显示富集", "Enrichment not demonstrated"),
     "reference_inconclusive": ("证据不足", "Inconclusive evidence"),
-    "user_saved_rule": ("我的冻结规则", "My frozen rule"),
+    "user_saved_rule": ("已保存的冻结规则", "Saved frozen rule"),
     "inrange_cv_evaluated": ("范围内交叉验证", "In-range cross-validation"),
 }
 
@@ -37,7 +37,7 @@ def load_tasks(path=TASKS_FILE):
         raise ValueError("Invalid STCA starter-task schema.")
     tasks = data.get("tasks")
     if not isinstance(tasks, list) or len(tasks) != 3:
-        raise ValueError("The STCA starter menu must contain three tasks.")
+        raise ValueError("The STCA workflow catalog must contain three tasks.")
     if [t.get("number") for t in tasks] != [1, 2, 3]:
         raise ValueError("STCA task numbers must be 1, 2 and 3.")
     if len({t.get("id") for t in tasks}) != 3:
@@ -165,12 +165,12 @@ def rule_options(directory, language="zh-CN", catalog_root=CATALOG_ROOT):
 
 def display_rules(options):
     zh = options["language"] == "zh-CN"
-    print("请先选择规则来源、性质和百分比；例如“GAS，CO₂ 渗透率，Top 10%”。" if zh else
-          'Choose a rule source, property and percentage, for example "GAS, CO2 permeability, Top 10%".')
+    print("请选择规则来源、性质和百分比；例如“RadonPy，高密度，Top 30%”。" if zh else
+          'Choose a rule source, property and percentage, for example "RadonPy, high density, Top 30%".')
     for group in options["groups"]:
         print(f"\n{group['title']}")
         if not group["properties"]:
-            print("- 暂无已保存规则，可先选择 1 总结规则。" if zh else "- No saved rules yet; choose task 1 to learn rules first.")
+            print("- 暂无已保存规则，可上传有标签的数据总结规则。" if zh else "- No saved rules yet; upload labelled data to learn rules.")
         for prop in group["properties"]:
             tail = "Top" if prop["direction"] == "high" else "Bottom"
             def label(item):
@@ -248,9 +248,9 @@ def generation_plan(task, mode, selected_rules, language):
 def display_menu(data, language, saved):
     print(data["menu_title"][language])
     for task in data["tasks"]:
-        print(f"{task['number']}. {task['title'][language]}")
+        print(f"- {task['title'][language]}")
     if saved["entries"]:
-        print("\n我的规则（可在 2、3 中选择）：" if language == "zh-CN" else "\nMy saved rules (available in tasks 2 and 3):")
+        print("\n已保存的规则文件（可继续筛选或生成）：" if language == "zh-CN" else "\nSaved rule files (available for screening or generation):")
         for entry in saved["entries"]:
             tail = "Top" if entry["direction"] == "high" else "Bottom"
             tiers = ", ".join(f"{tail} {tier*100:g}%" for tier in entry["tiers"])
@@ -258,8 +258,8 @@ def display_menu(data, language, saved):
     if saved["invalid_entries"]:
         print("部分已保存条目未通过完整性检查，暂不用于筛选或生成。" if language == "zh-CN" else
               "Some saved entries failed integrity checks and are unavailable for screening or generation.")
-    print("可说“返回”“上一级”或“主菜单”；已保存规则和上传文件会保留。" if language == "zh-CN" else
-          'Say "back" or "main menu" at any point; saved rules and uploaded files are retained.')
+    print("直接说明目标即可继续；也可要求重新显示任务。" if language == "zh-CN" else
+          'Describe your next goal to continue, or ask to show the task overview again.')
 
 
 def main(argv=None):
@@ -314,13 +314,15 @@ def main(argv=None):
                           "percentage_policy": task["percentage_policy"],
                           "method_policy": task["method_policy"],
                           "required_summary_columns": task["required_summary_columns"],
-                          "on_complete": task.get("on_complete", "main_menu"),
+                          "on_complete": task.get("on_complete", "continue_conversation"),
+                          "interaction_policy": data.get("interaction_policy", {}),
+                          "score_explanation": data.get("score_explanation", {}).get(args.language),
                           "state_policy": data.get("state_policy", {}),
                           "saved_rules": saved["entries"],
                           "saved_rule_errors": saved["invalid_entries"],
                           "choice_required": rule_missing or generation.get("generation_mode_required", False),
                           "rule_choice_required": rule_missing,
-                          "rule_options": options,
+                          "rule_options": options if rule_missing else None,
                           "selected_rules": selected_rules,
                           "next_action": "choose_rule_and_wait" if rule_missing else "execute_requested_task",
                           **generation,
