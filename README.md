@@ -95,7 +95,7 @@ Choose your platform below. The [installation guide](docs/INSTALL.md) includes e
 | Platform | Installation route | Start |
 |---|---|---|
 | **Codex** | Install the GitHub skill folder or the [Codex ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-codex-0.1.0.zip). | `Use $stca` |
-| **DeepSeek Harness** | Download the plugin ZIP and add its extracted local plugin directory; use the npm name after publication. | `/stca` |
+| **DeepSeek Harness** | Enter the GitHub repository URL in Add plugin; npm publication is not required. | `/stca` |
 | **WorkBuddy** | Import the [WorkBuddy ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.1.zip). | “Start STCA” |
 | **ChatGPT** | Import the [OpenAI skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-openai-skill-0.1.0.zip) using a client with skill installation support. | Select STCA or ask to use it. |
 
@@ -111,22 +111,18 @@ Use $skill-installer to install https://github.com/foukusa/stca-agent-skill/tree
 
 ### DeepSeek Harness
 
-1. Download the repository’s [plugin ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.zip) using **Download raw file**, then extract it.
-2. Open **Plugins → Add plugin** and enter the complete local path to the extracted `dsh-plugin-stca-0.1.0` folder. That folder directly contains `package.json`, `dsh` and `skills`; keep its contents together.
-3. Install and enable the plugin, then enter `/stca` or say “Start STCA”, describe your task and attach data when needed.
-4. After npm publication, the Add plugin field also accepts `dsh-plugin-stca`.
+1. Open **Plugins → Add plugin**.
+2. Enter this **GitHub repository URL** and click Install:
 
-Source repository: [foukusa/stca-agent-skill](https://github.com/foukusa/stca-agent-skill). See [DSH installation](docs/INSTALL.md#deepseek-harness) for GitHub source and downloaded [TGZ](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz) CLI installation.
-
-To install directly from GitHub using the DSH CLI:
-
-```bash
-dsh plugin --profile web add 'dsh-plugin-stca@github:foukusa/stca-agent-skill'
+```text
+https://github.com/foukusa/stca-agent-skill.git
 ```
 
-Replace `web` with your profile. This named installation argument is for the CLI; the graphical interface uses the local plugin directory above.
+3. Enable STCA, then enter `/stca` or say “Start STCA”. Describe the task and attach data when needed.
 
-The separate [local skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip) uses manual folder installation: extract it and place the complete `stca` folder in the DSH skill root, normally `~/.dsh/skills/stca`, with the filesystem provider enabled. The plugin ZIP above is instead installed by giving Add plugin its extracted plugin-root directory. See the [DSH guide](README.DSH.md).
+**Installing from GitHub does not require npm publication.** DSH reads the plugin configuration and entry from the public repository. Entering only `dsh-plugin-stca` requires that package to have been published on npm; use the repository URL until then.
+
+If STCA is already listed, check and enable that entry instead of repeatedly adding it. See [DSH installation](docs/INSTALL.md#deepseek-harness) for installation errors, optional CLI use and the [plugin ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.zip) local-directory fallback. The separate [standalone skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip) is extracted into a DSH skill directory; it is different from the plugin root used by Add plugin. See the [DSH guide](README.DSH.md).
 
 Plugin-center link: — (to be added after listing).
 

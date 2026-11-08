@@ -4,7 +4,7 @@
 
 从聚合物结构与性质数据总结可读规则、筛选候选，或调用当前 AI 按规则生成聚合物重复单元。
 
-**DSH 包名：`dsh-plugin-stca` · 版本 0.1.0** · [English](https://github.com/foukusa/stca-agent-skill/blob/main/README.DSH.md)
+**版本 0.1.0** · [English](https://github.com/foukusa/stca-agent-skill/blob/main/README.DSH.md)
 
 ## 目录
 
@@ -17,36 +17,29 @@
 
 ## 安装与开始
 
-1. 打开本仓库的[插件 ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.zip)文件页，点击 **Download raw file** 下载，再解压。
-2. 在 DSH 打开 **插件 → 添加插件**，填写解压后插件文件夹的完整本地路径，例如：
+1. 在 DSH 打开 **插件 → 添加插件**。
+2. 在“包名、GitHub 仓库地址或本地目录路径”输入框中填写：
 
 ```text
-/Users/你的用户名/Downloads/dsh-plugin-stca-0.1.0
+https://github.com/foukusa/stca-agent-skill.git
 ```
 
-3. 确认该目录直接包含 `package.json`、`dsh` 和 `skills`，完成安装并启用 STCA，然后输入 `/stca`。
+3. 点击安装，完成后启用 STCA，再输入 `/stca` 或“开始使用 STCA”。
+
+**这是从 GitHub 仓库安装插件，无需先发布 npm 包。** 仓库中已提供 `package.json`、插件入口和完整 skill 资源。不要将 `dsh plugin ...` 命令粘贴到这个图形界面输入框。
 
 | 方式 | 在“添加插件”中填写 |
 |---|---|
-| 下载插件 ZIP 后安装 | 解压后的 `dsh-plugin-stca-0.1.0` 完整目录路径 |
-| npm 包名 | `dsh-plugin-stca`，npm 发布后可用 |
+| **GitHub 仓库，当前推荐** | `https://github.com/foukusa/stca-agent-skill.git` |
+| 下载插件 ZIP 后安装 | [插件 ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.zip)解压后，直接包含 `package.json` 的文件夹完整路径 |
+| npm 包名，发布后可用 | `dsh-plugin-stca` |
 | 插件中心 | —（上架后补充链接） |
 
 <!-- DSH_PLUGIN_CENTER_URL: add the actual listing URL after publication. -->
 
-[源码仓库](https://github.com/foukusa/stca-agent-skill)提供 GitHub 源码；[插件 TGZ](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz)也可供 CLI 安装。具体命令与安装报错处理见[安装说明](https://github.com/foukusa/stca-agent-skill/blob/main/docs/INSTALL.zh-CN.md#deepseek-harness)。
+已有 STCA 条目时先检查并启用；需要替换时，仅通过插件管理处理旧 STCA，保留数据、结果和保存的规则。 若重复添加 HTTPS 地址时出现依赖识别报错，可在同一输入框改填 `github:foukusa/stca-agent-skill`；这仍是 GitHub 来源，不要求 npm 发布。安装报错及可选 CLI 操作见[安装说明](https://github.com/foukusa/stca-agent-skill/blob/main/docs/INSTALL.zh-CN.md#deepseek-harness)。
 
-直接从 GitHub 安装可在 DSH CLI 执行：
-
-```bash
-dsh plugin --profile web add 'dsh-plugin-stca@github:foukusa/stca-agent-skill'
-```
-
-`web` 换成实际 profile。此带包名的参数用于 CLI；图形界面填写解压目录，避免将 CLI 参数作为包名查询。
-
-需要手动安装 skill 时，下载另一份 [skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip)，将解压得到的完整 `stca` 文件夹放入 DSH 的 skill 根目录；这个 `stca` 文件夹含 `SKILL.md`，与插件 ZIP 解压后含 `package.json` 的目录用途不同。
-
-启用后输入 **`/stca`**，或直接说 **“开始使用 STCA”**。
+本地目录方式是备选：打开插件 ZIP 文件页，点击 **Download raw file** 下载并解压，再填写完整目录路径。另有[独立 skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip)，用于手动放置含 `SKILL.md` 的完整 `stca` 文件夹，与插件目录的安装方式分开。
 
 ## 选择任务
 

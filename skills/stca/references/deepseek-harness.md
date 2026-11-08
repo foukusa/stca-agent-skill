@@ -2,13 +2,15 @@
 
 版本 **0.1.0**。安装并启用 STCA 后，在当前 DeepSeek Harness 对话中直接说明目标，由 LLM 读取 skill、管理文件及调用计算工具。
 
-## 插件包与安装方式
+## 从 GitHub 安装插件
 
-GUI 推荐使用仓库 `downloads/dsh-plugin-stca-0.1.0.zip`：解压后，在“添加插件”填写直接包含 `package.json` 的插件目录完整路径。`stca-deepseek-harness-0.1.0.zip` 是另一种独立 skill 文件夹包，不能当作 npm 插件根目录。
+在 DSH 的“插件 → 添加插件”输入框填写 `https://github.com/foukusa/stca-agent-skill.git`，安装并启用后输入 `/stca`。这是直接从 GitHub 获取插件，不要求预先发布 npm 包。仓库根目录需包含 `package.json`、`dsh` 和 `skills`；`/tree/main` 是网页路径，不作为安装地址。
 
-CLI 使用明确包名：`dsh plugin --profile web add 'dsh-plugin-stca@github:foukusa/stca-agent-skill'`；本地 TGZ 使用 `dsh-plugin-stca@file:/完整路径/dsh-plugin-stca-0.1.0.tgz`。这些命名参数仅用于 CLI，不填入 GUI 的 npm 包名栏。`web` 换为实际 profile。
+若重复安装出现“无法从依赖变更中确定安装了哪一个包”，先查看现有 STCA 条目；需要使用相同来源的规范写法时，可在同一输入框填写 `github:foukusa/stca-agent-skill`。它仍然是 GitHub 来源，不是 npm 包名。CLI 命令不填入这个输入框。
 
-“无法从依赖变更中确定安装了哪一个包”发生在 DSH 安装器识别包名阶段，尚未进入 STCA/Python；先检查是否已有 STCA 条目，已有则启用。需要替换时通过平台管理仅处理 STCA 插件，保留用户数据和规则，不盲目重复安装或修改计算代码。普通计算使用随包校验的作者代码，不再克隆 Git。
+本地方式作为备用：解压 `downloads/dsh-plugin-stca-0.1.0.zip`，输入直接包含 `package.json` 的插件目录完整路径。CLI 仅在用户选择终端方式时使用 `dsh plugin --profile web add 'dsh-plugin-stca@github:foukusa/stca-agent-skill'`；该命令同样从 GitHub 安装，无需 npm 发布。`web` 换为实际 profile。只有单独填写 `dsh-plugin-stca` 包名时，才需要先发布到 npm。
+
+安装报错发生于 DSH 包管理阶段，尚未进入 STCA/Python；不修改计算代码或反复盲目重装。需要替换旧版本时，通过平台管理仅处理 STCA 插件，保留用户数据和规则。普通计算使用随包校验的作者代码，不再克隆 Git。
 
 ## 调用与独立 skill 文件夹
 

@@ -56,76 +56,87 @@ Codex 如何发现和调用 skill，参见 [OpenAI 官方说明](https://learn.c
 
 ## DeepSeek Harness
 
-推荐在图形界面使用**插件 ZIP 解压后的本地目录**。也可通过 CLI 从 GitHub 或 TGZ 安装；手动 skill ZIP 另有独立路径。插件中心链接：—（上架后补充）。
+当前推荐在 **插件 → 添加插件** 中直接填写 GitHub 仓库地址。**GitHub 安装不需要先发布 npm 包**；DSH 从仓库根目录读取 `package.json`、插件入口和完整 skill。插件中心链接：—（上架后补充）。
 
 <!-- DSH_PLUGIN_CENTER_URL: add the actual listing URL after publication. -->
 
-### 图形界面安装插件
+### 用 GitHub 仓库地址安装
+
+1. 在 DSH 打开 **插件 → 添加插件**。
+2. 填写下面的完整仓库地址，点击安装：
+
+```text
+https://github.com/foukusa/stca-agent-skill.git
+```
+
+3. 安装并在当前 profile 启用 STCA，然后输入 `/stca` 或“开始使用 STCA”。
+
+填写仓库地址，不使用 `/tree/main` 浏览页面，也不把终端命令粘贴进输入框。尚未发布 npm 时继续使用这个 GitHub 入口；只有直接填写 npm 包名 `dsh-plugin-stca` 才要求该包已在 npm 发布。
+
+### 可选：下载插件 ZIP 后按本地目录安装
 
 1. 下载 [dsh-plugin-stca-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.zip)，在仓库文件页点击 **Download raw file**，然后解压。
-2. 打开 **插件 → 添加插件**，填写解压后插件文件夹的完整本地路径，例如：
+2. 在 **插件 → 添加插件** 中填写解压后插件文件夹的完整路径，例如：
 
 ```text
 /Users/你的用户名/Downloads/dsh-plugin-stca-0.1.0
 ```
 
-3. 打开该文件夹，确认它直接包含 `package.json`、`dsh` 和 `skills`。这是要交给“添加插件”的插件根目录。
-4. 安装后，在当前 profile 中启用 STCA，输入 `/stca`。
+3. 该目录应直接包含 `package.json`、`dsh` 和 `skills`。安装并启用后输入 `/stca`。
 
-请使用实际用户名和解压位置。Finder 中可按住 Option 键右键点击文件夹，选择拷贝路径名称，再粘贴到输入框。
+也可在[源码仓库](https://github.com/foukusa/stca-agent-skill)选择 **Code → Download ZIP**，解压后填写直接包含 `package.json` 的仓库根目录路径。使用实际用户名和解压位置。
 
-### GitHub 源码与 CLI
+### 可选：CLI 从 GitHub 安装
 
-源码仓库是 [foukusa/stca-agent-skill](https://github.com/foukusa/stca-agent-skill)。也可用 **Code → Download ZIP** 获取源码，解压后将直接包含 `package.json` 的仓库根目录交给“添加插件”。GitHub 的 `/tree/main` 页面是浏览地址，不能作为插件文件夹路径。
-
-直接从 GitHub 安装时，在 DSH CLI 执行带明确包名的命令：
+使用终端中的 DSH CLI 时，可以明确指定包名与 GitHub 来源：
 
 ```bash
 dsh plugin --profile web add 'dsh-plugin-stca@github:foukusa/stca-agent-skill'
 ```
 
-该参数用于 CLI；图形界面按上面的步骤填写本地插件目录。不要把 `dsh-plugin-stca@github:…` 整段填入图形界面的包名输入框。
+**这条命令仍从 GitHub 安装，不需要 npm 发布。** `plugin` 是 DSH 的命令名称，`@github:...` 指定 GitHub 来源。`web` 换成实际 profile。这是终端命令，不放进图形界面的输入框；图形界面按上面的仓库地址安装。
 
-### npm 包名安装
+### npm 包名：发布后可用
 
-npm 发布完成后，在 **插件 → 添加插件** 填写：
+只有 npm 发布成功后，才在 **插件 → 添加插件** 中填写：
 
 ```text
 dsh-plugin-stca
 ```
 
-CLI 对应命令为：
+对应的 CLI 命令是 `dsh plugin --profile web add dsh-plugin-stca`。插件中心链接取得后再补充，不将 npm 未发布误写成 GitHub 无法安装。
 
-```bash
-dsh plugin --profile web add dsh-plugin-stca
-```
-
-`web` 换成实际使用的 profile。插件中心入口暂留空，取得实际公开链接后补充。
-
-### 下载 skill ZIP
+### 下载独立 skill ZIP
 
 1. 下载 [stca-deepseek-harness-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip) 并解压。
-2. 将完整 `stca` 文件夹复制到 DSH 用户 skill 根目录。使用默认 DSH home 时，最终路径为 `~/.dsh/skills/stca/SKILL.md`；仅供项目使用时，可放入项目根目录的 `.dsh/skills/stca`。自定义 DSH home 或 skill 目录时，以实际配置为准。
-3. 保留 `SKILL.md` 旁的 `scripts`、`references` 和 `assets`；当前 DSH profile 需启用本地文件 skill 提供器。
-4. 输入 `/stca` 或“开始使用 STCA”。
+2. 将完整 `stca` 文件夹复制到 DSH 用户 skill 根目录。默认 DSH home 下为 `~/.dsh/skills/stca/SKILL.md`；仅供项目使用时，可放入项目根目录的 `.dsh/skills/stca`。自定义路径时以实际配置为准。
+3. 保留 `SKILL.md` 旁的 `scripts`、`references` 和 `assets`，在当前 profile 启用 filesystem skill provider，再输入 `/stca`。
 
-这个 ZIP 内是 `SKILL.md` 所在的 skill 文件夹，用于手动放置。图形界面的插件 ZIP 则包含插件根目录的 `package.json`，两者应按各自步骤安装。
+这个 ZIP 是手动放置的 skill 文件夹。上面的插件 ZIP 则包含供“添加插件”读取的 `package.json`；按各自方式安装。
 
-### 下载 TGZ 并通过 CLI 安装
+### 可选：CLI 安装本地 TGZ
 
-下载 [dsh-plugin-stca-0.1.0.tgz](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz)；TGZ 是已打好的插件包，无需解压或重新打包。使用 CLI 时明确指定包名和实际文件路径：
+下载 [dsh-plugin-stca-0.1.0.tgz](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz)；它是已打好的插件包，无需解压或重新打包，也不需要先发布 npm。终端命令填写实际文件绝对路径：
 
 ```bash
 dsh plugin --profile web add 'dsh-plugin-stca@file:/Users/你的用户名/Downloads/dsh-plugin-stca-0.1.0.tgz'
 ```
 
-这条含包名的文件安装语法用于 **CLI**；图形界面按上面的步骤填写解压目录，不将整条 CLI 参数粘进输入框。
+这个命名文件参数仅用于 CLI；图形界面使用仓库地址或解压后的插件目录。
 
-### 提示“无法从依赖变更中确定安装了哪一个包”
+### “无法从依赖变更中确定安装了哪一个包”
 
-这是 DSH 插件管理器未能从安装前后的依赖变化中识别唯一目标包，发生在加载 STCA 之前。先检查插件列表：已有 STCA 时直接启用使用，无需重复添加；需要替换已有安装时，通过插件管理界面正常卸载该插件后再安装新版，保留自己的数据、结果和规则包。
+这是 DSH 插件管理器在加载 STCA 之前，未能从安装前后的依赖变化中识别唯一目标包。它不表示必须先发布 npm，也与 Python、RDKit 或 STCA 计算无关。
 
-尚未安装成功时，使用上面的**插件 ZIP → 解压 → 插件根目录**方式。若仍失败，保留完整安装日志及 DSH 版本、安装来源和实际错误；不要连续重试同一地址，或修改 Python／STCA 代码来处理插件安装错误。
+先检查插件列表：已有 STCA 时直接启用，不反复添加；需要替换旧版时，只通过插件管理处理旧 STCA，保留自己的数据、结果和规则包。
+
+若重复添加 HTTPS 地址触发此报错，在同一个“添加插件”输入框改用仓库的 GitHub 简写：
+
+```text
+github:foukusa/stca-agent-skill
+```
+
+这是同一 GitHub 仓库的来源写法，不是 npm 包名，也不要求发布 npm；已在真实 DSH 安装器中验证该简写可以识别已有的 GitHub 依赖。若仍失败，可使用上面的本地插件目录作为备选。仍失败时保留完整安装日志、DSH 版本、安装来源和实际错误，不修改计算代码来处理安装器报错。
 
 参见 [DSH 官方插件安装说明](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/develop/basic/publish.zh.md)与[本地 skill 说明](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/skill/skill-filesystem/README.zh.md)。
 

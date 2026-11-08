@@ -13,43 +13,43 @@
   "files": [
     {
       "file": "dsh-plugin-stca-0.1.0.tgz",
-      "size_bytes": 1493590,
-      "sha256": "55ea5b066adcf4194e251292bb42c6a3573e2ffd35e0530f906db2968a433e0d"
+      "size_bytes": 1493798,
+      "sha256": "e9189257d7462bf2720d6508a3700764b2b7c8dd4453a8a8c3d4f140a4fe3290"
     },
     {
       "file": "dsh-plugin-stca-0.1.0.zip",
-      "size_bytes": 2626797,
-      "sha256": "dd2b84eaa603ab54f01f4baf51bbcdb869e7796f520ebd97cbeaaa84e5d3f59a"
+      "size_bytes": 2626999,
+      "sha256": "4dbbb1544c97a32c9b7de537427b8dc5d7822f09f60e4ef8ecfbbe2c5ccde7b5"
     },
     {
       "file": "stca-chatgpt-0.1.0.zip",
-      "size_bytes": 2472336,
-      "sha256": "a000a8ef6cf561829bc32a4ee14611db9a52dd6c655f6830f5cd234c03ca2fc7"
+      "size_bytes": 2472540,
+      "sha256": "ea966a3417c46cf9ade3245dc09b8a9c96ebf362f8860079e720edac1848aea5"
     },
     {
       "file": "stca-codex-0.1.0.zip",
-      "size_bytes": 2472336,
-      "sha256": "a000a8ef6cf561829bc32a4ee14611db9a52dd6c655f6830f5cd234c03ca2fc7"
+      "size_bytes": 2472540,
+      "sha256": "ea966a3417c46cf9ade3245dc09b8a9c96ebf362f8860079e720edac1848aea5"
     },
     {
       "file": "stca-deepseek-harness-0.1.0.zip",
-      "size_bytes": 2485563,
-      "sha256": "0232894265ac242dc388d3b65c72c2e0ea8951689050604ae021587359976900"
+      "size_bytes": 2485707,
+      "sha256": "866ee6eeb279660ed1465eb72bf12c24ba2ee0d97b174abdc12f8910985ead72"
     },
     {
       "file": "stca-openai-plugin-0.1.0.zip",
-      "size_bytes": 2800758,
-      "sha256": "e4d0fe1b71c7dd48fa77a61e3ddb241c13e865770dc658ca5106d78181665a8f"
+      "size_bytes": 2800940,
+      "sha256": "670990eb987dde4e04c4842e27d0de82bb3b984118f24e7f447c09bed8c11b82"
     },
     {
       "file": "stca-openai-skill-0.1.0.zip",
-      "size_bytes": 2472336,
-      "sha256": "a000a8ef6cf561829bc32a4ee14611db9a52dd6c655f6830f5cd234c03ca2fc7"
+      "size_bytes": 2472540,
+      "sha256": "ea966a3417c46cf9ade3245dc09b8a9c96ebf362f8860079e720edac1848aea5"
     },
     {
       "file": "stca-workbuddy-0.1.1.zip",
-      "size_bytes": 2610808,
-      "sha256": "1ecb25dd6d03f5c50de5425417efba8f374b1701f5b5bbb45c2f8e2119050487"
+      "size_bytes": 2611225,
+      "sha256": "ef691eaf41c3353a6635d8c6a81d68164d18eef2e1e3d9fecf9b9e38da3fa2be"
     }
   ]
 }

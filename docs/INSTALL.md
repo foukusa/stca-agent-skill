@@ -56,76 +56,87 @@ See the [official skill guide](https://learn.chatgpt.com/docs/build-skills) for 
 
 ## DeepSeek Harness
 
-For the graphical interface, use the **extracted local directory from the plugin ZIP**. GitHub source and TGZ installation are also available through the CLI; the manual skill ZIP has its own route. Plugin-center link: — (to be added after listing).
+The recommended route is **Plugins → Add plugin**, using the GitHub repository URL. **GitHub installation does not require npm publication.** DSH reads `package.json`, the plugin entry and complete skill from the repository root. Plugin-center link: — (to be added after listing).
 
 <!-- DSH_PLUGIN_CENTER_URL: add the actual listing URL after publication. -->
 
-### Install the plugin through the graphical interface
+### Install using the GitHub repository URL
+
+1. In DSH, open **Plugins → Add plugin**.
+2. Enter this full repository URL and click Install:
+
+```text
+https://github.com/foukusa/stca-agent-skill.git
+```
+
+3. Enable STCA in your current profile, then enter `/stca` or say “Start STCA”.
+
+Use the repository URL, not a `/tree/main` browsing page or a terminal command. This GitHub route remains available before npm publication. Only entering the bare npm name `dsh-plugin-stca` requires a published npm package.
+
+### Optional: extract the plugin ZIP and install its directory
 
 1. Open [dsh-plugin-stca-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.zip), click **Download raw file**, and extract it.
-2. Open **Plugins → Add plugin** and enter the full local path to the extracted plugin folder, for example:
+2. In **Plugins → Add plugin**, enter the complete local path to the extracted plugin folder, for example:
 
 ```text
 /Users/your-name/Downloads/dsh-plugin-stca-0.1.0
 ```
 
-3. Check that the folder directly contains `package.json`, `dsh` and `skills`. This is the plugin root to give Add plugin.
-4. Install it, enable STCA in the profile you use, and enter `/stca`.
+3. The folder must directly contain `package.json`, `dsh` and `skills`. Install, enable STCA and enter `/stca`.
 
-Use your actual username and extraction location. In Finder, hold Option while right-clicking the folder and copy its pathname, then paste that path into the input field.
+Alternatively, use **Code → Download ZIP** in the [source repository](https://github.com/foukusa/stca-agent-skill), extract it, and give Add plugin the repository root containing `package.json`. Use your actual username and extraction location.
 
-### GitHub source and the CLI
+### Optional: GitHub installation through the CLI
 
-Source repository: [foukusa/stca-agent-skill](https://github.com/foukusa/stca-agent-skill). You can also use **Code → Download ZIP**, extract the source, and give Add plugin the repository root that directly contains `package.json`. A GitHub `/tree/main` page is a browsing address, not a local plugin-directory path.
-
-For direct GitHub installation, name the package explicitly in the DSH CLI:
+In a terminal, the DSH CLI can explicitly name the package and its GitHub source:
 
 ```bash
 dsh plugin --profile web add 'dsh-plugin-stca@github:foukusa/stca-agent-skill'
 ```
 
-This argument is for the CLI. Use the local plugin-directory route in the graphical interface; do not paste `dsh-plugin-stca@github:…` into its package-name input field.
+**This command still installs from GitHub and does not require npm publication.** `plugin` is a DSH command name; `@github:...` specifies the GitHub source. Replace `web` with your actual profile. Run this in a terminal, not the graphical input field; use the repository URL in the interface.
 
-### Install by npm package name
+### npm package name: after publication
 
-After npm publication, enter the following in **Plugins → Add plugin**:
+Only after the npm package is published, enter this in **Plugins → Add plugin**:
 
 ```text
 dsh-plugin-stca
 ```
 
-The CLI equivalent is:
+The CLI equivalent is `dsh plugin --profile web add dsh-plugin-stca`. Add the plugin-center link once it exists; an unpublished npm package does not prevent GitHub installation.
 
-```bash
-dsh plugin --profile web add dsh-plugin-stca
-```
-
-Replace `web` with your actual profile. The plugin-center link remains blank until a public listing exists.
-
-### Downloaded skill ZIP
+### Downloaded standalone skill ZIP
 
 1. Download [stca-deepseek-harness-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip) and extract it.
-2. Copy the complete `stca` folder into the DSH user skill root. With the default DSH home, the result is `~/.dsh/skills/stca/SKILL.md`. For a project-only skill, use `.dsh/skills/stca` under the project root. A custom DSH home or skill-root setting takes precedence.
-3. Keep `scripts`, `references` and `assets` beside `SKILL.md`; enable the filesystem skill provider in the selected profile.
-4. Enter `/stca` or say “Start STCA”.
+2. Copy the complete `stca` folder into the DSH user skill root. With the default DSH home, the result is `~/.dsh/skills/stca/SKILL.md`. For a project-only skill, use `.dsh/skills/stca` under the project root. Custom path settings take precedence.
+3. Keep `scripts`, `references` and `assets` beside `SKILL.md`, enable the filesystem skill provider in your profile, and enter `/stca`.
 
-This ZIP contains a skill folder with `SKILL.md` for manual placement. The GUI plugin ZIP contains the plugin-root `package.json`; follow the corresponding steps for each format.
+This ZIP contains a skill folder for manual placement. The plugin ZIP above contains the `package.json` used by Add plugin; follow the corresponding route for each format.
 
-### Download a TGZ and install through the CLI
+### Optional: install a downloaded TGZ through the CLI
 
-Download [dsh-plugin-stca-0.1.0.tgz](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz). It is already a plugin package, with no extraction or repacking needed. Name the package explicitly and use the file’s actual absolute path:
+Download [dsh-plugin-stca-0.1.0.tgz](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz). It is a ready-made plugin package: no extraction, repacking or npm publication is needed. Use the actual absolute file path in a terminal:
 
 ```bash
 dsh plugin --profile web add 'dsh-plugin-stca@file:/Users/your-name/Downloads/dsh-plugin-stca-0.1.0.tgz'
 ```
 
-This named file specification is for the **CLI**. In the graphical interface, use the extracted directory as described above instead of pasting the full CLI argument into its input field.
+This named file argument is for the CLI. The graphical interface uses a repository URL or an extracted plugin directory.
 
 ### “Unable to determine the installed package from dependency changes”
 
-This error means the DSH plugin manager could not identify one target package from the dependency changes, before STCA was loaded. Check the plugin list first: enable an existing STCA entry instead of adding it again. To replace an installed copy, remove that plugin through its management interface before installing the replacement, keeping your data, results and saved rule bundles.
+This means the DSH plugin manager could not identify one target package from the dependency changes, before loading STCA. It does not mean npm publication is required, and it is unrelated to Python, RDKit or STCA calculations.
 
-If installation has not succeeded, use the **plugin ZIP → extract → plugin-root directory** route above. If it still fails, preserve the complete installation log, DSH version, installation source and actual error. Repeating the same input or modifying Python/STCA code does not address this plugin-installation stage.
+Check the plugin list first: enable an existing STCA entry instead of repeatedly adding it. To replace an old copy, manage only the old STCA plugin while preserving your data, results and rule bundles.
+
+If repeating the HTTPS URL triggers this error, enter the repository’s GitHub shorthand in the same Add plugin field:
+
+```text
+github:foukusa/stca-agent-skill
+```
+
+This names the same GitHub source, not an npm package, and requires no npm publication. A real DSH installer test confirmed that this form identifies an existing GitHub dependency. If it still fails, use the local plugin-directory fallback above. Preserve the complete installation log, DSH version, source and actual error if installation still fails; do not modify computation code to address an installer error.
 
 See the [official plugin installation guide](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/develop/basic/publish.md) and [filesystem skill guide](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/skill/skill-filesystem/README.md).
 
