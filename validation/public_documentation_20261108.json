@@ -1,0 +1,19 @@
+{
+  "schema": "stca-public-documentation-v1",
+  "version": "0.1.0",
+  "status": "passed",
+  "public_docs": 12,
+  "relative_links_checked": 313,
+  "AS_definition_matches_paper": true,
+  "AS_formula": "(MCC + Precision + F1) / 3",
+  "workflow_direction": "left_to_right",
+  "workflow_aligned_nodes": 8,
+  "brand_colors": [
+    "#113348",
+    "#0D7381",
+    "#D09D37"
+  ],
+  "signature": "化繁为简，拨云见日",
+  "code_ocean_entry": "https://doi.org/10.24433/CO.1601774.v1",
+  "numeric_rules_and_core_learning_unchanged": true
+}

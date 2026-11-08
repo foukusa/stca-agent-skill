@@ -4,8 +4,8 @@
   "entries": [
     {
       "id": "paper-tg-high-30",
-      "title": "STCA author archive: Glass-transition temperature, Top 30%",
-      "title_zh": "STCA作者归档：玻璃化转变温度，Top 30%",
+      "title": "STCA paper: Glass-transition temperature, Top 30%",
+      "title_zh": "STCA论文：玻璃化转变温度，Top 30%",
       "property": "Glass-transition temperature",
       "property_zh": "玻璃化转变温度",
       "direction": "high",
@@ -55,12 +55,16 @@
         "scientific_conditions_unchanged": true,
         "evidence_source": "evidence/paper_profile_alignment_20261108.json",
         "status": "author_snapshot_source; final_paper_full_numeric_parity_not_established"
+      },
+      "display_source": {
+        "en": "Implementation from the STCA paper",
+        "zh-CN": "作者STCA论文实现"
       }
     },
     {
       "id": "paper-tg-high-20",
-      "title": "STCA author archive: Glass-transition temperature, Top 20%",
-      "title_zh": "STCA作者归档：玻璃化转变温度，Top 20%",
+      "title": "STCA paper: Glass-transition temperature, Top 20%",
+      "title_zh": "STCA论文：玻璃化转变温度，Top 20%",
       "property": "Glass-transition temperature",
       "property_zh": "玻璃化转变温度",
       "direction": "high",
@@ -110,12 +114,16 @@
         "scientific_conditions_unchanged": true,
         "evidence_source": "evidence/paper_profile_alignment_20261108.json",
         "status": "author_snapshot_source; final_paper_full_numeric_parity_not_established"
+      },
+      "display_source": {
+        "en": "Implementation from the STCA paper",
+        "zh-CN": "作者STCA论文实现"
       }
     },
     {
       "id": "paper-tg-high-10",
-      "title": "STCA author archive: Glass-transition temperature, Top 10%",
-      "title_zh": "STCA作者归档：玻璃化转变温度，Top 10%",
+      "title": "STCA paper: Glass-transition temperature, Top 10%",
+      "title_zh": "STCA论文：玻璃化转变温度，Top 10%",
       "property": "Glass-transition temperature",
       "property_zh": "玻璃化转变温度",
       "direction": "high",
@@ -170,12 +178,16 @@
         "final_SI_location": "S7.1, PDF page 17",
         "user_notice_zh": "Tg Top10%作者归档变体；不是正式SI所述最优family的代表。",
         "user_notice_en": "Archived Tg Top10% variant; not the representative of the optimal family described in the final SI."
+      },
+      "display_source": {
+        "en": "Implementation from the STCA paper",
+        "zh-CN": "作者STCA论文实现"
       }
     },
     {
       "id": "paper-ec-low-20",
-      "title": "STCA author archive: Electrical conductivity, Bottom 20%",
-      "title_zh": "STCA作者归档：电导率，Bottom 20%",
+      "title": "STCA paper: Electrical conductivity, Bottom 20%",
+      "title_zh": "STCA论文：电导率，Bottom 20%",
       "property": "Electrical conductivity",
       "property_zh": "电导率",
       "direction": "low",
@@ -225,12 +237,16 @@
         "scientific_conditions_unchanged": true,
         "evidence_source": "evidence/paper_profile_alignment_20261108.json",
         "status": "author_snapshot_source; final_paper_full_numeric_parity_not_established"
+      },
+      "display_source": {
+        "en": "Implementation from the STCA paper",
+        "zh-CN": "作者STCA论文实现"
       }
     },
     {
       "id": "paper-ec-low-15",
-      "title": "STCA author archive: Electrical conductivity, Bottom 15%",
-      "title_zh": "STCA作者归档：电导率，Bottom 15%",
+      "title": "STCA paper: Electrical conductivity, Bottom 15%",
+      "title_zh": "STCA论文：电导率，Bottom 15%",
       "property": "Electrical conductivity",
       "property_zh": "电导率",
       "direction": "low",
@@ -280,12 +296,16 @@
         "scientific_conditions_unchanged": true,
         "evidence_source": "evidence/paper_profile_alignment_20261108.json",
         "status": "author_snapshot_source; final_paper_full_numeric_parity_not_established"
+      },
+      "display_source": {
+        "en": "Implementation from the STCA paper",
+        "zh-CN": "作者STCA论文实现"
       }
     },
     {
       "id": "paper-ec-low-10",
-      "title": "STCA author archive: Electrical conductivity, Bottom 10%",
-      "title_zh": "STCA作者归档：电导率，Bottom 10%",
+      "title": "STCA paper: Electrical conductivity, Bottom 10%",
+      "title_zh": "STCA论文：电导率，Bottom 10%",
       "property": "Electrical conductivity",
       "property_zh": "电导率",
       "direction": "low",
@@ -335,12 +355,16 @@
         "scientific_conditions_unchanged": true,
         "evidence_source": "evidence/paper_profile_alignment_20261108.json",
         "status": "author_snapshot_source; final_paper_full_numeric_parity_not_established"
+      },
+      "display_source": {
+        "en": "Implementation from the STCA paper",
+        "zh-CN": "作者STCA论文实现"
       }
     },
     {
       "id": "paper-ec-low-5",
-      "title": "STCA author archive: Electrical conductivity, Bottom 5%",
-      "title_zh": "STCA作者归档：电导率，Bottom 5%",
+      "title": "STCA paper: Electrical conductivity, Bottom 5%",
+      "title_zh": "STCA论文：电导率，Bottom 5%",
       "property": "Electrical conductivity",
       "property_zh": "电导率",
       "direction": "low",
@@ -390,12 +414,16 @@
         "scientific_conditions_unchanged": true,
         "evidence_source": "evidence/paper_profile_alignment_20261108.json",
         "status": "author_snapshot_source; final_paper_full_numeric_parity_not_established"
+      },
+      "display_source": {
+        "en": "Implementation from the STCA paper",
+        "zh-CN": "作者STCA论文实现"
       }
     },
     {
       "id": "paper-ec-high-20",
-      "title": "STCA author archive: Electrical conductivity, Top 20%",
-      "title_zh": "STCA作者归档：电导率，Top 20%",
+      "title": "STCA paper: Electrical conductivity, Top 20%",
+      "title_zh": "STCA论文：电导率，Top 20%",
       "property": "Electrical conductivity",
       "property_zh": "电导率",
       "direction": "high",
@@ -445,12 +473,16 @@
         "scientific_conditions_unchanged": true,
         "evidence_source": "evidence/paper_profile_alignment_20261108.json",
         "status": "author_snapshot_source; final_paper_full_numeric_parity_not_established"
+      },
+      "display_source": {
+        "en": "Implementation from the STCA paper",
+        "zh-CN": "作者STCA论文实现"
       }
     },
     {
       "id": "paper-ec-high-15",
-      "title": "STCA author archive: Electrical conductivity, Top 15%",
-      "title_zh": "STCA作者归档：电导率，Top 15%",
+      "title": "STCA paper: Electrical conductivity, Top 15%",
+      "title_zh": "STCA论文：电导率，Top 15%",
       "property": "Electrical conductivity",
       "property_zh": "电导率",
       "direction": "high",
@@ -500,12 +532,16 @@
         "scientific_conditions_unchanged": true,
         "evidence_source": "evidence/paper_profile_alignment_20261108.json",
         "status": "author_snapshot_source; final_paper_full_numeric_parity_not_established"
+      },
+      "display_source": {
+        "en": "Implementation from the STCA paper",
+        "zh-CN": "作者STCA论文实现"
       }
     },
     {
       "id": "paper-ec-high-10",
-      "title": "STCA author archive: Electrical conductivity, Top 10%",
-      "title_zh": "STCA作者归档：电导率，Top 10%",
+      "title": "STCA paper: Electrical conductivity, Top 10%",
+      "title_zh": "STCA论文：电导率，Top 10%",
       "property": "Electrical conductivity",
       "property_zh": "电导率",
       "direction": "high",
@@ -555,12 +591,16 @@
         "scientific_conditions_unchanged": true,
         "evidence_source": "evidence/paper_profile_alignment_20261108.json",
         "status": "author_snapshot_source; final_paper_full_numeric_parity_not_established"
+      },
+      "display_source": {
+        "en": "Implementation from the STCA paper",
+        "zh-CN": "作者STCA论文实现"
       }
     },
     {
       "id": "paper-ec-high-5",
-      "title": "STCA author archive: Electrical conductivity, Top 5%",
-      "title_zh": "STCA作者归档：电导率，Top 5%",
+      "title": "STCA paper: Electrical conductivity, Top 5%",
+      "title_zh": "STCA论文：电导率，Top 5%",
       "property": "Electrical conductivity",
       "property_zh": "电导率",
       "direction": "high",
@@ -610,6 +650,10 @@
         "scientific_conditions_unchanged": true,
         "evidence_source": "evidence/paper_profile_alignment_20261108.json",
         "status": "author_snapshot_source; final_paper_full_numeric_parity_not_established"
+      },
+      "display_source": {
+        "en": "Implementation from the STCA paper",
+        "zh-CN": "作者STCA论文实现"
       }
     },
     {

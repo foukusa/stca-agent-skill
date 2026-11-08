@@ -162,5 +162,9 @@
     "source_labels_corrected": 11,
     "full_final_paper_numeric_reproduction_claimed": false,
     "evidence": "../skills/stca/assets/rule_library/evidence/paper_profile_alignment_20261108.json"
+  },
+  "public_documentation": {
+    "status": "passed",
+    "evidence": "public_documentation_20261108.json"
   }
 }

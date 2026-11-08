@@ -34,10 +34,10 @@ Say **“Main menu”** or **“Back”** at any time. Saved rules are preserved
 For an immediate screening trial, use the bundled [five-candidate CSV](../examples/quick_start/candidates.csv?raw=true), or ask:
 
 ```text
-Use the bundled fluorinated-candidate example. Screen it with the RadonPy high-density Top 30% STCA rule and show every failed condition.
+Use the bundled fluorinated-candidate example. Screen it with the RadonPy high-density Top 30% STCA rule and show every unmet rule condition.
 ```
 
-You receive three structural-rule matches and two non-matches, with the original star-containing SMILES and a reason for each failed condition.
+You receive three structural-rule matches and two non-matches, with the original star-containing SMILES and a reason for each unmet rule condition.
 
 To try learning, download the [GAS Dataset A CSV](https://github.com/jsunn-y/PolymerGasMembraneML/blob/30981d71e1e3f12a057e009cd79f119bc659c7f5/datasets/datasetA_imputed_all.csv), upload it and say:
 
@@ -65,12 +65,14 @@ Learn high-CO₂-permeability rules from this measured data, in Barrer, using 15
 
 Every tier shows its numeric cutoff on the original physical scale, the ≥ comparison for high targets or ≤ for low targets, and the unit. Log-transformed learning still returns the physical cutoff.
 
+AS (Average Score) is introduced and defined in the [STCA paper](https://doi.org/10.1038/s41524-026-02345-x) and validated through its polymer-screening evaluations. This skill uses the same arithmetic mean of MCC, Precision and F1.
+
 The recommendation uses **AS = (MCC + Precision + F1) / 3**. When both methods can be evaluated, WRAcc is primary only when its CV AS exceeds STCA by **more than 0.02**; otherwise STCA remains primary. Both methods’ scores, separate selections and the recommendation reason are returned. Say “Use the recommendation” or “Choose the method automatically” to apply the primary without another method-confirmation step; an explicitly named method takes precedence.
 
 You receive:
 
 - Both STCA and WRAcc rules, scores, primary/alternative status and recommendation reason for every tier, with numeric physical cutoffs, comparison signs, units and reusable models.
-- Each method’s row-level screening results at every tier: original SMILES, selection decisions, every failed condition and uncomputable records.
+- Each method’s row-level screening results at every tier: original SMILES, selection decisions, every unmet rule condition and uncomputable records.
 - Complete bilingual generation prompts, a friendly saved name and a downloadable rule bundle.
 - The main menu, where your newly saved rules can be reused in tasks 2 and 3.
 
@@ -95,7 +97,7 @@ Upload your candidates, or try the [structure-only example CSV](../examples/cand
 STCA automatically lists bundled rules and saved personal rules, with their source, property, direction, percentages, method and primary/alternative status. Then say:
 
 ```text
-Use the author-archived high-Tg Top 20% rule to screen my uploaded candidates.
+Use the high-Tg Top 20% rule from the STCA paper to screen my uploaded candidates.
 ```
 
 Open-data rules are bundled at Top 10%, 20% and 30%. You could also choose “the primary GAS high-CO₂-permeability Top 10% rule.” Accepting the recommendation uses the marked primary directly; an explicitly chosen STCA or WRAcc method is respected. Each rule set screens independently. The selected tier includes its numeric physical cutoff, comparison and unit. A requested percentage absent from the frozen catalog requires labelled data to learn that tier; the assistant does not interpolate rules or substitute a nearby percentage.
@@ -106,7 +108,7 @@ If you completed the preceding example, you can instead say:
 Screen this candidate table with the rules just saved.
 ```
 
-The results preserve all original SMILES and identifiers, report selections, failed conditions and unknown records, then return to the main menu. With the five bundled example structures and this author-archived high-Tg Top 20% rule, two match and three do not. This demonstrates structural-rule checking; the example has no property labels.
+The results preserve all original SMILES and identifiers, report selections, unmet rule conditions and unknown records, then return to the main menu. With the five bundled example structures and this high-Tg Top 20% rule from the STCA paper, two match and three do not. This demonstrates structural-rule checking; the example has no property labels.
 
 ## 3 Choose rules before generating
 
@@ -119,7 +121,7 @@ STCA automatically shows **bundled rules and loaded personal rules** first, incl
 **Preview and confirm.** Ask:
 
 ```text
-Use the author-archived high-Tg Top 20% rule. Show me the complete prompt before generating 20 candidates.
+Use the high-Tg Top 20% rule from the STCA paper. Show me the complete prompt before generating 20 candidates.
 ```
 
 The complete prompt appears, and generation waits for your confirmation. Adjust it in ordinary language, for example:
@@ -139,12 +141,12 @@ The current LLM then uses the approved prompt to generate candidates and verify 
 **Generate directly.** Ask:
 
 ```text
-Use the author-archived high-Tg Top 20% rule to generate 20 candidates directly and verify them.
+Use the high-Tg Top 20% rule from the STCA paper to generate 20 candidates directly and verify them.
 ```
 
 The current LLM starts generation with the selected rules immediately. No additional LLM API setup is needed. If you have not specified a mode, STCA offers both choices after rule selection.
 
-Both modes retain every original proposal, star-containing SMILES, rule decisions and failed conditions. The number generated and the number passing are reported separately; the task finishes by returning to the main menu.
+Both modes retain every original proposal, star-containing SMILES, rule decisions and unmet rule conditions. The number generated and the number passing are reported separately; the task finishes by returning to the main menu.
 
 ## Get only the generation prompt
 
@@ -171,8 +173,8 @@ Choose task 2 or 3 to reuse it without retraining. Returning to the menu preserv
 Upload candidates and ask:
 
 ```text
-Screen with both the author-archived high-Tg Top 20% and low-electrical-conductivity Bottom 10% rules.
-Return each objective's decision, every failed condition and the candidates passing both.
+Screen with both the high-Tg Top 20% and low-electrical-conductivity Bottom 10% rules from the STCA paper.
+Return each objective's decision, every unmet rule condition and the candidates passing both.
 ```
 
 Choose each objective's percentage independently. STCA checks structural rules; actual property success depends on the relevant validation results.

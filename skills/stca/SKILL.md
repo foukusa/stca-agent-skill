@@ -9,6 +9,8 @@ description: "Use STCA (Sliding Threshold Correlation Analysis) for polymer repe
 
 版本保持 **0.1.0**。用自然语言完成三条路径。用户提供目标或文件，agent 自动识别列、读取规则、准备兼容 CPU 后台并交付结果；不要求用户操作 Python、配置路径或部署生成模型。生成由当前 AI 助手完成。
 
+面向用户介绍时，Tg/EC称为“作者STCA论文中实现的规则”，开源数据注明原始来源及STCA归纳/筛选验证。AS称为作者论文提出并在筛选评价中验证使用的综合指标。普通操作说明聚焦目标、选择、结果与继续使用；不要主动展示提交号、快照日期、审计日志或历史核验过程。只有用户明确要求严格复现或版本核对时，才按实际证据解释相应范围，不能把未运行的任务说成已经运行。筛选不匹配统一称“未满足的规则条件”。
+
 ## 开始与返回
 
 用户说“开始使用 STCA”、`/stca` 或未说明目标时，展示：
@@ -23,9 +25,9 @@ description: "Use STCA (Sliding Threshold Correlation Analysis) for polymer repe
 
 读取结构列、性质、单位、方向、实测/计算含义及可用条件。ID 可任意命名或省略，绝不作为特征或材料身份。只补问无法可靠确定的科学信息。
 
-**默认范围内分析：**没有指定 source/holdout 或固定外推协议时，通过 `agent_runtime.py run --script inrange_evaluation.py -- ARGS` 执行：透明数据准备、保护结构分组的 5 折交叉验证重复 3 次、STCA 与 WRAcc 比较、全量冻结与逐档筛选。用户可自定任意合法百分比，含 15%、25%；未指定时直接执行默认 10%、20%、30%，不为百分比再补问。每档报告 Top/Bottom、原始物理尺度阈值、>=/<= 与单位，并同时列出两方法的入选/未入选/未知数、失败条件结果表、AS与明确主推理由。读取`screening_summary.json`和`recommendation.md`交付，不能只给百分比或模型路径。实际命令与文件见 [agent_workflows.md](references/agent_workflows.md)。
+**默认范围内分析：**没有指定 source/holdout 或固定外推协议时，通过 `agent_runtime.py run --script inrange_evaluation.py -- ARGS` 执行：透明数据准备、保护结构分组的 5 折交叉验证重复 3 次、STCA 与 WRAcc 比较、全量冻结与逐档筛选。用户可自定任意合法百分比，含 15%、25%；未指定时直接执行默认 10%、20%、30%，不为百分比再补问。每档报告 Top/Bottom、原始物理尺度阈值、>=/<= 与单位，并同时列出两方法的入选/未入选/未知数、未满足的规则条件结果表、AS与明确主推理由。读取`screening_summary.json`和`recommendation.md`交付，不能只给百分比或模型路径。实际命令与文件见 [agent_workflows.md](references/agent_workflows.md)。
 
-每档 AS=(MCC+Precision+F1)/3，WRAcc 比 STCA 高超过 0.02 才列为主推，否则保留 STCA；两种方法的精确规则和分数都交付。用户可明确只用 STCA 或 WRAcc。**主推/备选是方法选择，不是把两方法 OR 并集或 AND 相交。** RF 只在用户要求时作为预测参照，不输出规则。
+每档沿用作者STCA论文定义的 AS=(MCC+Precision+F1)/3；WRAcc 比 STCA 高超过 0.02 才列为主推，否则保留 STCA。两种方法的精确规则和分数都交付。用户可明确只用 STCA 或 WRAcc。**主推/备选是方法选择，不是把两方法 OR 并集或 AND 相交。** RF 只在用户要求时作为预测参照，不输出规则。
 
 自动准备包括结构/目标有效性、登记单位与尺度、明确元数据加工历史、可比重复观测处理、ECFP4 近邻与合理范围标记，以及可追踪的尾部影响诊断/隔离。保留全部原始行、字段、星号结构与处理映射。H-cap 相同不足以合并不同连接位置或测量条件。预处理后 CV 明确条件于已选清理数据及扫描制度；嵌套方法选择不能写成整个预处理流水线完全无偏。少于20正例是证据状态，不禁止学习或应用有效规则。
 
@@ -39,7 +41,7 @@ description: "Use STCA (Sliding Threshold Correlation Analysis) for polymer repe
 
 ## 2. 使用已有规则筛选
 
-已有规则包含“我的规则”、作者归档 Tg/EC 规则及当前12项开源数据任务的全量冻结规则。当前开源目录提供 Top 10%、20%、30% 的 STCA 与 WRAcc 主推/备选；其他百分比可从用户数据重新归纳，不能插值或换成最近档。11条Tg/EC条目来自SI-20260822作者快照，不是正式论文全部数字的复现；尤其Tg Top10%的归档代表与正式SI S7.1所述最优family不同。保留精确原条件和兼容ID，按catalog的publication_alignment解释来源，不冒称正式SI代表。旧归纳版本保留兼容 ID 及出处，不作为当前默认目录。
+已有规则包含“我的规则”、作者STCA论文中实现的 Tg/EC 规则及当前12项开源数据任务的全量冻结规则。公开数据来源为GAS实测气体数据、RadonPy和ADEPT计算数据，均提供STCA规则归纳与筛选验证结果，详见[来源说明](references/provenance.md)。当前开源目录提供 Top 10%、20%、30% 的 STCA 与 WRAcc 主推/备选；其他百分比可从用户数据重新归纳，不能插值或换成最近档。保留精确原条件和兼容ID；用户明确要求版本核对时读取相应来源记录。
 
 先读取 `task_menu.py --rules --library-dir USER_RULES_DIR` 或规则目录，按来源 → 性质 → 方向/档位展示。目标已明确但未给百分比时，对实际支持的默认10%、20%、30%分别筛选，不再补问档位；缺档如实说明。默认分别返回STCA、WRAcc及每档主推，不能把方法/档位的多个结果自动AND；用户指定只用一种方法或“用推荐”时直接采用。已明确精确规则时直接执行，不重复询问。逐档显示实际物理阈值、比较符和单位。
 
@@ -47,11 +49,11 @@ description: "Use STCA (Sliding Threshold Correlation Analysis) for polymer repe
 
 用户要求“内置含氟候选示例”时，候选表为`assets/examples/quick_start_candidates.csv`；按用户指定规则实际筛选。该表只有结构，不能用于学习或评价密度性质。简短试用见[usage_examples.md](references/usage_examples.md)。
 
-方法比较分别筛选 STCA 和 WRAcc；多性质联合筛选才将选定的不同目标规则作用于同一候选表，返回逐项判断及 AND 交集。同目标备选方法不自动相交。报告全部原始结构、失败条件、未知记录和入选表。
+方法比较分别筛选 STCA 和 WRAcc；多性质联合筛选才将选定的不同目标规则作用于同一候选表，返回逐项判断及 AND 交集。同目标备选方法不自动相交。报告全部原始结构、未满足的规则条件、未知记录和入选表。
 
 ## 3. 使用已有规则生成
 
-只选“3”或说“用已有规则生成”时，先显示“我的规则”、作者归档、GAS、RadonPy、ADEPT的简洁目录，等待选定具体目标规则；每条冻结规则自带档位及数值阈值。未指定方法时使用该档主推并明确告知，用户可改用备选。若“刚保存的规则”仍包含多个性质/档位，只补问未明确的目标选择；用户明确要求多档生成时各档独立准备、生成、核验，不将同性质不同档位合成一个AND任务。
+只选“3”或说“用已有规则生成”时，先显示“我的规则”、STCA论文、GAS、RadonPy、ADEPT的简洁目录，等待选定具体目标规则；每条冻结规则自带档位及数值阈值。未指定方法时使用该档主推并明确告知，用户可改用备选。若“刚保存的规则”仍包含多个性质/档位，只补问未明确的目标选择；用户明确要求多档生成时各档独立准备、生成、核验，不将同性质不同档位合成一个AND任务。
 
 选择完成后读取已存完整 prompt：内置用 `rule_library.py prompt ID --language zh-CN`；保存条目用其精确 constraints/prompt。数量、偏好、多目标组合用标准库 `generation_prompt.py` 渲染。prompt 标明真实方法、性质、来源、阈值、全部 AND 条件、MACCS计数及特殊键语义、H-cap计算约定、原始星号 SMILES 格式与核验要求。
 
@@ -62,13 +64,13 @@ description: "Use STCA (Sliding Threshold Correlation Analysis) for polymer repe
 
 通过标准库 `generation_session.py` 管理准备、修改、确认及最终 prompt；读取其 `generation_allowed` 和 `next_action` 后继续。用户说“确认，开始生成”时，要在同次操作中完成确认、当前 LLM 生成和核验，不能停在批准状态。助手本身执行生成步骤；Python 模板渲染或状态更新不算调用 LLM。修改冻结目标、阈值或位条件时须明确选择/建立新规则，保留原规则用于核验，不能静默改写原条件。
 
-保留最终使用的完整 prompt、全部原始提案、修订、通过表及逐条失败条件，完成后返回主菜单。用户只要 prompt 时直接交付可复制原文；没有计算能力时可完成提案，状态明确待核验。规则匹配与实际物性达标分别报告。具体命令见 [generation.md](references/generation.md)。
+保留最终使用的完整 prompt、全部原始提案、修订、通过表及逐条未满足的规则条件，完成后返回主菜单。用户只要 prompt 时直接交付可复制原文；没有计算能力时可完成提案，状态明确待核验。规则匹配与实际物性达标分别报告。具体命令见 [generation.md](references/generation.md)。
 
 ## 共同约定
 
 - 保留原始带 `*` 的重复单元 SMILES；H-cap只用于计算副本，MACCS167原编号及特殊/计数语义不变。不能把 K=0 一律解释为完全无该子结构。
 - 输入只读、输出另存。保存来源、版本、精确方法、模型哈希、尺度与角色。用户数据和规则库不写入安装目录。
-- 原始作者 STCA 实现固定为 `5951b0ef23d63edc8f7e803aaaffa5e4168288f6`。WRAcc 是单独的备选规则学习器。每条精确规则内部为 AND。
+- 使用运行配置指定的原作者 STCA 实现。WRAcc 是单独的备选规则学习器。每条精确规则内部为 AND。
 - 区分已有规则、零覆盖、零TP、无正例、无规则、计算错误和未定义指标。外推附录的零覆盖不用于覆盖当前全量规则的支持或CV证据。
 - 复用 Python **3.10及以上**兼容 CPU 环境；历史依赖锁仅在明确复现时使用。由 `agent_runtime.py` 自动管理后台，不给普通用户安装命令。
 

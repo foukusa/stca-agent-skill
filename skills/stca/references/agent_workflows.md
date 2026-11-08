@@ -16,7 +16,7 @@ PY SKILL_DIR/scripts/agent_runtime.py run --script inrange_evaluation.py -- --in
 
 读取run_manifest、inrange结果、两方法各模型与导出约束、全量逐档筛选表和主推记录。预处理后CV、最终全量回筛和可选外推各自注明范围；方法选择不是规则OR或AND。没有有效规则、单一标签类、无法CV和运行失败不能填伪0。
 
-流程会自动导出每方法的精确约束、完整双语prompt，保存并导出用户规则包；检查真实save/export状态后才告知已保存。对原上传表每方法/每档返回全部原行、原字段、星号SMILES、明确布尔判断或unknown、每条失败条件与入选子表。独立候选另用相同冻结模型screen-candidates，不替换原上传表。
+流程会自动导出每方法的精确约束、完整双语prompt，保存并导出用户规则包；检查真实save/export状态后才告知已保存。对原上传表每方法/每档返回全部原行、原字段、星号SMILES、明确布尔判断或unknown、每条未满足的规则条件与入选子表。独立候选另用相同冻结模型screen-candidates，不替换原上传表。
 
 ## 1b 明确source/holdout或外推协议
 
@@ -61,7 +61,7 @@ PY SKILL_DIR/scripts/generation_prompt.py --constraints CONSTRAINTS --count 20 -
 
 用`generation_session.py prepare --constraints CONSTRAINTS --mode preview|direct --count 20 --language zh-CN --output-dir SESSION_DIR`准备会话。preview时展示完整prompt并等待；按要求revise后重新展示，只有用户明确确认后才调用confirm。direct时无需确认。具体接口见[generation.md](generation.md)。
 
-当`generation_allowed=true`时，当前AI助手必须读取最终批准的完整prompt并实际生成SMILES，保存全部提案，连续执行同一冻结规则的精确核验，交付通过表与每条失败条件。确认或准备脚本本身没有调用LLM，不能据此声称已生成。用户只要prompt时交付完整可复制文本；不用执行生成链路。明确显示STCA或WRAcc，规则匹配不当作物性预测。
+当`generation_allowed=true`时，当前AI助手必须读取最终批准的完整prompt并实际生成SMILES，保存全部提案，连续执行同一冻结规则的精确核验，交付通过表与每条未满足的规则条件。确认或准备脚本本身没有调用LLM，不能据此声称已生成。用户只要prompt时交付完整可复制文本；不用执行生成链路。明确显示STCA或WRAcc，规则匹配不当作物性预测。
 
 ## 保存与返回
 

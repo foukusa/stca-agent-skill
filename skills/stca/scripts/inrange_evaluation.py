@@ -434,7 +434,7 @@ def render_user_summary(summary):
     def number(value):
         return "不可评价" if value is None else format(float(value), ".10g")
     lines = [f"# {summary['property']}：规则与筛选结果", "",
-             "每档分别交付 STCA 和 WRAcc；主推按分组交叉验证的 AS=(MCC+Precision+F1)/3 选择。",
+             "每档分别交付 STCA 和 WRAcc；沿用[作者 STCA 论文](https://doi.org/10.1038/s41524-026-02345-x)定义并在筛选评价中验证使用的 AS=(MCC+Precision+F1)/3，按分组交叉验证结果推荐方法。",
              "WRAcc 的 AS 高于 STCA 超过 0.02 时主推 WRAcc，否则保留 STCA；无法比较时明确标注。", "",
              "| 档位 | 具体物理阈值 | STCA 入选 / 未知 | STCA CV AS | WRAcc 入选 / 未知 | WRAcc CV AS | 主推 |",
              "|---|---|---:|---:|---:|---:|---|"]
@@ -453,7 +453,7 @@ def render_user_summary(summary):
                   reasons.get(item["recommendation_reason"], item["recommendation_reason"]), ""]
         for method, result in item["methods"].items():
             lines += [f"- **{method}**：入选 {result['selected_n']}，未入选 {result['not_selected_n']}，未知 {result['unknown_n']}；CV 状态 {result['cv_status']}。",
-                      f"  [全部原行及失败条件]({result['results_with_failed_conditions']}) · [入选表]({result['selected_rows']}) · [精确约束]({result['constraints']})。",
+                      f"  [全部原行及未满足的规则条件]({result['results_with_failed_conditions']}) · [入选表]({result['selected_rows']}) · [精确约束]({result['constraints']})。",
                       f"  规则：`{result['rule']}`。" if result['rule'] else "  无有效规则，结果保持未知。"]
     lines += ["", "百分比对应准备后数据的目标尾部，表中阈值为最终部署模型的原始物理尺度边界；不是候选入选配额。",
               "CV 使用各训练折的阈值；最终原表回筛使用全量冻结阈值。二者不混同，条件性 CV 范围见 run_manifest.json。",

@@ -67,8 +67,8 @@ class UserSummaryContract(unittest.TestCase):
         self.assertIn(">= 1234.5 Barrer", text)
         self.assertIn("**STCA**：入选 3，未入选 6，未知 1", text)
         self.assertIn("**WRAcc**：入选 5，未入选 4，未知 1", text)
-        self.assertIn("[全部原行及失败条件](stca/tier_0.15/screening/results.csv)", text)
-        self.assertIn("[全部原行及失败条件](wracc/tier_0.15/screening/results.csv)", text)
+        self.assertIn("[全部原行及未满足的规则条件](stca/tier_0.15/screening/results.csv)", text)
+        self.assertIn("[全部原行及未满足的规则条件](wracc/tier_0.15/screening/results.csv)", text)
         self.assertIn("主推：**WRAcc**；备选：STCA", text)
 
     def test_low_tail_preserves_original_units_and_operator(self):

@@ -7,7 +7,7 @@ Say **“Start STCA”** and choose **2 Screen** or **3 Generate** to open the c
 ## Contents
 
 - [How to choose](#how-to-choose)
-- [Author-archived rules](#author-archived-rules)
+- [STCA paper rules](#stca-paper-rules)
 - [GAS: measured gas permeability](#gas-measured-gas-permeability)
 - [RadonPy: five computed properties](#radonpy-five-computed-properties)
 - [ADEPT: five computed properties](#adept-five-computed-properties)
@@ -21,13 +21,15 @@ For example: “Screen this table with the primary GAS high-CO₂-permeability T
 
 For generation, choose **Preview and confirm** or **Generate directly** after selecting the rule. Preview mode displays the complete prompt for your edits and waits for “Confirm and generate”; direct mode invokes the current LLM immediately. Both generate actual candidates and verify every proposal against the selected rules. Ask for “the complete prompt only” if you want to use another LLM instead.
 
-Each selected tier and complete prompt includes the **numeric physical cutoff, ≥/≤ comparison, unit** and all structural conditions. Percentages describe the target range in the original data, rather than a quota for selected candidates. Screening preserves original SMILES and returns decisions and every failed condition. For multiple objectives, select a rule for each and report candidates satisfying all of them.
+Each selected tier and complete prompt includes the **numeric physical cutoff, ≥/≤ comparison, unit** and all structural conditions. Percentages describe the target range in the original data, rather than a quota for selected candidates. Screening preserves original SMILES and returns decisions and every unmet rule condition. For multiple objectives, select a rule for each and report candidates satisfying all of them.
+
+AS (Average Score) is introduced and defined in the [STCA paper](https://doi.org/10.1038/s41524-026-02345-x) and validated through its polymer-screening evaluations. This skill uses the same arithmetic mean of MCC, Precision and F1.
 
 The primary is chosen using in-range, structure-grouped 5-fold evaluation repeated 3 times. **AS = (MCC + Precision + F1) / 3**; when both methods can be evaluated, WRAcc is primary only when its AS exceeds STCA by **more than 0.02**, otherwise STCA is retained. Each tier reports both methods’ scores and the recommendation reason. Scores are conditional on the automatically preprocessed data. Screening the original table shows the frozen rule’s selections within that table.
 
-## Author-archived rules
+## STCA paper rules
 
-These frozen Tg and electrical-conductivity rules come from the author’s **SI-20260822 archive** and can be used for the corresponding structural screening and generation tasks. The **Tg Top 10% entry is an archived variant**, not the representative rule described in the final published SI. See the [rule provenance](../skills/stca/references/provenance.md).
+These frozen Tg and electrical-conductivity rules implement the structural screening and generation tasks presented in the author’s [STCA paper](https://doi.org/10.1038/s41524-026-02345-x). Select a property and percentage below to use the complete rule-guided prompt.
 
 | Property and direction | Unit | Complete prompts |
 |---|---|---|
@@ -37,7 +39,7 @@ These frozen Tg and electrical-conductivity rules come from the author’s **SI-
 
 ## GAS: measured gas permeability
 
-CO₂ and O₂ labels are experimental measurements.
+Source: [PolymerGasMembraneML Dataset A](https://github.com/jsunn-y/PolymerGasMembraneML), associated with the [gas-permeability study](https://doi.org/10.1126/sciadv.abn9545). CO₂ and O₂ labels are experimental measurements. STCA has been applied to these data for rule extraction and screening validation.
 
 | Property | Unit | Top 10% | Top 20% | Top 30% |
 |---|---|---|---|---|
@@ -46,7 +48,7 @@ CO₂ and O₂ labels are experimental measurements.
 
 ## RadonPy: five computed properties
 
-These labels come from polymer molecular-dynamics calculations.
+Source: [RadonPy PI1070](https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv), associated with the [RadonPy study](https://doi.org/10.1038/s41524-022-00906-4). These labels come from polymer molecular-dynamics calculations and have been used with STCA for rule extraction and screening validation.
 
 | Property | Unit | Top 10% | Top 20% | Top 30% |
 |---|---|---|---|---|
@@ -58,7 +60,7 @@ These labels come from polymer molecular-dynamics calculations.
 
 ## ADEPT: five computed properties
 
-These labels come from MD/DFT calculations. The gap is the HOMO–LUMO gap of a hydrogen-capped isolated monomer.
+Source: [ADEPT data distributed with PolyGraphMT](https://github.com/sobinalosious/PolyGraphMT/tree/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw), associated with the [ADEPT study](https://doi.org/10.1039/D6DD00206D). These MD/DFT property tasks have been used with STCA for rule extraction and screening validation. The gap is the HOMO–LUMO gap of a hydrogen-capped isolated monomer.
 
 | Property | Unit | Top 10% | Top 20% | Top 30% |
 |---|---|---|---|---|

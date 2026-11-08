@@ -1,6 +1,6 @@
 # STCA rule and prompt library
 
-> Tg/EC来源说明：这11条冻结条件来自作者SI-20260822归档快照；不表示正式论文全量数字复现。Tg Top10%为归档代表变体，与正式SI S7.1所述最优family不同。原条件保留，来源状态见catalog publication_alignment。
+Tg 与电导率规则来自作者的 [STCA 论文实现](https://doi.org/10.1038/s41524-026-02345-x)，可直接选择相应性质与档位，用于筛选或引导生成。
 
 
 83 visible choices from 149 retained frozen entries. Version 0.1.0.

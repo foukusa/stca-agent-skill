@@ -13,12 +13,13 @@ CATALOG_ROOT = TASKS_FILE.parent / "rule_library"
 RETURN_COMMANDS = {"返回", "上一级", "主菜单", "返回主菜单", "back", "main menu", "return", "menu", "0"}
 SOURCE_LABELS = {
     "my_rules": {"zh-CN": "我的规则", "en": "My saved rules"},
-    "paper": {"zh-CN": "STCA 作者归档", "en": "STCA author archive"},
+    "paper": {"zh-CN": "STCA 论文", "en": "STCA paper"},
     "gas": {"zh-CN": "GAS 实测数据", "en": "GAS measured data"},
     "radonpy": {"zh-CN": "RadonPy 计算数据", "en": "RadonPy computed data"},
     "adept": {"zh-CN": "ADEPT 计算数据", "en": "ADEPT computed data"},
 }
 EVIDENCE_LABELS = {
+    "paper_implementation": ("STCA 论文实现", "STCA paper implementation"),
     "published_evidence": ("论文规则", "Published rule"),
     "historical_evidence": ("历史记录", "Historical record"),
     "reference_enrichment_observed": ("有富集记录", "Recorded enrichment"),
@@ -150,7 +151,8 @@ def rule_options(directory, language="zh-CN", catalog_root=CATALOG_ROOT):
             **physical_target(constraint),
             "reference_evaluation": entry.get("reference_evaluation"),
             "publication_alignment": entry.get("publication_alignment"),
-            "evidence": evidence((entry.get("reference_evaluation") or {}).get("status", "reference_inconclusive")),
+            "evidence": evidence("paper_implementation" if source == "paper" else
+                                 (entry.get("reference_evaluation") or {}).get("status", "reference_inconclusive")),
         })
     for group in groups.values():
         for prop in group["properties"]:

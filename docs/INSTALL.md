@@ -1,4 +1,4 @@
-# Install and use STCA on Mac
+# Install and use STCA
 
 **Version 0.1.0** · [简体中文](INSTALL.zh-CN.md) · [Home](../README.md)
 
@@ -14,20 +14,22 @@
 
 ## Choose a package
 
+Choose your AI platform and follow the installation method supported by its client.
+
 | Platform | Download |
 |---|---|
 | ChatGPT or Codex | [stca-openai-skill-0.1.0.zip](../downloads/stca-openai-skill-0.1.0.zip?raw=true) |
 | DeepSeek Harness | [stca-deepseek-harness-0.1.0.zip](../downloads/stca-deepseek-harness-0.1.0.zip?raw=true) |
 | WorkBuddy | [stca-workbuddy-0.1.0.zip](../downloads/stca-workbuddy-0.1.0.zip?raw=true) |
 
-The same standalone OpenAI skill ZIP works for ChatGPT and Codex; use the installation method supported by each client. Every workflow accepts natural language. Calculations use a CPU; the AI assistant reuses a compatible Python 3.10+ environment and prepares required dependencies without asking you to run commands.
+ChatGPT and Codex use the same standalone skill package. All workflows accept natural language. The AI assistant prepares the CPU calculation environment; you do not need to run setup commands.
 
 ## ChatGPT
 
 1. Open [ChatGPT](https://chatgpt.com/) and go to **Plugins → Skills**.
 2. Choose **Create → Upload from your computer**.
-3. In the Mac file dialog, select `stca-openai-skill-0.1.0.zip` and click Open.
-4. Complete the page instructions, select STCA and say “Start STCA”.
+3. Select `stca-openai-skill-0.1.0.zip` and complete the page instructions.
+4. Select STCA and say “Start STCA”.
 
 Creation and uploading depend on account and workspace access. See [official ChatGPT help](https://help.openai.com/en/articles/20001066-skills-in-chatgpt/). If STCA is already installed from the public directory, select it directly.
 
@@ -39,31 +41,30 @@ Ask Codex to install it:
 Use $skill-installer to install https://github.com/foukusa/stca-agent-skill/tree/main/skills/stca
 ```
 
-Then say “Use $stca”. For local installation:
+Then say “Use $stca”. If you install from local files:
 
-1. Double-click the same `stca-openai-skill-0.1.0.zip` in Finder.
-2. Use **Go → Go to Folder** to open an existing `~/.agents/skills` directory.
-3. Copy the complete `stca` folder, keeping `SKILL.md` and all supporting directories together.
-4. Select STCA or say “Use $stca”. Use the automatic installation request if a local skill directory is not available.
+1. Extract `stca-openai-skill-0.1.0.zip` with your file manager.
+2. Copy the complete `stca` folder into the skill directory configured in Codex. If you do not know its location, ask Codex to identify it or use the installation request above.
+3. Keep `SKILL.md`, `scripts`, `references` and `assets` together.
+4. Select STCA or say “Use $stca”.
 
 See the [official OpenAI skill guide](https://learn.chatgpt.com/docs/build-skills).
 
 ## DeepSeek Harness
 
-1. Use a configured [DeepSeek Harness](https://www.deepseek.com/harness/).
-2. Double-click the DeepSeek ZIP in Finder to obtain the complete `stca` folder.
-3. Press **Command+Shift+G** in Finder, enter the configured skill root (the default is `~/.dsh/skills`), and press Return.
-4. If Finder cannot find that location, ask the AI assistant in Harness to create the default user skill directory or identify the configured root, then open that location in Finder.
-5. Copy the complete `stca` folder there, producing `stca/SKILL.md` with all supporting directories together.
-6. Enter `/stca` in Harness.
+1. Open your configured [DeepSeek Harness](https://www.deepseek.com/harness/).
+2. Extract the DeepSeek ZIP to obtain the complete `stca` folder.
+3. Copy it into the configured skill root; the default user root is `~/.dsh/skills`. If the directory is unavailable or you use a custom configuration, ask the Harness assistant to identify or prepare the correct location.
+4. Keep the folder structure intact, with `stca/SKILL.md` and its supporting directories.
+5. Enter `/stca` in Harness.
 
-Keep `SKILL.md`, `scripts`, `references` and `assets` together. See the [official filesystem guide](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/skill/skill-filesystem/README.zh.md). Complete generation prompts can also be copied into an ordinary DeepSeek chat.
+See the [official filesystem guide](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/skill/skill-filesystem/README.zh.md). Complete generation prompts can also be copied into an ordinary DeepSeek chat.
 
 ## WorkBuddy
 
 1. Open [WorkBuddy](https://www.workbuddy.cn/) and its skill management page.
 2. Choose the action for adding and uploading a local skill package.
-3. Select the WorkBuddy ZIP in the Mac file dialog, complete import and enable STCA.
+3. Select `stca-workbuddy-0.1.0.zip`, complete import and enable STCA.
 4. Say “Start STCA”.
 
 See [official WorkBuddy instructions](https://www.workbuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Skills-Market).
@@ -72,12 +73,10 @@ See [official WorkBuddy instructions](https://www.workbuddy.cn/docs/workbuddy/Fr
 
 The menu order is **1 Upload data and learn, 2 Screen with existing rules, 3 Generate with existing rules**.
 
-- Task 1 compares STCA and WRAcc within your data range by default. Each tier returns primary/alternative rules, physical cutoffs and both methods’ screening results for the original table, plus separate results for any independent candidates. It preserves original SMILES, failed conditions and uncomputable records, saves the rules and returns to the menu.
-- Task 2 screens uploaded candidates with a selected bundled or personal rule.
-- Task 3 first shows the rule catalog, methods and primary/alternative choices. After selecting a rule, choose **Preview and confirm** to review and adjust the complete prompt before saying “Confirm and generate,” or **Generate directly** to have the current LLM generate and verify immediately. Both modes preserve every proposal and failed condition, then return to the menu. No additional LLM API setup is needed.
+- Task 1 returns STCA and WRAcc rules separately, with each tier’s numeric physical cutoff, comparison, unit, screening results and recommendation. If percentages are omitted, it uses Top or Bottom 10%, 20% and 30%; you can specify other percentages, such as 15% or 25%. Results preserve the original table, SMILES, unmet rule conditions and uncomputable records. The rules are saved before returning to the menu.
+- Task 2 screens uploaded candidates with bundled rules or My rules. The two methods’ results remain separate, and the recommended method is clearly identified.
+- Task 3 first shows the rule catalog. After selecting a rule, choose **Preview and confirm** to review and adjust the complete prompt before saying “Confirm and generate,” or **Generate directly** to have the current LLM generate and verify immediately. Both modes preserve every proposal and unmet rule condition, then return to the menu. No additional LLM API setup is needed.
 
-Bundled open-data tasks provide Top 10%, 20% and 30%; your own data can support custom tiers such as 15% or 25%.
-
-Copy the short requests from the [natural-language examples](USAGE.md).
+Copy a short request from the [natural-language examples](USAGE.md).
 
 “Main menu” or “Back” preserves saved rules. To change sessions or platforms, download the rule bundle and upload it in the new session, then ask the AI assistant to load it.
