@@ -1,0 +1,68 @@
+{
+  "input_rows": 1077,
+  "property": "refractive_index",
+  "unit": "1",
+  "D1_D2_excluded": {
+    "nonfinite_target": 2
+  },
+  "D3_transform": "none",
+  "D4_replicate_measurements_dropped": 0,
+  "D5_flagged": 19,
+  "D6_flagged": 0,
+  "D7_quarantined": [],
+  "C1_scan": {
+    "value_step": 0.0005,
+    "step_hit_halving_cap": false,
+    "min_subset_size": 1,
+    "inner_mcc_min_subset_1": 0.389,
+    "inner_mcc_min_subset_5pct": 0.422
+  },
+  "structures_after_cleaning": 1039,
+  "extrapolation_records": 207,
+  "tiers": [
+    {
+      "tier": 0.3,
+      "rule": "top 30%",
+      "comparator": ">=",
+      "unit": "1",
+      "cutoff_physical": 1.5912610684,
+      "positives": 312,
+      "inrange_cv_evaluable": true,
+      "source_cutoff_physical": 1.56746904415,
+      "source_positives": 250,
+      "extrapolation_positives": 142,
+      "extrapolation_top_cluster_share": 0.72,
+      "extrapolation_evaluable": true
+    },
+    {
+      "tier": 0.2,
+      "rule": "top 20%",
+      "comparator": ">=",
+      "unit": "1",
+      "cutoff_physical": 1.63051903,
+      "positives": 208,
+      "inrange_cv_evaluable": true,
+      "source_cutoff_physical": 1.5972317888,
+      "source_positives": 167,
+      "extrapolation_positives": 125,
+      "extrapolation_top_cluster_share": 0.72,
+      "extrapolation_evaluable": true
+    },
+    {
+      "tier": 0.1,
+      "rule": "top 10%",
+      "comparator": ">=",
+      "unit": "1",
+      "cutoff_physical": 1.6695841006,
+      "positives": 104,
+      "inrange_cv_evaluable": true,
+      "source_cutoff_physical": 1.6403049512999999,
+      "source_positives": 84,
+      "extrapolation_positives": 86,
+      "extrapolation_top_cluster_share": 0.71,
+      "extrapolation_evaluable": true
+    }
+  ],
+  "recommended_train_command": "stca_runtime.py run -- train --input cleaned.csv --smiles-column stca_calculation_smiles_hcap --target y_model --direction high --tiers 0.3 0.2 0.1 --scan-step 0.0005 --min-subset-size 1 --split-column split --group-column hcap_canon",
+  "default_evaluation": "grouped 5-fold CV within the data range (scripts/inrange_evaluation.py); extrapolation check optional"
+}

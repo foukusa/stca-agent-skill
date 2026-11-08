@@ -5,23 +5,23 @@
     "name": "stca",
     "display_name": "STCA 规则与设计",
     "display_name_en": "STCA Rules and Design",
-    "description": "Use STCA to select bundled polymer screening rules, learn readable rules from uploaded measured or computed CSV data, and export complete generation prompts for the current or another LLM. Preserve original repeat-unit SMILES; verify candidates against exact frozen conditions. Triggers: STCA、聚合物筛选、规则提取、生成prompt。",
-    "description_zh": "选择内置聚合物规则筛选候选，从上传的数据归纳新规则，或获取完整 prompt 交给 LLM 生成并核验新结构。",
-    "description_en": "Screen with bundled polymer rules, learn rules from uploaded data, and use complete prompts to generate and verify new structures.",
+    "description": "Use STCA to learn and save readable polymer rules, screen with bundled or saved rules, or invoke the current LLM to generate and verify structures. Choose preview/edit/confirm or direct generation. Preserve exact rules and original starred SMILES. Triggers: STCA、聚合物筛选、规则归纳、生成prompt。",
+    "description_zh": "从上传数据学习并保存STCA/WRAcc可读规则，使用现成或自己的规则筛选候选，或按完整prompt生成并核验新结构。",
+    "description_en": "Learn and save readable STCA/WRAcc rules from uploaded data, screen candidates with existing rules, or generate and verify structures using complete prompts.",
     "version": "0.1.0",
     "author": "Weihao Wang",
     "examples_zh": [
-      "列出内置高热导规则，按我选择的数据集和百分比筛选候选 CSV。",
-      "从上传的实测或计算性质 CSV 自动归纳规则，并给出可直接使用的生成 prompt。",
-      "将选定规则转成完整的中文 prompt，让 LLM 生成20个新重复单元并逐条核验。"
+      "开始使用 STCA。",
+      "使用 STCA，帮我从这份数据总结规则。",
+      "使用 STCA，按选定规则生成20个候选并核验。"
     ],
     "examples_en": [
-      "List bundled high thermal-conductivity rules and screen my candidate CSV with my chosen dataset and tier.",
-      "Learn rules from my measured or computed property CSV and provide complete generation prompts.",
-      "Use the chosen rules to generate 20 repeat units, then verify each candidate."
+      "Start STCA.",
+      "Use STCA to learn rules from this data.",
+      "Use STCA to generate and verify 20 candidates with my selected rules."
     ]
   },
-  "entry_note": "先按 SKILL.md 选择现成规则、上传数据归纳规则或生成 prompt。现成规则和双语 prompt 位于 assets/rule_library。仅在计算时由宿主 agent 自动发现或准备后端，用户以自然语言调用，无需操作终端。安装入口见 references/workbuddy.md。",
+  "entry_note": "加载STCA后输入“开始使用STCA”，选择1上传数据总结规则、2已有规则筛选、3已有规则生成。学习默认比较STCA与WRAcc，分别返回各档筛选结果并保存完整规则和双语prompt，回到主菜单。生成先选来源、性质和百分比；方法可自动采用主推；原始星号SMILES保留，H-cap只用于计算。选定生成规则后，可先查看并调整完整prompt、确认后调用当前LLM，或直接生成并核验。",
   "official_docs": [
     "https://open.workbuddy.cn/docs/skill",
     "https://www.workbuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Skills-Market"

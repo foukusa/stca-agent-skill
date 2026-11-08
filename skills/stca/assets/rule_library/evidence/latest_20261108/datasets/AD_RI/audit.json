@@ -1,0 +1,66 @@
+{
+  "input_rows": 744,
+  "property": "refractive_index",
+  "unit": "1",
+  "D1_D2_excluded": {},
+  "D3_transform": "none",
+  "D4_replicate_measurements_dropped": 0,
+  "D5_flagged": 6,
+  "D6_flagged": 11,
+  "D7_quarantined": [],
+  "C1_scan": {
+    "value_step": 0.0002,
+    "step_hit_halving_cap": false,
+    "min_subset_size": 29,
+    "inner_mcc_min_subset_1": 0.26,
+    "inner_mcc_min_subset_5pct": 0.367
+  },
+  "structures_after_cleaning": 719,
+  "extrapolation_records": 143,
+  "tiers": [
+    {
+      "tier": 0.3,
+      "rule": "top 30%",
+      "comparator": ">=",
+      "unit": "1",
+      "cutoff_physical": 1.5128804,
+      "positives": 216,
+      "inrange_cv_evaluable": true,
+      "source_cutoff_physical": 1.5128665,
+      "source_positives": 173,
+      "extrapolation_positives": 43,
+      "extrapolation_top_cluster_share": 0.19,
+      "extrapolation_evaluable": true
+    },
+    {
+      "tier": 0.2,
+      "rule": "top 20%",
+      "comparator": ">=",
+      "unit": "1",
+      "cutoff_physical": 1.5359912,
+      "positives": 144,
+      "inrange_cv_evaluable": true,
+      "source_cutoff_physical": 1.534304,
+      "source_positives": 116,
+      "extrapolation_positives": 35,
+      "extrapolation_top_cluster_share": 0.17,
+      "extrapolation_evaluable": true
+    },
+    {
+      "tier": 0.1,
+      "rule": "top 10%",
+      "comparator": ">=",
+      "unit": "1",
+      "cutoff_physical": 1.5686904000000002,
+      "positives": 72,
+      "inrange_cv_evaluable": true,
+      "source_cutoff_physical": 1.5678295,
+      "source_positives": 58,
+      "extrapolation_positives": 17,
+      "extrapolation_top_cluster_share": 0.24,
+      "extrapolation_evaluable": false
+    }
+  ],
+  "recommended_train_command": "stca_runtime.py run -- train --input cleaned.csv --smiles-column stca_calculation_smiles_hcap --target y_model --direction high --tiers 0.3 0.2 0.1 --scan-step 0.0002 --min-subset-size 29 --split-column split --group-column hcap_canon",
+  "default_evaluation": "grouped 5-fold CV within the data range (scripts/inrange_evaluation.py); extrapolation check optional"
+}

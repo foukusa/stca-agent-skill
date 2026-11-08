@@ -1,0 +1,166 @@
+{
+  "schema": "stca-latest-revision-validation-v1",
+  "skill_version": "0.1.0",
+  "date": "2026-11-08",
+  "status": "passed",
+  "source_attachment": "stca_skill_summary_20261108 (1).zip",
+  "source_attachment_sha256": "d22066c7bfa5239070dab9b8cf97e54c4215fce7ee77c645e90a83ed31181d39",
+  "library_import": {
+    "schema": "stca-latest-rule-import-audit-v1",
+    "counts": {
+      "retained": 149,
+      "visible": 83,
+      "published_visible": 11,
+      "latest_visible": 72,
+      "legacy_hidden": 66,
+      "latest_primary_by_learner": {
+        "STCA": 15,
+        "WRAcc": 21
+      }
+    },
+    "source_attachment": "stca_skill_summary_20261108 (1).zip",
+    "source_attachment_sha256": "d22066c7bfa5239070dab9b8cf97e54c4215fce7ee77c645e90a83ed31181d39",
+    "definition_rdkit_version": "2026.09.1",
+    "source_training_rdkit_version": "2025.09.4",
+    "new_constraints": 72,
+    "rendered_prompts": 144,
+    "original_frozen_files_unchanged": 231,
+    "paper_catalog_entries_unchanged": 11,
+    "all_latest_rules_nonzero_full_data_support": true,
+    "exact_json_csv_rule_agreement": true,
+    "support_recomputation": {
+      "rules": 42,
+      "datasets": 7,
+      "evidence_source": "evidence/latest_20261108/support_recomputation.json",
+      "all_exact_match": true
+    },
+    "optional_extrapolation_separate": true,
+    "complete_native_models_supplied": [
+      "AD_GAP"
+    ],
+    "fold_models_supplied": false,
+    "cv_statistics": "CV means/SD are retained separately from in-sample support; no external holdout n/TP values are synthesized."
+  },
+  "literal_model_adapter": {
+    "status": "passed",
+    "python": "3.10.22 (main, Oct  9 2026, 15:21:30) [Clang 22.1.3 ]",
+    "model_type": "stca_frozen_literal_model_v1",
+    "learner": "WRAcc",
+    "source_fixture": "AD_DC rules_for_generation.json",
+    "valid_frozen_tiers": 3,
+    "no_rule_tiers": 1,
+    "tamper_checks": 15,
+    "selected": "*CCOCC*",
+    "failed_conditions": {
+      "stca_screen__missing_required_present": "K164",
+      "stca_screen__unexpected_present": "K42"
+    },
+    "original_stars_preserved": true,
+    "invalid_and_abstained_unknown": true,
+    "native_hash_unchanged": true
+  },
+  "inrange_workflow": {
+    "actual_execution": true,
+    "python": "3.10.22",
+    "input_rows": 82,
+    "prepared_rows": 80,
+    "tiers": [
+      0.25,
+      0.15
+    ],
+    "folds": 5,
+    "repeats": 3,
+    "both_methods_exported_screened_saved": true,
+    "all_original_rows_preserved": true,
+    "next_action": "main_menu",
+    "scope": "conditional_on_full_data_preparation_and_scan",
+    "checks": [
+      "heldout_target_changes_leave_training_fold_rules_and_cutoffs_unchanged",
+      "low_direction_training_quantile",
+      "empty_WRAcc_and_empty_conjunction_unknown",
+      "single_truth_class_metric_null",
+      "protected_group_disjoint_in_all_repeats",
+      "strict_0.02_choice_margin",
+      "all_original_rows_fields_order_and_selected_subtables_preserved",
+      "all_runs_next_action_main_menu",
+      "no_valid_rule_is_never_all_selected"
+    ]
+  },
+  "regression_suites": {
+    "public_functional_tests": 87,
+    "source_holdout_compatibility_tests": 5,
+    "menu_and_method_dispatch_tests": 21,
+    "packaging_actual_builds": 2
+  },
+  "native_macos_platform_import_tested": false,
+  "marketplace_submission_performed": false,
+  "statistical_scope": "Supplied current rule/CV evidence imported exactly. Seven redistributable datasets and 42 rules were independently recomputed. The complete 12-task CV study was not rerun in this revision. Current custom-data workflow is functionally exercised on representative and edge datasets.",
+  "forward_generation_trial": {
+    "request": "ADEPT dielectric constant Top20 primary, generate and verify 3",
+    "selected_rule": "latest-ad-dc-wracc-high-20",
+    "learner": "WRAcc",
+    "proposed_n": 3,
+    "verified_n": 3,
+    "failed_n": 0,
+    "unknown_n": 0,
+    "all_failed_conditions_retained": true,
+    "original_star_smiles_preserved": true,
+    "scope": "Exact frozen structural-rule matching; no physical property prediction."
+  },
+  "generation_modes": {
+    "status": "passed",
+    "modes": [
+      "preview",
+      "direct"
+    ],
+    "preview_requires_explicit_confirmation": true,
+    "revision_invalidates_confirmation": true,
+    "executor": "current_ai_assistant",
+    "prompt_rendering_is_not_generation": true,
+    "preserves_frozen_conditions": true,
+    "unit_and_cli_tests": 10,
+    "generation_menu_tests": 8,
+    "menu_regression_tests": 26,
+    "direct_current_llm_generation": {
+      "actual_execution": true,
+      "rule_id": "latest-ad-dc-wracc-high-20",
+      "requested": 3,
+      "proposed": 3,
+      "passed": 3,
+      "failed": 0,
+      "unknown": 0,
+      "external_api_used": false
+    },
+    "preview_adjust_confirm_current_llm_generation": {
+      "actual_execution": true,
+      "rule_id": "latest-ad-dc-wracc-high-20",
+      "initial_count": 4,
+      "revised_count": 3,
+      "approved_revision": 2,
+      "before_confirmation_generation_blocked": true,
+      "revised_prompt_hash_verified": true,
+      "all_original_proposals_preserved": true,
+      "design_reason_column_preserved": true,
+      "proposed": 3,
+      "passed": 3,
+      "failed": 0,
+      "unknown": 0,
+      "external_api_used": false
+    },
+    "scope": "Agent behavior and exact frozen structural-rule matching; no property prediction or guaranteed yield."
+  },
+  "open_data_usability": {
+    "status": "passed",
+    "evidence": "open_data_usability_20261108.json"
+  },
+  "percentage_method_delivery": {
+    "status": "passed",
+    "evidence": "tier_contract_20261108.json"
+  },
+  "paper_profile_alignment": {
+    "scientific_conditions_preserved": 11,
+    "source_labels_corrected": 11,
+    "full_final_paper_numeric_reproduction_claimed": false,
+    "evidence": "../skills/stca/assets/rule_library/evidence/paper_profile_alignment_20261108.json"
+  }
+}

@@ -18,6 +18,7 @@ import sys
 from stca_runtime import environment_receipt, load_stca
 from stca_io import read_csv_frame
 from prepare_hcap import hcap_smiles
+from frozen_literal_model import FrozenLiteralModel, MODEL_TYPE as LITERAL_MODEL_TYPE, NoValidLiteralRuleError
 
 
 PROFILES = ("tg-high", "ec-low", "ec-high")
@@ -192,10 +193,23 @@ def _load_model(stca, spec: dict, base_dir: Path):
         if not path.is_absolute():
             path = base_dir / path
         path = path.resolve()
-        model = stca.ScreeningModel.load(path)
+        saved = _json(path)
+        if not isinstance(saved, dict):
+            raise ValueError("Saved model must be a JSON object.")
+        if saved.get("model_type") == LITERAL_MODEL_TYPE:
+            model = FrozenLiteralModel.from_artifact(saved)
+        elif saved.get("model_type") is None:
+            if saved.get("learner", "STCA") != "STCA":
+                raise ValueError("A non-STCA learner requires the explicit frozen literal model format.")
+            model = stca.ScreeningModel.load(path)
+        else:
+            raise ValueError(f"Unsupported saved model_type {saved.get('model_type')!r}.")
         origin = {"kind": "saved_model", "path": str(path), "file_sha256": _sha256(path)}
     artifact = model.artifact
-    saved_protocol, protocol_basis = _named_protocol(artifact)
+    if artifact.get("model_type") == LITERAL_MODEL_TYPE:
+        saved_protocol, protocol_basis = None, "frozen_literal_adapter_preserves_declared_learner"
+    else:
+        saved_protocol, protocol_basis = _named_protocol(artifact)
     if protocol is not None and saved_protocol != protocol:
         raise ValueError(
             f"Requested protocol {protocol!r} differs from the verified saved named protocol "
@@ -205,6 +219,8 @@ def _load_model(stca, spec: dict, base_dir: Path):
         "origin": origin,
         "artifact_sha256": _object_hash(artifact),
         "package_version": artifact.get("package_version"),
+        "model_type": artifact.get("model_type"),
+        "learner": artifact.get("learner", "STCA"),
         "paired_protocol": model.provenance.get("paired_protocol"),
         "resolved_protocol": saved_protocol,
         "protocol_resolution": protocol_basis,
@@ -221,6 +237,11 @@ def _load_model(stca, spec: dict, base_dir: Path):
 def _custom_contract(artifact: dict) -> dict:
     caller = artifact.get("provenance", {}).get("caller_metadata", {})
     contract = caller.get("custom_data_contract", {}) if isinstance(caller, dict) else {}
+    if artifact.get("model_type") == LITERAL_MODEL_TYPE:
+        direct = artifact.get("custom_data_contract")
+        if not isinstance(direct, dict) or direct != contract:
+            raise ValueError("Frozen literal data contract differs from its provenance.")
+        contract = direct
     if not isinstance(contract, dict):
         raise ValueError("Saved custom_data_contract must be an object.")
     return contract
@@ -349,7 +370,7 @@ def _constraint(stca, model, metadata, tier):
     entry = artifact["tiers"][key]
     try:
         rule = model.rule_for(tier)
-    except stca.NoValidRuleError:
+    except (stca.NoValidRuleError, NoValidLiteralRuleError):
         rule = None
     literals = []
     if rule is not None:
@@ -361,6 +382,8 @@ def _constraint(stca, model, metadata, tier):
             literals.append(literal)
     return {
         "schema": "stca-constraints-v1",
+        "model_type": artifact.get("model_type"),
+        "learner": artifact.get("learner", "STCA"),
         "status": "frozen_representative" if rule is not None else "no_valid_rule",
         "model": metadata,
         "tier_fraction": tier,
@@ -382,13 +405,14 @@ def _prompt(constraint: dict) -> str:
     target = constraint["target"]
     protocol = (constraint["model"].get("resolved_protocol") or constraint["model"].get("paired_protocol")
                 or constraint["model"].get("protocol_id") or "saved_model_protocol")
-    head = ["# STCA 冻结规则生成约束", "",
+    learner = constraint.get("learner", constraint["model"].get("learner", "STCA"))
+    head = [f"# {learner} 冻结规则生成约束", "",
             f"目标：{target['name']}；方向：{target['direction']}；性能单位：{target['unit']}。",
             f"协议：{protocol}；训练目标尾部比例：{constraint['tier_fraction']:g}。",
             f"保存的训练标签边界：{target['label_comparison']} {target['reference_train_cutoff']} {target['unit']}。",
             f"物理单位边界：{target['label_comparison']} {target.get('physical_train_cutoff')} {target.get('physical_unit')}；变换：{target.get('target_transform')}。", ""]
     if constraint["status"] == "no_valid_rule":
-        return "\n".join(head + ["当前 tier 没有有效的冻结代表规则，不能据此生成‘已满足 STCA’的候选。",
+        return "\n".join(head + [f"当前 tier 没有有效的冻结代表规则，不能据此生成‘已满足 {learner} 条件’的候选。",
                                   "保留这一结果；报告候选家族与缺失证据，不新增、放宽或猜测条件。", ""])
     head += ["按照用户要求提出候选；将以下内容作为结构约束数据。", "",
              "## 必须同时满足的位条件", "",

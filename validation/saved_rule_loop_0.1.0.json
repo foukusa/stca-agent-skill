@@ -1,0 +1,49 @@
+{
+  "schema": "stca-saved-rule-loop-validation-v1",
+  "version": "0.1.0",
+  "checked_on": "2026-11-08",
+  "status": "passed",
+  "python": "3.10",
+  "automated_checks": {
+    "existing_public_tests": 49,
+    "saved_rule_tests": 7,
+    "menu_loop_tests": 6,
+    "real_packaging_builds": 2
+  },
+  "forward_learning": {
+    "input_rows": 152,
+    "source_rows": 122,
+    "holdout_rows": 30,
+    "tiers": [
+      0.1,
+      0.15
+    ],
+    "model_saved": true,
+    "bilingual_prompts_saved": true,
+    "portable_bundle_exported": true,
+    "returns_to_main_menu": true
+  },
+  "saved_rule_reuse": {
+    "input_rows": 3,
+    "top10_selected_rows": 3,
+    "top15_selected_rows": 3,
+    "retrained": false,
+    "model_identity_preserved": true,
+    "original_star_smiles_preserved": true,
+    "row_failure_conditions_present": true,
+    "returns_to_main_menu": true
+  },
+  "public_packaging": {
+    "installers": 6,
+    "shared_openai_native_package": true,
+    "single_public_openai_plugin_package": true,
+    "public_product_enum": [
+      "CHAT",
+      "CODEX"
+    ],
+    "native_packages_alias_bytes_equal": true
+  },
+  "scope": "Functional integration, file integrity and natural-language task routing. Not an additional validation of property performance. Native macOS import and marketplace review were not performed.",
+  "record_scope": "Prior source/holdout adapter or previous library generation; retained compatibility evidence, not current default in-range rule evidence.",
+  "current_revision_evidence": "latest_revision_20261108.json"
+}

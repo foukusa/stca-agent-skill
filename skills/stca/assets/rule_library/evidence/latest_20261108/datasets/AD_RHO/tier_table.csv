@@ -1,0 +1,4 @@
+tier,rule,comparator,unit,cutoff_physical,positives,inrange_cv_evaluable,source_cutoff_physical,source_positives,extrapolation_positives,extrapolation_top_cluster_share,extrapolation_evaluable
+0.3,top 30%,>=,g/cm3,1.1357978,569,True,1.1375929999999999,455,105,0.28,True
+0.2,top 20%,>=,g/cm3,1.1933408,379,True,1.197266,304,59,0.34,True
+0.1,top 10%,>=,g/cm3,1.2680314,190,True,1.284761,152,12,0.17,False

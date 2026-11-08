@@ -1,0 +1,4 @@
+tier,rule,comparator,unit,cutoff_physical,positives,inrange_cv_evaluable,source_cutoff_physical,source_positives,extrapolation_positives,extrapolation_top_cluster_share,extrapolation_evaluable
+0.3,top 30%,>=,W/(m K),0.25829242939999997,311,True,0.2503375773,249,129,0.45,True
+0.2,top 20%,>=,W/(m K),0.277747882,207,True,0.265243343,166,96,0.43,True
+0.1,top 10%,>=,W/(m K),0.30895011440000003,104,True,0.29706672190000005,83,56,0.41,True

@@ -1,0 +1,66 @@
+{
+  "input_rows": 1077,
+  "property": "density",
+  "unit": "g/cm3",
+  "D1_D2_excluded": {},
+  "D3_transform": "none",
+  "D4_replicate_measurements_dropped": 0,
+  "D5_flagged": 35,
+  "D6_flagged": 0,
+  "D7_quarantined": [],
+  "C1_scan": {
+    "value_step": 0.001,
+    "step_hit_halving_cap": false,
+    "min_subset_size": 1,
+    "inner_mcc_min_subset_1": 0.353,
+    "inner_mcc_min_subset_5pct": 0.368
+  },
+  "structures_after_cleaning": 1041,
+  "extrapolation_records": 208,
+  "tiers": [
+    {
+      "tier": 0.3,
+      "rule": "top 30%",
+      "comparator": ">=",
+      "unit": "g/cm3",
+      "cutoff_physical": 1.222343047,
+      "positives": 313,
+      "inrange_cv_evaluable": true,
+      "source_cutoff_physical": 1.1996911882,
+      "source_positives": 250,
+      "extrapolation_positives": 115,
+      "extrapolation_top_cluster_share": 0.73,
+      "extrapolation_evaluable": true
+    },
+    {
+      "tier": 0.2,
+      "rule": "top 20%",
+      "comparator": ">=",
+      "unit": "g/cm3",
+      "cutoff_physical": 1.264285557,
+      "positives": 209,
+      "inrange_cv_evaluable": true,
+      "source_cutoff_physical": 1.2568210981999999,
+      "source_positives": 167,
+      "extrapolation_positives": 64,
+      "extrapolation_top_cluster_share": 0.69,
+      "extrapolation_evaluable": true
+    },
+    {
+      "tier": 0.1,
+      "rule": "top 10%",
+      "comparator": ">=",
+      "unit": "g/cm3",
+      "cutoff_physical": 1.308883696,
+      "positives": 105,
+      "inrange_cv_evaluable": true,
+      "source_cutoff_physical": 1.3193795868000002,
+      "source_positives": 84,
+      "extrapolation_positives": 8,
+      "extrapolation_top_cluster_share": 0.62,
+      "extrapolation_evaluable": false
+    }
+  ],
+  "recommended_train_command": "stca_runtime.py run -- train --input cleaned.csv --smiles-column stca_calculation_smiles_hcap --target y_model --direction high --tiers 0.3 0.2 0.1 --scan-step 0.001 --min-subset-size 1 --split-column split --group-column hcap_canon",
+  "default_evaluation": "grouped 5-fold CV within the data range (scripts/inrange_evaluation.py); extrapolation check optional"
+}

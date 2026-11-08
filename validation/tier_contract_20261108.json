@@ -1,0 +1,233 @@
+{
+  "schema": "stca-percentage-method-delivery-validation-v1",
+  "version": "0.1.0",
+  "status": "passed",
+  "default_tiers": [
+    0.1,
+    0.2,
+    0.3
+  ],
+  "custom_tiers": [
+    0.15,
+    0.25
+  ],
+  "custom_input_percent_syntax": [
+    "15%",
+    "25%"
+  ],
+  "user_summary_fields": [
+    "Top/Bottom",
+    "physical_cutoff",
+    "operator",
+    "unit",
+    "STCA result counts/AS/failure table",
+    "WRAcc result counts/AS/failure table",
+    "recommended_method",
+    "reason"
+  ],
+  "method_choice_rule": "CV AS=(MCC+Precision+F1)/3; WRAcc only if its AS exceeds STCA by more than 0.02; keep both method deliveries",
+  "scientific_results_unchanged_by_default_order_and_display_changes": true,
+  "paper_profile_alignment_evidence": "../skills/stca/assets/rule_library/evidence/paper_profile_alignment_20261108.json",
+  "paper_full_final_publication_numeric_reproduction_claimed": false,
+  "regression_checks": 87,
+  "runs": [
+    {
+      "name": "default_final",
+      "input_rows": 778,
+      "prepared_observations": 312,
+      "transform": "log10",
+      "model_scale_scan_step": 0.01,
+      "percentages": [
+        {
+          "fraction": 0.1,
+          "percentage": 10.0,
+          "label": "Top 10%",
+          "physical_cutoff": 6095.988147467993,
+          "operator": ">=",
+          "unit": "Barrer",
+          "cutoff_scope": "full_prepared_data_deployment",
+          "recommended_method": "STCA",
+          "alternative_method": "WRAcc",
+          "recommendation_reason": "STCA_retained_WRAcc_advantage_not_more_than_0.02",
+          "methods": {
+            "STCA": {
+              "status": "rule_fitted",
+              "cv_status": "evaluated",
+              "cv_AS_mean": 0.49873127475226386,
+              "cv_AS_sd": 0.0285384631862168,
+              "selected_n": 18,
+              "not_selected_n": 759,
+              "unknown_n": 1,
+              "original_input_n": 778,
+              "rule": "K149=1 AND K112=1 AND K141=1 AND K145=1 AND K125=1 AND K74=1 AND K66=1 AND K99=1 AND K105=1 AND K160=1"
+            },
+            "WRAcc": {
+              "status": "rule_fitted",
+              "cv_status": "evaluated",
+              "cv_AS_mean": 0.5024234409688466,
+              "cv_AS_sd": 0.012605210543148455,
+              "selected_n": 120,
+              "not_selected_n": 657,
+              "unknown_n": 1,
+              "original_input_n": 778,
+              "rule": "K112=1 AND K153=0 AND K154=0"
+            }
+          }
+        },
+        {
+          "fraction": 0.2,
+          "percentage": 20.0,
+          "label": "Top 20%",
+          "physical_cutoff": 1576.3682538772925,
+          "operator": ">=",
+          "unit": "Barrer",
+          "cutoff_scope": "full_prepared_data_deployment",
+          "recommended_method": "STCA",
+          "alternative_method": "WRAcc",
+          "recommendation_reason": "STCA_retained_WRAcc_advantage_not_more_than_0.02",
+          "methods": {
+            "STCA": {
+              "status": "rule_fitted",
+              "cv_status": "evaluated",
+              "cv_AS_mean": 0.5736646266243465,
+              "cv_AS_sd": 0.06856402938836025,
+              "selected_n": 213,
+              "not_selected_n": 564,
+              "unknown_n": 1,
+              "original_input_n": 778,
+              "rule": "K149=1 AND K112=1 AND K104=0 AND K91=0 AND K111=0 AND K84=0 AND K90=0 AND K132=0 AND K109=0 AND K51=0 AND K55=0 AND K58=0"
+            },
+            "WRAcc": {
+              "status": "rule_fitted",
+              "cv_status": "evaluated",
+              "cv_AS_mean": 0.586984971074345,
+              "cv_AS_sd": 0.010130021493887973,
+              "selected_n": 199,
+              "not_selected_n": 578,
+              "unknown_n": 1,
+              "original_input_n": 778,
+              "rule": "K106=0 AND K112=1 AND K123=0"
+            }
+          }
+        },
+        {
+          "fraction": 0.3,
+          "percentage": 30.0,
+          "label": "Top 30%",
+          "physical_cutoff": 399.7480350720198,
+          "operator": ">=",
+          "unit": "Barrer",
+          "cutoff_scope": "full_prepared_data_deployment",
+          "recommended_method": "STCA",
+          "alternative_method": "WRAcc",
+          "recommendation_reason": "STCA_retained_WRAcc_advantage_not_more_than_0.02",
+          "methods": {
+            "STCA": {
+              "status": "rule_fitted",
+              "cv_status": "evaluated",
+              "cv_AS_mean": 0.6393456367439146,
+              "cv_AS_sd": 0.05904305604614271,
+              "selected_n": 213,
+              "not_selected_n": 564,
+              "unknown_n": 1,
+              "original_input_n": 778,
+              "rule": "K149=1 AND K112=1 AND K104=0 AND K91=0 AND K111=0 AND K84=0 AND K90=0 AND K132=0 AND K109=0 AND K51=0 AND K55=0 AND K58=0"
+            },
+            "WRAcc": {
+              "status": "rule_fitted",
+              "cv_status": "evaluated",
+              "cv_AS_mean": 0.611254937007234,
+              "cv_AS_sd": 0.015482776730578818,
+              "selected_n": 236,
+              "not_selected_n": 541,
+              "unknown_n": 1,
+              "original_input_n": 778,
+              "rule": "K114=0 AND K123=0 AND K149=1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "custom",
+      "input_rows": 778,
+      "prepared_observations": 312,
+      "transform": "log10",
+      "model_scale_scan_step": 0.01,
+      "percentages": [
+        {
+          "fraction": 0.15,
+          "percentage": 15.0,
+          "label": "Top 15%",
+          "physical_cutoff": 3311.04880416088,
+          "operator": ">=",
+          "unit": "Barrer",
+          "cutoff_scope": "full_prepared_data_deployment",
+          "recommended_method": "WRAcc",
+          "alternative_method": "STCA",
+          "recommendation_reason": "WRAcc_AS_exceeds_STCA_by_more_than_0.02",
+          "methods": {
+            "STCA": {
+              "status": "rule_fitted",
+              "cv_status": "evaluated",
+              "cv_AS_mean": 0.4829426449165473,
+              "cv_AS_sd": 0.062477286312527,
+              "selected_n": 213,
+              "not_selected_n": 564,
+              "unknown_n": 1,
+              "original_input_n": 778,
+              "rule": "K149=1 AND K112=1 AND K104=0 AND K91=0 AND K111=0 AND K84=0 AND K90=0 AND K132=0 AND K109=0 AND K51=0 AND K55=0 AND K58=0"
+            },
+            "WRAcc": {
+              "status": "rule_fitted",
+              "cv_status": "evaluated",
+              "cv_AS_mean": 0.5381858161843317,
+              "cv_AS_sd": 0.0321264927282869,
+              "selected_n": 199,
+              "not_selected_n": 578,
+              "unknown_n": 1,
+              "original_input_n": 778,
+              "rule": "K106=0 AND K112=1 AND K123=0"
+            }
+          }
+        },
+        {
+          "fraction": 0.25,
+          "percentage": 25.0,
+          "label": "Top 25%",
+          "physical_cutoff": 852.2302907036927,
+          "operator": ">=",
+          "unit": "Barrer",
+          "cutoff_scope": "full_prepared_data_deployment",
+          "recommended_method": "WRAcc",
+          "alternative_method": "STCA",
+          "recommendation_reason": "WRAcc_AS_exceeds_STCA_by_more_than_0.02",
+          "methods": {
+            "STCA": {
+              "status": "rule_fitted",
+              "cv_status": "evaluated",
+              "cv_AS_mean": 0.5852761824780238,
+              "cv_AS_sd": 0.0694718545942885,
+              "selected_n": 213,
+              "not_selected_n": 564,
+              "unknown_n": 1,
+              "original_input_n": 778,
+              "rule": "K149=1 AND K112=1 AND K104=0 AND K91=0 AND K111=0 AND K84=0 AND K90=0 AND K132=0 AND K109=0 AND K51=0 AND K55=0 AND K58=0"
+            },
+            "WRAcc": {
+              "status": "rule_fitted",
+              "cv_status": "evaluated",
+              "cv_AS_mean": 0.6230886966372133,
+              "cv_AS_sd": 0.0271022221152318,
+              "selected_n": 145,
+              "not_selected_n": 632,
+              "unknown_n": 1,
+              "original_input_n": 778,
+              "rule": "K106=0 AND K125=1 AND K126=0"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

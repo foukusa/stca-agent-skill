@@ -88,7 +88,8 @@ class CompatibleRuntimeTests(unittest.TestCase):
 
     def test_stdlib_prompt_never_checks_scientific_packages(self):
         with patch.object(runtime,'ensure',side_effect=AssertionError('must bypass')),patch.object(runtime.subprocess,'run',return_value=subprocess.CompletedProcess([],0)):
-            self.assertEqual(runtime.main(['run','--script','generation_prompt.py','--','--help']),0)
+            for script in ('generation_prompt.py','generation_session.py'):
+                self.assertEqual(runtime.main(['run','--script',script,'--','--help']),0)
 
     def test_probe_returns_failed_readiness_details(self):
         value={'ready':False,'errors':['functional_check: failed']}

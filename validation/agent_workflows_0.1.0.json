@@ -43,5 +43,7 @@
     "receipt_concurrent_writes_verified": 40,
     "chemistry_only_installation_command": "mock-verified; no full training stack or author-source download",
     "native_macos_installation_tested": false
-  }
+  },
+  "record_scope": "Prior source/holdout adapter or previous library generation; retained compatibility evidence, not current default in-range rule evidence.",
+  "current_revision_evidence": "latest_revision_20261108.json"
 }

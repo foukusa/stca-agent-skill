@@ -132,6 +132,13 @@ def screen(library, identifiers, args):
     if len(set(identifiers)) != len(identifiers):
         raise ValueError("Select each library entry at most once.")
     selected = [(identifier, *library.constraints(identifier)) for identifier in identifiers]
+    method_sets = defaultdict(set)
+    for identifier in identifiers:
+        entry = library.entry(identifier)
+        identity = (entry.get("dataset"), entry.get("property"), entry.get("direction"), entry.get("tier"))
+        method_sets[identity].add(entry.get("method", "STCA"))
+    if any(len(methods) > 1 for methods in method_sets.values()) and not getattr(args, "allow_method_intersection", False):
+        raise ValueError("Primary and alternative methods must be screened separately for comparison. Use --allow-method-intersection only for an explicitly requested intersection.")
     output = Path(args.output_dir).expanduser().resolve()
     if output.exists():
         raise FileExistsError("Output directory exists; choose a new directory.")
@@ -223,6 +230,9 @@ def screen(library, identifiers, args):
                "joint_selected_count": sum(r["stca_joint__selected"] is True for r in rows),
                "joint_unknown_count": sum(r["stca_joint__selected"] == "" for r in rows),
                "requirements": totals, "literal_conflicts": sorted(k for k, v in literals.items() if len(v) > 1),
+               "reference_evaluation": {i: library.entry(i).get("reference_evaluation") for i in identifiers},
+               "publication_alignment": {i: library.entry(i).get("publication_alignment") for i in identifiers},
+               "methods": {i: library.entry(i).get("method", "STCA") for i in identifiers},
                "primary_output": "results.csv", "audit_output": "rows.csv",
                "original_smiles_preserved": True, "representation": "hcap_maccs167",
                "training_performed": False, "physical_properties_predicted": False,
@@ -254,6 +264,7 @@ def main(argv=None):
     listing = commands.add_parser("list", help="List library metadata without scientific dependencies")
     listing.add_argument("--property")
     listing.add_argument("--direction", choices=("high", "low"))
+    listing.add_argument("--include-variants", action="store_true", help="Include retained compatibility variants")
     showing = commands.add_parser("show", help="Read one entry and its exact frozen conditions")
     showing.add_argument("id")
     prompting = commands.add_parser("prompt", help="Copy the stored prompt verbatim for the host LLM")
@@ -266,12 +277,14 @@ def main(argv=None):
     screening.add_argument("--smiles-column", default="SMILES")
     screening.add_argument("--id-column")
     screening.add_argument("--output-dir", required=True)
+    screening.add_argument("--allow-method-intersection", action="store_true", help="Explicitly intersect alternative learners for the same target; normal method comparison screens them separately")
     args = parser.parse_args(argv)
     try:
         library = RuleLibrary(args.library_dir)
         if args.command == "list":
             entries = [e for e in library.entries.values()
-                       if (not args.property or str(e.get("property", "")).casefold() == args.property.casefold()
+                       if (args.include_variants or e.get("user_visible", True))
+                       and (not args.property or str(e.get("property", "")).casefold() == args.property.casefold()
                            or str(e.get("property_zh", "")).casefold() == args.property.casefold())
                        and (not args.direction or e.get("direction") == args.direction)]
             print(json.dumps({"schema": CATALOG_SCHEMA, "version": library.catalog.get("version"),

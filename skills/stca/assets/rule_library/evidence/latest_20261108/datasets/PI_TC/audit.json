@@ -1,0 +1,68 @@
+{
+  "input_rows": 1077,
+  "property": "thermal_conductivity",
+  "unit": "W/(m K)",
+  "D1_D2_excluded": {
+    "nonfinite_target": 7
+  },
+  "D3_transform": "none",
+  "D4_replicate_measurements_dropped": 0,
+  "D5_flagged": 29,
+  "D6_flagged": 0,
+  "D7_quarantined": [],
+  "C1_scan": {
+    "value_step": 0.0002,
+    "step_hit_halving_cap": false,
+    "min_subset_size": 42,
+    "inner_mcc_min_subset_1": -0.062,
+    "inner_mcc_min_subset_5pct": 0.254
+  },
+  "structures_after_cleaning": 1035,
+  "extrapolation_records": 207,
+  "tiers": [
+    {
+      "tier": 0.3,
+      "rule": "top 30%",
+      "comparator": ">=",
+      "unit": "W/(m K)",
+      "cutoff_physical": 0.25829242939999997,
+      "positives": 311,
+      "inrange_cv_evaluable": true,
+      "source_cutoff_physical": 0.2503375773,
+      "source_positives": 249,
+      "extrapolation_positives": 129,
+      "extrapolation_top_cluster_share": 0.45,
+      "extrapolation_evaluable": true
+    },
+    {
+      "tier": 0.2,
+      "rule": "top 20%",
+      "comparator": ">=",
+      "unit": "W/(m K)",
+      "cutoff_physical": 0.277747882,
+      "positives": 207,
+      "inrange_cv_evaluable": true,
+      "source_cutoff_physical": 0.265243343,
+      "source_positives": 166,
+      "extrapolation_positives": 96,
+      "extrapolation_top_cluster_share": 0.43,
+      "extrapolation_evaluable": true
+    },
+    {
+      "tier": 0.1,
+      "rule": "top 10%",
+      "comparator": ">=",
+      "unit": "W/(m K)",
+      "cutoff_physical": 0.30895011440000003,
+      "positives": 104,
+      "inrange_cv_evaluable": true,
+      "source_cutoff_physical": 0.29706672190000005,
+      "source_positives": 83,
+      "extrapolation_positives": 56,
+      "extrapolation_top_cluster_share": 0.41,
+      "extrapolation_evaluable": true
+    }
+  ],
+  "recommended_train_command": "stca_runtime.py run -- train --input cleaned.csv --smiles-column stca_calculation_smiles_hcap --target y_model --direction high --tiers 0.3 0.2 0.1 --scan-step 0.0002 --min-subset-size 42 --split-column split --group-column hcap_canon",
+  "default_evaluation": "grouped 5-fold CV within the data range (scripts/inrange_evaluation.py); extrapolation check optional"
+}

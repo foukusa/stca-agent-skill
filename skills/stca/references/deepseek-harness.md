@@ -1,45 +1,38 @@
 # STCA：DeepSeek Harness 使用说明
 
-版本 **0.1.0**。本包用于能够加载本地 skill 的 **DeepSeek Harness** agent 宿主。用户安装 STCA、提供 CSV 并发出自然语言请求；依赖准备、计算和模型管理由宿主 agent 按 STCA 指令完成。
+版本 **0.1.0**。在能够加载本地 skill 的 **DeepSeek Harness** 中安装 STCA 后，用户提供文件和自然语言目标，由 AI 助手管理规则及计算。
 
-## 安装与文件层级
+## 安装与开始
 
-解压 DeepSeek Harness 对应包，保留完整 `stca` 目录。其中 `SKILL.md` 与 `scripts/`、`references/`、`assets/` 同级。
+解压 `stca-deepseek-harness-0.1.0.zip`，保留完整 `stca` 目录。默认用户位置为 `~/.dsh/skills/stca/SKILL.md`，项目位置为 `<项目>/.dsh/skills/stca/SKILL.md`；自定义目录按平台配置使用。Mac 在 Finder 按 **Command＋Shift＋G** 打开已有扫描根目录，再复制完整 `stca` 文件夹。目录不存在时，可在 Harness 中让 AI 助手创建或确认实际扫描位置。
 
-官方本地 skill 提供方支持在其扫描根目录下放置 `<name>/SKILL.md`。Mac 的默认用户位置为 `~/.dsh/skills/stca/SKILL.md`，项目位置为 `<项目>/.dsh/skills/stca/SKILL.md`；自定义 skill 目录按宿主配置使用。Mac 可在 Finder 中选择“前往文件夹”打开对应位置，再复制完整 `stca` 文件夹。保留一层 `stca/SKILL.md`，让 Harness 能在当前会话发现 `stca`。
+输入 **`/stca`**，选择：
 
-加载后用 `/stca` 发起任务。宿主负责自动检查和准备计算后端，并复用可用环境；用户直接描述材料目标和上传输入。若宿主权限阻止准备，agent 应报告具体阻碍与可执行的下一步。
+1. 上传自己的文件总结规则。
+2. 根据已有规则直接筛选。
+3. 根据已有规则直接生成。
 
-## 三种自然语言调用
+只选 2 或 3 时，先展示“我的规则”和内置的作者归档、GAS、RadonPy、ADEPT目录，再选择来源、性质、方向、百分比和方法。每档STCA/WRAcc主推与备选是二选一，不能自动混合。用户已经明确选定某条规则或“刚保存的规则”时直接复用，不重复选择。
 
-**使用内置规则：**
+## 生成方式
 
-```text
-/stca 列出内置规则及百分比。我选择 gas-co2-high-15。
-按 SMILES 列筛选上传的 candidates.csv，保留原始星号结构，返回匹配候选和每条失败条件。
-```
+选定规则后，选择“先查看并调整 prompt，确认后生成”或“直接生成并核验”。前者展示完整文本并接受修改，明确确认后调用当前 LLM；后者立即调用当前 LLM。两者均保存全部候选并逐条核验，给出通过项和失败条件。用户已说明方式时直接执行，不要求配置模型 API。
 
-**从 CSV 学习规则：**
+## 简短范例
 
-```text
-/stca 从上传的 materials.csv 自动学习规则。结构列为 SMILES，目标列为 Permeability，
-单位 Barrer，来自实验，方向 high。探索 Top 10%、15%、20%、25%、30%。
-返回规则、物理阈值、可复用模型和完整生成 prompt。
-```
+- **上传归纳：**“1。从这份实测气体渗透率表总结高 CO₂ 规则，单位 Barrer。”
+- **现成筛选：**“2。选择 GAS 高 CO₂ 渗透率 Top 10%，筛选这份候选。”
+- **按规则生成：**“3。”从目录选好规则后说：“直接生成 10 个候选并核验。”
+- **复用：**“使用刚才保存的规则生成 20 个候选。”
+- **只要 prompt：**“把选中规则的完整生成 prompt 给我，我要在其他 LLM 中使用。”
 
-**直接取得生成 prompt：**
+归纳后默认交付上传表各档完整筛选结果、入选子表和逐条失败条件，同时保留原始星号结构、字段与数据角色。保存模型、各档约束、双语 prompt 和下载包后返回主菜单。用户不用手工导出或重新上传训练数据。
 
-```text
-/stca 将 gas-co2-high-15 转成可复制到其他 LLM 的完整生成 prompt，
-要求 20 个具有两个末端 * 连接点的重复单元，按 CandidateKey、SMILES 两列 CSV 返回。
-我回传生成结果后，再按同一规则核验。
-```
+更多范例见 [usage_examples.md](usage_examples.md)。导出的完整 prompt 可用于其他 LLM；实际结构核验由具备计算能力的 STCA 平台执行。平台计算准备与能力边界见 [platform-runtime.md](platform-runtime.md)。
 
-随包有 **77 条冻结规则和 154 份中英文 prompt**，其中全部 13 项公开数据性质任务已有现成规则。直接选择 [skill 内规则目录](../assets/rule_library/index.md)，或让 `/stca` 列出可用项。每个性质独立选择方向和百分比；ID 可选，原始星号 SMILES 保留。
-
-导出的文字 prompt 可以在任意 LLM 中使用；自动学习和结构核验由已加载 STCA 的 Harness 完成。
-
-## 官方依据
+## 官方说明
 
 - [DeepSeek Harness 本地 skill 格式与扫描目录](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/skill/skill-filesystem/README.zh.md)
 - [DeepSeek Harness skill 加载与 `/name` 调用](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/skill/tool-skill/README.zh.md)
+
+当前开源目录提供12任务的Top10/20/30两方法主推与备选。新归纳默认按结构分组5折×3次比较STCA与WRAcc，分别回筛原表、保存模型/完整prompt并返回菜单；15/25等自定义档位可用自己的数据学习，不能冒称已有新版内置规则。

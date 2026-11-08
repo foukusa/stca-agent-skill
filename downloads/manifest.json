@@ -1,0 +1,41 @@
+{
+  "schema": "stca-direct-downloads-v1",
+  "version": "0.1.0",
+  "shared_openai_skill": "stca-openai-skill-0.1.0.zip",
+  "compatibility_aliases": [
+    "stca-chatgpt-0.1.0.zip",
+    "stca-codex-0.1.0.zip"
+  ],
+  "files": [
+    {
+      "file": "stca-chatgpt-0.1.0.zip",
+      "size_bytes": 1616288,
+      "sha256": "4699033427e8229a14a31c1862fad9e211ac4ccbfd81a3ce9bf5caa25ce68fb7"
+    },
+    {
+      "file": "stca-codex-0.1.0.zip",
+      "size_bytes": 1616288,
+      "sha256": "4699033427e8229a14a31c1862fad9e211ac4ccbfd81a3ce9bf5caa25ce68fb7"
+    },
+    {
+      "file": "stca-deepseek-harness-0.1.0.zip",
+      "size_bytes": 1635610,
+      "sha256": "5186d2cd38cbf961016606df71eb9b0ebc4b603429362af911c5c140208c724b"
+    },
+    {
+      "file": "stca-openai-plugin-0.1.0.zip",
+      "size_bytes": 1843874,
+      "sha256": "f81c80121f979b0dcb4d49c20858083810c9e6f6301830259cfa9062a26108eb"
+    },
+    {
+      "file": "stca-openai-skill-0.1.0.zip",
+      "size_bytes": 1616288,
+      "sha256": "4699033427e8229a14a31c1862fad9e211ac4ccbfd81a3ce9bf5caa25ce68fb7"
+    },
+    {
+      "file": "stca-workbuddy-0.1.0.zip",
+      "size_bytes": 1635903,
+      "sha256": "d370700043d840c3be23c97060794e9234b04b661e7ddf65ad298826c26e44bc"
+    }
+  ]
+}

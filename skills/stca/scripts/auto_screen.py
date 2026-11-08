@@ -257,6 +257,9 @@ def run(args):
         raise FileExistsError("Output directory exists; choose a new directory.")
     frame, input_format = read_auto_frame(args.input)
     resolve_input_columns(args, frame, input_format)
+    # The cleaner may archive reserved names later. Application results must
+    # join to the original upload, including its original structure column.
+    original_smiles_column = args.smiles_column
     # An archival input-column rename must not rename the user's property.
     if args.target_name is None:
         args.target_name = args.target
@@ -395,6 +398,32 @@ def run(args):
         settings = json.loads(settings_path.read_text()) if settings_path.exists() else {}
         recommendation = recommendations(settings)
         write_json(output / "tier_recommendations.json", recommendation)
+        # Apply every requested frozen tier to every original uploaded record,
+        # including rows excluded from fitting. Counts never select a tier or
+        # alter settings, roles, rules or the independent-candidate workflow.
+        try:
+            from learning_results import screen_uploaded_rows
+            upload_summary = screen_uploaded_rows(
+                frame=frame, smiles_column=original_smiles_column,
+                model_path=model, tiers=custom_fit.parse_tiers(args.tiers),
+                output_dir=output / "upload_screening", cleaning=cleaning,
+                excluded=excluded, membership=membership,
+                source_value=args.source_value, evaluation_value=args.evaluation_value,
+                source=args.source, input_sha256=input_format["input_sha256"])
+            upload_result = {"status": upload_summary["status"],
+                             "output_directory": str(output / "upload_screening"),
+                             "summary": "upload_screening/summary.json",
+                             "results": "upload_screening/results.csv",
+                             "failed_tiers": upload_summary["failed_tiers"],
+                             "unavailable_rule_tiers": upload_summary["unavailable_rule_tiers"]}
+            if upload_summary["status"] == "partial_failure":
+                code = 2
+        except (ValueError, RuntimeError, OSError, KeyError, TypeError, ImportError) as exc:
+            upload_result = {"status": "failed", "error_type": type(exc).__name__,
+                             "reason": str(exc), "metrics": None,
+                             "output_directory": str(output / "upload_screening")}
+            write_json(output / "upload_screening_failure.json", upload_result)
+            code = 2
         screen_result = {"status": "not_requested"}
         if args.candidates:
             import stca_tools
@@ -425,10 +454,12 @@ def run(args):
             "cleaning_audit": "cleaning_audit.json", "split_audit": "split_audit.json",
             "input_format_audit": "input_format_audit.json",
             "model": "fit/model.json", "tier_recommendations": "tier_recommendations.json",
+            "upload_screening": upload_result,
             "screening": screen_result, "outer_labels_used_for_fit_or_tier_selection": False,
             "upstream_STCA_modified": False, "performance_guaranteed": False})
         print(json.dumps({"status": status, "output_directory": str(output), "model": str(model),
-                          "recommended_tier": recommendation["strictest_eligible_tier"], "screening": screen_result}))
+                          "recommended_tier": recommendation["strictest_eligible_tier"],
+                          "upload_screening": upload_result, "screening": screen_result}))
         return int(code)
     except Exception as exc:
         if "split_reports" in locals() and not (output / "split_audit.json").exists():
@@ -446,8 +477,9 @@ def run(args):
 
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__)
-    for name in ("input", "target", "unit", "direction", "tiers", "output-dir"):
+    for name in ("input", "target", "unit", "direction", "output-dir"):
         p.add_argument("--" + name, required=True)
+    p.add_argument("--tiers", default="0.10,0.20,0.30")
     p.add_argument("--source", help="Clean pinned author source checkout")
     p.add_argument("--target-name")
     p.add_argument("--smiles-column", default="SMILES")

@@ -1,0 +1,37 @@
+{
+  "schema": "stca-paper-profile-alignment-v1",
+  "date": "2026-11-08",
+  "source_scope": "author-frozen SI-20260822 profiles; final-paper comparison uses existing publisher-layout Article in Press PDFs",
+  "archive_contracts": {
+    "profiles": 11,
+    "keys_values_direction_source_cutoff_units_model_hashes_match": true,
+    "original_scientific_conditions_unchanged": true,
+    "per_rule_row_decisions_compared": 28777,
+    "row_decision_disagreements": 0,
+    "historical_metric_cells_compared": 33,
+    "historical_metric_max_absolute_error": 1.1102230246251565e-16,
+    "EC_fingerprint_bits_compared": 144121,
+    "EC_fingerprint_bit_disagreements": 0,
+    "low_EC_5pct_selected": {
+      "source": 328,
+      "extra": 61,
+      "all": 389
+    }
+  },
+  "publication_alignment": {
+    "full_final_paper_numeric_reproduction": false,
+    "original_snapshot_is_final_paper_artifact": false,
+    "Tg_top_10pct_archived_representative": "Top9_negative_only",
+    "Tg_top_10pct_final_SI_family_description": "top 7-8 positive + top 3-4 negative",
+    "final_SI_location": "S7.1, PDF page 17",
+    "unique_full_signed_literal_winner_specified_in_that_paragraph": false,
+    "action": "Preserve archived conditions and compatibility IDs; label provenance and discrepancy instead of reconstructing a new rule from feature counts.",
+    "metric_scope_note": "Historical core-harmonic/profile statistics and final paper Figure 3 or other scope-specific statistics are not interchangeable."
+  },
+  "document_evidence": {
+    "doi": "10.1038/s41524-026-02345-x",
+    "main_pdf_sha256": "bf7ba75583aa6851f5ed1d0338764d74dd8eb07593aaf91ba50b2b83b33e3c3d",
+    "SI_pdf_sha256": "63b654f827a43882e03898c4b17656facec102218f4810c72b148fd8bdd9e3cc",
+    "acquisition": "Existing user-associated local PDF copies; not a new publisher download in this revision."
+  }
+}

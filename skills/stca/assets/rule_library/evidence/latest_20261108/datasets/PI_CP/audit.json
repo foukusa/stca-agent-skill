@@ -1,0 +1,68 @@
+{
+  "input_rows": 1077,
+  "property": "heat_capacity",
+  "unit": "J/(kg K)",
+  "D1_D2_excluded": {
+    "nonfinite_target": 1
+  },
+  "D3_transform": "none",
+  "D4_replicate_measurements_dropped": 0,
+  "D5_flagged": 24,
+  "D6_flagged": 0,
+  "D7_quarantined": [],
+  "C1_scan": {
+    "value_step": 5,
+    "step_hit_halving_cap": false,
+    "min_subset_size": 1,
+    "inner_mcc_min_subset_1": 0.626,
+    "inner_mcc_min_subset_5pct": 0.475
+  },
+  "structures_after_cleaning": 1040,
+  "extrapolation_records": 208,
+  "tiers": [
+    {
+      "tier": 0.3,
+      "rule": "top 30%",
+      "comparator": ">=",
+      "unit": "J/(kg K)",
+      "cutoff_physical": 3450.9014262,
+      "positives": 312,
+      "inrange_cv_evaluable": true,
+      "source_cutoff_physical": 3551.5007646999998,
+      "source_positives": 250,
+      "extrapolation_positives": 23,
+      "extrapolation_top_cluster_share": 0.61,
+      "extrapolation_evaluable": true
+    },
+    {
+      "tier": 0.2,
+      "rule": "top 20%",
+      "comparator": ">=",
+      "unit": "J/(kg K)",
+      "cutoff_physical": 3697.8346674,
+      "positives": 208,
+      "inrange_cv_evaluable": true,
+      "source_cutoff_physical": 3771.7510854000006,
+      "source_positives": 167,
+      "extrapolation_positives": 13,
+      "extrapolation_top_cluster_share": 0.77,
+      "extrapolation_evaluable": false
+    },
+    {
+      "tier": 0.1,
+      "rule": "top 10%",
+      "comparator": ">=",
+      "unit": "J/(kg K)",
+      "cutoff_physical": 4069.3747128,
+      "positives": 104,
+      "inrange_cv_evaluable": true,
+      "source_cutoff_physical": 4147.4487985,
+      "source_positives": 84,
+      "extrapolation_positives": 2,
+      "extrapolation_top_cluster_share": 1.0,
+      "extrapolation_evaluable": false
+    }
+  ],
+  "recommended_train_command": "stca_runtime.py run -- train --input cleaned.csv --smiles-column stca_calculation_smiles_hcap --target y_model --direction high --tiers 0.3 0.2 0.1 --scan-step 5 --min-subset-size 1 --split-column split --group-column hcap_canon",
+  "default_evaluation": "grouped 5-fold CV within the data range (scripts/inrange_evaluation.py); extrapolation check optional"
+}

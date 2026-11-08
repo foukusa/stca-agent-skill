@@ -1,17 +1,26 @@
 {
-  "schema": "stca-release-checks-v3",
+  "schema": "stca-release-checks-v4",
   "package_version": "0.1.0",
   "audit_date": "2026-11-08",
   "status": "FUNCTIONAL_AND_COMPATIBILITY_CHECKS_PASSED",
   "minimum_python": "3.10",
   "ordinary_mode": "compatible",
-  "python310_default_installer": "actually_executed",
-  "python310_existing_old_dependencies": "actually_reused",
-  "functional_tests_on_python310": 45,
-  "bilingual_prompt_files": 154,
-  "frozen_rules": 77,
-  "upstream_stca_algorithm_changed": false,
-  "native_macos_runtime_tested": false,
-  "current_runtime_evidence": "compatibility_python310.json",
-  "current_workflow_evidence": "agent_workflows_0.1.0.json"
+  "default_learning_workflow": "inrange_grouped_STCA_WRAcc_primary_alternative",
+  "retained_rules": 149,
+  "visible_rules": 83,
+  "published_rules": 11,
+  "latest_open_data_tasks": 12,
+  "latest_open_data_tiers": [
+    0.1,
+    0.2,
+    0.3
+  ],
+  "latest_open_data_rules": 72,
+  "legacy_hidden_rules": 66,
+  "bilingual_prompt_files_retained": 298,
+  "direct_installer_zips_in_source": 6,
+  "current_evidence": "latest_revision_20261108.json",
+  "user_package_excludes_publisher_guides": true,
+  "upstream_STCA_algorithm_changed": false,
+  "native_macos_runtime_tested": false
 }

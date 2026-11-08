@@ -18,8 +18,9 @@ CORE_SCRIPTS = (
     "audit_dataset.py", "prepare_hcap.py", "setup_locked_environment.py",
     "stca_io.py", "stca_runtime.py", "stca_tools.py",
     "data_readiness.py", "custom_fit.py", "evaluate_custom.py",
-    "data_cleaning.py", "auto_screen.py",
-    "agent_runtime.py", "rule_library.py", "generation_prompt.py", "runtime_compat.py",
+    "data_cleaning.py", "auto_screen.py", "learning_results.py",
+    "auto_data_layer.py", "inrange_evaluation.py", "frozen_literal_model.py",
+    "agent_runtime.py", "rule_library.py", "generation_prompt.py", "generation_session.py", "runtime_compat.py", "task_menu.py", "user_rule_library.py",
 )
 PUBLICATION_FILES = (
     "LICENSE", "THIRD_PARTY_NOTICES.md", "CITATION.cff",
@@ -52,8 +53,13 @@ def source_payload(skill: Path) -> dict[str, bytes]:
         "assets/rule_library/catalog.json", "assets/rule_library/index.md",
         "assets/prompts/generate.en.md", "assets/prompts/generate.zh-CN.md",
         "assets/requirements-compatible.txt", "assets/runtime_compatibility.json",
+        "assets/starter_tasks.json", "assets/property_registry.json",
+        "assets/examples/candidates.csv",
+        "assets/examples/quick_start_candidates.csv",
+        "assets/rule_library/original_trial_evidence.json",
         "references/platform-runtime.md", "references/deepseek-harness.md",
         "references/workbuddy.md",
+        "references/usage_examples.md",
     ]
     for name in required:
         if name not in files:

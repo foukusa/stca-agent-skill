@@ -2,164 +2,80 @@
 
 [English](README.md) · [主说明](../../README.zh-CN.md) · 版本 **0.1.0**
 
-STCA skill 随包提供 **77 条冻结规则、154 份中英文生成 prompt**，包含全部 **13 项公开数据性质任务**的现成规则。打开[规则与 prompt 目录](../../docs/RULE_LIBRARY.zh-CN.md)即可选择；也可上传自己的性质 CSV 学习新规则，再核验 LLM 生成的候选。
-
-所有示例均通过自然语言调用。agent 自动处理数据、后台准备、规则与 prompt 导出；计算使用 CPU，生成沿用当前宿主 LLM。
-
 ## 目录
 
-- [查找并应用现有规则](#查找并应用现有规则)
-- [气体分离膜](#气体分离膜)
-- [导热与光学材料](#导热与光学材料)
-- [密度与比热](#密度与比热)
-- [介电材料](#介电材料)
-- [孤立单体 HOMO–LUMO 能隙](#孤立单体-homolumo-能隙)
+- [从内置任务开始](#从内置任务开始)
+- [选择规则与方法](#选择规则与方法)
+- [试用简短请求](#试用简短请求)
 - [数据来源与字段](#数据来源与字段)
-- [使用自己的数据并生成候选](#使用自己的数据并生成候选)
+- [学习保存并继续使用](#学习保存并继续使用)
 
-## 查找并应用现有规则
+## 从内置任务开始
 
-先让已安装的 skill 返回当前目录：
+启用 STCA 后发送 **“开始使用 STCA”**，选择：
 
-```text
-列出 STCA 内置规则集，给出各自的数据集、性质、方向和可选百分比，
-并告诉我筛选时需要提供什么候选文件。
-```
+1. **上传数据总结规则**：提供结构和数值性质，选择高低方向及百分比。
+2. **用已有规则筛选**：上传候选表，选择内置规则或“我的规则”。
+3. **用已有规则生成**：查看目录并选定规则，再选择预览确认 prompt 或直接生成。
 
-目录包括论文规则 11 条、13 项公开数据任务各 5 档共 65 条，以及作者提供的单体能隙规则 1 条。公开任务均提供高值 Top 10%/15%/20%/25%/30% 规则。下方数据来源也可用于学习自己需要的新方向或百分比。
+完整处理 prompt 已内置。AI 助手读取表头，展示可选来源、百分比与方法，只补问必要信息。无需输入规则 ID 或技术命令。
 
-选中条目后，上传候选 CSV 并发送：
+## 选择规则与方法
 
-```text
-使用我选定的规则筛选上传的 candidates.csv。
-结构列为 SMILES，保留原始 * 连接点。
-返回匹配候选和每条失败条件，
-再给我一段使用该规则生成更多候选的完整 prompt。
-```
+[规则与生成 prompt 目录](../../docs/RULE_LIBRARY.zh-CN.md)包含 **12 项公开数据性质任务**：GAS 实测数据 2 项、RadonPy 计算数据 5 项、ADEPT 计算数据 5 项。这些冻结规则均针对**高值方向的 Top 10%、20%、30%**。
 
-## 气体分离膜
+每个来源、性质和百分比都有 **STCA 与 WRAcc 两套可独立使用的规则**。目录标明主推方法与备选方法，可按需查看评价分数；默认选择主推，也可以改选备选。**每档选择其中一种方法，两套规则不会用 OR 合并。** 选定规则内部的条件必须同时满足。
 
-使用已有 CO2 渗透率规则时，只需提供新候选：
+主推方法根据按结构分组交叉验证的 AS 选择，AS 是 Precision、F1、MCC 的平均值；两种方法的 AS 差值不超过 0.02 时保留 STCA。分数描述来源数据范围内的评价表现，不代表新候选一定达到相应物性。
 
-```text
-列出 STCA 内置高 CO2 渗透率规则及其可选百分比。
-我要按 SMILES 列筛选 candidates.csv。
-选定百分比后，返回匹配结构和生成 prompt。
-```
+需要其他方向或 **15%、25%** 等百分比时，可上传合适的带标签数据学习新规则。例如：“从这份计算数据总结高折射率 Top 15%、25% 规则。”
 
-从自己的测量数据学习时：
+## 试用简短请求
 
-```text
-使用 STCA 从我上传的 gas.csv 学习高渗透率规则。
-结构列为 SMILES，实验目标列为 CO2，单位 Barrer。
-探索 Top 10%、15%、20%、25%、30%，自动准备数据并选择规则设置。
-返回可复用规则、物理阈值，以及用于生成 20 个候选的完整 prompt。
-```
+上传候选表后，可以直接发送：
 
-氧气渗透率可用 `O2` 作为目标，也可将实测选择性作为独立目标。使用公开气体 CSV 时，结构列为 `Smiles`。
+| 目标 | 一句话开始 |
+|---|---|
+| 高 CO₂ 渗透率 | “用 GAS 实测数据的高 CO₂ 渗透率 Top 10% 规则，选择主推 STCA 方法，筛选这份表。” |
+| 高 O₂ 渗透率 | “用 GAS 实测数据的高 O₂ 渗透率 Top 10% STCA 规则筛选候选。” |
+| 高比热容 | “使用 RadonPy 的高比热容 Top 10% STCA 规则筛选我的候选。” |
+| 高介电常数 | “使用 ADEPT 的高介电常数 Top 20% WRAcc 规则筛选这份表。” |
 
-## 导热与光学材料
+前三个案例的主推方法是 STCA；ADEPT 高介电常数案例的主推方法是 WRAcc。也可以先要求查看两种方法的分数，再选择使用哪套规则。高介电常数与低介电常数是不同目标；需要低值方向时，可使用自己的数据重新学习。
 
-研究热导率：
-
-```text
-使用 STCA 从我上传的 thermal.csv 学习高热导率规则。
-结构列为 SMILES，计算目标列为 ThermalConductivity，单位 W/(m K)。
-探索 Top 10%、15%、20%、25%、30%，自动选择设置。
-返回规则、可复用模型和可直接复制的生成 prompt。
-```
-
-研究光学材料：
-
-```text
-使用 STCA 从我上传的 optical.csv 学习高折射率规则。
-结构列为 SMILES，计算目标列为 RefractiveIndex，单位 dimensionless。
-探索 Top 10%、15%、20%、25%、30%。
-返回规则和生成 prompt，再筛选我上传的 candidates.csv。
-```
-
-玻璃化转变温度可直接选择目录中的论文高 Tg 规则，也可用自己的 `Tg` 数值学习规则，并声明单位，例如 K。
-
-## 密度与比热
-
-可直接选用 [RadonPy 高密度规则](../../docs/RULE_LIBRARY.zh-CN.md#radonpy五种计算性质)。需要从自己的数据学习低密度规则时：
-
-```text
-使用 STCA 从我上传的 density.csv 学习低密度规则。
-结构列为 SMILES，目标列为 Density，单位 g/cm3，数据来自计算。
-探索 Bottom 10%、15%、20%、25%、30%，自动选择设置。
-返回可复用模型，以及用于生成 20 个低密度候选的 prompt。
-```
-
-研究比热时，同一请求可改用目标 `Cp`、单位 `J/(kg K)`、方向 `high` 和自己选择的 Top 百分位。
-
-## 介电材料
-
-按应用选择方向：
-
-```text
-使用 STCA 从我上传的 dielectric.csv 学习低介电常数规则。
-结构列为 SMILES，计算目标列为 DielectricConstant，单位 dimensionless。
-探索 Bottom 10%、15%、20%、25%、30%。
-返回规则、模型和可直接复制的生成 prompt。
-```
-
-高介电常数任务选择方向 `high` 和 Top 百分位。电导率规则在内置目录中单独列出。
-
-## 孤立单体 HOMO–LUMO 能隙
-
-ADEPT 的该目标是氢封端孤立单体的 DFT HOMO–LUMO 能隙。可先查询已有规则：
-
-```text
-列出内置单体 HOMO–LUMO 能隙规则及其百分比。
-根据我选中的规则，给出用于生成 20 个重复单元的完整 prompt，
-要求两个末端 * 连接点，并以 CandidateKey、SMILES 两列 CSV 返回。
-```
-
-学习自己的规则时，上传带标签 CSV，指定结构列、能隙列、单位 `eV`、方向与百分比。
+需要生成时，先发送 **“3”**。目录出现后，再选择来源、性质、百分比和方法，例如：“选择 ADEPT 高介电常数、Top 20%、WRAcc，直接生成 20 个候选并核验。”想先检查时，发送“生成前先给我看完整 prompt”，可以修改后再回复“确认，开始生成”。两种方式都由当前 LLM 实际生成候选。
 
 ## 数据来源与字段
 
-可以将这些公开 CSV 上传给 skill，并直接使用原列名。[Dataset A](https://github.com/jsunn-y/PolymerGasMembraneML/blob/main/datasets/datasetA_imputed_all.csv)包含实验气体渗透率测量值；[RadonPy](https://github.com/RadonPy/RadonPy/blob/develop/data/PI1070.csv)提供聚合物分子模拟数据；[ADEPT / PolyGraphMT](https://github.com/sobinalosious/PolyGraphMT/tree/main/data/raw)提供 MD/DFT 计算数据。
+原始来源为 [Dataset A](https://github.com/jsunn-y/PolymerGasMembraneML/blob/main/datasets/datasetA_imputed_all.csv)、[RadonPy PI1070](https://github.com/RadonPy/RadonPy/blob/develop/data/PI1070.csv) 与 [ADEPT / PolyGraphMT](https://github.com/sobinalosious/PolyGraphMT/tree/main/data/raw)。GAS 规则使用 `CO2`、`O2` 列的实测值，排除缺失值，不使用插补值替代。RadonPy 标签来自分子模拟；ADEPT 除单体能隙来自 DFT 外，其余标签来自 MD。
 
-[数据来源与字段索引](dataset_registry.csv)提供全部 **13 项性质任务**的下载链接与来源条款。
+上传这些来源文件时，可保留原始列名：
 
 | 性质 | 数据文件 | 结构列 | 性质列 | 单位 |
 |---|---|---|---|---|
-| CO2 渗透率 | Dataset A：`datasetA_imputed_all.csv` | `Smiles` | `CO2` | Barrer |
-| O2 渗透率 | Dataset A：`datasetA_imputed_all.csv` | `Smiles` | `O2` | Barrer |
+| CO₂ 渗透率 | Dataset A：`datasetA_imputed_all.csv` | `Smiles` | `CO2` | Barrer |
+| O₂ 渗透率 | Dataset A：`datasetA_imputed_all.csv` | `Smiles` | `O2` | Barrer |
 | 热导率 | RadonPy：`PI1070.csv` | `smiles` | `thermal_conductivity` | W/(m K) |
 | 折射率 | RadonPy：`PI1070.csv` | `smiles` | `refractive_index` | 无量纲 |
-| 密度 | RadonPy：`PI1070.csv` | `smiles` | `density` | g/cm3 |
-| 比热 | RadonPy：`PI1070.csv` | `smiles` | `Cp` | J/(kg K) |
+| 密度 | RadonPy：`PI1070.csv` | `smiles` | `density` | g/cm³ |
+| 比热容 | RadonPy：`PI1070.csv` | `smiles` | `Cp` | J/(kg K) |
 | 介电常数 | RadonPy：`PI1070.csv` | `smiles` | `dielectric_const_dc` | 无量纲 |
 | 热导率 | ADEPT：`TC_MD.csv` | `SMILES` | `TC` | W/(m K) |
-| 密度 | ADEPT：`RHO_MD.csv` | `SMILES` | `RHO` | g/cm3 |
-| 单体 HOMO–LUMO 能隙 | ADEPT：`BANDGAP_DFT.csv` | `SMILES` | `BANDGAP` | eV |
+| 密度 | ADEPT：`RHO_MD.csv` | `SMILES` | `RHO` | g/cm³ |
+| 孤立单体 HOMO–LUMO 能隙 | ADEPT：`BANDGAP_DFT.csv` | `SMILES` | `BANDGAP` | eV |
 | 介电常数 | ADEPT：`DC_MD.csv` | `SMILES` | `DC` | 无量纲 |
 | 折射率 | ADEPT：`RI_MD.csv` | `SMILES` | `RI` | 无量纲 |
-| 玻璃化转变温度 | ADEPT：`TG_MD.csv` | `SMILES` | `TG` | K |
 
-例如，上传 RadonPy 的 `PI1070.csv` 后可请求：“使用结构列 `smiles`、计算目标 `refractive_index`、单位 dimensionless，学习 Top 10%、15%、20% 的高折射率规则。”
+ADEPT 能隙指氢封端孤立单体的 DFT HOMO–LUMO 能隙。[来源与字段索引](dataset_registry.csv)提供来源链接与许可说明，使用数据时请引用原始来源。ADEPT 来源仓库未提供明确的再分发许可，因此本包不附带其逐条数据。
 
-## 使用自己的数据并生成候选
+自己的学习数据需要结构和数值性质；单位、实验或计算来源及已有划分等信息，可在需要时补充。标识列可省略或任意命名。仅筛选候选时只需结构，不要求提供性质标签。
 
-带标签 CSV 需要重复单元结构与数值性质。告诉 STCA 列名、性质单位、实验/计算标签类型、方向与所需百分比。标识列可选、名称任意；原始带星号 SMILES 会保留。
+## 学习保存并继续使用
 
-```text
-对我上传的 materials.csv 使用 STCA。
-结构列为 RepeatUnit，目标列为 MyProperty，单位为[我的单位]。
-数值来自[实验或计算]，希望得到[high 或 low]值，百分比为[我的百分比列表]。
-自动学习规则，返回可复用模型与完整生成 prompt。
-```
+总结完成后，STCA 返回规则、物理阈值，以及**每种方法在每个请求档位的独立筛选结果**。默认筛选原始上传表；如果另传独立候选表，会将该候选表的筛选结果另列。
 
-百分比由你选择，上述列表只是示例。组合目标时，让 STCA 将分别选定或学到的规则用于同一批候选，例如高热导与低密度，每个性质独立指定百分比。
+各筛选表保留原始带星号 SMILES 和标识，包含入选判断、每条失败条件及无法计算记录。某种方法或档位没有有效规则时，仍返回状态与原因，不用空条件表示全部通过。
 
-将生成 prompt 复制到当前或其他 LLM，再将其返回的候选 CSV 上传给已启用 STCA 的宿主：
+模型、规则及完整中英文生成 prompt 自动保存到**“我的规则”**。STCA 显示保存名称并返回主菜单，随后可选 **2** 或 **3** 复用。输入“返回主菜单”或“上一级”会保留规则。换会话或平台时，下载规则包并上传到新会话继续使用。
 
-```text
-按我的 prompt 所用规则核验这些生成候选。
-保留原始 SMILES，返回每条通过和未通过的条件，以及匹配候选。
-```
-
-已有训练/测试划分时，告诉 skill 需保留的列名与角色值。安装与三种核心流程见[主说明](../../README.zh-CN.md)。
+选 **3** 并选定规则后，可选**先预览，确认后生成**或**直接生成**。两种方式都返回全部提案及核验结果，包括失败条件，然后返回主菜单，无需另外配置 LLM API。需要转到其他 LLM 时，可明确请求 **“只给完整生成 prompt”**；之后上传其候选表，发送 **“按同一规则核验这些候选”**。结构规则核验与实际物性是否达标分别报告。安装步骤见[Mac 安装说明](../../docs/INSTALL.zh-CN.md)，完整对话见[自然语言使用案例](../../docs/USAGE.zh-CN.md)。

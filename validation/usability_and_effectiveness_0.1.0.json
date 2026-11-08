@@ -1,0 +1,35 @@
+{
+  "integration_version": "0.1.0",
+  "checked_on": "2026-11-08",
+  "task_menu": [
+    "learn_rules",
+    "screen_existing",
+    "design_verify"
+  ],
+  "ordinary_rule_options": 76,
+  "retained_rule_entries": 77,
+  "ad_gap_top10_special_handling_removed_from_user_docs": true,
+  "short_prompt_trial": {
+    "user_task": "Screen uploaded candidates for high CO2 Top15%.",
+    "input_rows": 19,
+    "valid_rows": 17,
+    "selected_rows": 1,
+    "unknown_rows": 2,
+    "user_rule_ids_or_python_commands_required": false
+  },
+  "function_checks_passed": 49,
+  "recorded_evaluation_statuses": {
+    "published_evidence": 11,
+    "reference_enrichment_observed": 49,
+    "no_reference_coverage": 12,
+    "no_demonstrated_enrichment": 3,
+    "reference_inconclusive": 1,
+    "historical_evidence": 1
+  },
+  "scope": "Functional computation and AI-agent invocation; reference evaluation is specific to each frozen model.",
+  "native_platform_import_tested": false,
+  "marketplace_submission_performed": false,
+  "saved_rule_loop_evidence": "saved_rule_loop_0.1.0.json",
+  "record_scope": "Prior source/holdout adapter or previous library generation; retained compatibility evidence, not current default in-range rule evidence.",
+  "current_revision_evidence": "latest_revision_20261108.json"
+}

@@ -1,0 +1,49 @@
+{
+  "schema": "stca-original-trial-evidence-v1",
+  "source_archive": "stca_gas_permeability_trial.zip",
+  "archive_sha256": "0ddeb1a9496b91f7a2f9333254193b19f6fd1a6120dfbf574394d1668fe45623",
+  "candidate_demonstration": {
+    "task": "AD_GAP Top10% frozen author rule",
+    "input_n": 21,
+    "valid_n": 21,
+    "selected_n": 20,
+    "scope": "original candidate screening demonstration"
+  },
+  "original_separate_evaluations": {
+    "CO2_early_ecfp4": {
+      "top10_selected": 7,
+      "top20_selected": 9,
+      "top30_selected": 18
+    },
+    "O2_early_ecfp4": {
+      "top10_selected": 0,
+      "top20_selected": 41,
+      "top30_selected": 41
+    },
+    "AD_DC_final_base": {
+      "top10_selected": 0,
+      "top20_selected": 0,
+      "top30_selected": 0
+    },
+    "AD_DCX_final_filtered_variant": {
+      "top10_selected": 4,
+      "top20_selected": 12,
+      "top30_selected": 17
+    }
+  },
+  "interpretation": "Original demonstrations, original evaluation branches and later adaptive fits are separate records. No later-fit result replaces the original demonstration.",
+  "source_files": {
+    "three_mode_study/screen_gap10/summary.json": {
+      "sha256": "2b6b40e065a92f7a0117c83de058ba4376eacdd2ba06e0f5cda6ed77f3b05037"
+    },
+    "three_mode_study/mode2_stca_PI_TC.json": {
+      "sha256": "880f77d5cf4c403fa7aeccbd59602861e390b15dd7392324e092412d3ef789df"
+    },
+    "three_mode_study/mode2_stca_AD_TC.json": {
+      "sha256": "ee6bc60f281c7515237d97aacf5cb60bf990d7ac9d968bb147aba3138573b07a"
+    },
+    "tsne_protocol/tfit_O2_ecfp4/test_metrics.json": {
+      "sha256": "f2d7663ded8e5ef39e7473a4ff5b65c2eaa4aa9e2e3ffdc91b226146195ef145"
+    }
+  }
+}

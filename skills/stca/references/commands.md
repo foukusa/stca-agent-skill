@@ -1,5 +1,8 @@
 # STCA 可执行命令
 
+> 当前默认开源主线已更新为12任务、10/20/30档的STCA/WRAcc主推与备选；来源及证据见 [effectiveness.md](effectiveness.md)。用户上传数据默认走 [范围内流程](agent_workflows.md)，显式source/holdout保留原严格路径。下文旧实验、13任务或15/25内置条目仅对应保留的legacy版本，不作为当前默认目录。
+
+
 ## 目录
 
 - [环境](#环境)
@@ -12,9 +15,9 @@
 
 ## 环境
 
-本文供宿主 agent 调用后端时参考。面向用户的入口是自然语言任务；无需把本页命令、Python 路径或安装步骤转交给用户。优先使用 [agent_workflows.md](agent_workflows.md) 的三个完整流程。
+本文供平台 agent 调用后端时参考。面向用户的入口是自然语言任务；无需把本页命令、Python 路径或安装步骤转交给用户。优先使用 [agent_workflows.md](agent_workflows.md) 的三个完整流程。
 
-以当前 SKILL.md 所在目录定位资源。宿主通过 `scripts/agent_runtime.py run --script <后端脚本> -- <参数>` 自动复用或准备计算环境。内部低层命令中的 `STCA_PY` 与 `STCA_SOURCE` 由宿主从运行回执读取。所有输出写入新的任务目录，输入只读。 默认使用 Python 3.10 及以上的兼容后台，按所需功能检查复用现有依赖；固定历史依赖环境为显式复现选项。STCA 使用 CPU，用户无需自行选择解释器或配置 GPU。
+以当前 SKILL.md 所在目录定位资源。平台通过 `scripts/agent_runtime.py run --script <后端脚本> -- <参数>` 自动复用或准备计算环境。内部低层命令中的 `STCA_PY` 与 `STCA_SOURCE` 由平台从运行回执读取。所有输出写入新的任务目录，输入只读。 默认使用 Python 3.10 及以上的兼容后台，按所需功能检查复用现有依赖；固定历史依赖环境为显式复现选项。STCA 使用 CPU，用户无需自行选择解释器或配置 GPU。
 
 ## 论文冻结筛选
 

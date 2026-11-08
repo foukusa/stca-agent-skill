@@ -1,0 +1,4 @@
+tier,rule,comparator,unit,cutoff_physical,positives,inrange_cv_evaluable,source_cutoff_physical,source_positives,extrapolation_positives,extrapolation_top_cluster_share,extrapolation_evaluable
+0.3,top 30%,>=,Barrer,526.9799741241644,73,True,293.0370506074278,58,24,0.33,True
+0.2,top 20%,>=,Barrer,2199.9999999999995,50,True,1663.877627979041,39,14,0.36,False
+0.1,top 10%,>=,Barrer,5309.630036708536,25,True,4944.546583005634,20,8,0.5,False

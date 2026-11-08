@@ -1,14 +1,12 @@
 interface:
   display_name: STCA 规则与设计
-  short_description: 选择现成聚合物规则，上传数据归纳规则，或用完整 prompt 生成新结构
-  default_prompt: 使用 $stca，先帮我选择内置规则、从上传数据学习新规则，或获取可直接交给 LLM 的生成 prompt，再按我的任务筛选或设计聚合物。
+  short_description: 从数据学习STCA/WRAcc规则，筛选或生成聚合物
+  default_prompt: 开始使用 $stca。
   icon_small: assets/stca-logo.png
   icon_large: assets/stca-logo.png
   brand_color: '#167D8D'
 policy:
   products:
-  - chatgpt
-  - codex
-  - api
-  - atlas
+  - CHAT
+  - CODEX
   allow_implicit_invocation: true

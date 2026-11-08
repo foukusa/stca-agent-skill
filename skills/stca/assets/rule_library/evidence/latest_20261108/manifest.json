@@ -1,0 +1,324 @@
+{
+  "schema": "stca-supplied-evidence-manifest-v1",
+  "kind": "supplied_inrange_full_data_rules",
+  "source_attachment": "stca_skill_summary_20261108 (1).zip",
+  "source_attachment_sha256": "d22066c7bfa5239070dab9b8cf97e54c4215fce7ee77c645e90a83ed31181d39",
+  "source_date": "2026-11-08",
+  "raw_row_data_included": false,
+  "complete_native_models_supplied": [
+    "AD_GAP"
+  ],
+  "fold_models_supplied": false,
+  "fold_constraints_supplied": false,
+  "exact_full_data_rule_count": 72,
+  "learner_count": 2,
+  "dataset_tier_count": 36,
+  "source_training_rdkit_version": "2025.09.4",
+  "files": [
+    {
+      "source_member": "04_µ╡ïΦ»òτ╗ôµ₧£/inrange_integrated_all.csv",
+      "path": "evidence/latest_20261108/inrange_integrated_all.csv",
+      "sha256": "667d67b0ecdd8017c430c23b568dd58ceef12a46a44aef3d8dec216134b00c8e"
+    },
+    {
+      "source_member": "04_µ╡ïΦ»òτ╗ôµ₧£/nested_integration_k5.csv",
+      "path": "evidence/latest_20261108/nested_integration_k5.csv",
+      "sha256": "a3d819e12ddfdb4e1945771835a056b9b0370cd165be0fafca226d03e4792b55"
+    },
+    {
+      "source_member": "04_µ╡ïΦ»òτ╗ôµ₧£/fold_sensitivity_k10.csv",
+      "path": "evidence/latest_20261108/fold_sensitivity_k10.csv",
+      "sha256": "e8ff480ee4521878ca8dbf066ee90228fb7dc16f628b0b317eac68ed2f8d8cd1"
+    },
+    {
+      "source_member": "04_µ╡ïΦ»òτ╗ôµ₧£/appendix_extrapolation_check.csv",
+      "path": "evidence/latest_20261108/appendix_extrapolation_check.csv",
+      "sha256": "4cda22fda1d9e0bfb51b208f3ae6338670b6671a2109f3d006593070f4510191"
+    },
+    {
+      "source_member": "04_µ╡ïΦ»òτ╗ôµ₧£/O2_without_D7_inrange_evaluation.csv",
+      "path": "evidence/latest_20261108/O2_without_D7_inrange_evaluation.csv",
+      "sha256": "0e10b3217a52bd0ef5dfa3cefe5bb7e01aa24d47fc73f1e4279c545a554acf7c"
+    },
+    {
+      "source_member": "04_µ╡ïΦ»òτ╗ôµ₧£/AD_GAP_full_model.json",
+      "path": "evidence/latest_20261108/AD_GAP_full_model.json",
+      "sha256": "79e424b3f80a16c32605548c8917f66984b2eaf88e5ea257f18235d00381e067"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/GAS_CO2/audit.json",
+      "path": "evidence/latest_20261108/datasets/GAS_CO2/audit.json",
+      "sha256": "48ddf5ba53b940a1de2de04d7b96c27bb6d6ec4ca12ffe52ea158e50885d4427"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/GAS_CO2/tier_table.csv",
+      "path": "evidence/latest_20261108/datasets/GAS_CO2/tier_table.csv",
+      "sha256": "d6b5657900584bae4fd02c0216bce145dc17ccca183df3497f301e2739a83ee3"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/GAS_CO2/inrange_evaluation.csv",
+      "path": "evidence/latest_20261108/datasets/GAS_CO2/inrange_evaluation.csv",
+      "sha256": "62a0e6c6f1d3467073b8b58896c4f2f491f1df0cb7cda5c330acc92dd1dd4247"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/GAS_CO2/rules_for_generation.json",
+      "path": "evidence/latest_20261108/datasets/GAS_CO2/rules_for_generation.json",
+      "sha256": "2ba238d4e48b306a8849d2ae7f9da4540ba71f2e619cfe21a2d9b33c972f85ef"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/GAS_O2/audit.json",
+      "path": "evidence/latest_20261108/datasets/GAS_O2/audit.json",
+      "sha256": "a2d519535aff32a25b5f55b0ff76471f1f59a177dc988f454fa2903be1bebbed"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/GAS_O2/tier_table.csv",
+      "path": "evidence/latest_20261108/datasets/GAS_O2/tier_table.csv",
+      "sha256": "2502f63dbc2815149b92e4ce14afe67785a0bc427220905460ca381f4bbcbf68"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/GAS_O2/inrange_evaluation.csv",
+      "path": "evidence/latest_20261108/datasets/GAS_O2/inrange_evaluation.csv",
+      "sha256": "b08dddb968d89a92e8c29d39d8855fe15e410f110cefb2607e04b3c69704f3f6"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/GAS_O2/rules_for_generation.json",
+      "path": "evidence/latest_20261108/datasets/GAS_O2/rules_for_generation.json",
+      "sha256": "3cd386f6a582800a766aa2c219924f2bcf36daa162a20c49c86b693f1fb9775f"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/PI_TC/audit.json",
+      "path": "evidence/latest_20261108/datasets/PI_TC/audit.json",
+      "sha256": "6c3ba20a20686ae806c584081d330a7aca6efaae87474341d85306ac6f7eac83"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/PI_TC/tier_table.csv",
+      "path": "evidence/latest_20261108/datasets/PI_TC/tier_table.csv",
+      "sha256": "9377be4132fed0f5d1ebad77aac03d50dc8681a53efc647562eb0b3aa422654e"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/PI_TC/inrange_evaluation.csv",
+      "path": "evidence/latest_20261108/datasets/PI_TC/inrange_evaluation.csv",
+      "sha256": "63717b148a93e793f8c56b34b747a6b516c155c6c773d6d4e0df044a68051255"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/PI_TC/rules_for_generation.json",
+      "path": "evidence/latest_20261108/datasets/PI_TC/rules_for_generation.json",
+      "sha256": "47e76a5a93aa8bf497566e3deea3f7047313114b3afb9ef5e863eba3991dfc42"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/PI_RI/audit.json",
+      "path": "evidence/latest_20261108/datasets/PI_RI/audit.json",
+      "sha256": "902053f02abecc1549acdb1beddf3886c74298d8b2dbbfdbc4b2c3083ad7e7ac"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/PI_RI/tier_table.csv",
+      "path": "evidence/latest_20261108/datasets/PI_RI/tier_table.csv",
+      "sha256": "c4a389c6670d1edc26c4b957924a0640859870220c1adb0fe12effd077ef1794"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/PI_RI/inrange_evaluation.csv",
+      "path": "evidence/latest_20261108/datasets/PI_RI/inrange_evaluation.csv",
+      "sha256": "f3fcf7cafd123f72c3cff2c756b1ac9d32055cbf1f9e3cd7a8c5ebf4edb88eff"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/PI_RI/rules_for_generation.json",
+      "path": "evidence/latest_20261108/datasets/PI_RI/rules_for_generation.json",
+      "sha256": "ecdb956383a4e03e6843831d9dcb7b5080362da2c9ab4c6760234bd4ebff4dab"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/PI_RHO/audit.json",
+      "path": "evidence/latest_20261108/datasets/PI_RHO/audit.json",
+      "sha256": "a4764f9ff362b7d8422fff3cfa3ba996ce90496106e13071710cd1100756d853"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/PI_RHO/tier_table.csv",
+      "path": "evidence/latest_20261108/datasets/PI_RHO/tier_table.csv",
+      "sha256": "1fd10d72b7749a635ce5e8c8b2019babf6b16a1383465fb833e8b96ade9486f2"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/PI_RHO/inrange_evaluation.csv",
+      "path": "evidence/latest_20261108/datasets/PI_RHO/inrange_evaluation.csv",
+      "sha256": "93a2d3960e1c3552324fa2f7ea84f744364cb5381f79aec80f0ae4dc9cf7ba0a"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/PI_RHO/rules_for_generation.json",
+      "path": "evidence/latest_20261108/datasets/PI_RHO/rules_for_generation.json",
+      "sha256": "e1e05e3c1390b6c19e60a4259bcf0697467bd0a4f8c8e69a29f19476c1a576d7"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/PI_CP/audit.json",
+      "path": "evidence/latest_20261108/datasets/PI_CP/audit.json",
+      "sha256": "15db5f51aaac6fc665a1c4e9d4d8f67c9d8fa5f2e091a02b3d6164282a38727f"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/PI_CP/tier_table.csv",
+      "path": "evidence/latest_20261108/datasets/PI_CP/tier_table.csv",
+      "sha256": "fc4e442dbfd33e29e9a5c1a4dda8a23e1dbfa923293db7e0ad30d7b55e60947b"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/PI_CP/inrange_evaluation.csv",
+      "path": "evidence/latest_20261108/datasets/PI_CP/inrange_evaluation.csv",
+      "sha256": "a08507f799302fea5a5fa1d1bca5acd77bda8e4f4e3b94b4c0be31ba5c336b25"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/PI_CP/rules_for_generation.json",
+      "path": "evidence/latest_20261108/datasets/PI_CP/rules_for_generation.json",
+      "sha256": "83fff80302164060d3b3642ef6daa79f1899fa3c2ce32fca5af5feb6bf3df6b1"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/PI_DC/audit.json",
+      "path": "evidence/latest_20261108/datasets/PI_DC/audit.json",
+      "sha256": "1b0699340cfdd8f7f8fae5548457770c4620c52e4c94662d16da26fb8229f7a5"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/PI_DC/tier_table.csv",
+      "path": "evidence/latest_20261108/datasets/PI_DC/tier_table.csv",
+      "sha256": "4406a56ec737ddfc4eedeae6de318713c01a095fe1e3c4234d8b731ad17bdf55"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/PI_DC/inrange_evaluation.csv",
+      "path": "evidence/latest_20261108/datasets/PI_DC/inrange_evaluation.csv",
+      "sha256": "175ac95ffd90baf279e265e7799aa3f47593a34151214bb333c6308e1bb61b3c"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/PI_DC/rules_for_generation.json",
+      "path": "evidence/latest_20261108/datasets/PI_DC/rules_for_generation.json",
+      "sha256": "687c0b61363b86289b02983a81d032cd763fb8b4b72d3a815c5301dc251520f4"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/AD_TC/audit.json",
+      "path": "evidence/latest_20261108/datasets/AD_TC/audit.json",
+      "sha256": "a6af2c65b4ef1dd4a952f3e8e4899747d455a04c2e5963349bdce58d18b84722"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/AD_TC/tier_table.csv",
+      "path": "evidence/latest_20261108/datasets/AD_TC/tier_table.csv",
+      "sha256": "ed034fc904fa0d3d6bff32f307f8bda0762714aaec41f53085bd2b0282533c94"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/AD_TC/inrange_evaluation.csv",
+      "path": "evidence/latest_20261108/datasets/AD_TC/inrange_evaluation.csv",
+      "sha256": "6cfc71ca1eaadf0547a371d6cc70d85594fb579d855689272cc9a27169b1f2f4"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/AD_TC/rules_for_generation.json",
+      "path": "evidence/latest_20261108/datasets/AD_TC/rules_for_generation.json",
+      "sha256": "1d113fd10d1f561128eea5b050c498ed904429159e0cbc863b9bb1434622d798"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/AD_RHO/audit.json",
+      "path": "evidence/latest_20261108/datasets/AD_RHO/audit.json",
+      "sha256": "e12b19af35341e4dc96cd5e5f1dd68b28f30846ac014487ce4302a7727a4fa1a"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/AD_RHO/tier_table.csv",
+      "path": "evidence/latest_20261108/datasets/AD_RHO/tier_table.csv",
+      "sha256": "f54b13102a9907ab56c3aeb5b2bec54c4ad28c071e016f6003c598d2bbce4e0f"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/AD_RHO/inrange_evaluation.csv",
+      "path": "evidence/latest_20261108/datasets/AD_RHO/inrange_evaluation.csv",
+      "sha256": "d6272b1b15f40186b5bfe89ef90606b15655b30e40acd8777814415013063995"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/AD_RHO/rules_for_generation.json",
+      "path": "evidence/latest_20261108/datasets/AD_RHO/rules_for_generation.json",
+      "sha256": "aa68631463384c6b0d6cd9bcc9d5067cdf0d1c82c5d99bc1f3b141762206ecd8"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/AD_GAP/audit.json",
+      "path": "evidence/latest_20261108/datasets/AD_GAP/audit.json",
+      "sha256": "e133032911d11e6867bd0efe3ab202bda25cfad6f8b9e308820ca3111764d6b0"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/AD_GAP/tier_table.csv",
+      "path": "evidence/latest_20261108/datasets/AD_GAP/tier_table.csv",
+      "sha256": "d9fc5fc67b7637136239126302385e2fc7f31cf849e9aca0b1ef436edb3bf38a"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/AD_GAP/inrange_evaluation.csv",
+      "path": "evidence/latest_20261108/datasets/AD_GAP/inrange_evaluation.csv",
+      "sha256": "344de17ff3b354014747694fb5cb03e621fb9615407976b5d79c5ca6b5e60799"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/AD_GAP/rules_for_generation.json",
+      "path": "evidence/latest_20261108/datasets/AD_GAP/rules_for_generation.json",
+      "sha256": "798ed8416c6b9ecab8fb7e0f4b6e9e4c79a41c37c6babcba4ab63668728b5a84"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/AD_DC/audit.json",
+      "path": "evidence/latest_20261108/datasets/AD_DC/audit.json",
+      "sha256": "5ce205415cc9fbbf326a797a73449619d3dc45b2cfbebb3f14bde03515ae7bc9"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/AD_DC/tier_table.csv",
+      "path": "evidence/latest_20261108/datasets/AD_DC/tier_table.csv",
+      "sha256": "4e04467c4f81764f618f291144c958c1815eff0dd0e57c9da70929a66cac51f6"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/AD_DC/inrange_evaluation.csv",
+      "path": "evidence/latest_20261108/datasets/AD_DC/inrange_evaluation.csv",
+      "sha256": "208492ea7f77245e6eda629a32f6514a839c8861c1238dad544c898494201b27"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/AD_DC/rules_for_generation.json",
+      "path": "evidence/latest_20261108/datasets/AD_DC/rules_for_generation.json",
+      "sha256": "c36e571955719060be5dfb48d02846de27b5d8c5c24ad5d0815d14d5bc4e6477"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/AD_RI/audit.json",
+      "path": "evidence/latest_20261108/datasets/AD_RI/audit.json",
+      "sha256": "8736b4309f6a3ebeb2116712096388985dc5c19b8c6348ee97d6f2edba426378"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/AD_RI/tier_table.csv",
+      "path": "evidence/latest_20261108/datasets/AD_RI/tier_table.csv",
+      "sha256": "0719700073ae7f7bd1649bec73aacf29bd942bd8fce98a7fa3ff409feef9ea5f"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/AD_RI/inrange_evaluation.csv",
+      "path": "evidence/latest_20261108/datasets/AD_RI/inrange_evaluation.csv",
+      "sha256": "18d0c32b1b170e6386593b49f3d1b24574e604dd61e89e8de56d16a5b52efad3"
+    },
+    {
+      "source_member": "03_Φç¬σè¿µò░µì«σ▒éΦ╛ôσç║/AD_RI/rules_for_generation.json",
+      "path": "evidence/latest_20261108/datasets/AD_RI/rules_for_generation.json",
+      "sha256": "1f9e7cea33075d62d6c5c17478bc1972e6a046ae9b00e768fa0b9c4b29086446"
+    },
+    {
+      "source_member": "01_µÇ╗τ╗ôµèÑσæè.md",
+      "path": "evidence/latest_20261108/supplied_summary_report.md",
+      "sha256": "f5f994f2b3724f37a5118cae80a907426993fe9fc4c04be30860c695e599e923"
+    },
+    {
+      "source_member": "01b_ΦºäσêÖµ╕àσìò.md",
+      "path": "evidence/latest_20261108/supplied_rule_inventory.md",
+      "sha256": "34d84e07544d3f11e306632e58e89e93111f2c6c28c16ead6df9b06be182bc29"
+    },
+    {
+      "source_member": "06_µò░µì«µ¥Ñµ║ÉΣ╕ÄΦ«╕σÅ».md",
+      "path": "evidence/latest_20261108/supplied_data_sources_and_licensing.md",
+      "sha256": "ce05582c00f36a4b46f5da9cd5378de3ce4d08af71d91523d918eae5b8ae4af5"
+    },
+    {
+      "source_member": "04_µ╡ïΦ»òτ╗ôµ₧£/export_gap10/constraints.json",
+      "path": "evidence/latest_20261108/original_gap10_export/constraints.json",
+      "sha256": "fc6b6d9a5a3a3fdf3be02e0ae8bf9c9d7e0734946c72d5fc3f1a6364c978c5bd"
+    },
+    {
+      "source_member": "04_µ╡ïΦ»òτ╗ôµ₧£/export_gap10/manifest.json",
+      "path": "evidence/latest_20261108/original_gap10_export/manifest.json",
+      "sha256": "201d919b108e27394806a4d8cab9df031eb48e73f790180bd631553131a360b1"
+    },
+    {
+      "source_member": "04_µ╡ïΦ»òτ╗ôµ₧£/export_gap10/rules.csv",
+      "path": "evidence/latest_20261108/original_gap10_export/rules.csv",
+      "sha256": "f4f0ea2aff871c77f949ec81cc645e25a9880a80a36cc4859c631dc6ab3cf723"
+    },
+    {
+      "source_member": "04_µ╡ïΦ»òτ╗ôµ₧£/export_gap10/prompt.md",
+      "path": "evidence/latest_20261108/original_gap10_export/prompt.md",
+      "sha256": "c847168a7cbaa6cf64561a72cc58beb819a2ec8252da79de056225ba3b72b384"
+    }
+  ]
+}

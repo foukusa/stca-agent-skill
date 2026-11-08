@@ -1,0 +1,36 @@
+{
+  "schema": "stca-latest-rule-import-audit-v1",
+  "counts": {
+    "retained": 149,
+    "visible": 83,
+    "published_visible": 11,
+    "latest_visible": 72,
+    "legacy_hidden": 66,
+    "latest_primary_by_learner": {
+      "STCA": 15,
+      "WRAcc": 21
+    }
+  },
+  "source_attachment": "stca_skill_summary_20261108 (1).zip",
+  "source_attachment_sha256": "d22066c7bfa5239070dab9b8cf97e54c4215fce7ee77c645e90a83ed31181d39",
+  "definition_rdkit_version": "2026.09.1",
+  "source_training_rdkit_version": "2025.09.4",
+  "new_constraints": 72,
+  "rendered_prompts": 144,
+  "original_frozen_files_unchanged": 231,
+  "paper_catalog_entries_unchanged": 11,
+  "all_latest_rules_nonzero_full_data_support": true,
+  "exact_json_csv_rule_agreement": true,
+  "support_recomputation": {
+    "rules": 42,
+    "datasets": 7,
+    "evidence_source": "evidence/latest_20261108/support_recomputation.json",
+    "all_exact_match": true
+  },
+  "optional_extrapolation_separate": true,
+  "complete_native_models_supplied": [
+    "AD_GAP"
+  ],
+  "fold_models_supplied": false,
+  "cv_statistics": "CV means/SD are retained separately from in-sample support; no external holdout n/TP values are synthesized."
+}

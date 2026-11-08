@@ -1,0 +1,75 @@
+{
+  "schema": "stca-uploaded-data-results-validation-v1",
+  "version": "0.1.0",
+  "date": "2026-11-08",
+  "status": "passed",
+  "public_functional_tests": 49,
+  "automatic_workflow_regression_tests": 5,
+  "rule_choice_menu_tests": 6,
+  "existing_menu_save_return_tests": 6,
+  "regression": {
+    "status": "passed",
+    "real_fit_source_selected": [
+      3,
+      3,
+      7,
+      7
+    ],
+    "real_fit_rows": 72,
+    "real_fit_long_rows": 288,
+    "edge_rows": 73,
+    "edge_long_rows": 146,
+    "no_valid_rule_fixture": "passed",
+    "single_tier_error_fixture": "passed",
+    "original_fields_ids_stars_reserved_collisions": "passed",
+    "excluded_valid_structures_are_screened": "passed",
+    "model_unchanged": true
+  },
+  "actual_auto_acceptance": {
+    "status": "passed",
+    "actual_auto_run": true,
+    "input_rows": 73,
+    "cleaned_rows": 70,
+    "excluded_rows": 3,
+    "tiers": 4,
+    "long_results_rows": 292,
+    "source_selected": [
+      3,
+      3,
+      7,
+      7
+    ],
+    "holdout_selected": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "reserved_structure_target_id_and_original_values_preserved": true,
+    "duplicate_blank_ids_preserved": true,
+    "independent_candidates_old_recommendation_behavior": "selected_inner_validation at 0.1; completed",
+    "unknown_invalid_structure_rows_per_tier": [
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  "generation_entry": {
+    "fresh_agent_trial": true,
+    "no_rule_chosen_automatically": true,
+    "compact_source_property_tier_directory_shown": true,
+    "waits_for_user_choice": true
+  },
+  "bundled_example": {
+    "candidate_n": 5,
+    "rule": "paper-tg-high-20",
+    "selected_n": 2,
+    "not_selected_n": 3,
+    "original_star_smiles_preserved": true,
+    "has_property_labels": false
+  },
+  "scope": "Functional checks and exact structural-rule application, not an empirical property-performance comparison. Native macOS installation and marketplace submission were not performed.",
+  "record_scope": "Prior source/holdout adapter or previous library generation; retained compatibility evidence, not current default in-range rule evidence.",
+  "current_revision_evidence": "latest_revision_20261108.json"
+}

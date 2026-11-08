@@ -3,9 +3,9 @@
   "package_version": "0.1.0",
   "frontmatter": {
     "name": "stca",
-    "description": "Use STCA to select bundled polymer screening rules, learn readable rules from uploaded measured or computed CSV data, and export complete generation prompts for the current or another LLM. Preserve original repeat-unit SMILES; verify candidates against exact frozen conditions. Triggers: STCA、聚合物筛选、规则提取、生成prompt。"
+    "description": "Use STCA to learn and save readable polymer rules, screen with bundled or saved rules, or invoke the current LLM to generate and verify structures. Choose preview/edit/confirm or direct generation. Preserve exact rules and original starred SMILES. Triggers: STCA、聚合物筛选、规则归纳、生成prompt。"
   },
-  "entry_note": "先按 SKILL.md 选择现成规则、上传数据归纳规则或生成 prompt。现成规则和双语 prompt 位于 assets/rule_library。仅在计算时由宿主 agent 自动发现或准备后端，用户以自然语言调用，无需操作终端。安装入口见 references/deepseek-harness.md。",
+  "entry_note": "加载STCA后输入“开始使用STCA”，选择1上传数据总结规则、2已有规则筛选、3已有规则生成。学习默认比较STCA与WRAcc，分别返回各档筛选结果并保存完整规则和双语prompt，回到主菜单。生成先选来源、性质和百分比；方法可自动采用主推；原始星号SMILES保留，H-cap只用于计算。选定生成规则后，可先查看并调整完整prompt、确认后调用当前LLM，或直接生成并核验。",
   "official_docs": [
     "https://github.com/deepseek-ai/deepseek-harness/blob/master/README.zh.md",
     "https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/skill/skill-filesystem/README.zh.md"

@@ -1,5 +1,8 @@
 # STCA 来源与版本依据
 
+> 当前默认开源主线已更新为12任务、10/20/30档的STCA/WRAcc主推与备选；来源及证据见 [effectiveness.md](effectiveness.md)。用户上传数据默认走 [范围内流程](agent_workflows.md)，显式source/holdout保留原严格路径。下文旧实验、13任务或15/25内置条目仅对应保留的legacy版本，不作为当前默认目录。
+
+
 ## 锁定实现
 
 - 官方作者仓库：[foukusa/polymer-stca](https://github.com/foukusa/polymer-stca)。
@@ -50,3 +53,7 @@ Code Ocean：[10.24433/CO.1601774.v1](https://doi.org/10.24433/CO.1601774.v1)。
 上游版权声明为 `Copyright (c) 2025, The University of Tokyo, University College London`，使用 `LicenseRef-STCA-Academic-NonCommercial`。许可允许非商业学术研究、教学和结果复现中的使用与修改；商业使用及再分发（包括修改版）要求版权所有者事先书面许可；副本须保留版权及许可文字。
 
 本 skill 的适配器调用原作者实现，并保留作者、论文、代码与协议来源；不要把封装工作表述为另行发明 STCA，也不要把其他独立方法的结果冒充本实现的内置功能。
+
+## 作者归档与正式论文对照（2026-11-08核验）
+
+11条兼容ID为paper-*的冻结条目来自作者SI-20260822快照，原记录明确is_final_paper_artifact=false。当前逐行应用与锁定profile/旧作者结果一致，不代表正式发表论文全部协议与数字复现。正式SI S7.1对Tg Top10%描述top7–8 positive + top3–4 negative，而归档代表为Top9_negative_only；该段没有指定唯一完整signed-literal获胜规则，因此保留原条件并标作归档变体，不猜测替换。catalog publication_alignment和evidence/paper_profile_alignment_20261108.json记录核验范围。原研究DOI保持为10.1038/s41524-026-02345-x。

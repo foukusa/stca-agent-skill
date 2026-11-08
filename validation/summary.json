@@ -19,5 +19,6 @@
   "all_13_datasets_rerun_scope": "Complete historical benchmark comparisons were not rerun; all 13 bundled adaptive rule profiles were fitted.",
   "current_runtime_evidence": "compatibility_python310.json",
   "runtime_minimum_python": "3.10",
-  "ordinary_runtime_requires_archival_lock": false
+  "ordinary_runtime_requires_archival_lock": false,
+  "current_usability_evidence": "usability_and_effectiveness_0.1.0.json"
 }

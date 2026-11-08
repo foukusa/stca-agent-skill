@@ -1,0 +1,6 @@
+CandidateKey,SMILES
+cand-01,*CC*
+cand-02,*CCO*
+cand-03,*c1ccc(*)cc1
+cand-04,*c1cnc(nc1)*
+cand-05,*c1ccc(cc1)NC(=O)c1ccc(cc1)C(=O)Nc1ccc(cc1)*

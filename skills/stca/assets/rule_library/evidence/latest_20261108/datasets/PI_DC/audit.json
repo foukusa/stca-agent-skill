@@ -1,0 +1,81 @@
+{
+  "input_rows": 1077,
+  "property": "dielectric_constant",
+  "unit": "1",
+  "D1_D2_excluded": {
+    "nonfinite_target": 2
+  },
+  "D3_transform": "none",
+  "D4_replicate_measurements_dropped": 0,
+  "D5_flagged": 126,
+  "D6_flagged": 54,
+  "D7_quarantined": [
+    {
+      "index": 871,
+      "value": 130.7575103,
+      "rule_change": 0.38,
+      "metadata": ""
+    },
+    {
+      "index": 934,
+      "value": 73.65042823,
+      "rule_change": 0.56,
+      "metadata": ""
+    }
+  ],
+  "C1_scan": {
+    "value_step": 0.002,
+    "step_hit_halving_cap": false,
+    "min_subset_size": 42,
+    "inner_mcc_min_subset_1": 0.059,
+    "inner_mcc_min_subset_5pct": 0.187
+  },
+  "structures_after_cleaning": 1037,
+  "extrapolation_records": 207,
+  "tiers": [
+    {
+      "tier": 0.3,
+      "rule": "top 30%",
+      "comparator": ">=",
+      "unit": "1",
+      "cutoff_physical": 3.0140665483999998,
+      "positives": 311,
+      "inrange_cv_evaluable": true,
+      "source_cutoff_physical": 2.9177347449999997,
+      "source_positives": 249,
+      "extrapolation_positives": 135,
+      "extrapolation_top_cluster_share": 0.7,
+      "extrapolation_evaluable": true
+    },
+    {
+      "tier": 0.2,
+      "rule": "top 20%",
+      "comparator": ">=",
+      "unit": "1",
+      "cutoff_physical": 3.1726934324,
+      "positives": 208,
+      "inrange_cv_evaluable": true,
+      "source_cutoff_physical": 3.0578171398,
+      "source_positives": 166,
+      "extrapolation_positives": 114,
+      "extrapolation_top_cluster_share": 0.71,
+      "extrapolation_evaluable": true
+    },
+    {
+      "tier": 0.1,
+      "rule": "top 10%",
+      "comparator": ">=",
+      "unit": "1",
+      "cutoff_physical": 3.8002543686,
+      "positives": 104,
+      "inrange_cv_evaluable": true,
+      "source_cutoff_physical": 3.3282870062,
+      "source_positives": 83,
+      "extrapolation_positives": 81,
+      "extrapolation_top_cluster_share": 0.68,
+      "extrapolation_evaluable": true
+    }
+  ],
+  "recommended_train_command": "stca_runtime.py run -- train --input cleaned.csv --smiles-column stca_calculation_smiles_hcap --target y_model --direction high --tiers 0.3 0.2 0.1 --scan-step 0.002 --min-subset-size 42 --split-column split --group-column hcap_canon",
+  "default_evaluation": "grouped 5-fold CV within the data range (scripts/inrange_evaluation.py); extrapolation check optional"
+}

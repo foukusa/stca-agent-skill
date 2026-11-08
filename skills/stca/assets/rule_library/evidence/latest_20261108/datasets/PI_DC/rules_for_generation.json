@@ -1,0 +1,348 @@
+{
+  "property": "dielectric_constant",
+  "unit": "1",
+  "direction": "high",
+  "tiers": [
+    {
+      "tier": 0.3,
+      "label": "top 30%, >= 3.01407 1",
+      "primary": "WRAcc",
+      "rules": {
+        "STCA": {
+          "expression": "K132=0 AND K123=0 AND K93=0 AND K104=0 AND K86=0 AND K111=0 AND K91=0 AND K119=0 AND K90=0",
+          "literals": [
+            {
+              "feature": "K132",
+              "required_value": 0,
+              "smarts": "[#8]~*~[CH2]~*",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K123",
+              "required_value": 0,
+              "smarts": "[#8]~[#6]~[#8]",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K93",
+              "required_value": 0,
+              "smarts": "[!#6;!#1]~[CH3]",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K104",
+              "required_value": 0,
+              "smarts": "[!#6;!#1;!H0]~*~[CH2]~*",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K86",
+              "required_value": 0,
+              "smarts": "[C;H2,H3][!#6;!#1][C;H2,H3]",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K111",
+              "required_value": 0,
+              "smarts": "[#7]~*~[CH2]~*",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K91",
+              "required_value": 0,
+              "smarts": "[$([!#6;!#1;!H0]~*~*~*~[CH2]~*),$([!#6;!#1;!H0;R]1@[R]@[R]@[R]@[CH2;R]1),$([!#6;!#1;!H0]~[R]1@[R]@[R]@[CH2;R]1),$([!#6;!#1;!H0]~*~[R]1@[R]@[CH2;R]1)]",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K119",
+              "required_value": 0,
+              "smarts": "[#7]=*",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K90",
+              "required_value": 0,
+              "smarts": "[$([!#6;!#1;!H0]~*~*~[CH2]~*),$([!#6;!#1;!H0;R]1@[R]@[R]@[CH2;R]1),$([!#6;!#1;!H0]~[R]1@[R]@[CH2;R]1)]",
+              "count_parameter": 0,
+              "meaning": "absent"
+            }
+          ],
+          "cv_AS": 0.2977360968673573,
+          "cv_precision": 0.3600598623600217,
+          "cv_f1": 0.4234495871360278,
+          "cv_mcc": 0.1096988411060225
+        },
+        "WRAcc": {
+          "expression": "K29=0 AND K115=0 AND K136=1",
+          "literals": [
+            {
+              "feature": "K29",
+              "required_value": 0,
+              "smarts": "[#15]",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K115",
+              "required_value": 0,
+              "smarts": "[CH3]~*~[CH2]~*",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K136",
+              "required_value": 1,
+              "smarts": "[#8]=*",
+              "count_parameter": 1,
+              "meaning": "present (more than 1 matches)"
+            }
+          ],
+          "cv_AS": 0.5035118761010207,
+          "cv_precision": 0.5506778430402618,
+          "cv_f1": 0.5766906352881778,
+          "cv_mcc": 0.38316714997462215
+        }
+      }
+    },
+    {
+      "tier": 0.2,
+      "label": "top 20%, >= 3.17269 1",
+      "primary": "WRAcc",
+      "rules": {
+        "STCA": {
+          "expression": "K132=0 AND K123=0 AND K93=0 AND K104=0 AND K86=0 AND K111=0 AND K91=0 AND K119=0 AND K90=0",
+          "literals": [
+            {
+              "feature": "K132",
+              "required_value": 0,
+              "smarts": "[#8]~*~[CH2]~*",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K123",
+              "required_value": 0,
+              "smarts": "[#8]~[#6]~[#8]",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K93",
+              "required_value": 0,
+              "smarts": "[!#6;!#1]~[CH3]",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K104",
+              "required_value": 0,
+              "smarts": "[!#6;!#1;!H0]~*~[CH2]~*",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K86",
+              "required_value": 0,
+              "smarts": "[C;H2,H3][!#6;!#1][C;H2,H3]",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K111",
+              "required_value": 0,
+              "smarts": "[#7]~*~[CH2]~*",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K91",
+              "required_value": 0,
+              "smarts": "[$([!#6;!#1;!H0]~*~*~*~[CH2]~*),$([!#6;!#1;!H0;R]1@[R]@[R]@[R]@[CH2;R]1),$([!#6;!#1;!H0]~[R]1@[R]@[R]@[CH2;R]1),$([!#6;!#1;!H0]~*~[R]1@[R]@[CH2;R]1)]",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K119",
+              "required_value": 0,
+              "smarts": "[#7]=*",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K90",
+              "required_value": 0,
+              "smarts": "[$([!#6;!#1;!H0]~*~*~[CH2]~*),$([!#6;!#1;!H0;R]1@[R]@[R]@[CH2;R]1),$([!#6;!#1;!H0]~[R]1@[R]@[CH2;R]1)]",
+              "count_parameter": 0,
+              "meaning": "absent"
+            }
+          ],
+          "cv_AS": 0.19968261114229766,
+          "cv_precision": 0.24349328292990266,
+          "cv_f1": 0.28240322768897846,
+          "cv_mcc": 0.07315132280801188
+        },
+        "WRAcc": {
+          "expression": "K29=0 AND K142=1 AND K162=1",
+          "literals": [
+            {
+              "feature": "K29",
+              "required_value": 0,
+              "smarts": "[#15]",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K142",
+              "required_value": 1,
+              "smarts": "[#7]",
+              "count_parameter": 1,
+              "meaning": "present (more than 1 matches)"
+            },
+            {
+              "feature": "K162",
+              "required_value": 1,
+              "smarts": "a",
+              "count_parameter": 0,
+              "meaning": "present"
+            }
+          ],
+          "cv_AS": 0.4349073350169173,
+          "cv_precision": 0.43146744751168864,
+          "cv_f1": 0.5075282895925679,
+          "cv_mcc": 0.3657262679464955
+        }
+      }
+    },
+    {
+      "tier": 0.1,
+      "label": "top 10%, >= 3.80025 1",
+      "primary": "WRAcc",
+      "rules": {
+        "STCA": {
+          "expression": "K74=1 AND K132=0 AND K123=0 AND K93=0 AND K104=0 AND K86=0 AND K111=0 AND K91=0 AND K119=0 AND K90=0 AND K139=0",
+          "literals": [
+            {
+              "feature": "K74",
+              "required_value": 1,
+              "smarts": "[CH3]~*~[CH3]",
+              "count_parameter": 0,
+              "meaning": "present"
+            },
+            {
+              "feature": "K132",
+              "required_value": 0,
+              "smarts": "[#8]~*~[CH2]~*",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K123",
+              "required_value": 0,
+              "smarts": "[#8]~[#6]~[#8]",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K93",
+              "required_value": 0,
+              "smarts": "[!#6;!#1]~[CH3]",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K104",
+              "required_value": 0,
+              "smarts": "[!#6;!#1;!H0]~*~[CH2]~*",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K86",
+              "required_value": 0,
+              "smarts": "[C;H2,H3][!#6;!#1][C;H2,H3]",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K111",
+              "required_value": 0,
+              "smarts": "[#7]~*~[CH2]~*",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K91",
+              "required_value": 0,
+              "smarts": "[$([!#6;!#1;!H0]~*~*~*~[CH2]~*),$([!#6;!#1;!H0;R]1@[R]@[R]@[R]@[CH2;R]1),$([!#6;!#1;!H0]~[R]1@[R]@[R]@[CH2;R]1),$([!#6;!#1;!H0]~*~[R]1@[R]@[CH2;R]1)]",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K119",
+              "required_value": 0,
+              "smarts": "[#7]=*",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K90",
+              "required_value": 0,
+              "smarts": "[$([!#6;!#1;!H0]~*~*~[CH2]~*),$([!#6;!#1;!H0;R]1@[R]@[R]@[CH2;R]1),$([!#6;!#1;!H0]~[R]1@[R]@[CH2;R]1)]",
+              "count_parameter": 0,
+              "meaning": "absent"
+            },
+            {
+              "feature": "K139",
+              "required_value": 0,
+              "smarts": "[O;!H0]",
+              "count_parameter": 0,
+              "meaning": "absent"
+            }
+          ],
+          "cv_AS": 0.157135734327601,
+          "cv_precision": 0.15610075686770392,
+          "cv_f1": 0.21545469319969157,
+          "cv_mcc": 0.09985175291540753
+        },
+        "WRAcc": {
+          "expression": "K62=1 AND K113=1 AND K126=1",
+          "literals": [
+            {
+              "feature": "K62",
+              "required_value": 1,
+              "smarts": "*@*!@*@*",
+              "count_parameter": 0,
+              "meaning": "present"
+            },
+            {
+              "feature": "K113",
+              "required_value": 1,
+              "smarts": "[#8]!:*:*",
+              "count_parameter": 0,
+              "meaning": "present"
+            },
+            {
+              "feature": "K126",
+              "required_value": 1,
+              "smarts": "*!@[#8]!@*",
+              "count_parameter": 0,
+              "meaning": "present"
+            }
+          ],
+          "cv_AS": 0.47360934638962576,
+          "cv_precision": 0.4285675077305912,
+          "cv_f1": 0.5222055090937031,
+          "cv_mcc": 0.470055022344583
+        }
+      }
+    }
+  ]
+}

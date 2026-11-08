@@ -1,0 +1,270 @@
+{
+  "schema": "stca-property-registry/0.2",
+  "note": "Units and fixed log preferences are preparation settings. Plausibility ranges are approximate maintainer-supplied heuristics for bulk homopolymers, not universal physical bounds or independently verified validity criteria. D6 only flags; optional D7 can quarantine a flagged influential training record. Full-data D3/D4/D7 preparation makes subsequent CV conditional on these decisions.",
+  "processing_keywords": [
+    "methanol[- ]treat",
+    "methanol treatment",
+    "\\baged\\b",
+    "\\baging\\b",
+    "\\bageing\\b",
+    "heated at",
+    "anneal",
+    "cross-?linked",
+    "plasma[- ]polymer",
+    "irradiat",
+    "stretched",
+    "oriented film",
+    "\\bblend\\b",
+    "composite"
+  ],
+  "properties": {
+    "glass_transition_temperature": {
+      "aliases": [
+        "tg",
+        "glass transition"
+      ],
+      "unit": "degC",
+      "from_units": {
+        "K": [
+          1.0,
+          -273.15
+        ]
+      },
+      "log_scale": false,
+      "plausible_range": [
+        -150,
+        500
+      ]
+    },
+    "melting_temperature": {
+      "aliases": [
+        "tm",
+        "melting"
+      ],
+      "unit": "degC",
+      "from_units": {
+        "K": [
+          1.0,
+          -273.15
+        ]
+      },
+      "log_scale": false,
+      "plausible_range": [
+        -100,
+        600
+      ]
+    },
+    "decomposition_temperature": {
+      "aliases": [
+        "td",
+        "decomposition"
+      ],
+      "unit": "degC",
+      "from_units": {
+        "K": [
+          1.0,
+          -273.15
+        ]
+      },
+      "log_scale": false,
+      "plausible_range": [
+        100,
+        800
+      ]
+    },
+    "electrical_conductivity": {
+      "aliases": [
+        "ec",
+        "electrical conductivity",
+        "electric conductivity"
+      ],
+      "unit": "S/cm",
+      "from_units": {
+        "S/m": [
+          0.01,
+          0.0
+        ]
+      },
+      "log_scale": true,
+      "plausible_range": [
+        1e-22,
+        1000.0
+      ]
+    },
+    "permeability_He": {
+      "aliases": [
+        "he permeability"
+      ],
+      "unit": "Barrer",
+      "log_scale": true,
+      "plausible_range": [
+        1e-05,
+        30000.0
+      ]
+    },
+    "permeability_H2": {
+      "aliases": [
+        "h2 permeability"
+      ],
+      "unit": "Barrer",
+      "log_scale": true,
+      "plausible_range": [
+        1e-05,
+        60000.0
+      ]
+    },
+    "permeability_O2": {
+      "aliases": [
+        "o2 permeability"
+      ],
+      "unit": "Barrer",
+      "log_scale": true,
+      "plausible_range": [
+        1e-05,
+        30000.0
+      ]
+    },
+    "permeability_N2": {
+      "aliases": [
+        "n2 permeability"
+      ],
+      "unit": "Barrer",
+      "log_scale": true,
+      "plausible_range": [
+        1e-05,
+        10000.0
+      ]
+    },
+    "permeability_CO2": {
+      "aliases": [
+        "co2 permeability"
+      ],
+      "unit": "Barrer",
+      "log_scale": true,
+      "plausible_range": [
+        1e-05,
+        100000.0
+      ]
+    },
+    "permeability_CH4": {
+      "aliases": [
+        "ch4 permeability"
+      ],
+      "unit": "Barrer",
+      "log_scale": true,
+      "plausible_range": [
+        1e-05,
+        30000.0
+      ]
+    },
+    "thermal_conductivity": {
+      "aliases": [
+        "tc",
+        "thermal conductivity"
+      ],
+      "unit": "W/(m K)",
+      "log_scale": false,
+      "plausible_range": [
+        0.05,
+        1.0
+      ]
+    },
+    "density": {
+      "aliases": [
+        "rho",
+        "density"
+      ],
+      "unit": "g/cm3",
+      "from_units": {
+        "kg/m3": [
+          0.001,
+          0.0
+        ]
+      },
+      "log_scale": false,
+      "plausible_range": [
+        0.7,
+        2.5
+      ]
+    },
+    "refractive_index": {
+      "aliases": [
+        "ri",
+        "refractive index"
+      ],
+      "unit": "1",
+      "log_scale": false,
+      "plausible_range": [
+        1.25,
+        1.9
+      ]
+    },
+    "dielectric_constant": {
+      "aliases": [
+        "permittivity",
+        "epsilon",
+        "dc"
+      ],
+      "unit": "1",
+      "log_scale": false,
+      "plausible_range": [
+        1.5,
+        15
+      ]
+    },
+    "heat_capacity": {
+      "aliases": [
+        "cp",
+        "heat capacity"
+      ],
+      "unit": "J/(kg K)",
+      "log_scale": false,
+      "plausible_range": [
+        500,
+        5000
+      ]
+    },
+    "isolated_monomer_homo_lumo_gap": {
+      "aliases": [
+        "band_gap",
+        "gap",
+        "bandgap",
+        "band gap",
+        "homo-lumo gap",
+        "homo_lumo_gap",
+        "isolated monomer homo lumo gap",
+        "isolated_monomer_homo_lumo_gap"
+      ],
+      "unit": "eV",
+      "log_scale": false,
+      "plausible_range": [
+        0.0,
+        16.0
+      ],
+      "measurement_semantics": "isolated_monomer_HOMO_LUMO_gap; not an assumed bulk electronic band gap"
+    }
+  },
+  "processing_text_policy": "Scan explicitly selected metadata/text columns only; exclude the configured ID column. A keyword is a scope-exclusion heuristic, not proof of erroneous measurement.",
+  "unit_aliases": {
+    "°C": "degC",
+    "Celsius": "degC",
+    "g/cm^3": "g/cm3",
+    "kg/m^3": "kg/m3",
+    "W/m/K": "W/(m K)",
+    "W/(m*K)": "W/(m K)",
+    "J/kg/K": "J/(kg K)",
+    "dimensionless": "1",
+    "无量纲": "1",
+    "g/cm³": "g/cm3",
+    "kg/m³": "kg/m3",
+    "W/(m·K)": "W/(m K)",
+    "W/(m⋅K)": "W/(m K)",
+    "J/(kg·K)": "J/(kg K)",
+    "deg C": "degC",
+    "° C": "degC",
+    "C": "degC",
+    "摄氏度": "degC",
+    "Kelvin": "K",
+    "kelvin": "K"
+  }
+}

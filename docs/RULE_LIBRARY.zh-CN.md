@@ -1,98 +1,75 @@
 # STCA 现成规则与生成 prompt
 
-**版本 0.1.0** · [English](RULE_LIBRARY.md) · [返回首页](../README.zh-CN.md) · [完整机器可读目录](../skills/stca/assets/rule_library/catalog.json)
+**版本 0.1.0** · [English](RULE_LIBRARY.md) · [返回首页](../README.zh-CN.md)
 
-按数据来源、性质、方向和百分比选择现成规则。此目录提供 77 个冻结规则选项；每个选项都有可直接复制的中文生成 prompt 和精确约束 JSON。
+输入 **“开始使用 STCA”**，选择 **2 筛选**或 **3 生成**，目录会自动显示。选定来源、性质、百分比及规则后，AI 助手载入完整条件；你无需输入规则编号。也可在下表点击方法名，直接获取完整中文生成 prompt。
 
 ## 目录
 
-- [选择并调用规则](#选择并调用规则)
-- [STCA 论文：高 Tg、高与低电导率](#stca-论文高-tg高与低电导率)
+- [如何选择](#如何选择)
+- [作者归档规则](#作者归档规则)
 - [GAS：实测气体渗透率](#gas实测气体渗透率)
 - [RadonPy：五种计算性质](#radonpy五种计算性质)
-- [ADEPT：六种计算性质](#adept六种计算性质)
-- [AD_GAP：作者默认规则与更多选项](#ad_gap作者默认规则与更多选项)
+- [ADEPT：五种计算性质](#adept五种计算性质)
+- [使用自己的数据](#使用自己的数据)
 
-## 选择并调用规则
+## 如何选择
 
-1. 先选数据来源和性质，再选高/低方向与百分比。表格中的百分比链接直接打开对应规则的中文 prompt；“约束 JSON”链接打开其精确条件。
-2. 打开 prompt，复制完整内容到当前 LLM 或另一个 LLM。可补充候选数量、化学偏好和排除项，并保留原有的规则编号、位条件和 AND 关系。
-3. 筛选已有候选或核验生成结构时，在已启用 STCA 的宿主中上传 CSV，并指明所选规则 ID。规则 ID 位于 prompt 的“规则来源”中，也是链接目录名。
+开源数据目录覆盖 **12 项任务**，均为高值方向的 Top **10%、20%、30%**。每档同时提供 **STCA 与 WRAcc** 两套完整规则，标出主推与备选。接受推荐就直接使用主推，也可明确指定任一方法。两种方法拥有各自独立的规则和筛选结果，要求对比时同时交付。
 
-例如，选择 GAS 的 CO₂ 高渗透率 Top 15% 后，可以直接请求：
+例如：“用 GAS 的高 CO₂ 渗透率 Top 10% 主推规则筛选这份候选。”或“用 ADEPT 高介电常数 Top 20% 的 WRAcc 规则直接生成 20 个候选。”
 
-```text
-使用 STCA 现成规则 gas-co2-high-15 筛选我上传的 candidates.csv。
-结构列为 SMILES，CandidateKey 是可选标识列。
-保留原始带 * 的重复单元，返回每条候选的规则判定与全部失败条件。
-```
+生成时，选定规则后可选**先预览，确认后生成**或**直接生成**。预览方式会展示完整 prompt 供修改，等待你回复“确认，开始生成”；直接方式则立即调用当前 LLM。两种方式都会实际生成候选，并按选定规则逐条核验。需要转到其他 LLM 时，可明确请求“只给完整 prompt”。
 
-组合多个目标时，分别指定每项规则 ID，例如 `paper-tg-high-20` 与 `paper-ec-low-10`，并要求同一候选同时满足全部规则。
+选定档位和完整 prompt 均包含**具体物理阈值、≥／≤ 比较符、单位**及全部结构条件。百分比表示原数据的目标范围，并非候选入选配额；筛选返回原始 SMILES、判断与每条失败条件。多目标时，分别选择各目标的规则，再报告同时满足的候选。
 
-Top/Bottom 百分比表示相应源数据集的目标尾部范围，并不规定新候选或生成结构的通过比例。prompt 中的物理阈值是冻结的训练标签边界；结构命中规则不能替代性质测量或计算。同一性质来自不同数据集时，请保留来源和单位。
+主推依据数据范围内按结构分组、5 折重复 3 次的评价：**AS = (MCC + Precision + F1) / 3**。两种方法均可评价时，WRAcc 的 AS 高出 STCA **超过 0.02** 才主推 WRAcc，否则保留 STCA；每档同时给出两种方法的分数与推荐理由。分数针对自动预处理后的数据；原表回筛结果用于展示冻结规则在该表上的选择。
 
-## STCA 论文：高 Tg、高与低电导率
+## 作者归档规则
 
-这些选项使用 STCA 论文的冻结规则。Tg 提供高值方向；电导率 EC 分别提供高值与低值方向。
+这些 Tg 与电导率冻结规则来自作者的 **SI-20260822 归档**，可用于对应的结构筛选或生成。其中 **Tg Top 10% 为归档变体**，并非正式发表 SI 描述的代表规则。详见[规则来源](../skills/stca/references/provenance.md)。
 
-| 性质与方向 | 单位 | 可选百分比：打开中文 prompt / 约束 |
+| 性质与方向 | 单位 | 完整 prompt |
 |---|---|---|
-| 高玻璃化转变温度 Tg | degC | [Top 10%](../skills/stca/assets/rule_library/entries/paper-tg-high-10/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/paper-tg-high-10/constraints.json); [Top 20%](../skills/stca/assets/rule_library/entries/paper-tg-high-20/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/paper-tg-high-20/constraints.json); [Top 30%](../skills/stca/assets/rule_library/entries/paper-tg-high-30/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/paper-tg-high-30/constraints.json) |
-| 高电导率 EC | S/cm | [Top 5%](../skills/stca/assets/rule_library/entries/paper-ec-high-5/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/paper-ec-high-5/constraints.json); [Top 10%](../skills/stca/assets/rule_library/entries/paper-ec-high-10/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/paper-ec-high-10/constraints.json); [Top 15%](../skills/stca/assets/rule_library/entries/paper-ec-high-15/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/paper-ec-high-15/constraints.json); [Top 20%](../skills/stca/assets/rule_library/entries/paper-ec-high-20/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/paper-ec-high-20/constraints.json) |
-| 低电导率 EC | S/cm | [Bottom 5%](../skills/stca/assets/rule_library/entries/paper-ec-low-5/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/paper-ec-low-5/constraints.json); [Bottom 10%](../skills/stca/assets/rule_library/entries/paper-ec-low-10/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/paper-ec-low-10/constraints.json); [Bottom 15%](../skills/stca/assets/rule_library/entries/paper-ec-low-15/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/paper-ec-low-15/constraints.json); [Bottom 20%](../skills/stca/assets/rule_library/entries/paper-ec-low-20/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/paper-ec-low-20/constraints.json) |
+| 高 Tg | °C | [Top 10%](../skills/stca/assets/rule_library/entries/paper-tg-high-10/prompt.zh-CN.md) · [Top 20%](../skills/stca/assets/rule_library/entries/paper-tg-high-20/prompt.zh-CN.md) · [Top 30%](../skills/stca/assets/rule_library/entries/paper-tg-high-30/prompt.zh-CN.md) |
+| 低电导率 | S/cm | [Bottom 5%](../skills/stca/assets/rule_library/entries/paper-ec-low-5/prompt.zh-CN.md) · [Bottom 10%](../skills/stca/assets/rule_library/entries/paper-ec-low-10/prompt.zh-CN.md) · [Bottom 15%](../skills/stca/assets/rule_library/entries/paper-ec-low-15/prompt.zh-CN.md) · [Bottom 20%](../skills/stca/assets/rule_library/entries/paper-ec-low-20/prompt.zh-CN.md) |
+| 高电导率 | S/cm | [Top 5%](../skills/stca/assets/rule_library/entries/paper-ec-high-5/prompt.zh-CN.md) · [Top 10%](../skills/stca/assets/rule_library/entries/paper-ec-high-10/prompt.zh-CN.md) · [Top 15%](../skills/stca/assets/rule_library/entries/paper-ec-high-15/prompt.zh-CN.md) · [Top 20%](../skills/stca/assets/rule_library/entries/paper-ec-high-20/prompt.zh-CN.md) |
 
 ## GAS：实测气体渗透率
 
-GAS 的实测 CO₂ 与 O₂ 渗透率规则均为高值方向，每种性质可选 Top 10%、15%、20%、25%、30%。
+CO₂ 与 O₂ 来自实验测量。
 
-| 数据集 | 性质 | 单位 | Top 10% | Top 15% | Top 20% | Top 25% | Top 30% |
-|---|---|---|---|---|---|---|---|
-| `GAS_CO2` | CO₂ 渗透率 | Barrer | [10%](../skills/stca/assets/rule_library/entries/gas-co2-high-10/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/gas-co2-high-10/constraints.json) | [15%](../skills/stca/assets/rule_library/entries/gas-co2-high-15/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/gas-co2-high-15/constraints.json) | [20%](../skills/stca/assets/rule_library/entries/gas-co2-high-20/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/gas-co2-high-20/constraints.json) | [25%](../skills/stca/assets/rule_library/entries/gas-co2-high-25/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/gas-co2-high-25/constraints.json) | [30%](../skills/stca/assets/rule_library/entries/gas-co2-high-30/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/gas-co2-high-30/constraints.json) |
-| `GAS_O2` | O₂ 渗透率 | Barrer | [10%](../skills/stca/assets/rule_library/entries/gas-o2-high-10/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/gas-o2-high-10/constraints.json) | [15%](../skills/stca/assets/rule_library/entries/gas-o2-high-15/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/gas-o2-high-15/constraints.json) | [20%](../skills/stca/assets/rule_library/entries/gas-o2-high-20/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/gas-o2-high-20/constraints.json) | [25%](../skills/stca/assets/rule_library/entries/gas-o2-high-25/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/gas-o2-high-25/constraints.json) | [30%](../skills/stca/assets/rule_library/entries/gas-o2-high-30/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/gas-o2-high-30/constraints.json) |
+| 性质 | 单位 | Top 10% | Top 20% | Top 30% |
+|---|---|---|---|---|
+| CO₂ 渗透率 | Barrer | 主推 [STCA](../skills/stca/assets/rule_library/entries/latest-gas-co2-stca-high-10/prompt.zh-CN.md) · 备选 [WRAcc](../skills/stca/assets/rule_library/entries/latest-gas-co2-wracc-high-10/prompt.zh-CN.md) | 主推 [STCA](../skills/stca/assets/rule_library/entries/latest-gas-co2-stca-high-20/prompt.zh-CN.md) · 备选 [WRAcc](../skills/stca/assets/rule_library/entries/latest-gas-co2-wracc-high-20/prompt.zh-CN.md) | 主推 [STCA](../skills/stca/assets/rule_library/entries/latest-gas-co2-stca-high-30/prompt.zh-CN.md) · 备选 [WRAcc](../skills/stca/assets/rule_library/entries/latest-gas-co2-wracc-high-30/prompt.zh-CN.md) |
+| O₂ 渗透率 | Barrer | 主推 [STCA](../skills/stca/assets/rule_library/entries/latest-gas-o2-stca-high-10/prompt.zh-CN.md) · 备选 [WRAcc](../skills/stca/assets/rule_library/entries/latest-gas-o2-wracc-high-10/prompt.zh-CN.md) | 主推 [STCA](../skills/stca/assets/rule_library/entries/latest-gas-o2-stca-high-20/prompt.zh-CN.md) · 备选 [WRAcc](../skills/stca/assets/rule_library/entries/latest-gas-o2-wracc-high-20/prompt.zh-CN.md) | 主推 [STCA](../skills/stca/assets/rule_library/entries/latest-gas-o2-stca-high-30/prompt.zh-CN.md) · 备选 [WRAcc](../skills/stca/assets/rule_library/entries/latest-gas-o2-wracc-high-30/prompt.zh-CN.md) |
 
 ## RadonPy：五种计算性质
 
-RadonPy 数据提供热导率、折射率、密度、比热容和介电常数五种计算性质。以下规则均为高值方向；`dimensionless` 表示无量纲。
+以下标签来自聚合物分子动力学计算。
 
-| 数据集 | 性质 | 单位 | Top 10% | Top 15% | Top 20% | Top 25% | Top 30% |
-|---|---|---|---|---|---|---|---|
-| `PI_TC` | 热导率 | W/(m K) | [10%](../skills/stca/assets/rule_library/entries/radonpy-tc-high-10/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/radonpy-tc-high-10/constraints.json) | [15%](../skills/stca/assets/rule_library/entries/radonpy-tc-high-15/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/radonpy-tc-high-15/constraints.json) | [20%](../skills/stca/assets/rule_library/entries/radonpy-tc-high-20/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/radonpy-tc-high-20/constraints.json) | [25%](../skills/stca/assets/rule_library/entries/radonpy-tc-high-25/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/radonpy-tc-high-25/constraints.json) | [30%](../skills/stca/assets/rule_library/entries/radonpy-tc-high-30/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/radonpy-tc-high-30/constraints.json) |
-| `PI_RI` | 折射率 | dimensionless | [10%](../skills/stca/assets/rule_library/entries/radonpy-ri-high-10/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/radonpy-ri-high-10/constraints.json) | [15%](../skills/stca/assets/rule_library/entries/radonpy-ri-high-15/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/radonpy-ri-high-15/constraints.json) | [20%](../skills/stca/assets/rule_library/entries/radonpy-ri-high-20/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/radonpy-ri-high-20/constraints.json) | [25%](../skills/stca/assets/rule_library/entries/radonpy-ri-high-25/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/radonpy-ri-high-25/constraints.json) | [30%](../skills/stca/assets/rule_library/entries/radonpy-ri-high-30/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/radonpy-ri-high-30/constraints.json) |
-| `PI_RHO` | 密度 | g/cm3 | [10%](../skills/stca/assets/rule_library/entries/radonpy-density-high-10/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/radonpy-density-high-10/constraints.json) | [15%](../skills/stca/assets/rule_library/entries/radonpy-density-high-15/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/radonpy-density-high-15/constraints.json) | [20%](../skills/stca/assets/rule_library/entries/radonpy-density-high-20/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/radonpy-density-high-20/constraints.json) | [25%](../skills/stca/assets/rule_library/entries/radonpy-density-high-25/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/radonpy-density-high-25/constraints.json) | [30%](../skills/stca/assets/rule_library/entries/radonpy-density-high-30/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/radonpy-density-high-30/constraints.json) |
-| `PI_CP` | 比热容 | J/(kg K) | [10%](../skills/stca/assets/rule_library/entries/radonpy-cp-high-10/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/radonpy-cp-high-10/constraints.json) | [15%](../skills/stca/assets/rule_library/entries/radonpy-cp-high-15/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/radonpy-cp-high-15/constraints.json) | [20%](../skills/stca/assets/rule_library/entries/radonpy-cp-high-20/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/radonpy-cp-high-20/constraints.json) | [25%](../skills/stca/assets/rule_library/entries/radonpy-cp-high-25/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/radonpy-cp-high-25/constraints.json) | [30%](../skills/stca/assets/rule_library/entries/radonpy-cp-high-30/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/radonpy-cp-high-30/constraints.json) |
-| `PI_DC` | 介电常数 | dimensionless | [10%](../skills/stca/assets/rule_library/entries/radonpy-dc-high-10/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/radonpy-dc-high-10/constraints.json) | [15%](../skills/stca/assets/rule_library/entries/radonpy-dc-high-15/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/radonpy-dc-high-15/constraints.json) | [20%](../skills/stca/assets/rule_library/entries/radonpy-dc-high-20/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/radonpy-dc-high-20/constraints.json) | [25%](../skills/stca/assets/rule_library/entries/radonpy-dc-high-25/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/radonpy-dc-high-25/constraints.json) | [30%](../skills/stca/assets/rule_library/entries/radonpy-dc-high-30/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/radonpy-dc-high-30/constraints.json) |
+| 性质 | 单位 | Top 10% | Top 20% | Top 30% |
+|---|---|---|---|---|
+| 热导率 | W/(m K) | 主推 [STCA](../skills/stca/assets/rule_library/entries/latest-pi-tc-stca-high-10/prompt.zh-CN.md) · 备选 [WRAcc](../skills/stca/assets/rule_library/entries/latest-pi-tc-wracc-high-10/prompt.zh-CN.md) | 主推 [STCA](../skills/stca/assets/rule_library/entries/latest-pi-tc-stca-high-20/prompt.zh-CN.md) · 备选 [WRAcc](../skills/stca/assets/rule_library/entries/latest-pi-tc-wracc-high-20/prompt.zh-CN.md) | 主推 [STCA](../skills/stca/assets/rule_library/entries/latest-pi-tc-stca-high-30/prompt.zh-CN.md) · 备选 [WRAcc](../skills/stca/assets/rule_library/entries/latest-pi-tc-wracc-high-30/prompt.zh-CN.md) |
+| 折射率 | 无量纲 | 主推 [WRAcc](../skills/stca/assets/rule_library/entries/latest-pi-ri-wracc-high-10/prompt.zh-CN.md) · 备选 [STCA](../skills/stca/assets/rule_library/entries/latest-pi-ri-stca-high-10/prompt.zh-CN.md) | 主推 [WRAcc](../skills/stca/assets/rule_library/entries/latest-pi-ri-wracc-high-20/prompt.zh-CN.md) · 备选 [STCA](../skills/stca/assets/rule_library/entries/latest-pi-ri-stca-high-20/prompt.zh-CN.md) | 主推 [WRAcc](../skills/stca/assets/rule_library/entries/latest-pi-ri-wracc-high-30/prompt.zh-CN.md) · 备选 [STCA](../skills/stca/assets/rule_library/entries/latest-pi-ri-stca-high-30/prompt.zh-CN.md) |
+| 密度 | g/cm³ | 主推 [WRAcc](../skills/stca/assets/rule_library/entries/latest-pi-rho-wracc-high-10/prompt.zh-CN.md) · 备选 [STCA](../skills/stca/assets/rule_library/entries/latest-pi-rho-stca-high-10/prompt.zh-CN.md) | 主推 [STCA](../skills/stca/assets/rule_library/entries/latest-pi-rho-stca-high-20/prompt.zh-CN.md) · 备选 [WRAcc](../skills/stca/assets/rule_library/entries/latest-pi-rho-wracc-high-20/prompt.zh-CN.md) | 主推 [WRAcc](../skills/stca/assets/rule_library/entries/latest-pi-rho-wracc-high-30/prompt.zh-CN.md) · 备选 [STCA](../skills/stca/assets/rule_library/entries/latest-pi-rho-stca-high-30/prompt.zh-CN.md) |
+| 比热容 | J/(kg K) | 主推 [STCA](../skills/stca/assets/rule_library/entries/latest-pi-cp-stca-high-10/prompt.zh-CN.md) · 备选 [WRAcc](../skills/stca/assets/rule_library/entries/latest-pi-cp-wracc-high-10/prompt.zh-CN.md) | 主推 [WRAcc](../skills/stca/assets/rule_library/entries/latest-pi-cp-wracc-high-20/prompt.zh-CN.md) · 备选 [STCA](../skills/stca/assets/rule_library/entries/latest-pi-cp-stca-high-20/prompt.zh-CN.md) | 主推 [WRAcc](../skills/stca/assets/rule_library/entries/latest-pi-cp-wracc-high-30/prompt.zh-CN.md) · 备选 [STCA](../skills/stca/assets/rule_library/entries/latest-pi-cp-stca-high-30/prompt.zh-CN.md) |
+| 介电常数 | 无量纲 | 主推 [WRAcc](../skills/stca/assets/rule_library/entries/latest-pi-dc-wracc-high-10/prompt.zh-CN.md) · 备选 [STCA](../skills/stca/assets/rule_library/entries/latest-pi-dc-stca-high-10/prompt.zh-CN.md) | 主推 [WRAcc](../skills/stca/assets/rule_library/entries/latest-pi-dc-wracc-high-20/prompt.zh-CN.md) · 备选 [STCA](../skills/stca/assets/rule_library/entries/latest-pi-dc-stca-high-20/prompt.zh-CN.md) | 主推 [WRAcc](../skills/stca/assets/rule_library/entries/latest-pi-dc-wracc-high-30/prompt.zh-CN.md) · 备选 [STCA](../skills/stca/assets/rule_library/entries/latest-pi-dc-stca-high-30/prompt.zh-CN.md) |
 
-## ADEPT：六种计算性质
+## ADEPT：五种计算性质
 
-ADEPT 数据提供热导率、密度、孤立单体 HOMO–LUMO 能隙、介电常数、折射率和玻璃化转变温度六种计算性质。以下五种性质均可选高值 Top 10%、15%、20%、25%、30%；能隙选项单列在下一节。单位 `1` 表示无量纲。
+以下标签来自 MD／DFT 计算。能隙指氢封端孤立单体的 HOMO–LUMO 能隙。
 
-| 数据集 | 性质 | 单位 | Top 10% | Top 15% | Top 20% | Top 25% | Top 30% |
-|---|---|---|---|---|---|---|---|
-| `AD_TC` | 热导率 | W/(m K) | [10%](../skills/stca/assets/rule_library/entries/adept-tc-high-10/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/adept-tc-high-10/constraints.json) | [15%](../skills/stca/assets/rule_library/entries/adept-tc-high-15/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/adept-tc-high-15/constraints.json) | [20%](../skills/stca/assets/rule_library/entries/adept-tc-high-20/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/adept-tc-high-20/constraints.json) | [25%](../skills/stca/assets/rule_library/entries/adept-tc-high-25/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/adept-tc-high-25/constraints.json) | [30%](../skills/stca/assets/rule_library/entries/adept-tc-high-30/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/adept-tc-high-30/constraints.json) |
-| `AD_RHO` | 密度 | g/cm3 | [10%](../skills/stca/assets/rule_library/entries/adept-density-high-10/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/adept-density-high-10/constraints.json) | [15%](../skills/stca/assets/rule_library/entries/adept-density-high-15/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/adept-density-high-15/constraints.json) | [20%](../skills/stca/assets/rule_library/entries/adept-density-high-20/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/adept-density-high-20/constraints.json) | [25%](../skills/stca/assets/rule_library/entries/adept-density-high-25/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/adept-density-high-25/constraints.json) | [30%](../skills/stca/assets/rule_library/entries/adept-density-high-30/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/adept-density-high-30/constraints.json) |
-| `AD_DC` | 介电常数 | 1 | [10%](../skills/stca/assets/rule_library/entries/adept-dc-high-10/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/adept-dc-high-10/constraints.json) | [15%](../skills/stca/assets/rule_library/entries/adept-dc-high-15/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/adept-dc-high-15/constraints.json) | [20%](../skills/stca/assets/rule_library/entries/adept-dc-high-20/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/adept-dc-high-20/constraints.json) | [25%](../skills/stca/assets/rule_library/entries/adept-dc-high-25/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/adept-dc-high-25/constraints.json) | [30%](../skills/stca/assets/rule_library/entries/adept-dc-high-30/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/adept-dc-high-30/constraints.json) |
-| `AD_RI` | 折射率 | 1 | [10%](../skills/stca/assets/rule_library/entries/adept-ri-high-10/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/adept-ri-high-10/constraints.json) | [15%](../skills/stca/assets/rule_library/entries/adept-ri-high-15/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/adept-ri-high-15/constraints.json) | [20%](../skills/stca/assets/rule_library/entries/adept-ri-high-20/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/adept-ri-high-20/constraints.json) | [25%](../skills/stca/assets/rule_library/entries/adept-ri-high-25/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/adept-ri-high-25/constraints.json) | [30%](../skills/stca/assets/rule_library/entries/adept-ri-high-30/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/adept-ri-high-30/constraints.json) |
-| `AD_TG` | 玻璃化转变温度 | K | [10%](../skills/stca/assets/rule_library/entries/adept-tg-high-10/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/adept-tg-high-10/constraints.json) | [15%](../skills/stca/assets/rule_library/entries/adept-tg-high-15/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/adept-tg-high-15/constraints.json) | [20%](../skills/stca/assets/rule_library/entries/adept-tg-high-20/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/adept-tg-high-20/constraints.json) | [25%](../skills/stca/assets/rule_library/entries/adept-tg-high-25/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/adept-tg-high-25/constraints.json) | [30%](../skills/stca/assets/rule_library/entries/adept-tg-high-30/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/adept-tg-high-30/constraints.json) |
+| 性质 | 单位 | Top 10% | Top 20% | Top 30% |
+|---|---|---|---|---|
+| 热导率 | W/(m K) | 主推 [WRAcc](../skills/stca/assets/rule_library/entries/latest-ad-tc-wracc-high-10/prompt.zh-CN.md) · 备选 [STCA](../skills/stca/assets/rule_library/entries/latest-ad-tc-stca-high-10/prompt.zh-CN.md) | 主推 [WRAcc](../skills/stca/assets/rule_library/entries/latest-ad-tc-wracc-high-20/prompt.zh-CN.md) · 备选 [STCA](../skills/stca/assets/rule_library/entries/latest-ad-tc-stca-high-20/prompt.zh-CN.md) | 主推 [WRAcc](../skills/stca/assets/rule_library/entries/latest-ad-tc-wracc-high-30/prompt.zh-CN.md) · 备选 [STCA](../skills/stca/assets/rule_library/entries/latest-ad-tc-stca-high-30/prompt.zh-CN.md) |
+| 密度 | g/cm³ | 主推 [STCA](../skills/stca/assets/rule_library/entries/latest-ad-rho-stca-high-10/prompt.zh-CN.md) · 备选 [WRAcc](../skills/stca/assets/rule_library/entries/latest-ad-rho-wracc-high-10/prompt.zh-CN.md) | 主推 [STCA](../skills/stca/assets/rule_library/entries/latest-ad-rho-stca-high-20/prompt.zh-CN.md) · 备选 [WRAcc](../skills/stca/assets/rule_library/entries/latest-ad-rho-wracc-high-20/prompt.zh-CN.md) | 主推 [STCA](../skills/stca/assets/rule_library/entries/latest-ad-rho-stca-high-30/prompt.zh-CN.md) · 备选 [WRAcc](../skills/stca/assets/rule_library/entries/latest-ad-rho-wracc-high-30/prompt.zh-CN.md) |
+| 孤立单体 HOMO–LUMO 能隙 | eV | 主推 [STCA](../skills/stca/assets/rule_library/entries/latest-ad-gap-stca-high-10/prompt.zh-CN.md) · 备选 [WRAcc](../skills/stca/assets/rule_library/entries/latest-ad-gap-wracc-high-10/prompt.zh-CN.md) | 主推 [WRAcc](../skills/stca/assets/rule_library/entries/latest-ad-gap-wracc-high-20/prompt.zh-CN.md) · 备选 [STCA](../skills/stca/assets/rule_library/entries/latest-ad-gap-stca-high-20/prompt.zh-CN.md) | 主推 [WRAcc](../skills/stca/assets/rule_library/entries/latest-ad-gap-wracc-high-30/prompt.zh-CN.md) · 备选 [STCA](../skills/stca/assets/rule_library/entries/latest-ad-gap-stca-high-30/prompt.zh-CN.md) |
+| 介电常数 | 无量纲 | 主推 [WRAcc](../skills/stca/assets/rule_library/entries/latest-ad-dc-wracc-high-10/prompt.zh-CN.md) · 备选 [STCA](../skills/stca/assets/rule_library/entries/latest-ad-dc-stca-high-10/prompt.zh-CN.md) | 主推 [WRAcc](../skills/stca/assets/rule_library/entries/latest-ad-dc-wracc-high-20/prompt.zh-CN.md) · 备选 [STCA](../skills/stca/assets/rule_library/entries/latest-ad-dc-stca-high-20/prompt.zh-CN.md) | 主推 [WRAcc](../skills/stca/assets/rule_library/entries/latest-ad-dc-wracc-high-30/prompt.zh-CN.md) · 备选 [STCA](../skills/stca/assets/rule_library/entries/latest-ad-dc-stca-high-30/prompt.zh-CN.md) |
+| 折射率 | 无量纲 | 主推 [WRAcc](../skills/stca/assets/rule_library/entries/latest-ad-ri-wracc-high-10/prompt.zh-CN.md) · 备选 [STCA](../skills/stca/assets/rule_library/entries/latest-ad-ri-stca-high-10/prompt.zh-CN.md) | 主推 [WRAcc](../skills/stca/assets/rule_library/entries/latest-ad-ri-wracc-high-20/prompt.zh-CN.md) · 备选 [STCA](../skills/stca/assets/rule_library/entries/latest-ad-ri-stca-high-20/prompt.zh-CN.md) | 主推 [WRAcc](../skills/stca/assets/rule_library/entries/latest-ad-ri-wracc-high-30/prompt.zh-CN.md) · 备选 [STCA](../skills/stca/assets/rule_library/entries/latest-ad-ri-stca-high-30/prompt.zh-CN.md) |
 
-## AD_GAP：作者默认规则与更多选项
+## 使用自己的数据
 
-`AD_GAP` 的目标是**孤立单体 HOMO–LUMO 能隙**，单位为 eV。选择 Top 10% 时，默认使用作者提供的冻结代表 `adept-gap-author-high-10`；Top 15%、20%、25%、30% 使用各自的数据集规则。
+需要冻结目录没有的百分比、低密度等新方向，或希望使用自己的数据条件时，选择 **1 上传数据总结规则**。可指定 0% 与 100% 之间的任意百分比，如 15%、25%；未指定时直接使用 Top 或 Bottom **10%、20%、30%**。冻结目录缺少的档位不能插值或替换成相邻档。AI 助手会学习两种方法，分别返回逐档原表筛选结果和带比较符、单位的具体物理阈值，标明主推与推荐理由，保存完整规则、模型与双语 prompt，并返回主菜单。已保存的“我的规则”会出现在选项 2、3 的目录中。
 
-| 选项 | 百分比 | 中文 prompt | 精确约束 |
-|---|---|---|---|
-| 作者提供的冻结代表（默认） | Top 10% | [复制 prompt](../skills/stca/assets/rule_library/entries/adept-gap-author-high-10/prompt.zh-CN.md) | [JSON](../skills/stca/assets/rule_library/entries/adept-gap-author-high-10/constraints.json) |
-| 数据集规则 | Top 15% | [复制 prompt](../skills/stca/assets/rule_library/entries/adept-gap-high-15/prompt.zh-CN.md) | [JSON](../skills/stca/assets/rule_library/entries/adept-gap-high-15/constraints.json) |
-| 数据集规则 | Top 20% | [复制 prompt](../skills/stca/assets/rule_library/entries/adept-gap-high-20/prompt.zh-CN.md) | [JSON](../skills/stca/assets/rule_library/entries/adept-gap-high-20/constraints.json) |
-| 数据集规则 | Top 25% | [复制 prompt](../skills/stca/assets/rule_library/entries/adept-gap-high-25/prompt.zh-CN.md) | [JSON](../skills/stca/assets/rule_library/entries/adept-gap-high-25/constraints.json) |
-| 数据集规则 | Top 30% | [复制 prompt](../skills/stca/assets/rule_library/entries/adept-gap-high-30/prompt.zh-CN.md) | [JSON](../skills/stca/assets/rule_library/entries/adept-gap-high-30/constraints.json) |
-
-<details>
-<summary>更多选项：另一条 AD_GAP Top 10% 规则</summary>
-
-`adept-gap-high-10` 是根据公开数据生成的另一条冻结 Top 10% 规则，目录中标为非默认选项。需要明确选择此变体时，打开以下文件：
-
-- [Top 10% 变体中文 prompt](../skills/stca/assets/rule_library/entries/adept-gap-high-10/prompt.zh-CN.md) · [约束 JSON](../skills/stca/assets/rule_library/entries/adept-gap-high-10/constraints.json)
-
-它与作者默认项具有不同的规则 ID；调用或核验时保留所选 ID 和该 prompt 中的全部条件。
-
-</details>
+详见[自然语言使用案例](USAGE.zh-CN.md)和[公开数据应用示例](../examples/open_data/README.zh-CN.md)。规则版本、精确条件和方法信息保存在[机器可读目录](../skills/stca/assets/rule_library/catalog.json)中。

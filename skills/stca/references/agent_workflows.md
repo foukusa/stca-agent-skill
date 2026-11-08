@@ -1,109 +1,76 @@
-# STCA skill 三种使用路径
+# 三条agent执行路径
 
-[现成规则](#路径一直接调用内置规则) · [上传数据](#路径二上传-csv-自动归纳) · [生成与核验](#路径三取-prompt生成并核验) · [共同交付](#共同交付)
+用户只说开始时展示1归纳、2筛选、3生成。明确请求直接进入。普通用户无需脚本、Python路径或规则ID；以下命令仅供agent内部使用。版本0.1.0。
 
-所有查询、筛选、重新归纳、prompt 导出、生成与核验均由自然语言请求触发，agent 连续完成后台操作。用户不需写命令、配置环境或部署模型。STCA 使用 CPU，生成使用当前宿主 LLM。以下命令仅供 agent 内部执行；`PY` 表示宿主已有解释器，`SKILL_DIR` 表示实际 skill 目录，`RULE_ID` 必须从目录读取。版本为 `0.1.0`。
+## 1 默认：自己数据范围内归纳
 
-## 路径一：直接调用内置规则
-
-### 选择规则
-
-1. 读取 `assets/rule_library/index.md` 和 `catalog.json`，按性质、方向、档位和来源定位条目。
-2. 读取条目对应的完整条件、阈值、单位、表示和出处。论文 Tg/EC、作者归档数据集规则、新自动归纳规则保留各自来源标签。
-3. 用户已明确选择时直接使用；未指定档位时展示可用档位及物理阈值。不同目标可独立选档。
-4. 条目状态必须允许实际应用。只有结果汇总、缺失条件或明确无有效规则的记录不能代替冻结规则。
+识别SMILES、数值目标、单位、高低方向、实测/计算含义。复用兼容后台，若没有用户指定holdout/外推协议：
 
 ```text
-PY SKILL_DIR/scripts/rule_library.py list
-PY SKILL_DIR/scripts/rule_library.py list --property PROPERTY --direction high
+PY SKILL_DIR/scripts/agent_runtime.py run --script inrange_evaluation.py -- --input materials.csv --target TC --target-name Thermal_conductivity --property thermal_conductivity --unit "W/(m K)" --direction high --tiers 0.10 0.20 0.30 --smiles-column SMILES --output-dir out/analysis --library-dir USER_RULES_DIR
+```
+
+参数按实际文件填写，ID可省略或用--id-column。未定义百分比时直接用10/20/30，明确百分比时按请求（包括15/25）计算，不为缺省档位再问。读取screening_summary.json/recommendation.md，向用户同时显示每档物理cutoff、比较符、单位，两方法各自入选/未知数、AS及主推理由和结果表。先读取文件单位及是否已log；`--metadata-columns`只传样品加工描述，`--condition-columns`传可比测量条件，Reference/DOI/Journal是书目信息，不能作为加工描述扫描。用户可给任意合法档位，例如0.10 0.15 0.20 0.25 0.30；内置目录只有已供给的10/20/30，不能插值伪造15/25。
+
+默认准备数据、按protected_group做5折×3，STCA与WRAcc在相同训练折标签边界比较；AS差超过0.02才取WRAcc，否则STCA优先。`--nested`按外层训练内部3折选择方法，`--with-rf`仅在用户要求预测参照时启用。
+
+读取run_manifest、inrange结果、两方法各模型与导出约束、全量逐档筛选表和主推记录。预处理后CV、最终全量回筛和可选外推各自注明范围；方法选择不是规则OR或AND。没有有效规则、单一标签类、无法CV和运行失败不能填伪0。
+
+流程会自动导出每方法的精确约束、完整双语prompt，保存并导出用户规则包；检查真实save/export状态后才告知已保存。对原上传表每方法/每档返回全部原行、原字段、星号SMILES、明确布尔判断或unknown、每条失败条件与入选子表。独立候选另用相同冻结模型screen-candidates，不替换原上传表。
+
+## 1b 明确source/holdout或外推协议
+
+保留用户角色和参数，通过原auto_screen.py执行，不能用全量D7或CV选择跨入该holdout。设置和档位建议只在source/inner中形成，冻结后评价holdout。原自动入口仍支持保护ECFP4/t-SNE角色。
+
+```text
+PY SKILL_DIR/scripts/agent_runtime.py run --script auto_screen.py -- --input materials.csv --target TC --unit "W/(m K)" --direction high --tiers 0.10,0.15,0.20 --role-column Role --source-value source --evaluation-value holdout --smiles-column SMILES --output-dir out/heldout
+```
+
+该路径自动返回upload_screening的全档长表、summary和每档results/selected；随后逐档export-rules→user_rule_library save/export，并返回主菜单。固定参数或论文精确成员用custom_fit并同样补齐筛选和保存。不要用另一种评价改写明确协议。
+
+## 2 选择并筛选已有规则
+
+```text
+PY SKILL_DIR/scripts/task_menu.py --rules --language zh-CN --library-dir USER_RULES_DIR
 PY SKILL_DIR/scripts/rule_library.py show RULE_ID
+PY SKILL_DIR/scripts/agent_runtime.py run --script rule_library.py -- screen RULE_ID --input candidates.csv --smiles-column SMILES --output-dir out/screening
 ```
 
-读取目录和这些查询不需要 RDKit 或训练环境。目录包含的数值 cutoff 描述源训练数据目标；百分位不是筛选候选数量的配额。不得为了选够指定数量改动规则。
+按用户来源、性质、档位与方法选择，允许接受标出的主推。两种方法是备选关系：比较时分别screen，不将同一目标主备自动AND。不同性质的明确联合请求才给选定规则交集。用户明确要求同目标方法交集时才使用--allow-method-intersection。
 
-### 筛选上传候选
-
-识别结构列和可选 ID 列。对同一输入批次应用一个或多个规则，逐条计算精确 MACCS AND 条件，再交付各项状态、失败条件及交集。
+读取“我的规则”：
 
 ```text
-PY SKILL_DIR/scripts/agent_runtime.py run --script rule_library.py -- screen RULE_ID [RULE_ID ...] --input candidates.csv --smiles-column SMILES --id-column CandidateKey --output-dir out/screening
+PY SKILL_DIR/scripts/user_rule_library.py --library-dir USER_RULES_DIR list
+PY SKILL_DIR/scripts/user_rule_library.py --library-dir USER_RULES_DIR show SAVED_ID
+PY SKILL_DIR/scripts/agent_runtime.py run --script stca_tools.py -- screen-candidates --model SAVED_MODEL --tier 0.20 --input candidates.csv --smiles-column SMILES --output-dir out/screen_saved
 ```
 
-`--id-column` 可省略或替换为用户列名。原始 `*` 保留；H-cap 仅用于 MACCS167。遇到无效/不支持结构时保留错误状态和原行，不能以全零指纹伪装有效输入。筛选无需重新训练，也无需下载作者训练源码。
+模型可为原生STCA或显式frozen literal类型；真实learner字段必须显示。复用不重新训练，不要求原训练数据。
 
-多目标结果是同一候选满足多个结构条件的交集。保留 bit 冲突和空交集原因；不要删去不方便的条件。跨性质调用应明确源性质、目标性质与迁移假设。
+## 3 选规则后生成
 
-## 路径二：上传 CSV 自动归纳
-
-### 确定输入含义
-
-从表头、样例与上下文确定结构、目标、单位、方向、条件及实测/计算来源。ID 原样透传；没有 ID 时生成行级对应记录，不把随机 ID 当作材料分组。已取对数的列记录原尺度，避免重复取对数。
-
-用户未指定探索范围时，计算 10%、15%、20%、25%、30% 各档，展示实际阈值及 source 内建议；明确档位或绝对目标时按用户要求执行。不能对 15% 结果作插值。source 内配置选择和档位建议分别记录。
-
-### 自动执行
+用户只选3时先给简洁目录并等待选择。目录包含我的规则、论文、GAS、RadonPy、ADEPT，先列性质和可用档位，选中后才展开主推/备选、阈值与条件。不能自动替用户改性质、档位或方法；指代明确时直接执行，仍有多档/多方法时只补问缺失选择。
 
 ```text
-PY SKILL_DIR/scripts/agent_runtime.py run --script auto_screen.py -- --input observations.csv --target TARGET_COLUMN --target-name PROPERTY --unit UNIT --direction high --tiers 0.10,0.15,0.20,0.25,0.30 --smiles-column SMILES --data-kind experimental --output-dir out/analysis
+PY SKILL_DIR/scripts/rule_library.py prompt RULE_ID --language zh-CN
+PY SKILL_DIR/scripts/generation_prompt.py --constraints CONSTRAINTS --count 20 --language zh-CN --output out/prompt.md
 ```
 
-根据真实文件替换参数；计算数据使用 `--data-kind computed`，低方向使用 `--direction low`。有 ID 时增加 `--id-column`，有测量条件时增加 `--condition-columns`。已有明确 source/holdout 角色时传入 `--role-column` 及角色值；已有 inner 角色也保留。
+新模型使用stca_tools export-rules导出精确约束。规则确定后，让用户选择“先查看并调整prompt，再生成”或“直接生成并核验”；已在自然语言中说明方式时直接采用。
 
-自动入口完成以下工作：
+用`generation_session.py prepare --constraints CONSTRAINTS --mode preview|direct --count 20 --language zh-CN --output-dir SESSION_DIR`准备会话。preview时展示完整prompt并等待；按要求revise后重新展示，只有用户明确确认后才调用confirm。direct时无需确认。具体接口见[generation.md](generation.md)。
 
-- 审计 CSV，排除缺失/非数值/非有限目标、无法计算的结构与可确认的完全重复导出行，保存排除原因和原行映射；按用户声明的质量列或物理范围执行额外排除。
-- 保留有效极端值、观测条件和重复测量。处理历史、邻居偏离和重复冲突先标记；不自动将 H-cap 相同结构聚合为同一材料。
-- 需要生成角色时，使用 H-cap 上 Morgan radius=2、2048 位 ECFP4 作 t-SNE 外围划分，seed42；在 source 内重复构造 inner validation。原始 canonical 重复、H-cap 碰撞及显式材料分组保护在同侧。
-- 仅 source/inner-train 决定目标变换、扫描步长和候选配置；inner validation 选择扫描配置，在全 source 重拟合，冻结后才评价 holdout。
-- 使用作者 generic STCA 生成 MACCS167 正负排序、前缀 AND 家族和代表规则；保存全部档位阈值、模型与计数。
+当`generation_allowed=true`时，当前AI助手必须读取最终批准的完整prompt并实际生成SMILES，保存全部提案，连续执行同一冻结规则的精确核验，交付通过表与每条失败条件。确认或准备脚本本身没有调用LLM，不能据此声称已生成。用户只要prompt时交付完整可复制文本；不用执行生成链路。明确显示STCA或WRAcc，规则匹配不当作物性预测。
 
-这种 ECFP4 划分是新数据上的明确实验角色；不会凭二维外围位置保证物理外推。精确论文复现另用原始成员与原参数。源内变换、步长、支持配置及评价语义详见 [custom_data.md](custom_data.md) 和 [algorithm.md](algorithm.md)。
+## 保存与返回
 
-### 阅读输出
-
-读取 `fit/model.json`、`fit/source_settings.json`、`fit/tier_cutoffs.csv`、`fit/evaluation_metrics.json`、`tier_recommendations.json` 及运行审计，确认实际执行状态。对各有效档位由 agent 自动执行 `stca_tools.py export-rules`，交付其完整 `prompt.en.md`、`prompt.zh-CN.md` 和约束；不能让用户自行运行导出。给用户各档规则、物理 cutoff、支持数和清晰的源内建议，再连续完成其已要求的筛选或生成任务。
-
-正例支持量阈值是报告诊断，不是禁止生成规则的门槛。区分无规则、规则选中零条、评价集零正例、计算异常及 MCC/Precision/Recall 未定义。不能把异常捕获为 0 分；不依赖 holdout 分数重新挑配置、档位或切分。
-
-需要保留原角色及固定参数时，通过同一后台运行 `custom_fit.py`；严格论文命名配方和自定义 adaptive 分析各自保留出处。
-
-## 路径三：取 prompt、生成并核验
-
-### 直接取现成 prompt
-
-从所选条目读取现成 prompt，或用下面的标准库查询复制到新文件。完整交付可复制文本，无需用户了解 MACCS 或安装科学计算依赖。
+新默认流程自动保存两方法。其他路径仍可：
 
 ```text
-PY SKILL_DIR/scripts/rule_library.py prompt RULE_ID --language zh-CN --output out/prompt.md
+PY SKILL_DIR/scripts/user_rule_library.py --library-dir USER_RULES_DIR save --name FRIENDLY_METHOD_NAME --model MODEL --constraints CONSTRAINTS...
+PY SKILL_DIR/scripts/user_rule_library.py --library-dir USER_RULES_DIR export SAVED_ID --output out/my_rules.zip
+PY SKILL_DIR/scripts/user_rule_library.py --library-dir USER_RULES_DIR import --input my_rules.zip
 ```
 
-用户只索要 prompt 时，交付即完成。用户要求“生成并核验”时，读取或渲染 prompt 后立即由当前宿主 LLM 提案，再运行同一冻结规则核验，最后一次性交付结果。用户要在其他 LLM 生成时交付完整原文和简单使用说明。
-
-### 组合规则或采用新归纳规则
-
-从目录取得精确 constraints 文件路径。新模型先导出所选档位：
-
-```text
-PY SKILL_DIR/scripts/agent_runtime.py run --script stca_tools.py -- export-rules --model out/analysis/fit/model.json --tier 0.15 --output-dir out/exported_rule
-PY SKILL_DIR/scripts/generation_prompt.py --constraints out/exported_rule/constraints.json --count 20 --language zh-CN --output out/prompt.md
-```
-
-多个目标在 `--constraints` 后依次传入多个文件，其条件以 AND 相交；可用 `--preferences` 传用户化学偏好。生成器只渲染 prompt，不会调用外部 LLM。输出路径使用新文件，提前建立父目录。
-
-prompt 应包含每项目标来源、方向、档位、实际物理/模型尺度阈值、全部条件、MACCS 激活/计数语义、H-cap 计算约定、原始星号 SMILES 输出格式和核验要求。拒绝占位性质/单位；多目标 bit 冲突先显示给用户。不能把“bit=0”一律解释为完全不含相应子结构。
-
-### 生成后核验
-
-保留完整原始提案表、生成数量、prompt 和失败记录。先检查 SMILES，再 H-cap/MACCS 计算和精确冻结规则核验。内置规则用路径一的 `rule_library.py screen`；新模型用：
-
-```text
-PY SKILL_DIR/scripts/agent_runtime.py run --script stca_tools.py -- screen-candidates --model out/analysis/fit/model.json --tier 0.15 --input proposals.csv --smiles-column SMILES --output-dir out/verified
-```
-
-新模型多目标核验用 `stca_tools.py joint-screen`，按 [commands.md](commands.md) 配置同一批候选。生成建议、结构条件通过及物性达到目标分别报告。仅有规则匹配不能证明可合成性、实验性能或新颖性；这些结论需要对应证据。
-
-## 共同交付
-
-回答本次使用的规则来源/版本、目标与实际阈值、输入/提案数、选中数及每条失败条件。提供用户所需的 prompt、候选表、完整规则和审计文件；分析任务另提供模型、角色、源内参数、评价状态及来源哈希。
-
-原始带星号 SMILES 是候选主结果，H-cap 放入审计副本。输入保持只读，结果保存在用户指定目录；不将用户观测表或逐材料结果写回 skill。后台操作见 [platform-runtime.md](platform-runtime.md)。
+检查成功后交付友好名称和下载包，平台有持久文件能力时自动保存，再显示主菜单。用户可继续选2/3；新会话/跨平台导入包继续。无条件项不能作为有效规则保存，用户数据不写回skill安装目录。

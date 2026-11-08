@@ -1,47 +1,40 @@
 # STCA：WorkBuddy 使用说明
 
-版本 **0.1.0**。本包将 STCA 的内置规则、自动规则学习和生成 prompt 流程交给 WorkBuddy agent 执行。用户启用 skill、提供 CSV 并提出目标，宿主负责计算依赖和后端准备。
+版本 **0.1.0**。启用 STCA 后，使用自然语言和上传文件完成任务；由 AI 助手读取规则、管理后台计算并交付结果。
 
-## 加载 STCA
+## 安装与开始
 
-在 WorkBuddy 的 skill 管理入口安装或启用 STCA。已有市场条目时按平台的安装流程使用；加载本地包时，采用当前客户端提供的导入方式。开放平台的 ZIP 提交流程用于发布者，不作为所有客户端统一的本地安装入口。
+在 WorkBuddy 的 skill 管理界面安装或导入 STCA。需要文件夹时使用完整 `stca` 目录；需要 ZIP 时使用 `stca-workbuddy-0.1.0.zip`。保留 `SKILL.md`、`scripts`、`references`、`assets` 的相对位置。
 
-本地包保留一个完整 `stca/` 目录：`SKILL.md` 与 `scripts/`、`references/`、`assets/` 同级。需要文件夹导入的宿主使用该目录；需要包文件的入口使用对应的 `stca-workbuddy-0.1.0.zip`。启用后在任务中写“使用 STCA skill”。
+输入 **“开始使用 STCA”**，选择：
 
-首次计算由 WorkBuddy agent 按 skill 指令自动检查并准备后端，之后复用可用环境。用户提供输入文件和目标即可；准备受权限限制时，agent 应说明具体阻碍与下一步。
+1. 上传自己的文件总结规则。
+2. 根据已有规则直接筛选。
+3. 根据已有规则直接生成。
 
-## 三种自然语言调用
+用户只选 2 或 3 时，先显示“我的规则”和内置规则目录，按来源、性质、方向与百分比选择；不自行指定默认项。已明确说“刚保存的规则”等指代时直接执行。用户无需知道规则编号或计算命令。
 
-**应用内置规则：**
+## 生成方式
 
-```text
-使用 STCA skill，先列出内置规则及其百分比。
-选择 paper-tg-high-20 和 paper-ec-low-10，筛选上传的 candidates.csv。
-结构列为 SMILES，保留原始星号，返回单项判断、同时匹配的候选和每条失败条件。
-```
+选定规则后，选择“先查看并调整 prompt，确认后生成”或“直接生成并核验”。前者展示完整文本并接受修改，明确确认后调用当前 LLM；后者立即调用当前 LLM。两者均保存全部候选并逐条核验，给出通过项和失败条件。用户已说明方式时直接执行，不要求配置模型 API。
 
-**上传 CSV 自动归纳：**
+## 简短范例
 
-```text
-使用 STCA skill，从 materials.csv 学习高热导率规则。
-结构列为 SMILES，目标列为 ThermalConductivity，单位 W/(m K)，来自计算。
-探索 Top 10%、15%、20%、25%、30%，自动准备数据和选择设置。
-返回可复用规则、模型、物理阈值，以及完整生成 prompt。
-```
+| 任务 | 可以直接发送 |
+|---|---|
+| 上传归纳 | “1。从这份计算热导率数据总结高值规则，单位 W/(m K)。” |
+| 规则筛选 | “2。先给我可选规则目录，用我选的规则筛选这份候选表。” |
+| 规则生成 | “3。”选择目录中的规则后说：“直接生成 10 个候选并核验。” |
+| 使用新规则 | “用刚保存的规则继续筛选这份新候选。” |
+| 复制 prompt | “把选中规则的完整中文生成 prompt 给我。” |
 
-**直接提供生成 prompt：**
+归纳后默认返回上传表每档完整筛选结果、入选子表、实际阈值和逐条失败条件，保留原始星号结构并标明数据角色。随后保存规则、完整双语 prompt 和可下载规则包，返回主菜单。说“上一级”会保留已有文件与规则。
 
-```text
-使用 STCA skill，将 gas-co2-high-15 的条件写成可直接复制到其他 LLM 的完整 prompt。
-要求生成 20 个有两个末端 * 连接点的重复单元，按 CandidateKey、SMILES 两列 CSV 返回。
-收到生成结果后，按相同规则逐条核验并返回失败条件。
-```
+更完整的对话与交付示例见 [usage_examples.md](usage_examples.md)。换会话或平台时可上传先前下载的规则包继续使用。计算准备见 [platform-runtime.md](platform-runtime.md)；平台不能执行时不声称已完成核验。
 
-随包有 **77 条冻结规则、154 份中英文 prompt**，包括全部 13 项公开数据性质任务的规则。可直接查看 [skill 内规则目录](../assets/rule_library/index.md)。标识列可选、名称任意；每个目标独立指定方向和百分比，保留原始带星号 SMILES。
+## 官方说明
 
-当前 LLM 或其他 LLM 都可以使用导出的文字 prompt；自动学习与结构核验在启用 STCA 的宿主中完成。
+- [WorkBuddy skill 查看、安装与管理](https://www.workbuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Skills-Market)
+- [WorkBuddy skill 包结构](https://open.workbuddy.cn/docs/skill)
 
-## 官方依据
-
-- [WorkBuddy skill 查看、安装与已安装管理](https://www.workbuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Skills-Market)
-- [WorkBuddy 开放平台包结构与发布提交格式](https://open.workbuddy.cn/docs/skill)
+当前开源目录提供12任务的Top10/20/30两方法主推与备选。新归纳默认按结构分组5折×3次比较STCA与WRAcc，分别回筛原表、保存模型/完整prompt并返回菜单；15/25等自定义档位可用自己的数据学习，不能冒称已有新版内置规则。

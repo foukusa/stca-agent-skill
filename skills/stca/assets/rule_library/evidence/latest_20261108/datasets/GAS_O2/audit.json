@@ -1,0 +1,82 @@
+{
+  "input_rows": 618,
+  "property": "permeability_O2",
+  "unit": "Barrer",
+  "D1_D2_excluded": {
+    "processing_history": 39,
+    "structure_or_attachment_point": 1
+  },
+  "D3_transform": "log10",
+  "D4_replicate_measurements_dropped": 25,
+  "D5_flagged": 6,
+  "D6_flagged": 2,
+  "D7_quarantined": [
+    {
+      "index": 2,
+      "value": 71999.99999999994,
+      "rule_change": 0.61,
+      "metadata": "poly(hex-1-ene) | Partition method | 25 [C] ,  | Yamamoto, Minoru; Sakata, Jiro; Hirai, Masana , Journal of Applied Poly"
+    },
+    {
+      "index": 110,
+      "value": 61000.000000000015,
+      "rule_change": 0.43,
+      "metadata": "polycyclohexene | Partition method | 25 [C] ,  | Yamamoto, Minoru; Sakata, Jiro; Hirai, Masana , Journal of Applied Poly"
+    }
+  ],
+  "C1_scan": {
+    "value_step": 0.0005,
+    "step_hit_halving_cap": true,
+    "min_subset_size": 1,
+    "inner_mcc_min_subset_1": 0.42,
+    "inner_mcc_min_subset_5pct": 0.431
+  },
+  "structures_after_cleaning": 302,
+  "extrapolation_records": 60,
+  "tiers": [
+    {
+      "tier": 0.3,
+      "rule": "top 30%",
+      "comparator": ">=",
+      "unit": "Barrer",
+      "cutoff_physical": 60.7285939633838,
+      "positives": 91,
+      "inrange_cv_evaluable": true,
+      "source_cutoff_physical": 94.90610970249499,
+      "source_positives": 73,
+      "extrapolation_positives": 1,
+      "extrapolation_top_cluster_share": 1.0,
+      "extrapolation_evaluable": false
+    },
+    {
+      "tier": 0.2,
+      "rule": "top 20%",
+      "comparator": ">=",
+      "unit": "Barrer",
+      "cutoff_physical": 203.080764076594,
+      "positives": 61,
+      "inrange_cv_evaluable": true,
+      "source_cutoff_physical": 458.9457143830267,
+      "source_positives": 49,
+      "extrapolation_positives": 0,
+      "extrapolation_top_cluster_share": null,
+      "extrapolation_evaluable": false
+    },
+    {
+      "tier": 0.1,
+      "rule": "top 10%",
+      "comparator": ">=",
+      "unit": "Barrer",
+      "cutoff_physical": 967.4524402529456,
+      "positives": 31,
+      "inrange_cv_evaluable": true,
+      "source_cutoff_physical": 1431.7670539967955,
+      "source_positives": 25,
+      "extrapolation_positives": 0,
+      "extrapolation_top_cluster_share": null,
+      "extrapolation_evaluable": false
+    }
+  ],
+  "recommended_train_command": "stca_runtime.py run -- train --input cleaned.csv --smiles-column stca_calculation_smiles_hcap --target y_model --direction high --tiers 0.3 0.2 0.1 --scan-step 0.0005 --min-subset-size 1 --split-column split --group-column hcap_canon",
+  "default_evaluation": "grouped 5-fold CV within the data range (scripts/inrange_evaluation.py); extrapolation check optional"
+}

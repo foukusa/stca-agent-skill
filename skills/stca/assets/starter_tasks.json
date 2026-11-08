@@ -1,0 +1,352 @@
+{
+  "schema": "stca-starter-tasks-v1",
+  "version": "0.1.0",
+  "menu_title": {
+    "zh-CN": "选择要做的事（回复 1、2 或 3，也可以直接说明目标）：",
+    "en": "Choose a task (reply 1, 2 or 3, or describe your goal):"
+  },
+  "tasks": [
+    {
+      "number": 1,
+      "id": "learn_rules",
+      "title": {
+        "zh-CN": "上传自己的文件总结规则",
+        "en": "Upload my data and learn rules"
+      },
+      "user_prompt": {
+        "zh-CN": "从这份数据总结规则。",
+        "en": "Learn rules from this dataset."
+      },
+      "workflow": "learn_inrange_rules_and_compare_methods",
+      "agent_steps": [
+        "Read the uploaded structures, target, units, direction and experimental/computed meaning; ask only for missing scientific information.",
+        "Accept the user’s explicitly requested percentages, including arbitrary valid tiers such as 7%, 15% or 25%. Once the scientific target is clear, omitted percentages automatically use Top or Bottom 10%, 20% and 30%; do not ask the user to choose percentages before starting.",
+        "With no explicit holdout protocol, run inrange_evaluation.py: transparent data preparation, protected structural-group CV (5 folds x 3 repeats), per-tier STCA and WRAcc comparison by AS, then full-data frozen rules. Use the source-only auto_screen.py route when the user has supplied source/holdout roles or requested a fixed extrapolation protocol.",
+        "Present each method and tier with exact cutoffs, CV mean/SD and full-data rule-application results as distinct outputs. Prefer WRAcc only when its CV AS exceeds STCA by more than 0.02; retain and deliver both methods. Method selection is not OR or AND fusion.",
+        "Always show a compact per-tier comparison table: Top/Bottom percentage, exact physical comparison, numeric cutoff and unit, both methods’ independent selected/unknown counts and CV AS, recommended method and reason. Keep full screening/failed-condition files for both methods; do not return only the winner or model-scale thresholds.",
+        "Return all original uploaded rows, original fields and star-containing SMILES for each requested method/tier, selected tables, full failed conditions, unknown/no-rule states and input-preparation mapping. Deliver any independent candidate results separately.",
+        "Automatically save usable frozen models, exact constraints and complete bilingual prompts using the user rule library, export portable rule bundles, show friendly method-qualified names, then return to the main menu. Retain reports when no usable rule exists; never save empty conditions as an all-pass rule.",
+        "Describe CV from a globally prepared table as conditional on that preparation and scan policy, not an unbiased assessment of the complete preprocessing pipeline. Preserve explicit holdout boundaries and do not use heldout outcomes to tune settings."
+      ],
+      "ask_only_if_missing": [
+        "labeled data file",
+        "unambiguous property",
+        "unit",
+        "high or low direction",
+        "experimental or computed label meaning"
+      ],
+      "on_complete": "main_menu",
+      "default_tiers": [
+        0.1,
+        0.2,
+        0.3
+      ],
+      "percentage_policy": {
+        "allow_user_defined_tiers": true,
+        "valid_fraction_range_exclusive": [
+          0,
+          1
+        ],
+        "default_when_omitted": "use_default_tiers_without_a_followup_question_once_target_is_clear",
+        "default_tiers": [
+          0.1,
+          0.2,
+          0.3
+        ],
+        "accept_natural_language_percentages": true,
+        "accept_nonstandard_tiers": true,
+        "never_replace_explicit_tiers_with_defaults": true,
+        "high_label": "Top",
+        "low_label": "Bottom",
+        "physical_cutoff_required_for_each_tier": true,
+        "physical_comparison_and_unit_required": true,
+        "cutoff_scope": "deployment_full_prepared_data; CV fold cutoffs reported separately",
+        "percentages_are_target_tail_definitions_not_selection_quotas": true,
+        "missing_physical_cutoff_behavior": "report_not_provided; never invent a physical value or substitute a model-scale cutoff",
+        "missing_target_behavior": "ask_only_for_missing_property_direction_unit_or_label_meaning; do_not_ask_for_percentages"
+      },
+      "method_policy": {
+        "default_training_methods": [
+          "STCA",
+          "WRAcc"
+        ],
+        "deliver_both_methods_independently": true,
+        "comparison_score": "AS=(MCC+Precision+F1)/3",
+        "recommendation_per_tier": true,
+        "wracc_advantage_required": 0.02,
+        "wracc_selection_comparison": "strictly_greater_than",
+        "otherwise_prefer": "STCA",
+        "report_recommendation_reason": true,
+        "honor_explicit_method_choice": true,
+        "accept_recommended_method_without_another_confirmation": true,
+        "never_union_or_intersect_alternative_methods_automatically": true,
+        "explicit_single_method_choice": "honor_user_choice; do_not_require_delivery_or_selection_of_the_other_method"
+      },
+      "required_summary_columns": [
+        "property",
+        "direction",
+        "percentage",
+        "physical_comparison",
+        "physical_cutoff",
+        "physical_unit",
+        "stca_rule",
+        "stca_selected",
+        "stca_unknown",
+        "stca_AS",
+        "wracc_rule",
+        "wracc_selected",
+        "wracc_unknown",
+        "wracc_AS",
+        "recommended_method",
+        "recommendation_reason",
+        "per_method_full_results_and_failed_conditions"
+      ]
+    },
+    {
+      "number": 2,
+      "id": "screen_existing",
+      "title": {
+        "zh-CN": "根据已有规则直接筛选",
+        "en": "Screen directly with existing rules"
+      },
+      "user_prompt": {
+        "zh-CN": "用现成规则筛选这份候选表。",
+        "en": "Screen this candidate table with existing rules."
+      },
+      "workflow": "apply_existing_rules",
+      "agent_steps": [
+        "The current open-data directory provides STCA and WRAcc rules as primary and alternative methods for each source/property/tier. Let the user select a method or accept the marked primary after choosing the target. Do not combine the alternative methods unless explicitly requested; a single rule contains AND literals.",
+        "Honor user-defined percentages only when an exact frozen rule exists; never substitute a nearby tier or interpolate conditions/cutoffs. Once source, property and direction are clear, omitted percentages automatically apply the available exact Top/Bottom 10%, 20%, 30% defaults without another percentage question. Report any unavailable default tier. If the target is still unclear, offer target choices and wait; defaults do not choose a source or property.",
+        "By default, return separate STCA and WRAcc results for every requested available tier, together with their recorded AS evidence, primary method and recommendation reason. Apply methods separately, not as an AND or OR. Honor an explicit request for only STCA or only WRAcc. If the user accepts the recommendation for subsequent use, adopt the marked per-tier primary without another method-confirmation question. Show Top/Bottom, physical comparison, numeric cutoff and unit; mark missing evidence or an unavailable alternative honestly.",
+        "If the user or conversation already unambiguously specifies the rules and tier, reuse that explicit selection directly. Otherwise display the grouped rule catalog (My rules, STCA paper, GAS, RadonPy, ADEPT → property → percentage) with concise evidence states, and wait for selection before screening or generation. Never select a default rule on the user’s behalf.",
+        "Keep the first rule directory compact: source, property, direction and available percentages. Show the selected rule physical cutoff, exact conditions and relevant evidence after selection; do not dump all model thresholds or benchmark tables at entry.",
+        "Identify the uploaded candidate table and structure column from the file and conversation.",
+        "Show readable dataset, property and percentage choices when a rule has not been selected; keep catalog IDs internal.",
+        "For a built-in rule, resolve its frozen catalog conditions and use the library screen; for a saved user rule, read user_rule_library.py show and apply its saved model and tier with stca_tools.py screen-candidates. Return original SMILES and every failed condition.",
+        "Complete only the requested operation, then show the main menu while retaining uploaded files and saved rules."
+      ],
+      "ask_only_if_missing": [
+        "candidate file",
+        "unambiguous property and frozen-rule choice"
+      ],
+      "on_complete": "main_menu",
+      "rule_selection": {
+        "required_before_execution": true,
+        "show_grouped_catalog_if_missing": true,
+        "never_choose_a_default_rule": true,
+        "reuse_unambiguous_explicit_selection": true,
+        "sources": [
+          "my_rules",
+          "paper",
+          "gas",
+          "radonpy",
+          "adept"
+        ]
+      },
+      "default_tiers": [
+        0.1,
+        0.2,
+        0.3
+      ],
+      "percentage_policy": {
+        "allow_user_defined_tiers": true,
+        "default_tiers": [
+          0.1,
+          0.2,
+          0.3
+        ],
+        "when_omitted": "once_source_property_and_direction_are_clear_apply_all_available_default_tiers_without_asking_for_percentages",
+        "do_not_choose_source_property_or_frozen_rule_from_tier_defaults": true,
+        "require_exact_frozen_tier": true,
+        "never_nearest_neighbor_or_interpolate": true,
+        "missing_frozen_tier": "use_a_saved_exact_tier_or_offer_learning_from_labelled_data",
+        "physical_cutoff_required_for_each_selected_tier": true,
+        "physical_comparison_and_unit_required": true,
+        "percentages_are_target_tail_definitions_not_selection_quotas": true,
+        "missing_physical_cutoff_behavior": "report_not_provided; never invent a physical value or substitute a model-scale cutoff",
+        "default_missing_frozen_tier": "report_unavailable_default_tiers; apply_only_exact_available_defaults; never_substitute_nearby_tiers",
+        "missing_target_behavior": "show_source_and_property_choices_then_wait; tier_defaults_do_not_choose_a_target"
+      },
+      "method_policy": {
+        "honor_explicit_method_choice": true,
+        "use_catalog_primary_when_recommendation_accepted": true,
+        "accept_recommended_method_without_another_confirmation": true,
+        "show_available_methods_and_primary_alternative_status": true,
+        "never_union_or_intersect_alternative_methods_automatically": true,
+        "default_screening_methods": [
+          "STCA",
+          "WRAcc"
+        ],
+        "deliver_both_methods_independently_when_available": true,
+        "report_per_tier_primary_and_reason": true,
+        "unavailable_alternative_behavior": "report_unavailable; never_fabricate_the_other_method",
+        "explicit_single_method_choice": "apply_only_the_named_method",
+        "method_comparison_execution": "separate_screening_results; never_pass_alternative_methods_to_an_implicit_AND"
+      },
+      "required_summary_columns": [
+        "property",
+        "direction",
+        "percentage",
+        "physical_comparison",
+        "physical_cutoff",
+        "physical_unit",
+        "stca_rule",
+        "stca_selected",
+        "stca_unknown",
+        "stca_AS",
+        "wracc_rule",
+        "wracc_selected",
+        "wracc_unknown",
+        "wracc_AS",
+        "recommended_method",
+        "recommendation_reason",
+        "per_method_full_results_and_failed_conditions"
+      ]
+    },
+    {
+      "number": 3,
+      "id": "design_verify",
+      "title": {
+        "zh-CN": "根据已有规则直接生成",
+        "en": "Generate directly with existing rules"
+      },
+      "user_prompt": {
+        "zh-CN": "选择已有规则和生成方式，生成 20 个候选并核验。",
+        "en": "Choose existing rules and a generation mode, then generate and verify 20 candidates."
+      },
+      "workflow": "generate_and_verify",
+      "default_count": 20,
+      "agent_steps": [
+        "The current open-data directory provides STCA and WRAcc rules as primary and alternative methods for each source/property/tier. Let the user select a method or accept the marked primary after choosing the target. Do not combine the alternative methods unless explicitly requested; a single rule contains AND literals.",
+        "The selected exact frozen rule already defines its percentage. Do not implicitly expand generation to 10%, 20%, 30%. Honor user-defined percentages only when an exact frozen rule exists; if unavailable, offer a saved exact rule or learning from labelled data. If the user explicitly requests multiple tiers, prepare a separate session and prompt, generate and verify independently for every tier; never AND different tiers of the same property into a single prompt.",
+        "If the user requests automatic method choice or accepts the recommendation, apply the marked per-tier primary method without another method-confirmation question. Honor an explicitly named STCA or WRAcc method. Show each selected tier as Top/Bottom, physical comparison, numeric cutoff and unit.",
+        "If the user or conversation already unambiguously specifies the rules and tier, reuse that explicit selection directly. Otherwise display the grouped rule catalog (My rules, STCA paper, GAS, RadonPy, ADEPT → property → percentage) with concise evidence states, and wait for selection before screening or generation. Never select a default rule on the user’s behalf.",
+        "Keep the first rule directory compact: source, property, direction and available percentages. Show the selected rule physical cutoff, exact conditions and relevant evidence after selection; do not dump all model thresholds or benchmark tables at entry.",
+        "Treat task 3 as a request to show and choose existing rules first unless the selection is already explicit. Do not start proposing structures until the user has chosen a rule.",
+        "Offer two generation modes when none was specified: preview the complete prompt, allow adjustments and wait for explicit confirmation; or generate directly and verify. An unambiguous natural-language request such as ‘直接生成’ or ‘generate directly’ already selects direct mode. Do not ask again, but never infer direct mode from the number 3 or the menu title alone.",
+        "For saved user rules, read their exact constraints and complete prompts from user_rule_library.py show; for built-in rules, resolve the selected catalog item. Render the built-in generation template with the requested count and chemical preferences as necessary.",
+        "Use generation_session.py prepare with the selected exact constraints and mode to preserve the complete prompt. In preview mode, display the full prompt without omissions, permit user adjustments, and stop before proposing or sampling any structures. Only after observing the user explicitly confirm the current prompt may the agent call generation_session.py confirm with the actual user wording. Any prompt revision clears approval and requires fresh confirmation.",
+        "In direct mode, or after preview confirmation opens the session gate, invoke the current AI assistant on the prepared or approved complete prompt to actually generate the requested candidate structures. Then verify every original proposal with the same frozen rules and retain candidates, failures and counts. Writing a prompt file or reporting a dry run does not complete generation.",
+        "Complete only the requested operation, then show the main menu while retaining uploaded files and saved rules."
+      ],
+      "ask_only_if_missing": [
+        "unambiguous selected or learned rule",
+        "preview or direct generation mode"
+      ],
+      "generation_modes": [
+        {
+          "id": "preview",
+          "number": 1,
+          "title": {
+            "zh-CN": "先看完整 prompt，确认后生成",
+            "en": "Review the full prompt before generating"
+          },
+          "description": {
+            "zh-CN": "先展示完整 prompt，可调整；明确确认后，由当前 AI 助手生成并精确核验。",
+            "en": "Read and adjust the complete prompt, then explicitly confirm before the current AI assistant generates and verifies candidates."
+          }
+        },
+        {
+          "id": "direct",
+          "number": 2,
+          "title": {
+            "zh-CN": "直接生成并核验",
+            "en": "Generate and verify directly"
+          },
+          "description": {
+            "zh-CN": "按选定规则，由当前 AI 助手实际生成候选并逐条精确核验。",
+            "en": "Have the current AI assistant generate candidates from the selected rules and verify every proposal."
+          }
+        }
+      ],
+      "generation_policy": {
+        "require_mode_selection": true,
+        "reuse_explicit_natural_language_mode": true,
+        "numeric_task_choice_is_not_direct_authorization": true,
+        "preview_requires_full_prompt_display": true,
+        "preview_requires_observed_explicit_confirmation": true,
+        "revision_invalidates_confirmation": true,
+        "generator": "current_llm",
+        "exact_verification_required": true,
+        "prompt_file_alone_completes_generation": false,
+        "implicit_multi_tier_generation": false,
+        "explicit_multi_tier_request": "independent_sessions_per_tier",
+        "never_AND_same_property_different_tiers": true
+      },
+      "on_complete": "main_menu",
+      "rule_selection": {
+        "required_before_execution": true,
+        "show_grouped_catalog_if_missing": true,
+        "never_choose_a_default_rule": true,
+        "reuse_unambiguous_explicit_selection": true,
+        "sources": [
+          "my_rules",
+          "paper",
+          "gas",
+          "radonpy",
+          "adept"
+        ]
+      },
+      "default_tiers": null,
+      "percentage_policy": {
+        "allow_user_defined_tiers": true,
+        "default_tiers": null,
+        "when_omitted": "use_the_selected_exact_rules_own_tier; do_not_expand_to_default_tiers",
+        "do_not_choose_source_property_or_frozen_rule_from_tier_defaults": true,
+        "require_exact_frozen_tier": true,
+        "never_nearest_neighbor_or_interpolate": true,
+        "missing_frozen_tier": "use_a_saved_exact_tier_or_offer_learning_from_labelled_data",
+        "physical_cutoff_required_for_each_selected_tier": true,
+        "physical_comparison_and_unit_required": true,
+        "percentages_are_target_tail_definitions_not_selection_quotas": true,
+        "missing_physical_cutoff_behavior": "report_not_provided; never invent a physical value or substitute a model-scale cutoff",
+        "implicit_default_tiers_for_generation": false,
+        "explicit_multiple_tiers_execution": "one_independent_session_prompt_generation_and_verification_per_tier",
+        "never_AND_same_property_different_tiers": true
+      },
+      "method_policy": {
+        "honor_explicit_method_choice": true,
+        "use_catalog_primary_when_recommendation_accepted": true,
+        "accept_recommended_method_without_another_confirmation": true,
+        "show_available_methods_and_primary_alternative_status": true,
+        "never_union_or_intersect_alternative_methods_automatically": true
+      },
+      "required_summary_columns": [
+        "property",
+        "direction",
+        "percentage",
+        "physical_comparison",
+        "physical_cutoff",
+        "physical_unit",
+        "method",
+        "primary_or_alternative",
+        "selected",
+        "unknown",
+        "full_results_and_failed_conditions"
+      ]
+    }
+  ],
+  "return_commands": {
+    "zh-CN": [
+      "返回",
+      "上一级",
+      "主菜单",
+      "返回主菜单"
+    ],
+    "en": [
+      "back",
+      "main menu",
+      "return",
+      "menu"
+    ]
+  },
+  "state_policy": {
+    "after_learning": "save_then_main_menu",
+    "retain_saved_rules_on_return": true,
+    "retain_uploaded_files_on_return": true,
+    "explicit_combined_request": "finish_authorized_chain_then_main_menu",
+    "no_valid_rule": "report_unavailable_tiers_without_registering_an_empty_rule",
+    "method_selection": "per_tier_STCA_or_WRAcc_primary; deliver_both_learning_outputs; accept_recommendation_without_reasking",
+    "percentage_selection": "learning: user_tiers_else_default_10_20_30; screening: user_tiers_else_available_default_10_20_30_after_target_choice; generation: selected_exact_rule_tier_no_implicit_expansion"
+  }
+}

@@ -1,0 +1,388 @@
+{
+  "schema": "stca-latest-support-recomputation-v1",
+  "rdkit_version": "2026.09.1",
+  "rule_count": 42,
+  "dataset_count": 7,
+  "raw_row_data_saved": false,
+  "scope": "Seven redistributed GAS/RadonPy datasets only; ADEPT raw rows not supplied and not reconstructed.",
+  "checks": [
+    {
+      "id": "latest-pi-tc-stca-high-30",
+      "dataset": "PI_TC",
+      "selected_n": 172,
+      "positive_n": 311,
+      "precision": 0.7209302325581395,
+      "recall": 0.3987138263665595,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-tc-wracc-high-30",
+      "dataset": "PI_TC",
+      "selected_n": 605,
+      "positive_n": 311,
+      "precision": 0.4380165289256198,
+      "recall": 0.8520900321543409,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-tc-stca-high-20",
+      "dataset": "PI_TC",
+      "selected_n": 163,
+      "positive_n": 207,
+      "precision": 0.6196319018404908,
+      "recall": 0.48792270531400966,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-tc-wracc-high-20",
+      "dataset": "PI_TC",
+      "selected_n": 216,
+      "positive_n": 207,
+      "precision": 0.5509259259259259,
+      "recall": 0.5748792270531401,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-tc-stca-high-10",
+      "dataset": "PI_TC",
+      "selected_n": 163,
+      "positive_n": 104,
+      "precision": 0.3374233128834356,
+      "recall": 0.5288461538461539,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-tc-wracc-high-10",
+      "dataset": "PI_TC",
+      "selected_n": 180,
+      "positive_n": 104,
+      "precision": 0.3333333333333333,
+      "recall": 0.5769230769230769,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-gas-co2-stca-high-30",
+      "dataset": "GAS_CO2",
+      "selected_n": 69,
+      "positive_n": 73,
+      "precision": 0.7246376811594203,
+      "recall": 0.684931506849315,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-gas-co2-wracc-high-30",
+      "dataset": "GAS_CO2",
+      "selected_n": 88,
+      "positive_n": 73,
+      "precision": 0.6931818181818182,
+      "recall": 0.8356164383561644,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-gas-co2-stca-high-20",
+      "dataset": "GAS_CO2",
+      "selected_n": 32,
+      "positive_n": 50,
+      "precision": 0.84375,
+      "recall": 0.54,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-gas-co2-wracc-high-20",
+      "dataset": "GAS_CO2",
+      "selected_n": 85,
+      "positive_n": 50,
+      "precision": 0.5294117647058824,
+      "recall": 0.9,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-gas-co2-stca-high-10",
+      "dataset": "GAS_CO2",
+      "selected_n": 32,
+      "positive_n": 25,
+      "precision": 0.65625,
+      "recall": 0.84,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-gas-co2-wracc-high-10",
+      "dataset": "GAS_CO2",
+      "selected_n": 35,
+      "positive_n": 25,
+      "precision": 0.6285714285714286,
+      "recall": 0.88,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-rho-stca-high-30",
+      "dataset": "PI_RHO",
+      "selected_n": 135,
+      "positive_n": 313,
+      "precision": 0.8148148148148148,
+      "recall": 0.3514376996805112,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-rho-wracc-high-30",
+      "dataset": "PI_RHO",
+      "selected_n": 408,
+      "positive_n": 313,
+      "precision": 0.6568627450980392,
+      "recall": 0.8562300319488818,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-rho-stca-high-20",
+      "dataset": "PI_RHO",
+      "selected_n": 135,
+      "positive_n": 209,
+      "precision": 0.6888888888888889,
+      "recall": 0.4449760765550239,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-rho-wracc-high-20",
+      "dataset": "PI_RHO",
+      "selected_n": 366,
+      "positive_n": 209,
+      "precision": 0.4918032786885246,
+      "recall": 0.861244019138756,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-rho-stca-high-10",
+      "dataset": "PI_RHO",
+      "selected_n": 135,
+      "positive_n": 105,
+      "precision": 0.5037037037037037,
+      "recall": 0.6476190476190476,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-rho-wracc-high-10",
+      "dataset": "PI_RHO",
+      "selected_n": 172,
+      "positive_n": 105,
+      "precision": 0.5290697674418605,
+      "recall": 0.8666666666666667,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-cp-stca-high-30",
+      "dataset": "PI_CP",
+      "selected_n": 229,
+      "positive_n": 312,
+      "precision": 0.759825327510917,
+      "recall": 0.5576923076923077,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-cp-wracc-high-30",
+      "dataset": "PI_CP",
+      "selected_n": 466,
+      "positive_n": 312,
+      "precision": 0.6394849785407726,
+      "recall": 0.9551282051282052,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-cp-stca-high-20",
+      "dataset": "PI_CP",
+      "selected_n": 123,
+      "positive_n": 208,
+      "precision": 0.7642276422764228,
+      "recall": 0.4519230769230769,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-cp-wracc-high-20",
+      "dataset": "PI_CP",
+      "selected_n": 271,
+      "positive_n": 208,
+      "precision": 0.6309963099630996,
+      "recall": 0.8221153846153846,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-cp-stca-high-10",
+      "dataset": "PI_CP",
+      "selected_n": 109,
+      "positive_n": 104,
+      "precision": 0.6788990825688074,
+      "recall": 0.7115384615384616,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-cp-wracc-high-10",
+      "dataset": "PI_CP",
+      "selected_n": 234,
+      "positive_n": 104,
+      "precision": 0.405982905982906,
+      "recall": 0.9134615384615384,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-ri-stca-high-30",
+      "dataset": "PI_RI",
+      "selected_n": 300,
+      "positive_n": 312,
+      "precision": 0.7166666666666667,
+      "recall": 0.6891025641025641,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-ri-wracc-high-30",
+      "dataset": "PI_RI",
+      "selected_n": 417,
+      "positive_n": 312,
+      "precision": 0.6810551558752997,
+      "recall": 0.9102564102564102,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-ri-stca-high-20",
+      "dataset": "PI_RI",
+      "selected_n": 189,
+      "positive_n": 208,
+      "precision": 0.6507936507936508,
+      "recall": 0.5913461538461539,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-ri-wracc-high-20",
+      "dataset": "PI_RI",
+      "selected_n": 296,
+      "positive_n": 208,
+      "precision": 0.6317567567567568,
+      "recall": 0.8990384615384616,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-ri-stca-high-10",
+      "dataset": "PI_RI",
+      "selected_n": 189,
+      "positive_n": 104,
+      "precision": 0.4021164021164021,
+      "recall": 0.7307692307692307,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-ri-wracc-high-10",
+      "dataset": "PI_RI",
+      "selected_n": 171,
+      "positive_n": 104,
+      "precision": 0.5497076023391813,
+      "recall": 0.9038461538461539,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-dc-stca-high-30",
+      "dataset": "PI_DC",
+      "selected_n": 480,
+      "positive_n": 311,
+      "precision": 0.34375,
+      "recall": 0.5305466237942122,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-dc-wracc-high-30",
+      "dataset": "PI_DC",
+      "selected_n": 355,
+      "positive_n": 311,
+      "precision": 0.5802816901408451,
+      "recall": 0.662379421221865,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-dc-stca-high-20",
+      "dataset": "PI_DC",
+      "selected_n": 480,
+      "positive_n": 208,
+      "precision": 0.225,
+      "recall": 0.5192307692307693,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-dc-wracc-high-20",
+      "dataset": "PI_DC",
+      "selected_n": 300,
+      "positive_n": 208,
+      "precision": 0.44333333333333336,
+      "recall": 0.6394230769230769,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-dc-stca-high-10",
+      "dataset": "PI_DC",
+      "selected_n": 55,
+      "positive_n": 104,
+      "precision": 0.2909090909090909,
+      "recall": 0.15384615384615385,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-pi-dc-wracc-high-10",
+      "dataset": "PI_DC",
+      "selected_n": 158,
+      "positive_n": 104,
+      "precision": 0.4810126582278481,
+      "recall": 0.7307692307692307,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-gas-o2-stca-high-30",
+      "dataset": "GAS_O2",
+      "selected_n": 85,
+      "positive_n": 91,
+      "precision": 0.7058823529411765,
+      "recall": 0.6593406593406593,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-gas-o2-wracc-high-30",
+      "dataset": "GAS_O2",
+      "selected_n": 116,
+      "positive_n": 91,
+      "precision": 0.6551724137931034,
+      "recall": 0.8351648351648352,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-gas-o2-stca-high-20",
+      "dataset": "GAS_O2",
+      "selected_n": 22,
+      "positive_n": 61,
+      "precision": 1.0,
+      "recall": 0.36065573770491804,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-gas-o2-wracc-high-20",
+      "dataset": "GAS_O2",
+      "selected_n": 87,
+      "positive_n": 61,
+      "precision": 0.6091954022988506,
+      "recall": 0.8688524590163934,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-gas-o2-stca-high-10",
+      "dataset": "GAS_O2",
+      "selected_n": 22,
+      "positive_n": 31,
+      "precision": 0.9090909090909091,
+      "recall": 0.6451612903225806,
+      "status": "exact_support_and_metrics_match"
+    },
+    {
+      "id": "latest-gas-o2-wracc-high-10",
+      "dataset": "GAS_O2",
+      "selected_n": 68,
+      "positive_n": 31,
+      "precision": 0.4411764705882353,
+      "recall": 0.967741935483871,
+      "status": "exact_support_and_metrics_match"
+    }
+  ]
+}

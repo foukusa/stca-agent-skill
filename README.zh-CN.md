@@ -1,58 +1,111 @@
 <p align="center"><img src="assets/stca-logo.png" alt="STCA logo" width="104"></p>
 <h1 align="center">STCA Agent Skill</h1>
-<p align="center">选择聚合物结构规则，从自己的数据学习新规则，再转成分子设计 prompt。</p>
+<p align="center">从数据总结规则，使用已有规则筛选，或按规则生成新结构。</p>
 <p align="center"><strong>0.1.0</strong> · <a href="README.md">English</a> · 简体中文</p>
 
 ## 目录
 
-- [77 条现成规则与 154 份生成 prompt](docs/RULE_LIBRARY.zh-CN.md)
-- [选择你的任务](#选择你的任务)
-- [安装与调用](#安装与调用)
-- [准备输入](#准备输入)
-- [1. 选择内置规则筛选候选](#1-选择内置规则筛选候选)
-- [2. 从自己的 CSV 学习规则](#2-从自己的-csv-学习规则)
-- [3. 获取候选生成 prompt](#3-获取候选生成-prompt)
-- [你会得到什么](#你会得到什么)
-- [更多示例](#更多示例)
+- [开始使用](#开始使用)
+- [简单试用](#简单试用)
+- [保存规则并继续](#保存规则并继续)
+- [安装后的自然语言使用案例](docs/USAGE.zh-CN.md)
+- [下载与安装](#下载与安装)
+- [现成规则与生成 prompt](#现成规则与生成-prompt)
+- [准备数据](#准备数据)
 - [论文与作者](#论文与作者)
-- [许可](#许可)
 
-## 选择你的任务
+## 开始使用
 
-STCA（**滑动阈值相关分析**）将聚合物性质数据转成可读的子结构规则。这个 agent skill 让你通过自然语言使用这些规则。
+安装后输入 **“开始使用 STCA”**，选择以下任务。完整对话范例见[自然语言使用案例](docs/USAGE.zh-CN.md)：
 
-| 我想做什么 | 提供什么 | 让 STCA 做什么 |
+| 选择 | 做什么 | 简短请求 |
 |---|---|---|
-| 用现有规则筛选 | 候选 CSV 和选定的内置规则 | 返回匹配的重复单元及每条失败条件 |
-| 为自己的性质学习规则 | 带标签 CSV、目标、单位、方向与百分比 | 自动提取可复用规则，并导出生成 prompt |
-| 按规则设计 | 内置规则或刚学到的规则 | 给出可在当前或其他 LLM 使用的完整 prompt，再核验生成的候选 |
+| **1 · 上传数据总结规则** | 学习规则并返回对应筛选结果 | “从这份数据总结高热导率规则。” |
+| **2 · 用已有规则筛选** | 使用内置规则或自己保存的规则 | “用已有规则筛选这份候选表。” |
+| **3 · 用已有规则生成** | 选规则后，预览确认 prompt 或直接生成 | “用这条规则直接生成 20 个候选。” |
 
-随包提供 **77 条冻结规则、154 份中英文生成 prompt**：论文规则 11 条、13 项公开数据性质任务各 5 档共 65 条，以及 1 条作者提供的单体能隙规则。直接打开[现成规则与 prompt 目录](docs/RULE_LIBRARY.zh-CN.md)，按性质选择并复制。RadonPy 是聚合物分子模拟数据来源，ADEPT 是 MD/DFT 计算数据来源。
+完整处理 prompt 已内置。AI 助手读取文件、展示相关来源，并补问必要信息。归纳规则时，未指定百分比就直接使用 Top 或 Bottom **10%、20%、30%**；也可指定 0% 与 100% 之间的任意百分比，例如 **15%、25%**。你无需输入规则编号或操作 Python。计算使用 CPU，兼容 Python 3.10 及以上环境，生成使用当前 AI 助手。
 
-全部功能均可通过自然语言调用：选择规则、筛选候选、学习新规则、导出 prompt、生成与核验。agent 自动复用或准备所需后台；STCA 计算使用 CPU，生成使用当前宿主 LLM，无需用户配置 Python、GPU 或自行部署模型。
+## 简单试用
 
-同一候选文件可组合多个规则，每个性质分别选择方向和百分比。
+**直接使用已有规则筛选。** 可上传随包的 [5 条候选示例 CSV](examples/quick_start/candidates.csv?raw=true)，也可直接发送：
 
-## 安装与调用
+```text
+使用内置含氟候选示例，按 RadonPy 高密度 Top 30% 的 STCA 规则筛选，并给出每条失败条件。
+```
 
-到[本 GitHub 仓库](https://github.com/foukusa/stca-agent-skill)选择 **Code → Download ZIP**，在 Mac Finder 中双击下载的 ZIP。打开解压后的仓库，找到 `skills/stca` 下的[完整 STCA skill](skills/stca)。支持本地 skill 目录的宿主可加载这个完整 `stca` 文件夹。
+这个示例会返回 3 条结构规则匹配和 2 条未匹配，保留原始带星号 SMILES。
 
-如果已获得对应平台的 STCA 发行包，使用宿主支持的 skill 导入入口加载。入口要求 ZIP 时，可在 Finder 中对完整 `stca` 文件夹选择“压缩”，得到所需 ZIP。加载后启用 STCA；计算依赖与配套工具由宿主 agent 负责准备。
+**从开源数据总结规则。** 下载 [GAS Dataset A CSV](https://github.com/jsunn-y/PolymerGasMembraneML/blob/30981d71e1e3f12a057e009cd79f119bc659c7f5/datasets/datasetA_imputed_all.csv)，上传后发送：
 
-ChatGPT 中已安装 STCA 时，直接选择调用。个人 skill 的安装方式以账号或工作区提供的入口为准。ChatGPT 插件发行包用于插件发布，拖入普通聊天不等于安装个人 skill。
+```text
+从这份实测 CO₂ 渗透率数据总结高值规则，单位 Barrer，考虑 Top 10%、20%、30%。自动调整数据形式与步长，返回各档筛选结果并保存规则。
+```
 
-| 平台 | 开始请求 |
+AI 助手会使用原始实测 `CO2` 列，自动准备数据、返回规则及筛选结果，再存入“我的规则”；不会把 Bayesian 或 Etree 插补列当作实测标签。
+
+## 保存规则并继续
+
+上传自己的数据后，STCA 自动清理不可用记录、调整数据形式与扫描设置，并在你的数据范围内比较 **STCA 与 WRAcc**。两种方法分别交付，每档明确主推、备选及推荐理由。推荐综合比较 MCC、精确率和 F1；两种方法均可评价时，WRAcc 综合分数高出 STCA 超过 0.02 才主推 WRAcc，否则保留 STCA。说“使用推荐结果”即可直接继续，也可明确指定方法。
+
+总结完成后，同时交付**两种方法在每个档位的规则与对应筛选结果**：包含百分比对应的**具体物理数值、≥／≤ 比较符及单位**，以及原始 SMILES、入选判断、每条失败条件及不可计算记录。即使用 log10 归纳，也返回原始物理尺度的阈值。原上传表始终返回逐档结果；另传独立候选表时，其结果另列。
+
+模型、规则、物理阈值和完整中英文生成 prompt 会自动保存到“我的规则”，显示名称并返回主菜单。选 **2** 或 **3** 就能继续复用。
+
+```mermaid
+flowchart TD
+    A["STCA 主菜单"] --> B["1 上传数据总结规则"]
+    A --> C["2 已有规则筛选"]
+    A --> D["3 已有规则生成"]
+    B --> E["保存到我的规则"]
+    E --> A
+```
+
+选择 **3** 后，STCA **先显示可选规则目录**，包括内置规则和已载入的“我的规则”。选定来源、性质与百分比后，再选择生成方式：
+
+- **先预览，确认后生成**：展示完整 prompt，可调整候选数量、结构偏好或输出格式；你回复“确认，开始生成”后，当前 LLM 才生成候选。
+- **直接生成**：当前 LLM 立即按选定规则生成候选，并逐条核验。
+
+两种方式都会返回原始提案、带星号 SMILES、通过／未通过判断及每条失败条件，完成后返回主菜单。请求中已说明“直接生成”时，就直接使用该方式。修改目标或冻结规则条件时，会重新选择并确认对应规则。无需另外配置 LLM API。
+
+随时说 **“返回主菜单”** 或 **“上一级”**。返回会保留已保存的规则。需要换设备或平台时，下载规则包并在新会话上传，即可继续使用。
+
+## 下载与安装
+
+OpenAI 两端使用同一份 skill 包；Mac 具体操作见[安装说明](docs/INSTALL.zh-CN.md)。
+
+| 平台 | 下载 | 官方说明与调用 |
+|---|---|---|
+| **ChatGPT＋Codex** | [OpenAI skill ZIP](downloads/stca-openai-skill-0.1.0.zip?raw=true) | [ChatGPT 安装帮助](https://help.openai.com/en/articles/20001066-skills-in-chatgpt/) · [Codex skill 说明](https://learn.chatgpt.com/docs/build-skills)。ChatGPT 选择 STCA；Codex 输入“使用 $stca”。 |
+| **DeepSeek Harness** | [DeepSeek ZIP](downloads/stca-deepseek-harness-0.1.0.zip?raw=true) | [产品入口](https://www.deepseek.com/harness/) · [安装说明](docs/INSTALL.zh-CN.md#deepseek-harness)。输入 `/stca`。 |
+| **WorkBuddy** | [WorkBuddy ZIP](downloads/stca-workbuddy-0.1.0.zip?raw=true) | [官方 skill 管理说明](https://www.workbuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Skills-Market)。选择 STCA 后直接描述任务。 |
+
+Codex 也可在对话中请求：
+
+```text
+使用 $skill-installer 安装 https://github.com/foukusa/stca-agent-skill/tree/main/skills/stca
+```
+
+ChatGPT 的创建和导入入口依账号与工作区权限开放。ChatGPT 和 Codex 使用同一份 skill 内容，按各自客户端的安装方式加载即可。
+
+## 现成规则与生成 prompt
+
+[规则与 prompt 目录](docs/RULE_LIBRARY.zh-CN.md)按**数据来源 → 性质 → 百分比**列出选择；“我的规则”保存你自己归纳的结果。开源数据规则覆盖 **12 项任务**，均提供 Top **10%、20%、30%** 及两种方法的主推／备选；也提供 STCA 作者归档的 Tg 与电导率冻结规则。
+
+| 来源 | 可选性质 |
 |---|---|
-| 已安装 STCA 的 ChatGPT | 选择 STCA，输入“使用 STCA……” |
-| Codex | 输入“使用 $stca……” |
-| 支持 skill 的 DeepSeek Harness agent 宿主 | 加载 STCA，输入 `/stca ……` |
-| WorkBuddy | 导入并启用 STCA skill，输入“使用 STCA skill……” |
+| STCA 作者归档 | 高 Tg、低电导率、高电导率 |
+| GAS 实测数据 | CO₂、O₂ 渗透率 |
+| RadonPy 计算数据 | 热导率、折射率、密度、比热、介电常数 |
+| ADEPT 计算数据 | 热导率、密度、孤立单体 HOMO–LUMO 能隙、介电常数、折射率 |
 
-导出的文字 prompt 可用于任意 LLM。规则学习和结构核验在已启用 STCA 的宿主中完成。
+目录显示每个档位的**方法、主推与备选、具体物理阈值、比较符及单位**。接受推荐就直接使用主推，也可明确指定方法；两套规则分别应用。所选冻结目录没有的百分比，例如开源数据目录之外的 15%、25%，需上传带标签数据学习新规则，不能插值或改用相邻档位。若只想将 prompt 用于其他 LLM，可明确请求“只给完整 prompt，暂不生成”。
 
-## 准备输入
+作者归档的 Tg／电导率规则针对实验数据；其他内置规则对应各自的实验或计算标签。使用与你的目标和数据条件相符的规则，或从自己的数据总结。详见[归档规则说明](docs/RULE_LIBRARY.zh-CN.md#作者归档规则)与[应用示例](examples/open_data/README.zh-CN.md)。
 
-筛选时，上传包含原始重复单元 SMILES 的 CSV：
+## 准备数据
+
+筛选候选需要重复单元 SMILES；学习规则还需数值性质列：
 
 ```csv
 CandidateKey,SMILES
@@ -60,114 +113,7 @@ sample-A7,*CC*
 42-blue,*CCO*
 ```
 
-标识列可省略，也可任意命名、使用任意编号。STCA 保留原始 `*` 连接点；氢封端仅作为临时计算步骤。
-
-学习规则时，上传含结构列和数值性质的 CSV，并告诉 skill：
-
-- 结构列和性质列的名称。
-- 性质单位，以及标签来自实验还是计算。
-- 希望得到 **high** 还是 **low** 值。
-- 百分比或百分比列表，例如 Top 10%、15%、20%。
-
-`high/low` 决定方向，百分比决定目标范围。每个性质独立选择。已有训练/测试划分时，告诉 STCA 需要保留的列名与角色值。
-
-## 1. 选择内置规则筛选候选
-
-先询问当前安装版本实际包含的规则：
-
-```text
-列出 STCA 的内置规则集，逐项给出数据集、性质、
-high/low 方向和可选百分比，供我选择。
-```
-
-选择列表中的规则并上传候选。例如：
-
-```text
-使用 STCA 的论文规则筛选我上传的 candidates.csv。
-选择高 Tg，Top 20%；低电导率，Bottom 10%。
-结构列为 SMILES，CandidateKey 是可选标识。
-返回同时满足两个规则的候选、各项判断和每条失败条件。
-保留原始带星号 SMILES，将结果作为文件返回。
-```
-
-论文规则包括高 Tg 的 Top 30%/20%/10%，低电导率的 Bottom 20%/15%/10%/5%，以及高电导率的 Top 20%/15%/10%/5%。CO2、O2 及 RadonPy 的 5 项、ADEPT 的 6 项性质任务也已随包提供高值 Top 10%/15%/20%/25%/30% 规则。完整选择和中英文 prompt 见[规则目录](docs/RULE_LIBRARY.zh-CN.md)。新目标可用下一流程建立规则。
-
-## 2. 从自己的 CSV 学习规则
-
-上传性质表并发送：
-
-```text
-使用 STCA 从我上传的 permeability.csv 学习规则。
-结构列为 SMILES，目标列为 CO2Permeability，单位 Barrer。
-这些是实验测量值，希望得到 high 值。
-探索 Top 10%、15%、20%、25%、30%。
-自动准备数据，选择适合的尺度、扫描步长和规则设置。
-返回所有请求档位的规则、物理阈值、建议的可用范围、
-可复用模型，以及可直接复制的候选生成 prompt。
-```
-
-skill 负责自动准备数据、基于 ECFP4 的数据划分，以及根据训练数据选择设置。计算与模型复用由宿主管理。原始数据会保留，排除记录和不可用规则也会说明。学习完成后，完整生成 prompt 会随规则和模型一起返回，无需另行执行导出步骤。
-
-之后筛选时，可以直接引用刚完成的任务：
-
-```text
-使用我们刚学到的高 CO2 渗透率 Top 15% 规则，
-按 SMILES 列筛选我上传的 new_candidates.csv。
-返回原始结构、匹配候选和每条失败条件。
-```
-
-百分比由你选择。较窄范围不适合时，STCA 可以继续检查你请求的其他范围。多个性质分别学习模型，例如高热导与低密度，再请求筛选同一候选表的交集。
-
-## 3. 获取候选生成 prompt
-
-可以直接使用现有规则，无需新的训练 CSV：
-
-```text
-选择 STCA 的高 Tg Top 20% 规则和低电导率 Bottom 10% 规则。
-给我一段可完整复制到其他 LLM 的 prompt，用来生成 20 个聚合物重复单元。
-写入实际结构条件、两个末端 * 连接点要求，
-以及包含 CandidateKey、SMILES 的 CSV 输出格式。
-prompt 既以文字展示，也提供可下载文件。
-```
-
-也可以使用刚学到的规则：
-
-```text
-把我们刚学到的高 CO2 渗透率 Top 15% 规则转成生成 prompt。
-要求生成 20 个具有两个末端 * 连接点的候选重复单元。
-写入每项规则条件与输出格式，让我可以直接复制到其他 LLM。
-```
-
-将 prompt 粘贴到当前或其他 LLM。生成 CSV 后，带回已启用 STCA 的宿主并请求：
-
-```text
-按该生成 prompt 使用的规则，检查我上传的 generated_candidates.csv。
-逐条核验候选，保留原始 SMILES，返回匹配结构，
-并列出每条通过和未通过的条件。
-```
-
-也可用一句请求在当前宿主中完成生成与核验：
-
-```text
-使用 STCA 的 gas-co2-high-15 规则生成 20 个不同的聚合物重复单元。
-自动准备生成 prompt，并核验全部提案。
-返回原始带星号 SMILES、通过的候选和每条失败条件。
-```
-
-LLM 提出结构，STCA 核验是否符合规则；agent 完成中间步骤。
-
-## 你会得到什么
-
-- 候选表：原始 SMILES、规则判断和失败条件。
-- 可读规则，以及所选百分比对应的性质阈值。
-- 从数据学习时产生的可复用模型。
-- 可复制或下载的完整生成 prompt。
-
-agent 返回所请求任务的文件，也可在后续请求中继续使用选定规则。
-
-## 更多示例
-
-[更多应用示例](examples/open_data/README.zh-CN.md)提供可用数据集规则，以及气体膜、导热、光学、密度、比热、介电、单体轨道能隙任务；也提供学习自有规则时可用的公开数据来源与字段。
+标识列可省略或任意命名。原始 `*` 连接点会保留，氢封端仅用于计算。AI 助手会识别表格，只询问尚不明确的目标、单位、实验或计算来源及高低方向；已有划分可要求保留。
 
 ## 论文与作者
 
@@ -175,6 +121,4 @@ agent 返回所请求任务的文件，也可在后续请求中继续使用选�
 
 [ORCID](https://orcid.org/0009-0005-4445-7074) · [ResearchGate](https://www.researchgate.net/profile/Weihao-Wang-23) · [Google Scholar](https://scholar.google.com/citations?user=d9WIMyMAAAAJ)
 
-## 许可
-
-见 [LICENSE](LICENSE) 和 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+许可见 [LICENSE](LICENSE) 和 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。

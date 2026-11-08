@@ -25,6 +25,23 @@ _SLOT = re.compile(r"\{\{([A-Z_]+)\}\}")
 _LOG_UNIT = re.compile(r"log10\s*\(\s*([^()]+?)\s*\)", re.IGNORECASE)
 
 
+def _learner(constraint):
+    """Retain the declared learner independently of the legacy signature prefix."""
+    declarations = []
+    for source in (constraint, constraint.get("metadata"), constraint.get("model")):
+        if isinstance(source, dict):
+            if source.get("learner") is not None:
+                declarations.append(source["learner"])
+            metadata = source.get("metadata")
+            if isinstance(metadata, dict) and metadata.get("learner") is not None:
+                declarations.append(metadata["learner"])
+    if any(value not in {"STCA", "WRAcc"} for value in declarations):
+        raise ValueError("Declared frozen-rule learner must be STCA or WRAcc.")
+    if len(set(declarations)) > 1:
+        raise ValueError("Frozen-rule learner declarations disagree.")
+    return declarations[0] if declarations else None
+
+
 def _text(value, label, *, optional=False):
     if value is None and optional:
         return None
@@ -151,6 +168,7 @@ def _target(constraint):
         "physical_cutoff": physical, "physical_unit": physical_unit,
         "model_cutoff": model, "model_unit": model_unit,
         "operator": operator, "source": _source_label(constraint),
+        "learner": _learner(constraint),
     }
 
 
@@ -211,6 +229,8 @@ def _rule(constraint):
         if parsed != seen:
             raise ValueError("rule.expression disagrees with rule.keys/rule.values.")
     signature = "STCA|AND|" + "&".join(f"K{k}={seen[k]}" for k in sorted(seen))
+    if rule.get("signature") is not None and rule["signature"] != signature:
+        raise ValueError("rule.signature disagrees with its exact frozen conditions.")
     definitions = {}
     supplied_literals = constraint.get("literals", [])
     if not isinstance(supplied_literals, list):
@@ -249,8 +269,12 @@ def _objective_line(index, target, zh):
         label = "模型尺度边界" if zh else "model-space boundary"
         boundary.append(f"{label}: {target['operator']} {_format_number(target['model_cutoff'])} {target['model_unit']}")
     source_label = "规则来源" if zh else "rule source"
-    return (f"{index}. {target['name']}; {target['direction']} / {tail} {percent}%; "
+    line = (f"{index}. {target['name']}; {target['direction']} / {tail} {percent}%; "
             + "; ".join(boundary) + f"; {source_label}: {target['source']}.")
+    if target.get("learner"):
+        label = "规则学习方法" if zh else "Rule learner"
+        line += f" {label}: {target['learner']}."
+    return line
 
 
 def _semantics_line(key, value, definition, zh):
@@ -357,6 +381,18 @@ def render_prompt(constraints, language="zh-CN", count=20, preferences=""):
     if set(_SLOT.findall(template)) != _PLACEHOLDERS:
         raise ValueError("The bundled prompt template has unexpected or missing placeholders.")
     rendered = _SLOT.sub(lambda match: replacements[match.group(1)], template)
+    if any(target.get("learner") == "WRAcc" for _, target, _ in normalized):
+        if zh:
+            rendered = rendered.replace("STCA 冻结规则", "冻结精确 AND 规则")
+            rendered = rendered.replace("冻结 STCA 规则", "冻结精确 AND 规则")
+            attribution = ("方法声明：标为 WRAcc 的条件来自 WRAcc 学习器，不是 STCA 算法的归纳结论。"
+                           "历史 `STCA|AND|` 签名前缀仅标识精确位条件，不表示学习方法。")
+        else:
+            rendered = rendered.replace("frozen STCA rules", "frozen exact AND rules")
+            attribution = ("Method attribution: conditions labelled WRAcc were learned by WRAcc and are not STCA training conclusions. "
+                           "The historical `STCA|AND|` signature prefix identifies exact conditions, not the learner.")
+        first, separator, rest = rendered.partition("\n")
+        rendered = first + separator + "\n" + attribution + "\n" + rest
     if _SLOT.search(rendered):
         raise ValueError("An unresolved template placeholder remains in the prompt content.")
     return rendered

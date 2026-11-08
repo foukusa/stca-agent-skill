@@ -19,7 +19,8 @@ SCRIPTS = Path(__file__).resolve().parent
 RECEIPT = cache_root() / "agent-runtime.json"
 ALLOWED = {"rule_library.py", "auto_screen.py", "custom_fit.py", "evaluate_custom.py",
            "stca_tools.py", "data_cleaning.py", "prepare_hcap.py", "data_readiness.py",
-           "generation_prompt.py", "audit_dataset.py"}
+           "generation_prompt.py", "generation_session.py", "audit_dataset.py", "task_menu.py", "user_rule_library.py",
+           "inrange_evaluation.py", "auto_data_layer.py"}
 
 
 def receipt():
@@ -227,7 +228,7 @@ def ensure(mode="fit", python=None, source=None, allow_install=True, dependency_
 
 
 def stdlib_operation(script, arguments):
-    if script == "generation_prompt.py":
+    if script in {"generation_prompt.py", "generation_session.py", "task_menu.py", "user_rule_library.py"}:
         return True
     if script != "rule_library.py":
         return False

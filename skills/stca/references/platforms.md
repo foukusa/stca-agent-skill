@@ -4,6 +4,6 @@
 
 - DeepSeek Harness 的安装与调用见 [deepseek-harness.md](deepseek-harness.md)。
 - WorkBuddy 的导入与启用见 [workbuddy.md](workbuddy.md)。
-- 后端准备由宿主 agent 执行，内部流程见 [platform-runtime.md](platform-runtime.md)。
+- 后端准备由平台 agent 执行，内部流程见 [platform-runtime.md](platform-runtime.md)。
 
-浏览规则和使用生成 prompt 不需要科学计算依赖。结构筛选与重新学习需要宿主具备代码执行能力；宿主按 agent_runtime.py 的结果复用或准备后端，并将真实结果交付用户。
+浏览规则和使用生成 prompt 不需要科学计算依赖。结构筛选与重新学习需要平台具备代码执行能力；平台按 agent_runtime.py 的结果复用或准备后端，并将真实结果交付用户。

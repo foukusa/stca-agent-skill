@@ -2,7 +2,7 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "stca",
   "version": "0.1.0",
-  "description": "Screen polymers with bundled STCA rules, learn readable rules from uploaded data, and use complete prompts to generate new repeat units with an LLM.",
+  "description": "Learn and save readable STCA/WRAcc polymer rules, screen candidates, or generate and verify repeat units with built-in prompts.",
   "author": {
     "name": "Weihao Wang"
   },
@@ -17,14 +17,14 @@
     "com.openai": {
       "interface": {
         "displayName": "STCA",
-        "shortDescription": "Polymer rules and design prompts",
-        "longDescription": "Choose bundled rules for polymer screening, learn readable rules from your own measured or computed data, or turn selected rules into complete prompts for the current or another LLM. Browse rules and copy bilingual prompts immediately. The host agent prepares the calculation backend when screening or learning is needed. Original star-containing repeat-unit SMILES are preserved, with each failed condition reported.",
+        "shortDescription": "Polymer rules and design",
+        "longDescription": "Upload polymer data to compare readable STCA and WRAcc rules, retain both methods and save reusable frozen rules. Screen candidates with paper, open-data or saved rules, or select a rule from the directory to generate and verify structures. Each requested tier includes the original-table screening results and failed conditions. Original star-containing SMILES are preserved. Return to the main menu after saving; the AI assistant manages the compatible CPU backend.",
         "developerName": "Weihao Wang",
-        "category": "Developer Tools",
+        "category": "Education & Research",
         "defaultPrompt": [
-          "Show the bundled STCA rule sets so I can choose a dataset, property and target range, then screen my candidate CSV.",
-          "Learn STCA rules from my uploaded property CSV and return reusable rules with complete generation prompts.",
-          "Use my selected STCA rules to create a complete prompt for 20 new polymer repeat units, then verify the generated candidates."
+          "Learn and save rules from my data.",
+          "Screen candidates with my selected rules.",
+          "Generate candidates with my saved rules."
         ],
         "brandColor": "#167D8D",
         "composerIcon": "./assets/stca-logo.png",

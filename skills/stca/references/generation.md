@@ -1,6 +1,6 @@
-# 规则指导的宿主 LLM 生成
+# 规则指导的 LLM 生成
 
-本工作流使用当前宿主 LLM 提出新聚合物重复单元。skill 提供冻结规则、生成 prompt 和可用时的计算核验；用户通过自然语言调用，agent 自动准备所需后台；使用当前宿主 LLM，不要求用户配置 Python、GPU、模型 API 或自行部署大模型。
+本工作流使用当前平台 LLM 提出新聚合物重复单元。skill 提供冻结规则、生成 prompt 和可用时的计算核验；用户通过自然语言调用，agent 自动准备所需后台；使用当前平台 LLM，不要求用户配置 Python、GPU、模型 API 或自行部署大模型。
 
 ## 选定规则
 
@@ -13,11 +13,31 @@
 
 ## 填写可直接使用的 prompt
 
+规则确定后提供两个方式，接受数字或自然语言选择。用户已说“直接生成”就执行直接方式；用户已说“先看prompt”就进入预览方式。只选择“生成”而未确定方式时，展示两项供选择。
+
+1. **先查看并调整prompt，再生成**：展示完整文本，接受数量、化学偏好、输出格式等修改，保存并重新展示最终文本。等待用户明确确认；展示文本、收到修改或等待一段时间都不构成确认。收到“确认，开始生成”后在同次操作中调用当前LLM并核验。
+2. **直接生成并核验**：依据选定规则和要求准备完整prompt，直接调用当前LLM生成并核验。
+
+标准库会话助手保存完整prompt、不可变约束快照、批准版本及哈希。以下是agent内部操作，不能要求普通用户运行：
+
+```text
+PY SKILL_DIR/scripts/generation_session.py prepare --constraints CONSTRAINTS --mode preview --count 20 --language zh-CN --output-dir out/generation_session
+PY SKILL_DIR/scripts/generation_session.py revise --session out/generation_session/session.json --count 10 --preferences "优先不含氟的结构"
+PY SKILL_DIR/scripts/generation_session.py confirm --session out/generation_session/session.json --confirmation-text "确认，开始生成"
+PY SKILL_DIR/scripts/generation_session.py status --session out/generation_session/session.json --include-prompt
+```
+
+直接方式把prepare的mode改成direct。用户补充的自由文本用revise的`--draft-file`附加在原科学条件之后，原精确条件保持不变。修改后批准失效，重新展示并等待确认。若请求修改性质、阈值或冻结位条件，先明确选择或建立新规则，再开新会话；不能把改写条件称为原规则。
+
+只有`generation_allowed=true`时才能进入实际生成。读取批准的完整prompt后由当前AI助手执行LLM生成，将所有结构写入候选表，再调用`rule_library.py screen`或保存模型的`stca_tools.py screen-candidates`精确核验。脚本渲染和会话状态都不执行LLM采样；不能把prompt文件或approved状态当作生成结果。无需外部API配置。平台若无法调用模型或计算，准确说明当前完成的步骤。
+
+只有用户明确要求单独导出prompt时，才以prompt文本交付结束。生成链路完成后交付最终prompt、全部提案、通过表和失败原因，返回主菜单。
+
 使用 [generation_prompt.py](../scripts/generation_prompt.py) 的 `render_prompt(constraints, language='zh-CN', count=20, preferences='') -> str`，把单条约束 dict 或多条 dict 的列表渲染为完整 prompt。支持 `stca-constraints-v1` 和 `stca-library-constraints-v1`；列表表示所有规则的 AND 交集，矛盾位条件会被拒绝。渲染只依赖标准库，不运行生成模型或科学计算。
 
 `stca_tools.py export-rules` 对已确认 H-cap MACCS 契约的有效规则直接输出 `prompt.en.md`、`prompt.zh-CN.md`，`prompt.md` 为完整中文版。读取 `prompt_generation.json` 确认 `status=rendered`。无规则、不兼容表示或自定义二值描述符时，导出仍保留规则与 JSON；`prompt.md` 仅为说明性摘要，状态为 `not_available`，不能冒称完整生成 prompt。
 
-渲染使用 [英文模板](../assets/prompts/generate.en.md) 或 [中文模板](../assets/prompts/generate.zh-CN.md)，填好下面全部占位。根据用户语言，将完整 prompt 直接交给用户；用户要求立即生成并核验时，由当前宿主 LLM 按同一 prompt 提案，agent 连续核验并交付候选结果，不要求用户手动执行中间步骤。不要只返回文件路径、命令或让用户自行拼接 JSON。
+渲染使用 [英文模板](../assets/prompts/generate.en.md) 或 [中文模板](../assets/prompts/generate.zh-CN.md)，填好下面全部占位。预览方式展示完整prompt供确认；直接方式连续生成并核验。不要只返回文件路径、命令或让用户自行拼接JSON。
 
 | 占位 | 必须填写的内容 |
 |---|---|
@@ -49,4 +69,4 @@ prompt 只保留生成所需的目标和结构约束。MCC、Precision、Recall�
 
 没有计算后端时，正常生成并用一句话说明 `generation_only`，不声称精确位条件已经通过。存在兼容后端时，使用冻结模型的表示和 MACCS 编号，对全部原始提案逐条核验；保存通过、失败、无效、未知状态及每个失败条件。普通筛选状态不得改写成实测性能达标。
 
-保留初始数量、原始提案、后续修订与计算结果。不要只留下通过项来掩盖生成失败；不够用户所需数量时报告实际通过数。无需为了调用宿主 LLM 额外申请发送权限；此流程没有发送动作。
+保留初始数量、原始提案、后续修订与计算结果。不要只留下通过项来掩盖生成失败；不够用户所需数量时报告实际通过数。无需为了调用平台 LLM 额外申请发送权限；此流程没有发送动作。
