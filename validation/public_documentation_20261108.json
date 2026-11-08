@@ -7,13 +7,39 @@
   "AS_definition_matches_paper": true,
   "AS_formula": "(MCC + Precision + F1) / 3",
   "workflow_direction": "left_to_right",
-  "workflow_aligned_nodes": 8,
+  "workflow_aligned_nodes": 7,
   "brand_colors": [
     "#113348",
     "#0D7381",
     "#D09D37"
   ],
-  "signature": "化繁为简，拨云见日",
   "code_ocean_entry": "https://doi.org/10.24433/CO.1601774.v1",
-  "numeric_rules_and_core_learning_unchanged": true
+  "numeric_rules_and_core_learning_unchanged": true,
+  "signatures": {
+    "en": "Out of clutter, find simplicity.",
+    "en_attribution": "attributed to Albert Einstein",
+    "zh-CN": "化繁为简，拨云见日"
+  },
+  "workflow_canvas": "transparent",
+  "workflow_visible_labels": "core_actions_and_results_only",
+  "workflow_arrow_stroke_px": 16,
+  "workflow_label_font_size_px": 42,
+  "workflow_icon_count": 7,
+  "workflow_style": "user_avatar_start_with_three_icon_branches",
+  "workflow_typography": {
+    "zh-CN": "Resource Han Rounded CN Heavy",
+    "en": "Nunito ExtraBold",
+    "text_outlined_for_portability": true
+  },
+  "workflow_color_roles": {
+    "learn_and_save": "muted_logo_navy",
+    "screen": "muted_logo_teal",
+    "generate_and_verify": "muted_logo_gold"
+  },
+  "workflow_user_start": true,
+  "workflow_start_label": {
+    "en": "Start here",
+    "zh-CN": "从这里开始"
+  },
+  "workflow_white_staircase": "opaque_white_three_levels_inside_colored_user_avatar"
 }

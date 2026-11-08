@@ -118,4 +118,4 @@ Try the [STCA simplified reproduction version on Code Ocean](https://doi.org/10.
 
 See [LICENSE](LICENSE) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-<p align="center"><em>化繁为简，拨云见日</em></p>
+<p align="center"><em>“Out of clutter, find simplicity.”</em><br><sub>— attributed to Albert Einstein</sub></p>
