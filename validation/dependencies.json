@@ -3,7 +3,7 @@
   "base_python": "3.12.14",
   "platform": "linux",
   "system_site_packages": false,
-  "scope": "One clean CPython 3.12 virtual environment, public PyPI, binary wheels only.",
+  "scope": "Historical CPython 3.12 reference snapshot only; not the ordinary runtime requirement.",
   "macos_tested": false,
   "windows_tested": false,
   "returncode": 0,
@@ -106,5 +106,6 @@
     "fresh_clone_and_pinned_checkout": true,
     "commit": "5951b0ef23d63edc8f7e803aaaffa5e4168288f6"
   },
-  "installer_sha256": "a5b28748068c2764dde3f1198c8ecbf931ce5631b31eef9d6b9a8c955209ff84"
+  "installer_sha256": "a5b28748068c2764dde3f1198c8ecbf931ce5631b31eef9d6b9a8c955209ff84",
+  "ordinary_runtime_evidence": "compatibility_python310.json"
 }

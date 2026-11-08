@@ -1,31 +1,11 @@
-# STCA release environment
+# STCA host runtime
 
-The release pins the polymer-stca source revision
-`5951b0ef23d63edc8f7e803aaaffa5e4168288f6` and exact Python dependency versions.
-The setup helper prepares a new environment without changing STCA rules or algorithms.
+This technical reference is for agent hosts and maintainers. Users invoke every STCA workflow in natural language: select rules, upload data, request new rules, generate candidates or ask for verification. They do not configure Python, run commands, choose backend paths or deploy a model. STCA calculations use a CPU; generation uses the current host LLM.
 
-## Setup
+The default runtime reuses an existing compatible Python 3.10+ environment and checks only the capabilities needed for the requested task. It prepares missing dependencies automatically and records the actual versions. An exact historical dependency snapshot is an explicit reproducibility option, not the normal usage requirement. The author implementation remains fixed to the reviewed source revision.
 
-```bash
-python3.12 skills/stca/scripts/setup_locked_environment.py \
-  --env-dir "$HOME/.venvs/stca-0.1.0"
-```
+The bundled rule library and bilingual generation prompts are readable without scientific dependencies. The host uses `skills/stca/scripts/agent_runtime.py` for calculation. See the internal [host workflow](../skills/stca/references/agent_workflows.md) and [runtime reference](../skills/stca/references/platform-runtime.md).
 
-Read `python` and `source` from the generated `stca-environment.json`, export
-`STCA_SOURCE`, and run:
+After learning valid rules, the agent automatically returns reusable models, exact constraints and complete bilingual generation prompts. A single natural-language request can continue through host-LLM generation and frozen-rule verification.
 
-```bash
-"$STCA_PY" skills/stca/scripts/stca_runtime.py doctor
-```
-
-Use the recorded interpreter for calculation-only H-cap preparation, screening,
-fitting, rule export and objective planning. Candidate results retain the original
-star-containing repeat-unit SMILES; no `PID` column is required. An existing environment is not overwritten. Linux x86_64
-uses the included wheel-hash lock; other systems use the exact version snapshot and
-must have compatible wheels.
-
-Detailed user commands are in `skills/stca/references/commands.md`.
-
-## Automatic ECFP4 workflow dependencies
-
-The 2026-11-08 automatic workflow additionally pins scikit-learn1.7.2, joblib1.6.0, threadpoolctl3.8.0 and cloudpickle3.1.2. The portable pins and Linux CPython3.12 wheel hashes include these packages. Installed-environment imports and pip check passed on the recorded Linux runtime; native macOS installation remains a separate check.
+STCA Agent Skill remains version **0.1.0**. Original repeat-unit SMILES are retained and H-cap is calculation-only.

@@ -278,25 +278,38 @@ def _target_metadata(artifact: dict, entry: dict) -> dict:
     kind = transform.get("kind", transform.get("name", "none")) if isinstance(transform, dict) else transform
     model_cutoff = entry.get("train_cutoff")
     physical_cutoff = model_cutoff
-    already_log = bool(contract.get("already_log", False))
-    physical_unit = contract.get("original_unit", artifact["target_unit"])
-    if already_log:
-        match = re.fullmatch(r"log10\((.+)\)", str(physical_unit).strip())
-        physical_unit = match.group(1) if match else None
-    if (kind == "log10" or already_log) and model_cutoff is not None:
+    original_unit = contract.get("original_unit", artifact["target_unit"])
+    model_unit = contract.get("model_unit", artifact["target_unit"])
+    log_pattern = r"log10\s*\(\s*([^()]+?)\s*\)"
+    original_log_unit = re.fullmatch(log_pattern, str(original_unit).strip(), re.IGNORECASE)
+    model_log_unit = re.fullmatch(log_pattern, str(model_unit).strip(), re.IGNORECASE)
+    already_log = bool(contract.get("already_log", False) or original_log_unit)
+    physical_unit = original_unit
+    if model_log_unit is not None:
+        physical_unit = model_log_unit.group(1)
+    elif original_log_unit is not None:
+        physical_unit = original_log_unit.group(1)
+    elif already_log:
+        # A logarithmic value without a declared base unit cannot be relabelled.
+        physical_unit = None
+    if kind not in (None, "none", "identity", "log10"):
+        # Unknown transformations are not inverted by assumption.
+        physical_cutoff = None
+    elif (kind == "log10" or already_log or model_log_unit is not None) and model_cutoff is not None:
         try:
             physical_cutoff = 10.0 ** float(model_cutoff)
         except OverflowError:
             physical_cutoff = None
-    elif kind not in (None, "none", "identity"):
-        # Unknown transformations are not inverted by assumption.
+        if physical_cutoff is not None and (not math.isfinite(physical_cutoff) or physical_cutoff <= 0):
+            physical_cutoff = None
+    if physical_unit is None:
         physical_cutoff = None
     return {
         "name": artifact["target_name"], "unit": artifact["target_unit"],
         "direction": artifact["direction"],
         "reference_train_cutoff": model_cutoff,
         "model_space_cutoff": model_cutoff,
-        "model_space_unit": contract.get("model_unit", artifact["target_unit"]),
+        "model_space_unit": model_unit,
         "physical_train_cutoff": physical_cutoff,
         "physical_unit": physical_unit,
         "target_transform": transform,
@@ -382,10 +395,18 @@ def _prompt(constraint: dict) -> str:
              f"`{constraint['rule']['expression']}`", "",
              "所有条件使用 AND。不要转成 OR、投票、加权相加或部分满足。", ""]
     if constraint["feature_spec"]["kind"] == "rdkit_maccs167":
+        representation = (constraint.get("representation") or
+                          constraint["model"].get("custom_data_contract", {}).get("representation"))
+        if representation == "hcap_maccs167":
+            structure_policy = "已确认 H-cap 输入契约：保留原 SMILES，用 prepare_hcap.py 将末端单键星号连接点换氢、另存计算列，再生成 MACCS。无星号的已处理表原样保留，已有指纹矩阵不再转换。"
+        elif representation is not None:
+            structure_policy = f"冻结表示为 {representation!r}，必须沿用该表示；不要自动 H-cap、重建连接点或改变已训练模型的结构输入。"
+        else:
+            structure_policy = "原始重复单元到计算结构的契约尚未确认；先核实训练表示，不据此自动 H-cap 或宣称候选已满足结构规则。"
         head += ["## 校验方式", "",
                  "位值为 0 表示对应 MACCS 激活条件不成立；对于计数位，这不等同于该结构完全不存在。",
-                 "原 STCA 的作者已确认 H-cap 输入契约：保留原 SMILES，用 prepare_hcap.py 将末端单键星号连接点换氢、另存计算列，再生成 MACCS。无星号的已处理表原样保留，已有指纹矩阵不再转换。",
-                 "自定义模型须沿用其训练表示；不要把底层 as_provided 字段当作无需 H-cap 的证明。H-cap 相同不证明原连接图代表同一聚合物；不要额外去盐、互变异构归一化或构造低聚物。",
+                 structure_policy,
+                 "自定义模型须沿用冻结的训练表示，原始结构与计算副本分开记录。H-cap 相同不证明原连接图代表同一聚合物；不要额外去盐、互变异构归一化或构造低聚物。",
                  "使用锁定版本的 RDKit 生成 167 位 MACCS，保留 K0 占位，并使用完整冻结模型逐条复核。",
                  "constraints.json 中由当前 RDKit 读取的 SMARTS/计数定义用于解释；GenMACCSKeys 的真实位值是判据。",
                  "不要从 K 编号猜化学官能团名称；特殊 MACCS 位不能被自行编造的 SMARTS 替代。", ""]
@@ -401,6 +422,73 @@ def _prompt(constraint: dict) -> str:
     return "\n".join(head)
 
 
+def _export_prompt_bundle(constraint: dict, *, count=20, preferences=""):
+    """Render complete prompts only for a verified H-cap MACCS contract.
+
+    A descriptive fallback is an export result with an explicit unavailable
+    status, never a silently weakened or allegedly complete generation prompt.
+    """
+    reason = detail = None
+    if constraint["status"] != "frozen_representative" or constraint.get("rule") is None:
+        reason, detail = "no_valid_rule", "No valid frozen representative exists at the selected tier."
+    elif constraint["feature_spec"].get("kind") != "rdkit_maccs167":
+        reason, detail = "unsupported_features", "Custom binary descriptors have no verified molecular generation mapping."
+    else:
+        metadata = constraint["model"]
+        representation = metadata.get("custom_data_contract", {}).get("representation")
+        basis = "saved_custom_data_contract"
+        if representation is None:
+            origin, provenance = metadata.get("origin", {}), metadata.get("provenance", {})
+            profile = origin.get("profile")
+            known_protocol = ("paper_tg_core_v1" if profile == "tg-high" else
+                              "paper_ec_family_v15_core_v1" if profile in {"ec-low", "ec-high"} else None)
+            if (origin.get("kind") == "pretrained_profile" and origin.get("protocol") == "paper"
+                    and metadata.get("resolved_protocol") == "paper" and known_protocol is not None
+                    and metadata.get("protocol_id") == known_protocol
+                    and provenance.get("preset_profile") == profile
+                    and provenance.get("kind") == "verified_refit_paper"
+                    and provenance.get("verification_source") == "author_uploaded_results_20260921"):
+                # The named profiles consume already prepared archived SMILES.
+                # Author confirmation of their upstream H-cap preparation is
+                # recorded in references/provenance.md; core as_provided is not
+                # an instruction to change the original repeat-unit contract.
+                representation = "hcap_maccs167"
+                basis = "verified_named_paper_profile_author_confirmed_hcap"
+        if representation is None:
+            reason, detail = "representation_unconfirmed", "The saved model does not declare a confirmed H-cap input contract."
+        elif representation != "hcap_maccs167":
+            reason, detail = "unsupported_representation", f"The frozen representation {representation!r} cannot be changed to H-cap."
+        else:
+            constraint["representation"] = representation
+            constraint["generation_representation_provenance"] = {
+                "basis": basis, "reference": "references/provenance.md" if basis.startswith("verified_named") else
+                "model.custom_data_contract.representation",
+            }
+    if reason is None:
+        try:
+            from generation_prompt import render_prompt
+            english = render_prompt(constraint, language="en", count=count, preferences=preferences)
+            chinese = render_prompt(constraint, language="zh-CN", count=count, preferences=preferences)
+        except (ValueError, TypeError, OSError, ImportError) as exc:
+            reason, detail = "render_rejected", f"{type(exc).__name__}: {exc}"
+        else:
+            return {"prompt.md": chinese, "prompt.en.md": english, "prompt.zh-CN.md": chinese}, {
+                "status": "rendered", "kind": "complete_generation_prompt", "reason": None,
+                "requested_count": count,
+                "files": {"default": "prompt.md", "en": "prompt.en.md", "zh-CN": "prompt.zh-CN.md"},
+                "generation_executed": False,
+            }
+    summary = ("# 冻结约束说明（不是完整生成 prompt）\n\n"
+               f"完整生成 prompt 当前不可用：`{reason}`。{detail}\n\n"
+               "下文仅保留冻结约束摘要；不要将其标为已生成或已核验的聚合物候选。\n\n"
+               + _prompt(constraint))
+    return {"prompt.md": summary}, {
+        "status": "not_available", "kind": "constraint_summary", "reason": reason,
+        "detail": detail, "requested_count": count, "files": {"summary": "prompt.md"},
+        "generation_executed": False,
+    }
+
+
 def export_rules(args, stca) -> int:
     spec = {"profile": args.profile, "model": args.model, "protocol": args.protocol}
     model, metadata = _load_model(stca, spec, Path.cwd())
@@ -411,13 +499,20 @@ def export_rules(args, stca) -> int:
     receipt.update({"operation": "export-rules", "generated_at_utc": datetime.now(timezone.utc).isoformat(),
                     "model": metadata, "tier": tier, "training_performed": False})
     constraint["runtime"] = receipt
+    prompts, prompt_status = _export_prompt_bundle(
+        constraint, count=getattr(args, "count", 20), preferences=getattr(args, "preferences", ""))
+    constraint["prompt_generation"] = prompt_status
+    receipt["prompt_generation"] = prompt_status
     output = _new_directory(args.output_dir)
     rules.to_csv(output / "rules.csv", index=False)
     _write_json(output / "constraints.json", constraint)
-    (output / "prompt.md").write_text(_prompt(constraint), encoding="utf-8")
+    for filename, prompt in prompts.items():
+        (output / filename).write_text(prompt, encoding="utf-8")
+    _write_json(output / "prompt_generation.json", prompt_status)
     _write_json(output / "manifest.json", receipt)
     print(json.dumps({"output_directory": str(output), "status": constraint["status"],
-                      "family_rule_count": len(rules), "representative": constraint["rule"]},
+                      "family_rule_count": len(rules), "representative": constraint["rule"],
+                      "prompt_generation": prompt_status},
                      ensure_ascii=False))
     return 0
 
@@ -1075,6 +1170,8 @@ def main(argv=None) -> int:
     model_group.add_argument("--model", help="Saved STCA model JSON; its own protocol is retained.")
     export.add_argument("--protocol", choices=PROTOCOLS, help="Required for a profile; if supplied with a model it must match its saved protocol.")
     export.add_argument("--tier", type=float, required=True)
+    export.add_argument("--count", type=int, default=20, help="Requested candidate count in the generated prompt; default 20.")
+    export.add_argument("--preferences", default="", help="Chemical preferences to include in complete generation prompts.")
     export.add_argument("--output-dir", required=True, help="A new output directory; existing directories are never overwritten.")
     screen = commands.add_parser(
         "screen-candidates",

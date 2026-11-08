@@ -2,7 +2,7 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "stca",
   "version": "0.1.0",
-  "description": "Apply STCA polymer rules, learn readable rules for new measured properties with source-only numerical settings, and verify rule-guided candidates.",
+  "description": "Screen polymers with bundled STCA rules, learn readable rules from uploaded data, and use complete prompts to generate new repeat units with an LLM.",
   "author": {
     "name": "Weihao Wang"
   },
@@ -17,14 +17,14 @@
     "com.openai": {
       "interface": {
         "displayName": "STCA",
-        "shortDescription": "Polymer screening with rules",
-        "longDescription": "STCA applies the original pinned Sliding Threshold Correlation Analysis to polymer repeat units. Apply frozen published Tg/EC rules; learn custom models for measured properties such as gas permeability using source-only target transforms, bounded value-scan planning and optional nested configuration selection; export exact constraints and verify host-agent proposals. Each tier reports its numerical physical cutoff and evaluation support, without silently deleting anomalies or merging H-cap collisions. Source and evaluation roles remain separate. Cross-property reuse requires an explicit transfer request and is not a universal property predictor. Original star-containing SMILES are preserved; H-cap is calculation-only. Python/RDKit execution is required.",
+        "shortDescription": "Polymer rules and design prompts",
+        "longDescription": "Choose bundled rules for polymer screening, learn readable rules from your own measured or computed data, or turn selected rules into complete prompts for the current or another LLM. Browse rules and copy bilingual prompts immediately. The host agent prepares the calculation backend when screening or learning is needed. Original star-containing repeat-unit SMILES are preserved, with each failed condition reported.",
         "developerName": "Weihao Wang",
         "category": "Developer Tools",
         "defaultPrompt": [
-          "Apply the published Tg top-20% and EC-low bottom-10% rules to this polymer candidate table, then report the same-candidate intersection and every failed condition.",
-          "Learn custom STCA rules from this measured property table using the target, units, tiers and source/evaluation roles I provide. Audit data without silent deletion, choose settings inside source only, and report physical cutoffs and evaluation support.",
-          "Export the selected frozen STCA constraints, propose repeat-unit candidates, preserve the original star-containing SMILES, and verify every proposal after H-cap/MACCS calculation."
+          "Show the bundled STCA rule sets so I can choose a dataset, property and target range, then screen my candidate CSV.",
+          "Learn STCA rules from my uploaded property CSV and return reusable rules with complete generation prompts.",
+          "Use my selected STCA rules to create a complete prompt for 20 new polymer repeat units, then verify the generated candidates."
         ],
         "brandColor": "#167D8D",
         "composerIcon": "./assets/stca-logo.png",

@@ -1,92 +1,64 @@
 ---
 name: stca
-description: "Apply Weihao Wang’s original Sliding Threshold Correlation Analysis (STCA) to polymer repeat units: screen with frozen published rules, derive readable prefix rule families from measured data with explicit targets and source-only preprocessing, and verify agent-proposed candidates. Use for STCA、滑动阈值相关分析、子结构筛选、规则提取、气体渗透率、聚合物性质筛选、多性能规则交集、生成约束. Preserve the pinned author implementation; distinguish paper reproduction, custom adaptive analysis and transfer hypotheses. C-STCA, SC-SHAP, Auto-Select, GSP and PolymerLLM are separate methods."
+description: "Use STCA (Sliding Threshold Correlation Analysis) for polymer repeat units through three agent workflows: apply bundled frozen paper/open-dataset rules, derive rules automatically from an uploaded CSV, or provide self-contained rule-guided prompts for the host or another LLM and verify its candidates. Trigger for STCA、滑动阈值相关分析、聚合物性质筛选、开源数据集规则、规则归纳、多性能交集、生成prompt、气体渗透率. Preserve Weihao Wang’s pinned implementation, original star-containing SMILES and source-only selection for new data."
 ---
 
-# STCA 聚合物筛选
+# STCA skill
 
-用固定作者实现执行计算，把结构规则、数值目标与证据角色一起交付。不要把说明、旧结果或合成样例当成本次运行结果。版本保持 `0.1.0`。
+[规则库](assets/rule_library/index.md) · [三种使用路径](references/agent_workflows.md) · [后台运行](references/platform-runtime.md) · [方法](references/algorithm.md) · [案例](references/case_studies.md)
 
-## 先选择工作流
+将用户的自然语言请求完成为下面三种路径。版本保持 `0.1.0`。全部功能由自然语言请求触发。agent 读取规则、复用或自动准备兼容后台、运行计算并交付文件；普通用户只需说明目标或上传 CSV，不承担命令、Python 版本、文件路径或模型部署操作。STCA 计算使用 CPU，生成沿用当前宿主 LLM，无需 GPU。
 
-| 任务 | 执行路径 |
-|---|---|
-| 对新候选应用论文结论 | `stca_tools.py screen-candidates` 或 `joint-screen`；显式 paper profile 与 tier，不重划分候选 |
-| 用自己的实测/计算数据自动提取规则 | 默认 `auto_screen.py`：自动清理不可用行、ECFP4 分角色、源内变换/步长/配置选择、冻结评价；已有精确角色/设置可用 `custom_fit.py` |
-| 规则指导候选生成 | `export-rules` → 宿主 LLM 提案 → 保留所有原始提案 → H-cap/MACCS/冻结规则核验 |
-| 严格重建论文 | 原始数据角色、原参数与 `paper` 协议；不能用自定义适配冒称原文复现 |
+| 用户目标 | 默认路径 | 交付 |
+|---|---|---|
+| 直接采用现成结论筛选或查看规则 | 读取内置规则库，选择性质、方向、档位和来源 | 完整条件、来源、候选结果或现成 prompt |
+| 从自己的数据得到规则 | 对上传 CSV 执行自动清理、ECFP4 划分、source 内归纳与冻结评价 | 新模型、各档规则、实际阈值、完整生成 prompt、评价和审计 |
+| 让 LLM 按规则生成候选 | 取现成 prompt，或将一个/多个新规则组合为自包含 prompt | 可直接使用/复制的 prompt，及生成后可计算的核验结果 |
 
-每个目标分别确定性质、方向、单位和显式百分位 tier。`high/low` 是方向；tier 是尾部范围。Tg 预置只有 high，EC high/low 分别对应导电/绝缘。不要默认 5%、不要把所有目标绑定同一档位。缺少 tier 时列出支持档位；不要隐藏选择。
+## 1. 直接使用内置规则
 
-用户允许寻找可用尾部范围时，提供多个百分位选项，例如 Top 10%、15%、20%、25%、30%，按源内规则有效性、支持量和 inner validation 检查，不能在 10% 不可用时直接停止。预先记录探索范围；输出每档实际 cutoff 和原因；15% 必须重新归纳该档规则，不能插值或沿用 10% 结果。`nested` 自动选择扫描配置，不自动选择 tier。若用户规定了不可放宽的绝对目标，保持该目标；若根据已看过的外评改档，标明探索性并完整保留原结果。
+先读 [规则索引](assets/rule_library/index.md) 与 `assets/rule_library/catalog.json`。从真实目录选择条目；用 `scripts/rule_library.py list` 查找，用 `show ID` 读取精确条件。不要凭评估表、旧对话或规则名称推测条件。
 
-论文化学空间划分采用 2048 位、Morgan radius=2（ECFP4-like），与学习规则用的 MACCS167 是两种表示。应用已有规则不重做划分。自定义数据上的同类 t-SNE 外围划分是新分割，不能把“二维外围”直接等同于有保障的化学外推。精确成员、表示和软件参数必须记录。
+规则库包含 13 项开源数据集性质任务各 Top 10%、15%、20%、25%、30% 条目、11 条论文 Tg/EC 条目及作者归档 gap 规则；每项的可用状态、数值阈值、出处和版本以目录为准。保持论文规则、归档规则和自动归纳规则的来源标签。目录中无有效规则时如实说明，并可转到上传数据路径。
 
-读 [algorithm.md](references/algorithm.md) 确认算法与协议。新性质、长尾目标、重复测量或有限支持时读 [custom_data.md](references/custom_data.md)。多数据集案例和 CO2 多档位检查见 [case_studies.md](references/case_studies.md)。命令见 [commands.md](references/commands.md)，出处见 [provenance.md](references/provenance.md)，试用证据与限制见 [validation.md](references/validation.md)。平台运行见 [platform-runtime.md](references/platform-runtime.md) 和 [platforms.md](references/platforms.md)。
+按用户指定的性质、方向和档位选择规则；未指定档位时展示可用选择及对应物理阈值。`high/low` 表示目标方向，百分位表示源数据目标尾部，不是候选入选比例。各性质可独立选档，不默认绑定 5%。
 
-## 1. 准备锁定环境
+查看条件、读取/复制已存 prompt 无需科学计算依赖。筛选候选时由 agent 通过后台执行 `rule_library.py screen ID [ID ...]`，将多个规则作用于同一批原始结构并保留各项失败条件与 AND 交集。已有规则直接应用，不重新划分候选或重新拟合。
 
-以当前 `SKILL.md` 所在目录为 `SKILL_DIR`；不要硬编码安装目录。首次安装用 `scripts/setup_locked_environment.py --env-dir <new-directory>`，读取返回的 `python` 和 `source`，使用该解释器及 `STCA_SOURCE`。源码固定提交为 `5951b0ef23d63edc8f7e803aaaffa5e4168288f6`。已有兼容环境直接复用。运行 `stca_runtime.py doctor`；环境失败时报告原错误，不放宽依赖或自写替代 STCA。便利 bootstrap 与锁定安装的证据分开。
+## 2. 上传自己的 CSV 自动归纳
 
-## 2. 审计输入并保留表示
+读取表头和样例，确定结构列、目标列、单位、方向及实测/计算来源。标识列可任意命名或省略；沿用原值。优先从文件和上下文读取信息，只询问无法可靠确定且会影响计算的事项。
 
-- 原输入只读，输出另存。标识列可任意命名或省略；文本值原样透传，不是特征，不自动定义材料分组或数据角色。
-- 原始带 `*` 的重复单元 SMILES 从始至终保留。对支持的末端单键 `*` 建立 H-cap 计算副本，MACCS 用副本，最终结果返回原始结构，不反推连接点。
-- 不将 H-cap 图相同自动视为同一聚合物；连接点位置与测量条件仍可能不同。原始 canonical 重复、H-cap 碰撞、条件和多次观测分别记录。
-- 无效结构在候选筛选中保留为 error/unknown，不用全零指纹替代。拟合中的无效目标、单位或结构明确报告并要求可追溯输入，不能无声删除。
-- 处理历史、异常测量、邻居偏离、重复冲突默认只标记。不要按正则无声删除处理过的材料，不按邻居标签删除“反常”样本，不自动对 H-cap 相同的测量取中位数。确需排除/聚合时要求用户定义策略，保存原行映射、条件及理由。
-- MACCS 用 167 位原编号并保留 K0；普通二值列显式指定，不纳入 ID、role、group 或目标列。自定义二值输入不自动解释为 MACCS。
-- 明确性质、单位、温度、频率、测试方法和数据来源；区分实测与计算。EC 电导率与电阻率不能混用；已经 logarithmic 的值不得重复取对数。
+通过 `scripts/agent_runtime.py run --script auto_screen.py -- ARGS` 完成后台计算。默认自动生成缺少的角色、采用 `--transform auto --scan-policy nested`，比较用户指定档位；用户未指定探索范围时提供并计算 10%、15%、20%、25%、30%。保留已有明确角色与用户规定的绝对目标。
 
-## 3. 新数据的源内适配
+自动清理不能计算的结构、无效目标和可确认的重复导出行，逐行保存原因与映射。保留有效极端值、条件及重复观测；处理历史、邻居偏离和重复冲突先标记。详细策略见 [custom_data.md](references/custom_data.md)。
 
-默认执行 `auto_screen.py --input ... --target ... --unit ... --direction high|low --tiers ... --output-dir ...`。自动排除无效/不支持计算的结构、缺失/非数值/非有限目标及同一显式ID的完全相同导出行，保存 `excluded_rows.csv` 与原行映射；声明质量列或物理范围时自动执行相应排除。有效极端值或单凭处理关键词不自动判作无意义。
+ECFP4 使用 Morgan radius=2、2048 位，只用于数据划分及相关结构诊断；规则使用 H-cap 后的 MACCS167。在 source 内构造 inner validation，完成尺度、步长和扫描配置选择，再冻结模型评价 holdout。档位建议依据 source 内证据，不使用 holdout 得分挑选配置或改动切分。
 
-未给 `--role-column` 时，以 H-cap 的 2048位 Morgan radius=2 指纹作 t-SNE，固定seed42，质心距离最外围20%为holdout，再在source内部重复构造inner validation。原结构、H-cap碰撞和显式分组保护在同侧，不合并观察或改变原星号。已给角色则保留；新生成的成员是自定义新数据实验，不是论文精确成员复现。没有ECFP2默认或替代分割。
+学习后由 agent 对各有效档位自动导出完整中英文生成 prompt，与模型和规则一并交付；无需用户另行请求导出或指定脚本路径。交付每档实际物理阈值、完整规则、计数、评价状态及源内推荐。正例少是证据限制，不是禁止归纳或筛选的门槛；区分无规则、零覆盖、零正例、计算错误与 undefined 指标。需要精确保留既有参数/角色时采用 `custom_fit.py`。
 
-自动模式默认 `--transform auto --scan-policy nested`；仅source/inner-train决定目标尺度和有界步长，inner validation选择扫描支持配置，再在全部source重拟合。`tier_recommendations.json` 根据所选inner候选的非空覆盖、正MCC且Precision高于目标率给出合格档位及最严格建议。无合格档位仍交付全部规则、计数和原因，不改outer来制造成功。显式 `--scan-policy fixed` 可保留固定设置，不能冒称具有inner验证建议。
+## 3. 取 prompt、生成并核验
 
-`custom_fit.py` 调用作者 generic STCA，不改相关性、正负排序、前缀 AND 家族和 source AS 代表选择。它不是 paper/Tg/EC 命名配方的原样复现。
+现成规则直接执行 `rule_library.py prompt ID --language zh-CN`，或读取条目指向的 prompt 文件，完整交付可复制文本。用户只要 prompt 时，到此完成，不强制安装计算依赖。
 
-- 变换、网格和超参数选择只使用 source。evaluation 标签仅用于冻结后的评价与支持量报告。低层 `custom_fit.py` 要求明确角色；自动入口负责生成或保留角色。
-- `data_readiness.py` 检查目标有限性、变化范围、并列值和扫描资源。长尾且严格正的目标可以建议 log10；这是有记录的适配层启发式，可显式选择 none/log10，不能称为新物理规律。
-- 步长按目标尺度生成有界 value 网格，不照抄 Tg/EC 的固定步长。恒定目标、有效点不足或网格超限保留原因，不悄悄切成 unique/quantile。
-- `fixed` 扫描策略保留显式最小子集数（默认 1）；`nested` 比较最小子集 1 与预先规定的较大支持量，选定配置后在全 source 重拟合。自动入口生成缺少的inner角色，低层入口要求已有inner角色。不能用 evaluation MCC 选配置。
-- 较大最小子集或源内对数变换改变扫描配方：标记 custom adaptive。试用中某些失败后形成的改法不是所有新领域均有效的结论。
-- 分位目标必须同时输出源训练尺度 cutoff 与原始物理单位 cutoff；低方向反号和 log 逆变换明确记录。evaluation 不重估 fixed_train 阈值。
+自定义数量、偏好、多目标或新归纳规则时，将精确约束传给 `scripts/generation_prompt.py --constraints FILE [FILE ...] --count 20 --language zh-CN --output FILE`。新模型先通过 `stca_tools.py export-rules` 导出所选档位约束。prompt 必须自包含来源、目标、阈值、全部 AND 条件、MACCS 语义、原始星号 SMILES 输出格式和生成后核验要求。
 
-## 4. 冻结后评价与支持量
+用户一句话要求生成并核验时，连续完成规则选择、prompt 准备、当前宿主 LLM 提案与计算核验，不拆成用户需要手动衔接的命令步骤；用户要求其他 LLM 使用时，交付可复制 prompt。无需 STCA 专用生成模型或外部 API。保留所有原始提案、生成预算与失败记录，再用同一组冻结规则计算核验；明确区分“已提出”和“已通过核验”。
 
-保存模型、输入哈希、单位、transform、源内扫描设置、家族和所选规则。逐 tier 输出 TP/FP/TN/FN、Precision、Recall、F1、MCC、coverage、enrichment、源/评价目标数及实际 cutoff。
+多目标逐项显示结果与最终交集，保留冲突条件。规则匹配表示候选满足结构条件，性质是否达到目标仍需实验或相应物性计算。详见 [agent_workflows.md](references/agent_workflows.md) 和 [generation.md](references/generation.md)。
 
-少量目标样本意味着指标证据弱，不意味着禁止生成规则或筛选。默认正例 20 的支持量检查是可配置诊断阈值，不是新的算法筛选门槛。评价集零正例时，不把不可解释的 Recall/MCC 填 0 后称性能失败；保持 undefined/error 状态和原计数。预测一个都不选也要分别报告“规则无覆盖”和“无规则/错误”。不能用宽泛 `except` 把异常伪装为 0 分。
+## 共同约定
 
-已有论文规则与自定义 source-only 规则分开。历史 paper 低 EC 5% 原 extra 172 条选中 61 条，不能用不同 source_locked 代表的零覆盖替代原流程。paper selection 标签参与代表选择，不是最终盲测。
+- 始终保留原始带 `*` 的重复单元 SMILES；H-cap 仅为计算副本，最终候选结果返回原结构。MACCS 保持 167 位原编号、K0 位置及特殊计数语义。
+- ID 只用于记录对应，不是特征或材料身份。分组保护同时检查原始 canonical 重复单元、H-cap 碰撞及显式材料分组；保留连接点和测量条件。
+- 保持作者实现固定提交 `5951b0ef23d63edc8f7e803aaaffa5e4168288f6`；把论文复现、开源数据归纳和跨性质迁移分别记录。迁移需明确 source/target 性质及假设。
+- 输入只读，输出另存；保存来源、规则版本、哈希、角色、变换及参数。用户数据和逐材料结果不写回 skill。
+- 默认复用 Python 3.10 及以上的兼容环境，并通过所需功能检查；固定依赖快照仅用于用户明确要求的历史环境复现，不作为普通任务门槛。将计算准备交给 `scripts/agent_runtime.py`；不要要求普通用户写脚本、设置 Python 路径或在终端安装依赖。宿主能力边界见 [platform-runtime.md](references/platform-runtime.md)。
 
-尾部影响大时，可开展源内敏感性分析，记录删去观测后规则文字变化；这是诊断，不据此删除 evaluation 记录。有限样本可另做用户定义的重复分组交叉验证，仍须每折内拟合变换和规则；它不是原论文划分的替代复现。
+## 按需读取
 
-## 5. 多目标、迁移与生成
-
-每个模型要求显式来源、目标性质、方向、tier 与 cutoff。优先使用该性质实测数据得到的规则。Tg→TC、EC→介电常数等跨性质应用必须明确标为 transfer hypothesis；论文报告某个数据上的关系，不保证对所有新来源有效。不得把 Tg cutoff 写成 TC 单位，或把 EC 模型当成介电常数模型。不能静默路由未知性质。
-
-同性质跨来源评价需检查同结构/原始材料重叠与条件；`fixed_train` 与 `dataset_relative` 分开。后者只改变评价标签，不重新学习规则，必须标注实际阈值。原始结构相同但 H-cap 不同、或相反，都不能靠随机 ID 证明无重叠。
-
-对同一候选逐条应用多个冻结模型，保留每项状态、失败条件和 AND 交集。无配对标签不计算真实性能联合指标，不相乘 Precision；冲突 bit 原样报告，不能为了非空交集删规则。
-
-导出约束时保留全部家族、代表规则、精确 bit 和 AND 关系。MACCS 特殊计数/逻辑不可随意改成单 SMARTS 或编造化学名称。宿主 LLM 负责提案，不是内置生成模型。保留生成预算、全部原提案与失败记录，再 H-cap、MACCS、规则核验。最终 `results.csv` 使用原始星号结构；审计副本可含 H-cap。
-
-## 6. 交付
-
-输出应回答输入、目的、实际执行、选中数、规则、物理数值阈值和证据限制。交付冻结模型、规则家族、候选结果、审计、tier cutoff 表、评价状态、运行记录及可执行约束。试用档案可作为历史证据，不能写成每次重新完成；用户测量表和逐材料数据不写入 skill。保存结果到用户指定位置。
-
-## 资源
-
-- `scripts/stca_runtime.py`：锁定作者核心与运行记录。
-- `scripts/setup_locked_environment.py`：独立环境；原依赖锁表。
-- `scripts/prepare_hcap.py`、`scripts/stca_io.py`、`scripts/audit_dataset.py`：结构及 CSV 边界。
-- `scripts/data_readiness.py`：源内目标尺度、扫描网格与评价支持量诊断。
-- `scripts/data_cleaning.py`：自动排除不可用观察，保留原行、原因及映射。
-- `scripts/auto_screen.py`：自动清理、ECFP4角色、源内变换/步长/配置与档位建议、冻结评价和可选候选筛选。
-- `scripts/custom_fit.py`：自定义性质拟合、冻结与评价。
-- `scripts/evaluate_custom.py`：同性质有标签新来源的冻结评价，复用变换与单位。
-- `scripts/stca_tools.py`：论文/自定义模型筛选、精确约束、同候选交集。
+- [agent_workflows.md](references/agent_workflows.md)：三路径内部步骤、命令和交付。
+- [platform-runtime.md](references/platform-runtime.md)：agent 自动发现/准备后台，及纯对话宿主的使用方式。
+- [algorithm.md](references/algorithm.md)、[custom_data.md](references/custom_data.md)：原算法、角色、源内适配和评价细节。
+- [commands.md](references/commands.md)：低层命令；[provenance.md](references/provenance.md)：来源与版本。
+- [case_studies.md](references/case_studies.md)、[validation.md](references/validation.md)：数据集案例与实际验证；[generation.md](references/generation.md)：生成约束语义。

@@ -3,9 +3,9 @@
   "package_version": "0.1.0",
   "frontmatter": {
     "name": "stca",
-    "description": "Use STCA to apply published polymer substructure rules with explicit percentage tiers, derive new readable rule families from user-supplied measured data, and verify rule-guided candidates. Trigger on STCA、滑动阈值相关分析、聚合物子结构筛选、规则提取、候选设计、生成约束. Preserve H-cap and the pinned implementation."
+    "description": "Use STCA to select bundled polymer screening rules, learn readable rules from uploaded measured or computed CSV data, and export complete generation prompts for the current or another LLM. Preserve original repeat-unit SMILES; verify candidates against exact frozen conditions. Triggers: STCA、聚合物筛选、规则提取、生成prompt。"
   },
-  "entry_note": "本包用于 DeepSeek Harness。以当前 SKILL.md 所在目录定位资源；首次运行先读 references/platform-runtime.md，宿主安装与调用见 references/deepseek-harness.md。执行真实脚本并保留结果，不把文字推演当作已经运行。",
+  "entry_note": "先按 SKILL.md 选择现成规则、上传数据归纳规则或生成 prompt。现成规则和双语 prompt 位于 assets/rule_library。仅在计算时由宿主 agent 自动发现或准备后端，用户以自然语言调用，无需操作终端。安装入口见 references/deepseek-harness.md。",
   "official_docs": [
     "https://github.com/deepseek-ai/deepseek-harness/blob/master/README.zh.md",
     "https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/skill/skill-filesystem/README.zh.md"

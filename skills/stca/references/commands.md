@@ -12,16 +12,9 @@
 
 ## 环境
 
-从当前 `SKILL.md` 位置获得 `SKILL_DIR`。首次准备全新目录：
+本文供宿主 agent 调用后端时参考。面向用户的入口是自然语言任务；无需把本页命令、Python 路径或安装步骤转交给用户。优先使用 [agent_workflows.md](agent_workflows.md) 的三个完整流程。
 
-```bash
-python3.12 "$SKILL_DIR/scripts/setup_locked_environment.py" --env-dir "$HOME/.venvs/stca-0.1.0" > stca-setup.json
-STCA_PY="$(python3.12 -c 'import json; print(json.load(open("stca-setup.json"))["python"])')"
-export STCA_SOURCE="$(python3.12 -c 'import json; print(json.load(open("stca-setup.json"))["source"])')"
-"$STCA_PY" "$SKILL_DIR/scripts/stca_runtime.py" doctor
-```
-
-若已安装直接复用，不覆盖旧环境。所有输出目录/文件用新路径，输入只读。锁定源码无修改；源码已有可显式 `--source` 指定。
+以当前 SKILL.md 所在目录定位资源。宿主通过 `scripts/agent_runtime.py run --script <后端脚本> -- <参数>` 自动复用或准备计算环境。内部低层命令中的 `STCA_PY` 与 `STCA_SOURCE` 由宿主从运行回执读取。所有输出写入新的任务目录，输入只读。 默认使用 Python 3.10 及以上的兼容后台，按所需功能检查复用现有依赖；固定历史依赖环境为显式复现选项。STCA 使用 CPU，用户无需自行选择解释器或配置 GPU。
 
 ## 论文冻结筛选
 

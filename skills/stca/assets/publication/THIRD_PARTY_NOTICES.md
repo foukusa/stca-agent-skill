@@ -8,7 +8,7 @@
 - Package version at this revision: `1.0`
 - License source: <https://github.com/foukusa/polymer-stca/blob/5951b0ef23d63edc8f7e803aaaffa5e4168288f6/LICENSE>
 
-The agent integration calls this pinned implementation. The original algorithm source, pretrained model files and measured research tables are not vendored into the skill package. Initial setup obtains the author repository separately. Obtaining or using that repository remains subject to its terms.
+The agent integration calls this pinned implementation. The original algorithm source, full pretrained model files and measured research tables are not vendored into the skill package. The skill includes extracted frozen structure conditions and generation prompts, with their rule and data-source provenance. Initial setup obtains the author repository separately. Obtaining or using that repository remains subject to its terms.
 
 The upstream LICENSE at the pinned revision is reproduced unchanged below:
 

@@ -1,0 +1,72 @@
+{
+  "schema": "stca-runtime-compatibility-validation-v1",
+  "integration_version": "0.1.0",
+  "date": "2026-11-08",
+  "minimum_python": "3.10",
+  "ordinary_dependency_policy": "minimum compatible ranges; reuse before installation",
+  "hardware": "CPU, host LLM for generation; no local LLM deployment",
+  "actual_python": "3.10.22",
+  "older_compatible_stack": {
+    "numpy": "1.24.4",
+    "pandas": "2.0.3",
+    "scipy": "1.10.1",
+    "rdkit": "2023.9.1",
+    "scikit-learn": "1.5.2",
+    "threadpoolctl": "3.1.0"
+  },
+  "fresh_default_install": {
+    "executed": true,
+    "dependency_mode": "compatible",
+    "packages": {
+      "numpy": "2.2.6",
+      "pandas": "2.3.3",
+      "scipy": "1.15.3",
+      "rdkit": "2026.9.1",
+      "scikit-learn": "1.7.2",
+      "joblib": "1.6.0",
+      "threadpoolctl": "3.8.0",
+      "cloudpickle": "3.1.2"
+    },
+    "functional_checks": {
+      "maccs167_panel": {
+        "molecules": 24,
+        "bits": 167,
+        "reference_rdkit": "2025.09.4",
+        "scope": "Small functional panel; not universal cross-version equivalence."
+      },
+      "fit_apis": {
+        "numerical_apis": true,
+        "tsne_max_iter_api": true,
+        "thread_limit_api": true,
+        "ecfp4_radius": 2,
+        "ecfp4_bits": 2048
+      }
+    },
+    "ready": true
+  },
+  "test_results": {
+    "existing_functional_tests_on_older_stack": 29,
+    "existing_functional_tests_on_fresh_310_stack": 29,
+    "runtime_policy_tests": 16,
+    "older_stack_csv_learning_rows": 152,
+    "older_stack_tiers_learned": 5
+  },
+  "rule_library_unchanged": {
+    "rules": 77,
+    "bilingual_prompts": 154
+  },
+  "native_macos_runtime_tested": false,
+  "natural_language_acceptance": {
+    "completed": true,
+    "learned_tiers": [
+      0.1,
+      0.15
+    ],
+    "full_generation_prompt_exported": true,
+    "proposals_generated": 3,
+    "same_rule_structural_checks_passed": 3,
+    "original_star_smiles_preserved": true,
+    "user_shell_steps_required": false,
+    "interpretation": "Functional workflow validation; no property-success assertion."
+  }
+}

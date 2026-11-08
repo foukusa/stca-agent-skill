@@ -18,7 +18,7 @@ from stca_io import CSV_POLICY, read_csv_frame, read_csv_records
 
 UPSTREAM_URL = "https://github.com/foukusa/polymer-stca.git"
 UPSTREAM_COMMIT = "5951b0ef23d63edc8f7e803aaaffa5e4168288f6"
-RDKIT_VERSION = "2025.9.4"
+RDKIT_VERSION = "2025.9.4"  # historical reference only, not the ordinary compatibility gate
 
 
 def cache_root() -> Path:
@@ -119,12 +119,14 @@ def bootstrap(args) -> int:
     if check.returncode:
         subprocess.run([str(python), "-m", "pip", "install", "numpy>=1.24", "pandas>=2.0", "scipy>=1.10"], check=True)
     if args.chem:
+        compatibility = Path(__file__).resolve().with_name("runtime_compat.py")
         check = subprocess.run(
-            [str(python), "-c", "import rdkit; assert rdkit.__version__ == '2025.09.4'"],
+            [str(python), str(compatibility), "--mode", "chem"],
             capture_output=True,
         )
         if check.returncode:
-            subprocess.run([str(python), "-m", "pip", "install", f"rdkit=={RDKIT_VERSION}"], check=True)
+            subprocess.run([str(python), "-m", "pip", "install", "rdkit>=2023.9"], check=True)
+            subprocess.run([str(python), str(compatibility), "--mode", "chem"], check=True)
     # Run the receipt using the interpreter that subsequent skill commands must use.
     subprocess.run([str(python), str(Path(__file__).resolve()), "--source", str(root), "doctor"], check=True)
     return 0

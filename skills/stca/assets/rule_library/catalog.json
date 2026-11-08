@@ -1,0 +1,2387 @@
+{
+  "schema": "stca-rule-library-v1",
+  "version": "0.1.0",
+  "entries": [
+    {
+      "id": "paper-tg-high-30",
+      "title": "STCA paper: Glass-transition temperature, Top 30%",
+      "title_zh": "STCA paper：玻璃化转变温度，Top 30%",
+      "property": "Glass-transition temperature",
+      "property_zh": "玻璃化转变温度",
+      "direction": "high",
+      "tier": 0.3,
+      "unit": "degC",
+      "dataset": "STCA paper",
+      "preferred": true,
+      "constraints": "entries/paper-tg-high-30/constraints.json",
+      "prompts": {
+        "en": "entries/paper-tg-high-30/prompt.en.md",
+        "zh-CN": "entries/paper-tg-high-30/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "paper",
+        "dataset": "STCA published rules",
+        "profile": "tg-high",
+        "protocol": "paper",
+        "model_sha256": "e798299754d7a956c1afbc4c8be775002e125a7a0f7136270444be9e3bbf5827",
+        "citation": "https://github.com/foukusa/polymer-stca"
+      }
+    },
+    {
+      "id": "paper-tg-high-20",
+      "title": "STCA paper: Glass-transition temperature, Top 20%",
+      "title_zh": "STCA paper：玻璃化转变温度，Top 20%",
+      "property": "Glass-transition temperature",
+      "property_zh": "玻璃化转变温度",
+      "direction": "high",
+      "tier": 0.2,
+      "unit": "degC",
+      "dataset": "STCA paper",
+      "preferred": true,
+      "constraints": "entries/paper-tg-high-20/constraints.json",
+      "prompts": {
+        "en": "entries/paper-tg-high-20/prompt.en.md",
+        "zh-CN": "entries/paper-tg-high-20/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "paper",
+        "dataset": "STCA published rules",
+        "profile": "tg-high",
+        "protocol": "paper",
+        "model_sha256": "e798299754d7a956c1afbc4c8be775002e125a7a0f7136270444be9e3bbf5827",
+        "citation": "https://github.com/foukusa/polymer-stca"
+      }
+    },
+    {
+      "id": "paper-tg-high-10",
+      "title": "STCA paper: Glass-transition temperature, Top 10%",
+      "title_zh": "STCA paper：玻璃化转变温度，Top 10%",
+      "property": "Glass-transition temperature",
+      "property_zh": "玻璃化转变温度",
+      "direction": "high",
+      "tier": 0.1,
+      "unit": "degC",
+      "dataset": "STCA paper",
+      "preferred": true,
+      "constraints": "entries/paper-tg-high-10/constraints.json",
+      "prompts": {
+        "en": "entries/paper-tg-high-10/prompt.en.md",
+        "zh-CN": "entries/paper-tg-high-10/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "paper",
+        "dataset": "STCA published rules",
+        "profile": "tg-high",
+        "protocol": "paper",
+        "model_sha256": "e798299754d7a956c1afbc4c8be775002e125a7a0f7136270444be9e3bbf5827",
+        "citation": "https://github.com/foukusa/polymer-stca"
+      }
+    },
+    {
+      "id": "paper-ec-low-20",
+      "title": "STCA paper: Electrical conductivity, Bottom 20%",
+      "title_zh": "STCA paper：电导率，Bottom 20%",
+      "property": "Electrical conductivity",
+      "property_zh": "电导率",
+      "direction": "low",
+      "tier": 0.2,
+      "unit": "S/cm",
+      "dataset": "STCA paper",
+      "preferred": true,
+      "constraints": "entries/paper-ec-low-20/constraints.json",
+      "prompts": {
+        "en": "entries/paper-ec-low-20/prompt.en.md",
+        "zh-CN": "entries/paper-ec-low-20/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "paper",
+        "dataset": "STCA published rules",
+        "profile": "ec-low",
+        "protocol": "paper",
+        "model_sha256": "6d3524127ed65aae2e6f1f52035400ee114c56a2f1cb0beb31d0f7d0639ef56e",
+        "citation": "https://github.com/foukusa/polymer-stca"
+      }
+    },
+    {
+      "id": "paper-ec-low-15",
+      "title": "STCA paper: Electrical conductivity, Bottom 15%",
+      "title_zh": "STCA paper：电导率，Bottom 15%",
+      "property": "Electrical conductivity",
+      "property_zh": "电导率",
+      "direction": "low",
+      "tier": 0.15,
+      "unit": "S/cm",
+      "dataset": "STCA paper",
+      "preferred": true,
+      "constraints": "entries/paper-ec-low-15/constraints.json",
+      "prompts": {
+        "en": "entries/paper-ec-low-15/prompt.en.md",
+        "zh-CN": "entries/paper-ec-low-15/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "paper",
+        "dataset": "STCA published rules",
+        "profile": "ec-low",
+        "protocol": "paper",
+        "model_sha256": "6d3524127ed65aae2e6f1f52035400ee114c56a2f1cb0beb31d0f7d0639ef56e",
+        "citation": "https://github.com/foukusa/polymer-stca"
+      }
+    },
+    {
+      "id": "paper-ec-low-10",
+      "title": "STCA paper: Electrical conductivity, Bottom 10%",
+      "title_zh": "STCA paper：电导率，Bottom 10%",
+      "property": "Electrical conductivity",
+      "property_zh": "电导率",
+      "direction": "low",
+      "tier": 0.1,
+      "unit": "S/cm",
+      "dataset": "STCA paper",
+      "preferred": true,
+      "constraints": "entries/paper-ec-low-10/constraints.json",
+      "prompts": {
+        "en": "entries/paper-ec-low-10/prompt.en.md",
+        "zh-CN": "entries/paper-ec-low-10/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "paper",
+        "dataset": "STCA published rules",
+        "profile": "ec-low",
+        "protocol": "paper",
+        "model_sha256": "6d3524127ed65aae2e6f1f52035400ee114c56a2f1cb0beb31d0f7d0639ef56e",
+        "citation": "https://github.com/foukusa/polymer-stca"
+      }
+    },
+    {
+      "id": "paper-ec-low-5",
+      "title": "STCA paper: Electrical conductivity, Bottom 5%",
+      "title_zh": "STCA paper：电导率，Bottom 5%",
+      "property": "Electrical conductivity",
+      "property_zh": "电导率",
+      "direction": "low",
+      "tier": 0.05,
+      "unit": "S/cm",
+      "dataset": "STCA paper",
+      "preferred": true,
+      "constraints": "entries/paper-ec-low-5/constraints.json",
+      "prompts": {
+        "en": "entries/paper-ec-low-5/prompt.en.md",
+        "zh-CN": "entries/paper-ec-low-5/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "paper",
+        "dataset": "STCA published rules",
+        "profile": "ec-low",
+        "protocol": "paper",
+        "model_sha256": "6d3524127ed65aae2e6f1f52035400ee114c56a2f1cb0beb31d0f7d0639ef56e",
+        "citation": "https://github.com/foukusa/polymer-stca"
+      }
+    },
+    {
+      "id": "paper-ec-high-20",
+      "title": "STCA paper: Electrical conductivity, Top 20%",
+      "title_zh": "STCA paper：电导率，Top 20%",
+      "property": "Electrical conductivity",
+      "property_zh": "电导率",
+      "direction": "high",
+      "tier": 0.2,
+      "unit": "S/cm",
+      "dataset": "STCA paper",
+      "preferred": true,
+      "constraints": "entries/paper-ec-high-20/constraints.json",
+      "prompts": {
+        "en": "entries/paper-ec-high-20/prompt.en.md",
+        "zh-CN": "entries/paper-ec-high-20/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "paper",
+        "dataset": "STCA published rules",
+        "profile": "ec-high",
+        "protocol": "paper",
+        "model_sha256": "06a6d97e8161ef3cc8f1d4109f07ebacd59536c90ede529a24d97f3d80b9608e",
+        "citation": "https://github.com/foukusa/polymer-stca"
+      }
+    },
+    {
+      "id": "paper-ec-high-15",
+      "title": "STCA paper: Electrical conductivity, Top 15%",
+      "title_zh": "STCA paper：电导率，Top 15%",
+      "property": "Electrical conductivity",
+      "property_zh": "电导率",
+      "direction": "high",
+      "tier": 0.15,
+      "unit": "S/cm",
+      "dataset": "STCA paper",
+      "preferred": true,
+      "constraints": "entries/paper-ec-high-15/constraints.json",
+      "prompts": {
+        "en": "entries/paper-ec-high-15/prompt.en.md",
+        "zh-CN": "entries/paper-ec-high-15/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "paper",
+        "dataset": "STCA published rules",
+        "profile": "ec-high",
+        "protocol": "paper",
+        "model_sha256": "06a6d97e8161ef3cc8f1d4109f07ebacd59536c90ede529a24d97f3d80b9608e",
+        "citation": "https://github.com/foukusa/polymer-stca"
+      }
+    },
+    {
+      "id": "paper-ec-high-10",
+      "title": "STCA paper: Electrical conductivity, Top 10%",
+      "title_zh": "STCA paper：电导率，Top 10%",
+      "property": "Electrical conductivity",
+      "property_zh": "电导率",
+      "direction": "high",
+      "tier": 0.1,
+      "unit": "S/cm",
+      "dataset": "STCA paper",
+      "preferred": true,
+      "constraints": "entries/paper-ec-high-10/constraints.json",
+      "prompts": {
+        "en": "entries/paper-ec-high-10/prompt.en.md",
+        "zh-CN": "entries/paper-ec-high-10/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "paper",
+        "dataset": "STCA published rules",
+        "profile": "ec-high",
+        "protocol": "paper",
+        "model_sha256": "06a6d97e8161ef3cc8f1d4109f07ebacd59536c90ede529a24d97f3d80b9608e",
+        "citation": "https://github.com/foukusa/polymer-stca"
+      }
+    },
+    {
+      "id": "paper-ec-high-5",
+      "title": "STCA paper: Electrical conductivity, Top 5%",
+      "title_zh": "STCA paper：电导率，Top 5%",
+      "property": "Electrical conductivity",
+      "property_zh": "电导率",
+      "direction": "high",
+      "tier": 0.05,
+      "unit": "S/cm",
+      "dataset": "STCA paper",
+      "preferred": true,
+      "constraints": "entries/paper-ec-high-5/constraints.json",
+      "prompts": {
+        "en": "entries/paper-ec-high-5/prompt.en.md",
+        "zh-CN": "entries/paper-ec-high-5/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "paper",
+        "dataset": "STCA published rules",
+        "profile": "ec-high",
+        "protocol": "paper",
+        "model_sha256": "06a6d97e8161ef3cc8f1d4109f07ebacd59536c90ede529a24d97f3d80b9608e",
+        "citation": "https://github.com/foukusa/polymer-stca"
+      }
+    },
+    {
+      "id": "gas-co2-high-10",
+      "title": "GAS_CO2: CO2 permeability, Top 10%",
+      "title_zh": "GAS_CO2：CO₂ 渗透率，Top 10%",
+      "property": "CO2 permeability",
+      "property_zh": "CO₂ 渗透率",
+      "direction": "high",
+      "tier": 0.1,
+      "unit": "Barrer",
+      "dataset": "GAS_CO2",
+      "preferred": true,
+      "constraints": "entries/gas-co2-high-10/constraints.json",
+      "prompts": {
+        "en": "entries/gas-co2-high-10/prompt.en.md",
+        "zh-CN": "entries/gas-co2-high-10/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "GAS_CO2",
+        "data_kind": "experimental",
+        "citation": "https://github.com/jsunn-y/PolymerGasMembraneML/blob/30981d71e1e3f12a057e009cd79f119bc659c7f5/datasets/datasetA_imputed_all.csv",
+        "source_paper_doi": "10.1126/sciadv.abn9545",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "1e86df09d76fa49d0c679c294e1133cabca497319aa4a7be51aa7c1c50c0e1d4",
+        "source_data_commit": "30981d71e1e3f12a057e009cd79f119bc659c7f5"
+      }
+    },
+    {
+      "id": "gas-co2-high-15",
+      "title": "GAS_CO2: CO2 permeability, Top 15%",
+      "title_zh": "GAS_CO2：CO₂ 渗透率，Top 15%",
+      "property": "CO2 permeability",
+      "property_zh": "CO₂ 渗透率",
+      "direction": "high",
+      "tier": 0.15,
+      "unit": "Barrer",
+      "dataset": "GAS_CO2",
+      "preferred": true,
+      "constraints": "entries/gas-co2-high-15/constraints.json",
+      "prompts": {
+        "en": "entries/gas-co2-high-15/prompt.en.md",
+        "zh-CN": "entries/gas-co2-high-15/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "GAS_CO2",
+        "data_kind": "experimental",
+        "citation": "https://github.com/jsunn-y/PolymerGasMembraneML/blob/30981d71e1e3f12a057e009cd79f119bc659c7f5/datasets/datasetA_imputed_all.csv",
+        "source_paper_doi": "10.1126/sciadv.abn9545",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "1e86df09d76fa49d0c679c294e1133cabca497319aa4a7be51aa7c1c50c0e1d4",
+        "source_data_commit": "30981d71e1e3f12a057e009cd79f119bc659c7f5"
+      }
+    },
+    {
+      "id": "gas-co2-high-20",
+      "title": "GAS_CO2: CO2 permeability, Top 20%",
+      "title_zh": "GAS_CO2：CO₂ 渗透率，Top 20%",
+      "property": "CO2 permeability",
+      "property_zh": "CO₂ 渗透率",
+      "direction": "high",
+      "tier": 0.2,
+      "unit": "Barrer",
+      "dataset": "GAS_CO2",
+      "preferred": true,
+      "constraints": "entries/gas-co2-high-20/constraints.json",
+      "prompts": {
+        "en": "entries/gas-co2-high-20/prompt.en.md",
+        "zh-CN": "entries/gas-co2-high-20/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "GAS_CO2",
+        "data_kind": "experimental",
+        "citation": "https://github.com/jsunn-y/PolymerGasMembraneML/blob/30981d71e1e3f12a057e009cd79f119bc659c7f5/datasets/datasetA_imputed_all.csv",
+        "source_paper_doi": "10.1126/sciadv.abn9545",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "1e86df09d76fa49d0c679c294e1133cabca497319aa4a7be51aa7c1c50c0e1d4",
+        "source_data_commit": "30981d71e1e3f12a057e009cd79f119bc659c7f5"
+      }
+    },
+    {
+      "id": "gas-co2-high-25",
+      "title": "GAS_CO2: CO2 permeability, Top 25%",
+      "title_zh": "GAS_CO2：CO₂ 渗透率，Top 25%",
+      "property": "CO2 permeability",
+      "property_zh": "CO₂ 渗透率",
+      "direction": "high",
+      "tier": 0.25,
+      "unit": "Barrer",
+      "dataset": "GAS_CO2",
+      "preferred": true,
+      "constraints": "entries/gas-co2-high-25/constraints.json",
+      "prompts": {
+        "en": "entries/gas-co2-high-25/prompt.en.md",
+        "zh-CN": "entries/gas-co2-high-25/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "GAS_CO2",
+        "data_kind": "experimental",
+        "citation": "https://github.com/jsunn-y/PolymerGasMembraneML/blob/30981d71e1e3f12a057e009cd79f119bc659c7f5/datasets/datasetA_imputed_all.csv",
+        "source_paper_doi": "10.1126/sciadv.abn9545",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "1e86df09d76fa49d0c679c294e1133cabca497319aa4a7be51aa7c1c50c0e1d4",
+        "source_data_commit": "30981d71e1e3f12a057e009cd79f119bc659c7f5"
+      }
+    },
+    {
+      "id": "gas-co2-high-30",
+      "title": "GAS_CO2: CO2 permeability, Top 30%",
+      "title_zh": "GAS_CO2：CO₂ 渗透率，Top 30%",
+      "property": "CO2 permeability",
+      "property_zh": "CO₂ 渗透率",
+      "direction": "high",
+      "tier": 0.3,
+      "unit": "Barrer",
+      "dataset": "GAS_CO2",
+      "preferred": true,
+      "constraints": "entries/gas-co2-high-30/constraints.json",
+      "prompts": {
+        "en": "entries/gas-co2-high-30/prompt.en.md",
+        "zh-CN": "entries/gas-co2-high-30/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "GAS_CO2",
+        "data_kind": "experimental",
+        "citation": "https://github.com/jsunn-y/PolymerGasMembraneML/blob/30981d71e1e3f12a057e009cd79f119bc659c7f5/datasets/datasetA_imputed_all.csv",
+        "source_paper_doi": "10.1126/sciadv.abn9545",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "1e86df09d76fa49d0c679c294e1133cabca497319aa4a7be51aa7c1c50c0e1d4",
+        "source_data_commit": "30981d71e1e3f12a057e009cd79f119bc659c7f5"
+      }
+    },
+    {
+      "id": "gas-o2-high-10",
+      "title": "GAS_O2: O2 permeability, Top 10%",
+      "title_zh": "GAS_O2：O₂ 渗透率，Top 10%",
+      "property": "O2 permeability",
+      "property_zh": "O₂ 渗透率",
+      "direction": "high",
+      "tier": 0.1,
+      "unit": "Barrer",
+      "dataset": "GAS_O2",
+      "preferred": true,
+      "constraints": "entries/gas-o2-high-10/constraints.json",
+      "prompts": {
+        "en": "entries/gas-o2-high-10/prompt.en.md",
+        "zh-CN": "entries/gas-o2-high-10/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "GAS_O2",
+        "data_kind": "experimental",
+        "citation": "https://github.com/jsunn-y/PolymerGasMembraneML/blob/30981d71e1e3f12a057e009cd79f119bc659c7f5/datasets/datasetA_imputed_all.csv",
+        "source_paper_doi": "10.1126/sciadv.abn9545",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "4683b1b4252fa536476d98d2c9c2eb1ded9d2ac9d2461deb3c3136de1aab9dcd",
+        "source_data_commit": "30981d71e1e3f12a057e009cd79f119bc659c7f5"
+      }
+    },
+    {
+      "id": "gas-o2-high-15",
+      "title": "GAS_O2: O2 permeability, Top 15%",
+      "title_zh": "GAS_O2：O₂ 渗透率，Top 15%",
+      "property": "O2 permeability",
+      "property_zh": "O₂ 渗透率",
+      "direction": "high",
+      "tier": 0.15,
+      "unit": "Barrer",
+      "dataset": "GAS_O2",
+      "preferred": true,
+      "constraints": "entries/gas-o2-high-15/constraints.json",
+      "prompts": {
+        "en": "entries/gas-o2-high-15/prompt.en.md",
+        "zh-CN": "entries/gas-o2-high-15/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "GAS_O2",
+        "data_kind": "experimental",
+        "citation": "https://github.com/jsunn-y/PolymerGasMembraneML/blob/30981d71e1e3f12a057e009cd79f119bc659c7f5/datasets/datasetA_imputed_all.csv",
+        "source_paper_doi": "10.1126/sciadv.abn9545",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "4683b1b4252fa536476d98d2c9c2eb1ded9d2ac9d2461deb3c3136de1aab9dcd",
+        "source_data_commit": "30981d71e1e3f12a057e009cd79f119bc659c7f5"
+      }
+    },
+    {
+      "id": "gas-o2-high-20",
+      "title": "GAS_O2: O2 permeability, Top 20%",
+      "title_zh": "GAS_O2：O₂ 渗透率，Top 20%",
+      "property": "O2 permeability",
+      "property_zh": "O₂ 渗透率",
+      "direction": "high",
+      "tier": 0.2,
+      "unit": "Barrer",
+      "dataset": "GAS_O2",
+      "preferred": true,
+      "constraints": "entries/gas-o2-high-20/constraints.json",
+      "prompts": {
+        "en": "entries/gas-o2-high-20/prompt.en.md",
+        "zh-CN": "entries/gas-o2-high-20/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "GAS_O2",
+        "data_kind": "experimental",
+        "citation": "https://github.com/jsunn-y/PolymerGasMembraneML/blob/30981d71e1e3f12a057e009cd79f119bc659c7f5/datasets/datasetA_imputed_all.csv",
+        "source_paper_doi": "10.1126/sciadv.abn9545",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "4683b1b4252fa536476d98d2c9c2eb1ded9d2ac9d2461deb3c3136de1aab9dcd",
+        "source_data_commit": "30981d71e1e3f12a057e009cd79f119bc659c7f5"
+      }
+    },
+    {
+      "id": "gas-o2-high-25",
+      "title": "GAS_O2: O2 permeability, Top 25%",
+      "title_zh": "GAS_O2：O₂ 渗透率，Top 25%",
+      "property": "O2 permeability",
+      "property_zh": "O₂ 渗透率",
+      "direction": "high",
+      "tier": 0.25,
+      "unit": "Barrer",
+      "dataset": "GAS_O2",
+      "preferred": true,
+      "constraints": "entries/gas-o2-high-25/constraints.json",
+      "prompts": {
+        "en": "entries/gas-o2-high-25/prompt.en.md",
+        "zh-CN": "entries/gas-o2-high-25/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "GAS_O2",
+        "data_kind": "experimental",
+        "citation": "https://github.com/jsunn-y/PolymerGasMembraneML/blob/30981d71e1e3f12a057e009cd79f119bc659c7f5/datasets/datasetA_imputed_all.csv",
+        "source_paper_doi": "10.1126/sciadv.abn9545",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "4683b1b4252fa536476d98d2c9c2eb1ded9d2ac9d2461deb3c3136de1aab9dcd",
+        "source_data_commit": "30981d71e1e3f12a057e009cd79f119bc659c7f5"
+      }
+    },
+    {
+      "id": "gas-o2-high-30",
+      "title": "GAS_O2: O2 permeability, Top 30%",
+      "title_zh": "GAS_O2：O₂ 渗透率，Top 30%",
+      "property": "O2 permeability",
+      "property_zh": "O₂ 渗透率",
+      "direction": "high",
+      "tier": 0.3,
+      "unit": "Barrer",
+      "dataset": "GAS_O2",
+      "preferred": true,
+      "constraints": "entries/gas-o2-high-30/constraints.json",
+      "prompts": {
+        "en": "entries/gas-o2-high-30/prompt.en.md",
+        "zh-CN": "entries/gas-o2-high-30/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "GAS_O2",
+        "data_kind": "experimental",
+        "citation": "https://github.com/jsunn-y/PolymerGasMembraneML/blob/30981d71e1e3f12a057e009cd79f119bc659c7f5/datasets/datasetA_imputed_all.csv",
+        "source_paper_doi": "10.1126/sciadv.abn9545",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "4683b1b4252fa536476d98d2c9c2eb1ded9d2ac9d2461deb3c3136de1aab9dcd",
+        "source_data_commit": "30981d71e1e3f12a057e009cd79f119bc659c7f5"
+      }
+    },
+    {
+      "id": "radonpy-tc-high-10",
+      "title": "PI_TC: Thermal conductivity, Top 10%",
+      "title_zh": "PI_TC：热导率，Top 10%",
+      "property": "Thermal conductivity",
+      "property_zh": "热导率",
+      "direction": "high",
+      "tier": 0.1,
+      "unit": "W/(m K)",
+      "dataset": "PI_TC",
+      "preferred": true,
+      "constraints": "entries/radonpy-tc-high-10/constraints.json",
+      "prompts": {
+        "en": "entries/radonpy-tc-high-10/prompt.en.md",
+        "zh-CN": "entries/radonpy-tc-high-10/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "PI_TC",
+        "data_kind": "MD (RadonPy)",
+        "citation": "https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv",
+        "source_paper_doi": "10.1038/s41524-022-00906-4",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "a0612a8b9ab9e8e3cbd14bbf263d091d4a1ce903ae5a107a9a998a616ffc3a28",
+        "source_data_commit": "db5732b7fdd0b656d9c06d89151066d1edfbe911"
+      }
+    },
+    {
+      "id": "radonpy-tc-high-15",
+      "title": "PI_TC: Thermal conductivity, Top 15%",
+      "title_zh": "PI_TC：热导率，Top 15%",
+      "property": "Thermal conductivity",
+      "property_zh": "热导率",
+      "direction": "high",
+      "tier": 0.15,
+      "unit": "W/(m K)",
+      "dataset": "PI_TC",
+      "preferred": true,
+      "constraints": "entries/radonpy-tc-high-15/constraints.json",
+      "prompts": {
+        "en": "entries/radonpy-tc-high-15/prompt.en.md",
+        "zh-CN": "entries/radonpy-tc-high-15/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "PI_TC",
+        "data_kind": "MD (RadonPy)",
+        "citation": "https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv",
+        "source_paper_doi": "10.1038/s41524-022-00906-4",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "a0612a8b9ab9e8e3cbd14bbf263d091d4a1ce903ae5a107a9a998a616ffc3a28",
+        "source_data_commit": "db5732b7fdd0b656d9c06d89151066d1edfbe911"
+      }
+    },
+    {
+      "id": "radonpy-tc-high-20",
+      "title": "PI_TC: Thermal conductivity, Top 20%",
+      "title_zh": "PI_TC：热导率，Top 20%",
+      "property": "Thermal conductivity",
+      "property_zh": "热导率",
+      "direction": "high",
+      "tier": 0.2,
+      "unit": "W/(m K)",
+      "dataset": "PI_TC",
+      "preferred": true,
+      "constraints": "entries/radonpy-tc-high-20/constraints.json",
+      "prompts": {
+        "en": "entries/radonpy-tc-high-20/prompt.en.md",
+        "zh-CN": "entries/radonpy-tc-high-20/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "PI_TC",
+        "data_kind": "MD (RadonPy)",
+        "citation": "https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv",
+        "source_paper_doi": "10.1038/s41524-022-00906-4",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "a0612a8b9ab9e8e3cbd14bbf263d091d4a1ce903ae5a107a9a998a616ffc3a28",
+        "source_data_commit": "db5732b7fdd0b656d9c06d89151066d1edfbe911"
+      }
+    },
+    {
+      "id": "radonpy-tc-high-25",
+      "title": "PI_TC: Thermal conductivity, Top 25%",
+      "title_zh": "PI_TC：热导率，Top 25%",
+      "property": "Thermal conductivity",
+      "property_zh": "热导率",
+      "direction": "high",
+      "tier": 0.25,
+      "unit": "W/(m K)",
+      "dataset": "PI_TC",
+      "preferred": true,
+      "constraints": "entries/radonpy-tc-high-25/constraints.json",
+      "prompts": {
+        "en": "entries/radonpy-tc-high-25/prompt.en.md",
+        "zh-CN": "entries/radonpy-tc-high-25/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "PI_TC",
+        "data_kind": "MD (RadonPy)",
+        "citation": "https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv",
+        "source_paper_doi": "10.1038/s41524-022-00906-4",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "a0612a8b9ab9e8e3cbd14bbf263d091d4a1ce903ae5a107a9a998a616ffc3a28",
+        "source_data_commit": "db5732b7fdd0b656d9c06d89151066d1edfbe911"
+      }
+    },
+    {
+      "id": "radonpy-tc-high-30",
+      "title": "PI_TC: Thermal conductivity, Top 30%",
+      "title_zh": "PI_TC：热导率，Top 30%",
+      "property": "Thermal conductivity",
+      "property_zh": "热导率",
+      "direction": "high",
+      "tier": 0.3,
+      "unit": "W/(m K)",
+      "dataset": "PI_TC",
+      "preferred": true,
+      "constraints": "entries/radonpy-tc-high-30/constraints.json",
+      "prompts": {
+        "en": "entries/radonpy-tc-high-30/prompt.en.md",
+        "zh-CN": "entries/radonpy-tc-high-30/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "PI_TC",
+        "data_kind": "MD (RadonPy)",
+        "citation": "https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv",
+        "source_paper_doi": "10.1038/s41524-022-00906-4",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "a0612a8b9ab9e8e3cbd14bbf263d091d4a1ce903ae5a107a9a998a616ffc3a28",
+        "source_data_commit": "db5732b7fdd0b656d9c06d89151066d1edfbe911"
+      }
+    },
+    {
+      "id": "radonpy-ri-high-10",
+      "title": "PI_RI: Refractive index, Top 10%",
+      "title_zh": "PI_RI：折射率，Top 10%",
+      "property": "Refractive index",
+      "property_zh": "折射率",
+      "direction": "high",
+      "tier": 0.1,
+      "unit": "dimensionless",
+      "dataset": "PI_RI",
+      "preferred": true,
+      "constraints": "entries/radonpy-ri-high-10/constraints.json",
+      "prompts": {
+        "en": "entries/radonpy-ri-high-10/prompt.en.md",
+        "zh-CN": "entries/radonpy-ri-high-10/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "PI_RI",
+        "data_kind": "MD (RadonPy)",
+        "citation": "https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv",
+        "source_paper_doi": "10.1038/s41524-022-00906-4",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "72c7eded572000abc93b8770d4518630a148f85e4b95c374207e36fa15937495",
+        "source_data_commit": "db5732b7fdd0b656d9c06d89151066d1edfbe911"
+      }
+    },
+    {
+      "id": "radonpy-ri-high-15",
+      "title": "PI_RI: Refractive index, Top 15%",
+      "title_zh": "PI_RI：折射率，Top 15%",
+      "property": "Refractive index",
+      "property_zh": "折射率",
+      "direction": "high",
+      "tier": 0.15,
+      "unit": "dimensionless",
+      "dataset": "PI_RI",
+      "preferred": true,
+      "constraints": "entries/radonpy-ri-high-15/constraints.json",
+      "prompts": {
+        "en": "entries/radonpy-ri-high-15/prompt.en.md",
+        "zh-CN": "entries/radonpy-ri-high-15/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "PI_RI",
+        "data_kind": "MD (RadonPy)",
+        "citation": "https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv",
+        "source_paper_doi": "10.1038/s41524-022-00906-4",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "72c7eded572000abc93b8770d4518630a148f85e4b95c374207e36fa15937495",
+        "source_data_commit": "db5732b7fdd0b656d9c06d89151066d1edfbe911"
+      }
+    },
+    {
+      "id": "radonpy-ri-high-20",
+      "title": "PI_RI: Refractive index, Top 20%",
+      "title_zh": "PI_RI：折射率，Top 20%",
+      "property": "Refractive index",
+      "property_zh": "折射率",
+      "direction": "high",
+      "tier": 0.2,
+      "unit": "dimensionless",
+      "dataset": "PI_RI",
+      "preferred": true,
+      "constraints": "entries/radonpy-ri-high-20/constraints.json",
+      "prompts": {
+        "en": "entries/radonpy-ri-high-20/prompt.en.md",
+        "zh-CN": "entries/radonpy-ri-high-20/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "PI_RI",
+        "data_kind": "MD (RadonPy)",
+        "citation": "https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv",
+        "source_paper_doi": "10.1038/s41524-022-00906-4",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "72c7eded572000abc93b8770d4518630a148f85e4b95c374207e36fa15937495",
+        "source_data_commit": "db5732b7fdd0b656d9c06d89151066d1edfbe911"
+      }
+    },
+    {
+      "id": "radonpy-ri-high-25",
+      "title": "PI_RI: Refractive index, Top 25%",
+      "title_zh": "PI_RI：折射率，Top 25%",
+      "property": "Refractive index",
+      "property_zh": "折射率",
+      "direction": "high",
+      "tier": 0.25,
+      "unit": "dimensionless",
+      "dataset": "PI_RI",
+      "preferred": true,
+      "constraints": "entries/radonpy-ri-high-25/constraints.json",
+      "prompts": {
+        "en": "entries/radonpy-ri-high-25/prompt.en.md",
+        "zh-CN": "entries/radonpy-ri-high-25/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "PI_RI",
+        "data_kind": "MD (RadonPy)",
+        "citation": "https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv",
+        "source_paper_doi": "10.1038/s41524-022-00906-4",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "72c7eded572000abc93b8770d4518630a148f85e4b95c374207e36fa15937495",
+        "source_data_commit": "db5732b7fdd0b656d9c06d89151066d1edfbe911"
+      }
+    },
+    {
+      "id": "radonpy-ri-high-30",
+      "title": "PI_RI: Refractive index, Top 30%",
+      "title_zh": "PI_RI：折射率，Top 30%",
+      "property": "Refractive index",
+      "property_zh": "折射率",
+      "direction": "high",
+      "tier": 0.3,
+      "unit": "dimensionless",
+      "dataset": "PI_RI",
+      "preferred": true,
+      "constraints": "entries/radonpy-ri-high-30/constraints.json",
+      "prompts": {
+        "en": "entries/radonpy-ri-high-30/prompt.en.md",
+        "zh-CN": "entries/radonpy-ri-high-30/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "PI_RI",
+        "data_kind": "MD (RadonPy)",
+        "citation": "https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv",
+        "source_paper_doi": "10.1038/s41524-022-00906-4",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "72c7eded572000abc93b8770d4518630a148f85e4b95c374207e36fa15937495",
+        "source_data_commit": "db5732b7fdd0b656d9c06d89151066d1edfbe911"
+      }
+    },
+    {
+      "id": "radonpy-density-high-10",
+      "title": "PI_RHO: Density, Top 10%",
+      "title_zh": "PI_RHO：密度，Top 10%",
+      "property": "Density",
+      "property_zh": "密度",
+      "direction": "high",
+      "tier": 0.1,
+      "unit": "g/cm3",
+      "dataset": "PI_RHO",
+      "preferred": true,
+      "constraints": "entries/radonpy-density-high-10/constraints.json",
+      "prompts": {
+        "en": "entries/radonpy-density-high-10/prompt.en.md",
+        "zh-CN": "entries/radonpy-density-high-10/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "PI_RHO",
+        "data_kind": "MD (RadonPy)",
+        "citation": "https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv",
+        "source_paper_doi": "10.1038/s41524-022-00906-4",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "3a09cefe72a5bb2ad346c72eb783555c2d48678538a90ff77e719a629f591fe3",
+        "source_data_commit": "db5732b7fdd0b656d9c06d89151066d1edfbe911"
+      }
+    },
+    {
+      "id": "radonpy-density-high-15",
+      "title": "PI_RHO: Density, Top 15%",
+      "title_zh": "PI_RHO：密度，Top 15%",
+      "property": "Density",
+      "property_zh": "密度",
+      "direction": "high",
+      "tier": 0.15,
+      "unit": "g/cm3",
+      "dataset": "PI_RHO",
+      "preferred": true,
+      "constraints": "entries/radonpy-density-high-15/constraints.json",
+      "prompts": {
+        "en": "entries/radonpy-density-high-15/prompt.en.md",
+        "zh-CN": "entries/radonpy-density-high-15/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "PI_RHO",
+        "data_kind": "MD (RadonPy)",
+        "citation": "https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv",
+        "source_paper_doi": "10.1038/s41524-022-00906-4",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "3a09cefe72a5bb2ad346c72eb783555c2d48678538a90ff77e719a629f591fe3",
+        "source_data_commit": "db5732b7fdd0b656d9c06d89151066d1edfbe911"
+      }
+    },
+    {
+      "id": "radonpy-density-high-20",
+      "title": "PI_RHO: Density, Top 20%",
+      "title_zh": "PI_RHO：密度，Top 20%",
+      "property": "Density",
+      "property_zh": "密度",
+      "direction": "high",
+      "tier": 0.2,
+      "unit": "g/cm3",
+      "dataset": "PI_RHO",
+      "preferred": true,
+      "constraints": "entries/radonpy-density-high-20/constraints.json",
+      "prompts": {
+        "en": "entries/radonpy-density-high-20/prompt.en.md",
+        "zh-CN": "entries/radonpy-density-high-20/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "PI_RHO",
+        "data_kind": "MD (RadonPy)",
+        "citation": "https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv",
+        "source_paper_doi": "10.1038/s41524-022-00906-4",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "3a09cefe72a5bb2ad346c72eb783555c2d48678538a90ff77e719a629f591fe3",
+        "source_data_commit": "db5732b7fdd0b656d9c06d89151066d1edfbe911"
+      }
+    },
+    {
+      "id": "radonpy-density-high-25",
+      "title": "PI_RHO: Density, Top 25%",
+      "title_zh": "PI_RHO：密度，Top 25%",
+      "property": "Density",
+      "property_zh": "密度",
+      "direction": "high",
+      "tier": 0.25,
+      "unit": "g/cm3",
+      "dataset": "PI_RHO",
+      "preferred": true,
+      "constraints": "entries/radonpy-density-high-25/constraints.json",
+      "prompts": {
+        "en": "entries/radonpy-density-high-25/prompt.en.md",
+        "zh-CN": "entries/radonpy-density-high-25/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "PI_RHO",
+        "data_kind": "MD (RadonPy)",
+        "citation": "https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv",
+        "source_paper_doi": "10.1038/s41524-022-00906-4",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "3a09cefe72a5bb2ad346c72eb783555c2d48678538a90ff77e719a629f591fe3",
+        "source_data_commit": "db5732b7fdd0b656d9c06d89151066d1edfbe911"
+      }
+    },
+    {
+      "id": "radonpy-density-high-30",
+      "title": "PI_RHO: Density, Top 30%",
+      "title_zh": "PI_RHO：密度，Top 30%",
+      "property": "Density",
+      "property_zh": "密度",
+      "direction": "high",
+      "tier": 0.3,
+      "unit": "g/cm3",
+      "dataset": "PI_RHO",
+      "preferred": true,
+      "constraints": "entries/radonpy-density-high-30/constraints.json",
+      "prompts": {
+        "en": "entries/radonpy-density-high-30/prompt.en.md",
+        "zh-CN": "entries/radonpy-density-high-30/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "PI_RHO",
+        "data_kind": "MD (RadonPy)",
+        "citation": "https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv",
+        "source_paper_doi": "10.1038/s41524-022-00906-4",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "3a09cefe72a5bb2ad346c72eb783555c2d48678538a90ff77e719a629f591fe3",
+        "source_data_commit": "db5732b7fdd0b656d9c06d89151066d1edfbe911"
+      }
+    },
+    {
+      "id": "radonpy-cp-high-10",
+      "title": "PI_CP: Specific heat, Top 10%",
+      "title_zh": "PI_CP：比热容，Top 10%",
+      "property": "Specific heat",
+      "property_zh": "比热容",
+      "direction": "high",
+      "tier": 0.1,
+      "unit": "J/(kg K)",
+      "dataset": "PI_CP",
+      "preferred": true,
+      "constraints": "entries/radonpy-cp-high-10/constraints.json",
+      "prompts": {
+        "en": "entries/radonpy-cp-high-10/prompt.en.md",
+        "zh-CN": "entries/radonpy-cp-high-10/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "PI_CP",
+        "data_kind": "MD (RadonPy)",
+        "citation": "https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv",
+        "source_paper_doi": "10.1038/s41524-022-00906-4",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "6c0b45e997e9988081742a060bc5c9d87cbead467531351a0245264e116e2194",
+        "source_data_commit": "db5732b7fdd0b656d9c06d89151066d1edfbe911"
+      }
+    },
+    {
+      "id": "radonpy-cp-high-15",
+      "title": "PI_CP: Specific heat, Top 15%",
+      "title_zh": "PI_CP：比热容，Top 15%",
+      "property": "Specific heat",
+      "property_zh": "比热容",
+      "direction": "high",
+      "tier": 0.15,
+      "unit": "J/(kg K)",
+      "dataset": "PI_CP",
+      "preferred": true,
+      "constraints": "entries/radonpy-cp-high-15/constraints.json",
+      "prompts": {
+        "en": "entries/radonpy-cp-high-15/prompt.en.md",
+        "zh-CN": "entries/radonpy-cp-high-15/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "PI_CP",
+        "data_kind": "MD (RadonPy)",
+        "citation": "https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv",
+        "source_paper_doi": "10.1038/s41524-022-00906-4",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "6c0b45e997e9988081742a060bc5c9d87cbead467531351a0245264e116e2194",
+        "source_data_commit": "db5732b7fdd0b656d9c06d89151066d1edfbe911"
+      }
+    },
+    {
+      "id": "radonpy-cp-high-20",
+      "title": "PI_CP: Specific heat, Top 20%",
+      "title_zh": "PI_CP：比热容，Top 20%",
+      "property": "Specific heat",
+      "property_zh": "比热容",
+      "direction": "high",
+      "tier": 0.2,
+      "unit": "J/(kg K)",
+      "dataset": "PI_CP",
+      "preferred": true,
+      "constraints": "entries/radonpy-cp-high-20/constraints.json",
+      "prompts": {
+        "en": "entries/radonpy-cp-high-20/prompt.en.md",
+        "zh-CN": "entries/radonpy-cp-high-20/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "PI_CP",
+        "data_kind": "MD (RadonPy)",
+        "citation": "https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv",
+        "source_paper_doi": "10.1038/s41524-022-00906-4",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "6c0b45e997e9988081742a060bc5c9d87cbead467531351a0245264e116e2194",
+        "source_data_commit": "db5732b7fdd0b656d9c06d89151066d1edfbe911"
+      }
+    },
+    {
+      "id": "radonpy-cp-high-25",
+      "title": "PI_CP: Specific heat, Top 25%",
+      "title_zh": "PI_CP：比热容，Top 25%",
+      "property": "Specific heat",
+      "property_zh": "比热容",
+      "direction": "high",
+      "tier": 0.25,
+      "unit": "J/(kg K)",
+      "dataset": "PI_CP",
+      "preferred": true,
+      "constraints": "entries/radonpy-cp-high-25/constraints.json",
+      "prompts": {
+        "en": "entries/radonpy-cp-high-25/prompt.en.md",
+        "zh-CN": "entries/radonpy-cp-high-25/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "PI_CP",
+        "data_kind": "MD (RadonPy)",
+        "citation": "https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv",
+        "source_paper_doi": "10.1038/s41524-022-00906-4",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "6c0b45e997e9988081742a060bc5c9d87cbead467531351a0245264e116e2194",
+        "source_data_commit": "db5732b7fdd0b656d9c06d89151066d1edfbe911"
+      }
+    },
+    {
+      "id": "radonpy-cp-high-30",
+      "title": "PI_CP: Specific heat, Top 30%",
+      "title_zh": "PI_CP：比热容，Top 30%",
+      "property": "Specific heat",
+      "property_zh": "比热容",
+      "direction": "high",
+      "tier": 0.3,
+      "unit": "J/(kg K)",
+      "dataset": "PI_CP",
+      "preferred": true,
+      "constraints": "entries/radonpy-cp-high-30/constraints.json",
+      "prompts": {
+        "en": "entries/radonpy-cp-high-30/prompt.en.md",
+        "zh-CN": "entries/radonpy-cp-high-30/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "PI_CP",
+        "data_kind": "MD (RadonPy)",
+        "citation": "https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv",
+        "source_paper_doi": "10.1038/s41524-022-00906-4",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "6c0b45e997e9988081742a060bc5c9d87cbead467531351a0245264e116e2194",
+        "source_data_commit": "db5732b7fdd0b656d9c06d89151066d1edfbe911"
+      }
+    },
+    {
+      "id": "radonpy-dc-high-10",
+      "title": "PI_DC: Dielectric constant, Top 10%",
+      "title_zh": "PI_DC：介电常数，Top 10%",
+      "property": "Dielectric constant",
+      "property_zh": "介电常数",
+      "direction": "high",
+      "tier": 0.1,
+      "unit": "dimensionless",
+      "dataset": "PI_DC",
+      "preferred": true,
+      "constraints": "entries/radonpy-dc-high-10/constraints.json",
+      "prompts": {
+        "en": "entries/radonpy-dc-high-10/prompt.en.md",
+        "zh-CN": "entries/radonpy-dc-high-10/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "PI_DC",
+        "data_kind": "MD (RadonPy)",
+        "citation": "https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv",
+        "source_paper_doi": "10.1038/s41524-022-00906-4",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "bd87380a21474bd280717221f6c0a727062323547771866d393e75501a01940f",
+        "source_data_commit": "db5732b7fdd0b656d9c06d89151066d1edfbe911"
+      }
+    },
+    {
+      "id": "radonpy-dc-high-15",
+      "title": "PI_DC: Dielectric constant, Top 15%",
+      "title_zh": "PI_DC：介电常数，Top 15%",
+      "property": "Dielectric constant",
+      "property_zh": "介电常数",
+      "direction": "high",
+      "tier": 0.15,
+      "unit": "dimensionless",
+      "dataset": "PI_DC",
+      "preferred": true,
+      "constraints": "entries/radonpy-dc-high-15/constraints.json",
+      "prompts": {
+        "en": "entries/radonpy-dc-high-15/prompt.en.md",
+        "zh-CN": "entries/radonpy-dc-high-15/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "PI_DC",
+        "data_kind": "MD (RadonPy)",
+        "citation": "https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv",
+        "source_paper_doi": "10.1038/s41524-022-00906-4",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "bd87380a21474bd280717221f6c0a727062323547771866d393e75501a01940f",
+        "source_data_commit": "db5732b7fdd0b656d9c06d89151066d1edfbe911"
+      }
+    },
+    {
+      "id": "radonpy-dc-high-20",
+      "title": "PI_DC: Dielectric constant, Top 20%",
+      "title_zh": "PI_DC：介电常数，Top 20%",
+      "property": "Dielectric constant",
+      "property_zh": "介电常数",
+      "direction": "high",
+      "tier": 0.2,
+      "unit": "dimensionless",
+      "dataset": "PI_DC",
+      "preferred": true,
+      "constraints": "entries/radonpy-dc-high-20/constraints.json",
+      "prompts": {
+        "en": "entries/radonpy-dc-high-20/prompt.en.md",
+        "zh-CN": "entries/radonpy-dc-high-20/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "PI_DC",
+        "data_kind": "MD (RadonPy)",
+        "citation": "https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv",
+        "source_paper_doi": "10.1038/s41524-022-00906-4",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "bd87380a21474bd280717221f6c0a727062323547771866d393e75501a01940f",
+        "source_data_commit": "db5732b7fdd0b656d9c06d89151066d1edfbe911"
+      }
+    },
+    {
+      "id": "radonpy-dc-high-25",
+      "title": "PI_DC: Dielectric constant, Top 25%",
+      "title_zh": "PI_DC：介电常数，Top 25%",
+      "property": "Dielectric constant",
+      "property_zh": "介电常数",
+      "direction": "high",
+      "tier": 0.25,
+      "unit": "dimensionless",
+      "dataset": "PI_DC",
+      "preferred": true,
+      "constraints": "entries/radonpy-dc-high-25/constraints.json",
+      "prompts": {
+        "en": "entries/radonpy-dc-high-25/prompt.en.md",
+        "zh-CN": "entries/radonpy-dc-high-25/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "PI_DC",
+        "data_kind": "MD (RadonPy)",
+        "citation": "https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv",
+        "source_paper_doi": "10.1038/s41524-022-00906-4",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "bd87380a21474bd280717221f6c0a727062323547771866d393e75501a01940f",
+        "source_data_commit": "db5732b7fdd0b656d9c06d89151066d1edfbe911"
+      }
+    },
+    {
+      "id": "radonpy-dc-high-30",
+      "title": "PI_DC: Dielectric constant, Top 30%",
+      "title_zh": "PI_DC：介电常数，Top 30%",
+      "property": "Dielectric constant",
+      "property_zh": "介电常数",
+      "direction": "high",
+      "tier": 0.3,
+      "unit": "dimensionless",
+      "dataset": "PI_DC",
+      "preferred": true,
+      "constraints": "entries/radonpy-dc-high-30/constraints.json",
+      "prompts": {
+        "en": "entries/radonpy-dc-high-30/prompt.en.md",
+        "zh-CN": "entries/radonpy-dc-high-30/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "PI_DC",
+        "data_kind": "MD (RadonPy)",
+        "citation": "https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv",
+        "source_paper_doi": "10.1038/s41524-022-00906-4",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "bd87380a21474bd280717221f6c0a727062323547771866d393e75501a01940f",
+        "source_data_commit": "db5732b7fdd0b656d9c06d89151066d1edfbe911"
+      }
+    },
+    {
+      "id": "adept-tc-high-10",
+      "title": "AD_TC: Thermal conductivity, Top 10%",
+      "title_zh": "AD_TC：热导率，Top 10%",
+      "property": "Thermal conductivity",
+      "property_zh": "热导率",
+      "direction": "high",
+      "tier": 0.1,
+      "unit": "W/(m K)",
+      "dataset": "AD_TC",
+      "preferred": true,
+      "constraints": "entries/adept-tc-high-10/constraints.json",
+      "prompts": {
+        "en": "entries/adept-tc-high-10/prompt.en.md",
+        "zh-CN": "entries/adept-tc-high-10/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_TC",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/TC_MD.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "d150207bf2ce4a33388e0a0ee11d9b2413ac19b8faa486b89407018d2c32cdb5",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-tc-high-15",
+      "title": "AD_TC: Thermal conductivity, Top 15%",
+      "title_zh": "AD_TC：热导率，Top 15%",
+      "property": "Thermal conductivity",
+      "property_zh": "热导率",
+      "direction": "high",
+      "tier": 0.15,
+      "unit": "W/(m K)",
+      "dataset": "AD_TC",
+      "preferred": true,
+      "constraints": "entries/adept-tc-high-15/constraints.json",
+      "prompts": {
+        "en": "entries/adept-tc-high-15/prompt.en.md",
+        "zh-CN": "entries/adept-tc-high-15/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_TC",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/TC_MD.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "d150207bf2ce4a33388e0a0ee11d9b2413ac19b8faa486b89407018d2c32cdb5",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-tc-high-20",
+      "title": "AD_TC: Thermal conductivity, Top 20%",
+      "title_zh": "AD_TC：热导率，Top 20%",
+      "property": "Thermal conductivity",
+      "property_zh": "热导率",
+      "direction": "high",
+      "tier": 0.2,
+      "unit": "W/(m K)",
+      "dataset": "AD_TC",
+      "preferred": true,
+      "constraints": "entries/adept-tc-high-20/constraints.json",
+      "prompts": {
+        "en": "entries/adept-tc-high-20/prompt.en.md",
+        "zh-CN": "entries/adept-tc-high-20/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_TC",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/TC_MD.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "d150207bf2ce4a33388e0a0ee11d9b2413ac19b8faa486b89407018d2c32cdb5",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-tc-high-25",
+      "title": "AD_TC: Thermal conductivity, Top 25%",
+      "title_zh": "AD_TC：热导率，Top 25%",
+      "property": "Thermal conductivity",
+      "property_zh": "热导率",
+      "direction": "high",
+      "tier": 0.25,
+      "unit": "W/(m K)",
+      "dataset": "AD_TC",
+      "preferred": true,
+      "constraints": "entries/adept-tc-high-25/constraints.json",
+      "prompts": {
+        "en": "entries/adept-tc-high-25/prompt.en.md",
+        "zh-CN": "entries/adept-tc-high-25/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_TC",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/TC_MD.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "d150207bf2ce4a33388e0a0ee11d9b2413ac19b8faa486b89407018d2c32cdb5",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-tc-high-30",
+      "title": "AD_TC: Thermal conductivity, Top 30%",
+      "title_zh": "AD_TC：热导率，Top 30%",
+      "property": "Thermal conductivity",
+      "property_zh": "热导率",
+      "direction": "high",
+      "tier": 0.3,
+      "unit": "W/(m K)",
+      "dataset": "AD_TC",
+      "preferred": true,
+      "constraints": "entries/adept-tc-high-30/constraints.json",
+      "prompts": {
+        "en": "entries/adept-tc-high-30/prompt.en.md",
+        "zh-CN": "entries/adept-tc-high-30/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_TC",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/TC_MD.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "d150207bf2ce4a33388e0a0ee11d9b2413ac19b8faa486b89407018d2c32cdb5",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-density-high-10",
+      "title": "AD_RHO: Density, Top 10%",
+      "title_zh": "AD_RHO：密度，Top 10%",
+      "property": "Density",
+      "property_zh": "密度",
+      "direction": "high",
+      "tier": 0.1,
+      "unit": "g/cm3",
+      "dataset": "AD_RHO",
+      "preferred": true,
+      "constraints": "entries/adept-density-high-10/constraints.json",
+      "prompts": {
+        "en": "entries/adept-density-high-10/prompt.en.md",
+        "zh-CN": "entries/adept-density-high-10/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_RHO",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/RHO_MD.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "35885832820fcf7f8ffa6a643cef46ceb9d8ab0eda06f8e958f239820bfa2934",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-density-high-15",
+      "title": "AD_RHO: Density, Top 15%",
+      "title_zh": "AD_RHO：密度，Top 15%",
+      "property": "Density",
+      "property_zh": "密度",
+      "direction": "high",
+      "tier": 0.15,
+      "unit": "g/cm3",
+      "dataset": "AD_RHO",
+      "preferred": true,
+      "constraints": "entries/adept-density-high-15/constraints.json",
+      "prompts": {
+        "en": "entries/adept-density-high-15/prompt.en.md",
+        "zh-CN": "entries/adept-density-high-15/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_RHO",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/RHO_MD.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "35885832820fcf7f8ffa6a643cef46ceb9d8ab0eda06f8e958f239820bfa2934",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-density-high-20",
+      "title": "AD_RHO: Density, Top 20%",
+      "title_zh": "AD_RHO：密度，Top 20%",
+      "property": "Density",
+      "property_zh": "密度",
+      "direction": "high",
+      "tier": 0.2,
+      "unit": "g/cm3",
+      "dataset": "AD_RHO",
+      "preferred": true,
+      "constraints": "entries/adept-density-high-20/constraints.json",
+      "prompts": {
+        "en": "entries/adept-density-high-20/prompt.en.md",
+        "zh-CN": "entries/adept-density-high-20/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_RHO",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/RHO_MD.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "35885832820fcf7f8ffa6a643cef46ceb9d8ab0eda06f8e958f239820bfa2934",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-density-high-25",
+      "title": "AD_RHO: Density, Top 25%",
+      "title_zh": "AD_RHO：密度，Top 25%",
+      "property": "Density",
+      "property_zh": "密度",
+      "direction": "high",
+      "tier": 0.25,
+      "unit": "g/cm3",
+      "dataset": "AD_RHO",
+      "preferred": true,
+      "constraints": "entries/adept-density-high-25/constraints.json",
+      "prompts": {
+        "en": "entries/adept-density-high-25/prompt.en.md",
+        "zh-CN": "entries/adept-density-high-25/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_RHO",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/RHO_MD.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "35885832820fcf7f8ffa6a643cef46ceb9d8ab0eda06f8e958f239820bfa2934",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-density-high-30",
+      "title": "AD_RHO: Density, Top 30%",
+      "title_zh": "AD_RHO：密度，Top 30%",
+      "property": "Density",
+      "property_zh": "密度",
+      "direction": "high",
+      "tier": 0.3,
+      "unit": "g/cm3",
+      "dataset": "AD_RHO",
+      "preferred": true,
+      "constraints": "entries/adept-density-high-30/constraints.json",
+      "prompts": {
+        "en": "entries/adept-density-high-30/prompt.en.md",
+        "zh-CN": "entries/adept-density-high-30/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_RHO",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/RHO_MD.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "35885832820fcf7f8ffa6a643cef46ceb9d8ab0eda06f8e958f239820bfa2934",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-gap-high-10",
+      "title": "AD_GAP: Isolated-monomer HOMO-LUMO gap, Top 10%",
+      "title_zh": "AD_GAP：孤立单体 HOMO–LUMO 能隙，Top 10%",
+      "property": "Isolated-monomer HOMO-LUMO gap",
+      "property_zh": "孤立单体 HOMO–LUMO 能隙",
+      "direction": "high",
+      "tier": 0.1,
+      "unit": "eV",
+      "dataset": "AD_GAP",
+      "preferred": false,
+      "constraints": "entries/adept-gap-high-10/constraints.json",
+      "prompts": {
+        "en": "entries/adept-gap-high-10/prompt.en.md",
+        "zh-CN": "entries/adept-gap-high-10/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_GAP",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/BANDGAP_DFT.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "97ea30b8f0dfeb2e6bfeaf894831b2a077b2e7f583e0b9f64b720a0a19372675",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-gap-high-15",
+      "title": "AD_GAP: Isolated-monomer HOMO-LUMO gap, Top 15%",
+      "title_zh": "AD_GAP：孤立单体 HOMO–LUMO 能隙，Top 15%",
+      "property": "Isolated-monomer HOMO-LUMO gap",
+      "property_zh": "孤立单体 HOMO–LUMO 能隙",
+      "direction": "high",
+      "tier": 0.15,
+      "unit": "eV",
+      "dataset": "AD_GAP",
+      "preferred": true,
+      "constraints": "entries/adept-gap-high-15/constraints.json",
+      "prompts": {
+        "en": "entries/adept-gap-high-15/prompt.en.md",
+        "zh-CN": "entries/adept-gap-high-15/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_GAP",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/BANDGAP_DFT.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "97ea30b8f0dfeb2e6bfeaf894831b2a077b2e7f583e0b9f64b720a0a19372675",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-gap-high-20",
+      "title": "AD_GAP: Isolated-monomer HOMO-LUMO gap, Top 20%",
+      "title_zh": "AD_GAP：孤立单体 HOMO–LUMO 能隙，Top 20%",
+      "property": "Isolated-monomer HOMO-LUMO gap",
+      "property_zh": "孤立单体 HOMO–LUMO 能隙",
+      "direction": "high",
+      "tier": 0.2,
+      "unit": "eV",
+      "dataset": "AD_GAP",
+      "preferred": true,
+      "constraints": "entries/adept-gap-high-20/constraints.json",
+      "prompts": {
+        "en": "entries/adept-gap-high-20/prompt.en.md",
+        "zh-CN": "entries/adept-gap-high-20/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_GAP",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/BANDGAP_DFT.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "97ea30b8f0dfeb2e6bfeaf894831b2a077b2e7f583e0b9f64b720a0a19372675",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-gap-high-25",
+      "title": "AD_GAP: Isolated-monomer HOMO-LUMO gap, Top 25%",
+      "title_zh": "AD_GAP：孤立单体 HOMO–LUMO 能隙，Top 25%",
+      "property": "Isolated-monomer HOMO-LUMO gap",
+      "property_zh": "孤立单体 HOMO–LUMO 能隙",
+      "direction": "high",
+      "tier": 0.25,
+      "unit": "eV",
+      "dataset": "AD_GAP",
+      "preferred": true,
+      "constraints": "entries/adept-gap-high-25/constraints.json",
+      "prompts": {
+        "en": "entries/adept-gap-high-25/prompt.en.md",
+        "zh-CN": "entries/adept-gap-high-25/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_GAP",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/BANDGAP_DFT.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "97ea30b8f0dfeb2e6bfeaf894831b2a077b2e7f583e0b9f64b720a0a19372675",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-gap-high-30",
+      "title": "AD_GAP: Isolated-monomer HOMO-LUMO gap, Top 30%",
+      "title_zh": "AD_GAP：孤立单体 HOMO–LUMO 能隙，Top 30%",
+      "property": "Isolated-monomer HOMO-LUMO gap",
+      "property_zh": "孤立单体 HOMO–LUMO 能隙",
+      "direction": "high",
+      "tier": 0.3,
+      "unit": "eV",
+      "dataset": "AD_GAP",
+      "preferred": true,
+      "constraints": "entries/adept-gap-high-30/constraints.json",
+      "prompts": {
+        "en": "entries/adept-gap-high-30/prompt.en.md",
+        "zh-CN": "entries/adept-gap-high-30/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_GAP",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/BANDGAP_DFT.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "97ea30b8f0dfeb2e6bfeaf894831b2a077b2e7f583e0b9f64b720a0a19372675",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-dc-high-10",
+      "title": "AD_DC: Dielectric constant, Top 10%",
+      "title_zh": "AD_DC：介电常数，Top 10%",
+      "property": "Dielectric constant",
+      "property_zh": "介电常数",
+      "direction": "high",
+      "tier": 0.1,
+      "unit": "1",
+      "dataset": "AD_DC",
+      "preferred": true,
+      "constraints": "entries/adept-dc-high-10/constraints.json",
+      "prompts": {
+        "en": "entries/adept-dc-high-10/prompt.en.md",
+        "zh-CN": "entries/adept-dc-high-10/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_DC",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/DC_MD.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "54f252655920743916e0b0a2c9ae7e9f31b8dae3a5b14093634bbb871d822296",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-dc-high-15",
+      "title": "AD_DC: Dielectric constant, Top 15%",
+      "title_zh": "AD_DC：介电常数，Top 15%",
+      "property": "Dielectric constant",
+      "property_zh": "介电常数",
+      "direction": "high",
+      "tier": 0.15,
+      "unit": "1",
+      "dataset": "AD_DC",
+      "preferred": true,
+      "constraints": "entries/adept-dc-high-15/constraints.json",
+      "prompts": {
+        "en": "entries/adept-dc-high-15/prompt.en.md",
+        "zh-CN": "entries/adept-dc-high-15/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_DC",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/DC_MD.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "54f252655920743916e0b0a2c9ae7e9f31b8dae3a5b14093634bbb871d822296",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-dc-high-20",
+      "title": "AD_DC: Dielectric constant, Top 20%",
+      "title_zh": "AD_DC：介电常数，Top 20%",
+      "property": "Dielectric constant",
+      "property_zh": "介电常数",
+      "direction": "high",
+      "tier": 0.2,
+      "unit": "1",
+      "dataset": "AD_DC",
+      "preferred": true,
+      "constraints": "entries/adept-dc-high-20/constraints.json",
+      "prompts": {
+        "en": "entries/adept-dc-high-20/prompt.en.md",
+        "zh-CN": "entries/adept-dc-high-20/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_DC",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/DC_MD.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "54f252655920743916e0b0a2c9ae7e9f31b8dae3a5b14093634bbb871d822296",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-dc-high-25",
+      "title": "AD_DC: Dielectric constant, Top 25%",
+      "title_zh": "AD_DC：介电常数，Top 25%",
+      "property": "Dielectric constant",
+      "property_zh": "介电常数",
+      "direction": "high",
+      "tier": 0.25,
+      "unit": "1",
+      "dataset": "AD_DC",
+      "preferred": true,
+      "constraints": "entries/adept-dc-high-25/constraints.json",
+      "prompts": {
+        "en": "entries/adept-dc-high-25/prompt.en.md",
+        "zh-CN": "entries/adept-dc-high-25/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_DC",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/DC_MD.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "54f252655920743916e0b0a2c9ae7e9f31b8dae3a5b14093634bbb871d822296",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-dc-high-30",
+      "title": "AD_DC: Dielectric constant, Top 30%",
+      "title_zh": "AD_DC：介电常数，Top 30%",
+      "property": "Dielectric constant",
+      "property_zh": "介电常数",
+      "direction": "high",
+      "tier": 0.3,
+      "unit": "1",
+      "dataset": "AD_DC",
+      "preferred": true,
+      "constraints": "entries/adept-dc-high-30/constraints.json",
+      "prompts": {
+        "en": "entries/adept-dc-high-30/prompt.en.md",
+        "zh-CN": "entries/adept-dc-high-30/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_DC",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/DC_MD.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "54f252655920743916e0b0a2c9ae7e9f31b8dae3a5b14093634bbb871d822296",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-ri-high-10",
+      "title": "AD_RI: Refractive index, Top 10%",
+      "title_zh": "AD_RI：折射率，Top 10%",
+      "property": "Refractive index",
+      "property_zh": "折射率",
+      "direction": "high",
+      "tier": 0.1,
+      "unit": "1",
+      "dataset": "AD_RI",
+      "preferred": true,
+      "constraints": "entries/adept-ri-high-10/constraints.json",
+      "prompts": {
+        "en": "entries/adept-ri-high-10/prompt.en.md",
+        "zh-CN": "entries/adept-ri-high-10/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_RI",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/RI_MD.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "b9bb6fea79e997bd202c38b726be36ca83b453501525e7f04964099d74a0f39d",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-ri-high-15",
+      "title": "AD_RI: Refractive index, Top 15%",
+      "title_zh": "AD_RI：折射率，Top 15%",
+      "property": "Refractive index",
+      "property_zh": "折射率",
+      "direction": "high",
+      "tier": 0.15,
+      "unit": "1",
+      "dataset": "AD_RI",
+      "preferred": true,
+      "constraints": "entries/adept-ri-high-15/constraints.json",
+      "prompts": {
+        "en": "entries/adept-ri-high-15/prompt.en.md",
+        "zh-CN": "entries/adept-ri-high-15/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_RI",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/RI_MD.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "b9bb6fea79e997bd202c38b726be36ca83b453501525e7f04964099d74a0f39d",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-ri-high-20",
+      "title": "AD_RI: Refractive index, Top 20%",
+      "title_zh": "AD_RI：折射率，Top 20%",
+      "property": "Refractive index",
+      "property_zh": "折射率",
+      "direction": "high",
+      "tier": 0.2,
+      "unit": "1",
+      "dataset": "AD_RI",
+      "preferred": true,
+      "constraints": "entries/adept-ri-high-20/constraints.json",
+      "prompts": {
+        "en": "entries/adept-ri-high-20/prompt.en.md",
+        "zh-CN": "entries/adept-ri-high-20/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_RI",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/RI_MD.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "b9bb6fea79e997bd202c38b726be36ca83b453501525e7f04964099d74a0f39d",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-ri-high-25",
+      "title": "AD_RI: Refractive index, Top 25%",
+      "title_zh": "AD_RI：折射率，Top 25%",
+      "property": "Refractive index",
+      "property_zh": "折射率",
+      "direction": "high",
+      "tier": 0.25,
+      "unit": "1",
+      "dataset": "AD_RI",
+      "preferred": true,
+      "constraints": "entries/adept-ri-high-25/constraints.json",
+      "prompts": {
+        "en": "entries/adept-ri-high-25/prompt.en.md",
+        "zh-CN": "entries/adept-ri-high-25/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_RI",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/RI_MD.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "b9bb6fea79e997bd202c38b726be36ca83b453501525e7f04964099d74a0f39d",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-ri-high-30",
+      "title": "AD_RI: Refractive index, Top 30%",
+      "title_zh": "AD_RI：折射率，Top 30%",
+      "property": "Refractive index",
+      "property_zh": "折射率",
+      "direction": "high",
+      "tier": 0.3,
+      "unit": "1",
+      "dataset": "AD_RI",
+      "preferred": true,
+      "constraints": "entries/adept-ri-high-30/constraints.json",
+      "prompts": {
+        "en": "entries/adept-ri-high-30/prompt.en.md",
+        "zh-CN": "entries/adept-ri-high-30/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_RI",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/RI_MD.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "b9bb6fea79e997bd202c38b726be36ca83b453501525e7f04964099d74a0f39d",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-tg-high-10",
+      "title": "AD_TG: Glass-transition temperature, Top 10%",
+      "title_zh": "AD_TG：玻璃化转变温度，Top 10%",
+      "property": "Glass-transition temperature",
+      "property_zh": "玻璃化转变温度",
+      "direction": "high",
+      "tier": 0.1,
+      "unit": "K",
+      "dataset": "AD_TG",
+      "preferred": true,
+      "constraints": "entries/adept-tg-high-10/constraints.json",
+      "prompts": {
+        "en": "entries/adept-tg-high-10/prompt.en.md",
+        "zh-CN": "entries/adept-tg-high-10/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_TG",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/TG_MD.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "73f5be2803bffadeb07aceebe5babec01cca2399e6cb22789fa1a6c1647dc6be",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-tg-high-15",
+      "title": "AD_TG: Glass-transition temperature, Top 15%",
+      "title_zh": "AD_TG：玻璃化转变温度，Top 15%",
+      "property": "Glass-transition temperature",
+      "property_zh": "玻璃化转变温度",
+      "direction": "high",
+      "tier": 0.15,
+      "unit": "K",
+      "dataset": "AD_TG",
+      "preferred": true,
+      "constraints": "entries/adept-tg-high-15/constraints.json",
+      "prompts": {
+        "en": "entries/adept-tg-high-15/prompt.en.md",
+        "zh-CN": "entries/adept-tg-high-15/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_TG",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/TG_MD.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "73f5be2803bffadeb07aceebe5babec01cca2399e6cb22789fa1a6c1647dc6be",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-tg-high-20",
+      "title": "AD_TG: Glass-transition temperature, Top 20%",
+      "title_zh": "AD_TG：玻璃化转变温度，Top 20%",
+      "property": "Glass-transition temperature",
+      "property_zh": "玻璃化转变温度",
+      "direction": "high",
+      "tier": 0.2,
+      "unit": "K",
+      "dataset": "AD_TG",
+      "preferred": true,
+      "constraints": "entries/adept-tg-high-20/constraints.json",
+      "prompts": {
+        "en": "entries/adept-tg-high-20/prompt.en.md",
+        "zh-CN": "entries/adept-tg-high-20/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_TG",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/TG_MD.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "73f5be2803bffadeb07aceebe5babec01cca2399e6cb22789fa1a6c1647dc6be",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-tg-high-25",
+      "title": "AD_TG: Glass-transition temperature, Top 25%",
+      "title_zh": "AD_TG：玻璃化转变温度，Top 25%",
+      "property": "Glass-transition temperature",
+      "property_zh": "玻璃化转变温度",
+      "direction": "high",
+      "tier": 0.25,
+      "unit": "K",
+      "dataset": "AD_TG",
+      "preferred": true,
+      "constraints": "entries/adept-tg-high-25/constraints.json",
+      "prompts": {
+        "en": "entries/adept-tg-high-25/prompt.en.md",
+        "zh-CN": "entries/adept-tg-high-25/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_TG",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/TG_MD.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "73f5be2803bffadeb07aceebe5babec01cca2399e6cb22789fa1a6c1647dc6be",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-tg-high-30",
+      "title": "AD_TG: Glass-transition temperature, Top 30%",
+      "title_zh": "AD_TG：玻璃化转变温度，Top 30%",
+      "property": "Glass-transition temperature",
+      "property_zh": "玻璃化转变温度",
+      "direction": "high",
+      "tier": 0.3,
+      "unit": "K",
+      "dataset": "AD_TG",
+      "preferred": true,
+      "constraints": "entries/adept-tg-high-30/constraints.json",
+      "prompts": {
+        "en": "entries/adept-tg-high-30/prompt.en.md",
+        "zh-CN": "entries/adept-tg-high-30/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_TG",
+        "data_kind": "MD/DFT (ADEPT)",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/TG_MD.csv",
+        "source_paper_doi": "10.1039/D6DD00206D",
+        "data_roles": {
+          "fingerprint": "Morgan/ECFP4",
+          "radius": 2,
+          "n_bits": 2048
+        },
+        "selection": "source-only adaptive STCA",
+        "model_sha256": "73f5be2803bffadeb07aceebe5babec01cca2399e6cb22789fa1a6c1647dc6be",
+        "source_data_commit": "1c51a8578b6d23bd45bae7f7e175516dc22a3ed9"
+      }
+    },
+    {
+      "id": "adept-gap-author-high-10",
+      "title": "AD_GAP: Isolated-monomer HOMO-LUMO gap, Top 10%",
+      "title_zh": "AD_GAP：孤立单体 HOMO–LUMO 能隙，Top 10%",
+      "property": "Isolated-monomer HOMO-LUMO gap",
+      "property_zh": "孤立单体 HOMO–LUMO 能隙",
+      "direction": "high",
+      "tier": 0.1,
+      "unit": "eV",
+      "dataset": "AD_GAP",
+      "preferred": true,
+      "constraints": "entries/adept-gap-author-high-10/constraints.json",
+      "prompts": {
+        "en": "entries/adept-gap-author-high-10/prompt.en.md",
+        "zh-CN": "entries/adept-gap-author-high-10/prompt.zh-CN.md"
+      },
+      "provenance": {
+        "kind": "custom",
+        "dataset": "AD_GAP",
+        "data_kind": "computed",
+        "citation": "https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/BANDGAP_DFT.csv",
+        "selection": "author-supplied frozen representative",
+        "original_constraints_sha256": "c65e76cea6db2ed4f2c551279336afbb00da92b3210bd1d25fa8c45b3d3098fc",
+        "metadata_correction": "Replace legacy p/u placeholders using AD_GAP/BANDGAP_DFT source metadata; exact rule and cutoff unchanged."
+      }
+    }
+  ]
+}

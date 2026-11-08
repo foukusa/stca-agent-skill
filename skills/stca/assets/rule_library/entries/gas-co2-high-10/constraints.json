@@ -1,0 +1,258 @@
+{
+  "schema": "stca-library-constraints-v1",
+  "version": "0.1.0",
+  "catalog_id": "gas-co2-high-10",
+  "property": "CO2 permeability",
+  "property_zh": "CO₂ 渗透率",
+  "dataset_id": "GAS_CO2",
+  "direction": "high",
+  "tier": 0.1,
+  "representation": "hcap_maccs167",
+  "feature_spec": {
+    "kind": "rdkit_maccs167",
+    "n_bits": 167
+  },
+  "combiner": "AND",
+  "target": {
+    "unit": "Barrer",
+    "physical_cutoff": 3950.999999999998,
+    "model_cutoff": 3.596707029681446,
+    "model_unit": "log10(Barrer)",
+    "operator": ">="
+  },
+  "rule": {
+    "keys": [
+      149,
+      112,
+      141,
+      104,
+      111,
+      51,
+      55,
+      58,
+      60,
+      61,
+      67,
+      73,
+      130
+    ],
+    "values": [
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "name": "Top3_positive_plus_Top10_negative",
+    "family": "positive_plus_negative",
+    "signature": "STCA|AND|K51=0&K55=0&K58=0&K60=0&K61=0&K67=0&K73=0&K104=0&K111=0&K112=1&K130=0&K141=1&K149=1",
+    "expression": "K149=1 AND K112=1 AND K141=1 AND K104=0 AND K111=0 AND K51=0 AND K55=0 AND K58=0 AND K60=0 AND K61=0 AND K67=0 AND K73=0 AND K130=0"
+  },
+  "literals": [
+    {
+      "feature_index": 149,
+      "feature_name": "K149",
+      "required_value": 1,
+      "definition": {
+        "rdkit_version": "2025.09.4",
+        "verification": "MACCSkeys.GenMACCSKeys(mol)[key]",
+        "status": "installed_rdkit_smarts_definition",
+        "smarts": "[C;H3,H4]",
+        "count_parameter": 1,
+        "bit_one_activation": "unique_substructure_match_count > 1",
+        "bit_zero_meaning": "The bit-one activation criterion is not met; for a count key this need not mean no matches."
+      }
+    },
+    {
+      "feature_index": 112,
+      "feature_name": "K112",
+      "required_value": 1,
+      "definition": {
+        "rdkit_version": "2025.09.4",
+        "verification": "MACCSkeys.GenMACCSKeys(mol)[key]",
+        "status": "installed_rdkit_smarts_definition",
+        "smarts": "*~*(~*)(~*)~*",
+        "count_parameter": 0,
+        "bit_one_activation": "has_substructure_match",
+        "bit_zero_meaning": "The bit-one activation criterion is not met; for a count key this need not mean no matches."
+      }
+    },
+    {
+      "feature_index": 141,
+      "feature_name": "K141",
+      "required_value": 1,
+      "definition": {
+        "rdkit_version": "2025.09.4",
+        "verification": "MACCSkeys.GenMACCSKeys(mol)[key]",
+        "status": "installed_rdkit_smarts_definition",
+        "smarts": "[CH3]",
+        "count_parameter": 2,
+        "bit_one_activation": "unique_substructure_match_count > 2",
+        "bit_zero_meaning": "The bit-one activation criterion is not met; for a count key this need not mean no matches."
+      }
+    },
+    {
+      "feature_index": 104,
+      "feature_name": "K104",
+      "required_value": 0,
+      "definition": {
+        "rdkit_version": "2025.09.4",
+        "verification": "MACCSkeys.GenMACCSKeys(mol)[key]",
+        "status": "installed_rdkit_smarts_definition",
+        "smarts": "[!#6;!#1;!H0]~*~[CH2]~*",
+        "count_parameter": 0,
+        "bit_one_activation": "has_substructure_match",
+        "bit_zero_meaning": "The bit-one activation criterion is not met; for a count key this need not mean no matches."
+      }
+    },
+    {
+      "feature_index": 111,
+      "feature_name": "K111",
+      "required_value": 0,
+      "definition": {
+        "rdkit_version": "2025.09.4",
+        "verification": "MACCSkeys.GenMACCSKeys(mol)[key]",
+        "status": "installed_rdkit_smarts_definition",
+        "smarts": "[#7]~*~[CH2]~*",
+        "count_parameter": 0,
+        "bit_one_activation": "has_substructure_match",
+        "bit_zero_meaning": "The bit-one activation criterion is not met; for a count key this need not mean no matches."
+      }
+    },
+    {
+      "feature_index": 51,
+      "feature_name": "K51",
+      "required_value": 0,
+      "definition": {
+        "rdkit_version": "2025.09.4",
+        "verification": "MACCSkeys.GenMACCSKeys(mol)[key]",
+        "status": "installed_rdkit_smarts_definition",
+        "smarts": "[#6]~[#16]~[#8]",
+        "count_parameter": 0,
+        "bit_one_activation": "has_substructure_match",
+        "bit_zero_meaning": "The bit-one activation criterion is not met; for a count key this need not mean no matches."
+      }
+    },
+    {
+      "feature_index": 55,
+      "feature_name": "K55",
+      "required_value": 0,
+      "definition": {
+        "rdkit_version": "2025.09.4",
+        "verification": "MACCSkeys.GenMACCSKeys(mol)[key]",
+        "status": "installed_rdkit_smarts_definition",
+        "smarts": "[#8]~[#16]~[#8]",
+        "count_parameter": 0,
+        "bit_one_activation": "has_substructure_match",
+        "bit_zero_meaning": "The bit-one activation criterion is not met; for a count key this need not mean no matches."
+      }
+    },
+    {
+      "feature_index": 58,
+      "feature_name": "K58",
+      "required_value": 0,
+      "definition": {
+        "rdkit_version": "2025.09.4",
+        "verification": "MACCSkeys.GenMACCSKeys(mol)[key]",
+        "status": "installed_rdkit_smarts_definition",
+        "smarts": "[!#6;!#1]~[#16]~[!#6;!#1]",
+        "count_parameter": 0,
+        "bit_one_activation": "has_substructure_match",
+        "bit_zero_meaning": "The bit-one activation criterion is not met; for a count key this need not mean no matches."
+      }
+    },
+    {
+      "feature_index": 60,
+      "feature_name": "K60",
+      "required_value": 0,
+      "definition": {
+        "rdkit_version": "2025.09.4",
+        "verification": "MACCSkeys.GenMACCSKeys(mol)[key]",
+        "status": "installed_rdkit_smarts_definition",
+        "smarts": "[#16]=[#8]",
+        "count_parameter": 0,
+        "bit_one_activation": "has_substructure_match",
+        "bit_zero_meaning": "The bit-one activation criterion is not met; for a count key this need not mean no matches."
+      }
+    },
+    {
+      "feature_index": 61,
+      "feature_name": "K61",
+      "required_value": 0,
+      "definition": {
+        "rdkit_version": "2025.09.4",
+        "verification": "MACCSkeys.GenMACCSKeys(mol)[key]",
+        "status": "installed_rdkit_smarts_definition",
+        "smarts": "*~[#16](~*)~*",
+        "count_parameter": 0,
+        "bit_one_activation": "has_substructure_match",
+        "bit_zero_meaning": "The bit-one activation criterion is not met; for a count key this need not mean no matches."
+      }
+    },
+    {
+      "feature_index": 67,
+      "feature_name": "K67",
+      "required_value": 0,
+      "definition": {
+        "rdkit_version": "2025.09.4",
+        "verification": "MACCSkeys.GenMACCSKeys(mol)[key]",
+        "status": "installed_rdkit_smarts_definition",
+        "smarts": "[!#6;!#1]~[#16]",
+        "count_parameter": 0,
+        "bit_one_activation": "has_substructure_match",
+        "bit_zero_meaning": "The bit-one activation criterion is not met; for a count key this need not mean no matches."
+      }
+    },
+    {
+      "feature_index": 73,
+      "feature_name": "K73",
+      "required_value": 0,
+      "definition": {
+        "rdkit_version": "2025.09.4",
+        "verification": "MACCSkeys.GenMACCSKeys(mol)[key]",
+        "status": "installed_rdkit_smarts_definition",
+        "smarts": "[#16]=*",
+        "count_parameter": 0,
+        "bit_one_activation": "has_substructure_match",
+        "bit_zero_meaning": "The bit-one activation criterion is not met; for a count key this need not mean no matches."
+      }
+    },
+    {
+      "feature_index": 130,
+      "feature_name": "K130",
+      "required_value": 0,
+      "definition": {
+        "rdkit_version": "2025.09.4",
+        "verification": "MACCSkeys.GenMACCSKeys(mol)[key]",
+        "status": "installed_rdkit_smarts_definition",
+        "smarts": "[!#6;!#1]~[!#6;!#1]",
+        "count_parameter": 1,
+        "bit_one_activation": "unique_substructure_match_count > 1",
+        "bit_zero_meaning": "The bit-one activation criterion is not met; for a count key this need not mean no matches."
+      }
+    }
+  ],
+  "provenance": {
+    "kind": "custom",
+    "dataset": "GAS_CO2",
+    "data_kind": "experimental",
+    "citation": "https://github.com/jsunn-y/PolymerGasMembraneML/blob/30981d71e1e3f12a057e009cd79f119bc659c7f5/datasets/datasetA_imputed_all.csv",
+    "source_paper_doi": "10.1126/sciadv.abn9545",
+    "data_roles": {
+      "fingerprint": "Morgan/ECFP4",
+      "radius": 2,
+      "n_bits": 2048
+    },
+    "selection": "source-only adaptive STCA",
+    "model_sha256": "1e86df09d76fa49d0c679c294e1133cabca497319aa4a7be51aa7c1c50c0e1d4",
+    "source_data_commit": "30981d71e1e3f12a057e009cd79f119bc659c7f5"
+  }
+}

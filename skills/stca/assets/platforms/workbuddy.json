@@ -3,25 +3,25 @@
   "package_version": "0.1.0",
   "frontmatter": {
     "name": "stca",
-    "display_name": "STCA 聚合物筛选",
-    "display_name_en": "STCA Polymer Screening",
-    "description": "调用 STCA 应用已发表的明确百分位结构规则，或在用户实测数据上按自定义百分位重新提取规则，并完成规则引导候选设计与核验。触发词：STCA、滑动阈值相关分析、H-cap、子结构规则、候选设计、生成约束。",
-    "description_zh": "应用论文冻结的 Tg／EC 规则，或在用户自己的实测数据上按明确百分位重新归纳可读规则，再对候选逐条核验。",
-    "description_en": "Apply published STCA rules with explicit percentage tiers, derive new readable rules from user-supplied measured data, and verify rule-guided polymer candidates.",
+    "display_name": "STCA 规则与设计",
+    "display_name_en": "STCA Rules and Design",
+    "description": "Use STCA to select bundled polymer screening rules, learn readable rules from uploaded measured or computed CSV data, and export complete generation prompts for the current or another LLM. Preserve original repeat-unit SMILES; verify candidates against exact frozen conditions. Triggers: STCA、聚合物筛选、规则提取、生成prompt。",
+    "description_zh": "选择内置聚合物规则筛选候选，从上传的数据归纳新规则，或获取完整 prompt 交给 LLM 生成并核验新结构。",
+    "description_en": "Screen with bundled polymer rules, learn rules from uploaded data, and use complete prompts to generate and verify new structures.",
     "version": "0.1.0",
     "author": "Weihao Wang",
     "examples_zh": [
-      "应用已发表的 Tg Top 20% 和 EC-low Bottom 10% 规则筛选候选表，并给出同候选交集和失败条件。",
-      "在我的实测 Td 数据上按我指定的百分位重新提取并冻结 STCA 规则，再评价 evaluation 数据。",
-      "导出所选冻结规则的结构约束，提出候选，并逐条核验每条规则。"
+      "列出内置高热导规则，按我选择的数据集和百分比筛选候选 CSV。",
+      "从上传的实测或计算性质 CSV 自动归纳规则，并给出可直接使用的生成 prompt。",
+      "将选定规则转成完整的中文 prompt，让 LLM 生成20个新重复单元并逐条核验。"
     ],
     "examples_en": [
-      "Apply the published Tg top-20% and EC-low bottom-10% rules and report the same-candidate intersection.",
-      "Derive and freeze STCA rules from my measured Td data using the percentage thresholds and data roles I provide.",
-      "Export the selected frozen constraints, propose candidates, and verify every rule."
+      "List bundled high thermal-conductivity rules and screen my candidate CSV with my chosen dataset and tier.",
+      "Learn rules from my measured or computed property CSV and provide complete generation prompts.",
+      "Use the chosen rules to generate 20 repeat units, then verify each candidate."
     ]
   },
-  "entry_note": "本包用于 WorkBuddy。以当前 SKILL.md 所在目录定位资源；首次运行先读 @references/platform-runtime.md，安装与市场提交见 @references/workbuddy.md。用宿主实际提供的终端执行包内 Python 脚本，选择与当前操作系统一致的命令；结果写入用户工作目录。",
+  "entry_note": "先按 SKILL.md 选择现成规则、上传数据归纳规则或生成 prompt。现成规则和双语 prompt 位于 assets/rule_library。仅在计算时由宿主 agent 自动发现或准备后端，用户以自然语言调用，无需操作终端。安装入口见 references/workbuddy.md。",
   "official_docs": [
     "https://open.workbuddy.cn/docs/skill",
     "https://www.workbuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Skills-Market"

@@ -13,5 +13,11 @@
     "integration": 5,
     "independent_agent": 1
   },
-  "all_13_datasets_rerun": false
+  "all_13_datasets_rerun": false,
+  "current_agent_workflows": "agent_workflows_0.1.0.json",
+  "rule_library_property_profiles_prepared": 13,
+  "all_13_datasets_rerun_scope": "Complete historical benchmark comparisons were not rerun; all 13 bundled adaptive rule profiles were fitted.",
+  "current_runtime_evidence": "compatibility_python310.json",
+  "runtime_minimum_python": "3.10",
+  "ordinary_runtime_requires_archival_lock": false
 }

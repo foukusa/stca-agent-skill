@@ -1,5 +1,6 @@
 # STCA agent skill 0.1.0
-# Exact active runtime dependencies for CPython 3.12.
+# Optional historical snapshot for exact reproduction with CPython 3.12.
+# Ordinary tasks use requirements-compatible.txt and their existing compatible Python.
 # Fresh isolated installation verified on Linux x86_64, 2026-11-07.
 # macOS and Windows are not yet verified; verify installation and execution there.
 # Version pins only; platform wheel hashes are not pinned in this portable file.

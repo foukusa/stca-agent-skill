@@ -1,0 +1,47 @@
+{
+  "schema": "stca-agent-workflows-validation-v1",
+  "release_version": "0.1.0",
+  "date": "2026-11-08",
+  "rule_library": {
+    "frozen_rules": 77,
+    "open_data_property_tasks": 13,
+    "open_data_tier_rules": 65,
+    "bilingual_prompt_files": 154,
+    "stdlib_resource_checks_passed": true,
+    "all_new_data_roles": {
+      "radius": 2,
+      "bits": 2048,
+      "fingerprint": "ECFP4"
+    }
+  },
+  "independent_screening": {
+    "candidate_rows": 19,
+    "valid_rows": 17,
+    "unknown_rows": 2,
+    "rule_candidate_checks": 95,
+    "bit_decisions_and_failure_conditions_match": true,
+    "original_columns_ids_smiles_preserved": true
+  },
+  "user_agent_acceptance": {
+    "explicit_backend_paths_required": false,
+    "rule_selection_prompt_and_screening_executed": true
+  },
+  "scope": "Functional integration and exact frozen-condition checks; not a new comparison of property-prediction performance.",
+  "macos_native_installation_tested": false,
+  "uploaded_csv_learning": {
+    "executed": true,
+    "input_rows": 152,
+    "source_rows": 122,
+    "holdout_rows": 30,
+    "tiers": 5,
+    "model_saved": true,
+    "complete_bilingual_prompts_exported": true
+  },
+  "runtime": {
+    "compatible_backend_reused": true,
+    "stdlib_generation_bypasses_dependency_setup": true,
+    "receipt_concurrent_writes_verified": 40,
+    "chemistry_only_installation_command": "mock-verified; no full training stack or author-source download",
+    "native_macos_installation_tested": false
+  }
+}
