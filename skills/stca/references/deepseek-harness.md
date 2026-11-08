@@ -4,7 +4,15 @@
 
 ## 安装与开始
 
-解压 `stca-deepseek-harness-0.1.0.zip`，保留完整 `stca` 目录。默认用户位置为 `~/.dsh/skills/stca/SKILL.md`，项目位置为 `<项目>/.dsh/skills/stca/SKILL.md`；自定义目录按平台配置使用。在文件管理器中打开实际的 skill 扫描目录，再复制完整 `stca` 文件夹。目录不存在时，可在 Harness 中让 AI 助手创建或确认实际扫描位置。
+优先在 DeepSeek Harness 的“插件 → 添加插件”中填写：
+
+```text
+https://github.com/foukusa/stca-agent-skill.git
+```
+
+安装并启用后，输入 `/stca`。本地安装使用 `dsh-plugin-stca-0.1.0.tgz` 的完整文件路径；该文件是已打包的 DSH 插件，无需构建或重新打包。
+
+如需手动放置 skill，解压 `stca-deepseek-harness-0.1.0.zip`，将完整 `stca` 目录放入 `~/.dsh/skills` 或已配置的项目 skill 根目录。skill ZIP 用于此手动方式；“添加插件”使用 Git 仓库地址或 TGZ，不使用 GitHub `/tree/main` 网页地址。
 
 输入 **`/stca`**，选择：
 

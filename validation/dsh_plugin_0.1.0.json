@@ -1,0 +1,34 @@
+{
+  "schema": "stca-dsh-plugin-validation-v1",
+  "version": "0.1.0",
+  "status": "passed",
+  "dsh_cli_version": "0.2.2-rc.1",
+  "real_isolated_profile_install": true,
+  "real_configuration_layer_composed": true,
+  "real_host_module_resolution": true,
+  "real_cordis_and_skill_registry": true,
+  "registered_skills": [
+    "stca"
+  ],
+  "full_instruction_body_loaded": true,
+  "rules": 149,
+  "bilingual_prompts": 298,
+  "localized_metadata": [
+    "en",
+    "zh-cn",
+    "zh"
+  ],
+  "logo_png_read_without_diagnostics": true,
+  "install_spec_checks": {
+    "git_repository_url": "https://github.com/foukusa/stca-agent-skill.git",
+    "git_repository_url_accepted": true,
+    "github_web_tree_url_rejected": true,
+    "absolute_local_tgz_accepted": true
+  },
+  "installation_build_hooks": false,
+  "actual_GitHub_remote_install_performed": false,
+  "actual_community_submission_performed": false,
+  "actual_LLM_generation_performed": false,
+  "scientific_calculation_rerun": false,
+  "rendered_DSH_user_interface_verified": false
+}

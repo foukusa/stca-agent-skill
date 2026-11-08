@@ -70,7 +70,7 @@ ChatGPT and Codex use the same standalone skill package. See the [installation g
 | Platform | Download | Official guidance and invocation |
 |---|---|---|
 | **ChatGPT + Codex** | [OpenAI skill ZIP](downloads/stca-openai-skill-0.1.0.zip?raw=true) | [ChatGPT Skills help](https://help.openai.com/en/articles/20001066-skills-in-chatgpt/) · [Codex skill guide](https://learn.chatgpt.com/docs/build-skills). Select STCA in ChatGPT; say “Use $stca” in Codex. |
-| **DeepSeek Harness** | [DeepSeek ZIP](downloads/stca-deepseek-harness-0.1.0.zip?raw=true) | [Product](https://www.deepseek.com/harness/) · [Install](docs/INSTALL.md#deepseek-harness). Enter `/stca`. |
+| **DeepSeek Harness** | [DSH plugin TGZ](downloads/dsh-plugin-stca-0.1.0.tgz?raw=true) · [local skill ZIP](downloads/stca-deepseek-harness-0.1.0.zip?raw=true) | [Product](https://www.deepseek.com/harness/) · [Install](docs/INSTALL.md#deepseek-harness). Enter `/stca`. |
 | **WorkBuddy** | [WorkBuddy ZIP](downloads/stca-workbuddy-0.1.0.zip?raw=true) | [Official skill management](https://www.workbuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Skills-Market). Select STCA and describe the task. |
 
 You can also ask Codex:

@@ -1,0 +1,24 @@
+{
+  "schema": "stca-workbuddy-shallow-validation-v1",
+  "version": "0.1.0",
+  "status": "passed",
+  "archive_max_path_components": 2,
+  "original_runtime_files_verified": 578,
+  "rules": 149,
+  "bilingual_prompts": 298,
+  "cpu_python": "3.10",
+  "screening": {
+    "rule_id": "latest-pi-rho-stca-high-30",
+    "input_n": 5,
+    "selected": 3,
+    "not_selected": 2,
+    "original_star_SMILES_preserved": true,
+    "relative_paths_with_spaces_work": true
+  },
+  "generation_state_entrypoints": {
+    "preview_waits_for_confirmation": true,
+    "direct_allows_current_LLM": true
+  },
+  "actual_LLM_generation_performed": false,
+  "actual_WorkBuddy_upload_performed": false
+}

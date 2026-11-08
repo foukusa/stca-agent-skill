@@ -1,0 +1,3 @@
+- insert:
+    - id: stca-skill-provider
+      name: dsh-plugin-stca

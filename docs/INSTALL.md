@@ -52,19 +52,26 @@ See the [official OpenAI skill guide](https://learn.chatgpt.com/docs/build-skill
 
 ## DeepSeek Harness
 
-1. Open your configured [DeepSeek Harness](https://www.deepseek.com/harness/).
-2. Extract the DeepSeek ZIP to obtain the complete `stca` folder.
-3. Copy it into the configured skill root; the default user root is `~/.dsh/skills`. If the directory is unavailable or you use a custom configuration, ask the Harness assistant to identify or prepare the correct location.
-4. Keep the folder structure intact, with `stca/SKILL.md` and its supporting directories.
-5. Enter `/stca` in Harness.
+1. Open [DeepSeek Harness](https://www.deepseek.com/harness/) and choose **Plugins → Add plugin**.
+2. Paste this Git repository URL, install the package and enable STCA:
 
-See the [official filesystem guide](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/skill/skill-filesystem/README.zh.md). Complete generation prompts can also be copied into an ordinary DeepSeek chat.
+   ```text
+   https://github.com/foukusa/stca-agent-skill.git
+   ```
+
+3. Enter `/stca` or say “Start STCA”.
+
+You can also download the [DSH plugin TGZ](../downloads/dsh-plugin-stca-0.1.0.tgz?raw=true) and enter its full local file path in the same field. It is already an installable plugin; no repacking is needed. A GitHub `/tree/main` page or a skill ZIP is not an Add plugin source.
+
+For manual skill placement, use the [local skill ZIP](../downloads/stca-deepseek-harness-0.1.0.zip?raw=true), extract the complete `stca` folder into `~/.dsh/skills` or your configured project skill root, then enter `/stca`. This route does not use Add plugin.
+
+See the [official plugin installation guide](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/develop/basic/publish.md) and [filesystem skill guide](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/skill/skill-filesystem/README.md).
 
 ## WorkBuddy
 
 1. Open [WorkBuddy](https://www.workbuddy.cn/) and its skill management page.
 2. Choose the action for adding and uploading a local skill package.
-3. Select `stca-workbuddy-0.1.0.zip`, complete import and enable STCA.
+3. Select `stca-workbuddy-0.1.0.zip` directly, complete import and enable STCA. Do not extract or wrap it in another folder.
 4. Say “Start STCA”.
 
 See [official WorkBuddy instructions](https://www.workbuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Skills-Market).

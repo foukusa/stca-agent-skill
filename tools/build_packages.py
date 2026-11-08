@@ -22,9 +22,9 @@ import zipfile
 
 ROOT_FILES = (
     "README.md", "README.zh-CN.md", "LICENSE", "THIRD_PARTY_NOTICES.md",
-    "CITATION.cff", "CHANGELOG.md", "plugin.json", ".gitignore",
+    "CITATION.cff", "CHANGELOG.md", "plugin.json", "package.json", ".gitignore", ".npmignore",
 )
-ROOT_DIRS = ("skills", "assets", "examples", "tools", "validation", "docs")
+ROOT_DIRS = ("skills", "assets", "examples", "tools", "validation", "docs", "dsh")
 PUBLICATION_FILES = (
     "LICENSE", "CITATION.cff", "THIRD_PARTY_NOTICES.md",
 )
@@ -104,6 +104,7 @@ def collect_source(root: Path) -> dict[str, bytes]:
                 add(path)
     required = {
         "plugin.json", "skills/stca/SKILL.md", "assets/stca-logo.png",
+        "package.json", "dsh/index.js", "dsh/cordis.patch.yml", "dsh/locale/en.json", "dsh/locale/zh-cn.json",
         "skills/stca/scripts/build_platform_packages.py", *PUBLICATION_FILES,
         *(f"skills/stca/assets/platforms/{platform}.json" for platform in PLATFORMS),
     }
@@ -204,6 +205,7 @@ def main() -> int:
         f"stca-chatgpt-{version}.zip", f"stca-codex-{version}.zip",
         *(f"stca-{platform}-{version}.zip" for platform in PLATFORMS),
         f"stca-openai-plugin-{version}.zip",
+        f"dsh-plugin-stca-{version}.tgz",
     ]
     downloads_before = snapshot_downloads(root, [*installer_names, "manifest.json"])
 
@@ -236,6 +238,20 @@ def main() -> int:
         for platform in PLATFORMS:
             name = f"stca-{platform}-{version}.zip"
             shutil.copyfile(platform_output / name, prepared / name)
+        # DSH's Add plugin accepts an npm-compatible tarball, not a skill ZIP.
+        # The same manifest/entry also makes the repository root Git-installable.
+        dsh_manifest = json.loads(files["package.json"])
+        if dsh_manifest.get("name") != "dsh-plugin-stca" or dsh_manifest.get("version") != version:
+            raise ValueError("DSH package identity/version must match the release.")
+        packed = subprocess.run(
+            ["npm", "pack", "--ignore-scripts", "--json", "--pack-destination", str(prepared)],
+            cwd=stage, capture_output=True, text=True, timeout=120,
+        )
+        if packed.returncode:
+            raise ValueError("DSH plugin packing failed:\n" + (packed.stderr or packed.stdout))
+        packed_info = json.loads(packed.stdout)
+        if len(packed_info) != 1 or packed_info[0].get("filename") != f"dsh-plugin-stca-{version}.tgz":
+            raise ValueError("npm pack did not produce the expected DSH plugin tarball.")
         downloads = {name: (prepared / name).read_bytes() for name in installer_names}
         download_manifest = {
             "schema": "stca-direct-downloads-v1", "version": version,

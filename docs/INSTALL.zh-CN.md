@@ -52,19 +52,26 @@ ChatGPT 和 Codex 使用同一份独立 skill 包。所有功能均可用自然�
 
 ## DeepSeek Harness
 
-1. 打开已配置的 [DeepSeek Harness](https://www.deepseek.com/harness/)。
-2. 解压 DeepSeek ZIP，得到完整 `stca` 文件夹。
-3. 将其复制到已配置的 skill 根目录，默认用户根目录为 `~/.dsh/skills`。目录不存在或使用自定义配置时，让 Harness 中的 AI 助手确认或准备正确位置。
-4. 保持完整目录结构，包含 `stca/SKILL.md` 及配套文件夹。
-5. 在 Harness 对话中输入 `/stca`。
+1. 打开 [DeepSeek Harness](https://www.deepseek.com/harness/)，进入 **插件 → 添加插件**。
+2. 在地址框粘贴以下 Git 仓库地址，再点安装并启用 STCA：
 
-目录配置见 [DeepSeek 官方说明](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/skill/skill-filesystem/README.zh.md)。完整生成 prompt 也可复制到普通 DeepSeek 对话中使用。
+   ```text
+   https://github.com/foukusa/stca-agent-skill.git
+   ```
+
+3. 在对话中输入 `/stca` 或“开始使用 STCA”。
+
+也可下载 [DSH 插件 TGZ](../downloads/dsh-plugin-stca-0.1.0.tgz?raw=true)，在同一地址框填写该文件的完整本地路径。该文件已经是可安装插件，无需重新打包。不要在“添加插件”中填写 GitHub 的 `/tree/main` 网页地址或 skill ZIP。
+
+只需要手动放置 skill 时，使用 [本地 skill ZIP](../downloads/stca-deepseek-harness-0.1.0.zip?raw=true)，解压后将完整 `stca` 文件夹复制到 `~/.dsh/skills`，或已配置的项目 skill 根目录。此方式不经过“添加插件”。
+
+参见 [DSH 官方插件安装说明](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/develop/basic/publish.zh.md)与[本地 skill 说明](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/skill/skill-filesystem/README.zh.md)。
 
 ## WorkBuddy
 
 1. 打开 [WorkBuddy](https://www.workbuddy.cn/)，进入 skill 管理界面。
 2. 选择 **添加 → 上传** 本地 skill 包。
-3. 选择 `stca-workbuddy-0.1.0.zip`，完成导入并启用 STCA。
+3. 直接选择 `stca-workbuddy-0.1.0.zip`，完成导入并启用 STCA；无需解压或套入其他文件夹。
 4. 输入“开始使用 STCA”。
 
 具体界面见 [WorkBuddy 官方说明](https://www.workbuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Skills-Market)。

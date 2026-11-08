@@ -1,0 +1,54 @@
+{
+  "name": "dsh-plugin-stca",
+  "version": "0.1.0",
+  "description": "Learn readable polymer rules, screen candidates, and generate and verify repeat units with STCA.",
+  "type": "module",
+  "main": "./dsh/index.js",
+  "exports": {
+    ".": "./dsh/index.js",
+    "./package.json": "./package.json",
+    "./icon": "./assets/stca-logo.png",
+    "./locale/*.json": "./dsh/locale/*.json"
+  },
+  "files": [
+    "dsh/",
+    "skills/stca/",
+    "assets/stca-logo.png",
+    "README.md",
+    "README.zh-CN.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "CITATION.cff"
+  ],
+  "icon": "./assets/stca-logo.png",
+  "engines": {
+    "dsh": ">=0.0.1-rc.3 <0.3.0"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-skill-filesystem": "*"
+  },
+  "keywords": [
+    "dsh-plugin",
+    "deepseek-harness",
+    "stca",
+    "polymers",
+    "materials-science",
+    "agent-skill"
+  ],
+  "author": "Weihao Wang",
+  "license": "SEE LICENSE IN LICENSE",
+  "homepage": "https://github.com/foukusa/stca-agent-skill",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/foukusa/stca-agent-skill.git"
+  },
+  "dsh": {
+    "manifestVersion": 1,
+    "bundle": {
+      "patch": "./dsh/cordis.patch.yml"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

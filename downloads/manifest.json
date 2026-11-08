@@ -8,34 +8,39 @@
   ],
   "files": [
     {
+      "file": "dsh-plugin-stca-0.1.0.tgz",
+      "size_bytes": 720716,
+      "sha256": "957b5f4865d61e84daf3741fedb66fc05d0793188665e7ff41b3107c56f71975"
+    },
+    {
       "file": "stca-chatgpt-0.1.0.zip",
-      "size_bytes": 1639192,
-      "sha256": "b67f12ef6c64a6a51ce4dc39c675beac2fdc3d51925a1708c17c7594bb1a72ce"
+      "size_bytes": 1645340,
+      "sha256": "c221c35e44852a40ed9120fadf2ce565fb1ad3f63ca073dd8c461f8279a73ddf"
     },
     {
       "file": "stca-codex-0.1.0.zip",
-      "size_bytes": 1639192,
-      "sha256": "b67f12ef6c64a6a51ce4dc39c675beac2fdc3d51925a1708c17c7594bb1a72ce"
+      "size_bytes": 1645340,
+      "sha256": "c221c35e44852a40ed9120fadf2ce565fb1ad3f63ca073dd8c461f8279a73ddf"
     },
     {
       "file": "stca-deepseek-harness-0.1.0.zip",
-      "size_bytes": 1658617,
-      "sha256": "44f9ae742db6cd49341ed2f70b22f97b26749996bfdee0b905e7af84f76301d7"
+      "size_bytes": 1658781,
+      "sha256": "4479f0c0dfd8d0ccb33f09b32a9f7311379e62a5475efa10225bb8f71e18923a"
     },
     {
       "file": "stca-openai-plugin-0.1.0.zip",
-      "size_bytes": 1895300,
-      "sha256": "53fd3ba8da25eb7b57365f2d6f5fc297a18e0e7cfb7ecc3349a8605f24975b81"
+      "size_bytes": 1909100,
+      "sha256": "c83c65beceb9f924e8e638c3c04bec98eba9981342cef71caf97c6f8a8aeba36"
     },
     {
       "file": "stca-openai-skill-0.1.0.zip",
-      "size_bytes": 1639192,
-      "sha256": "b67f12ef6c64a6a51ce4dc39c675beac2fdc3d51925a1708c17c7594bb1a72ce"
+      "size_bytes": 1645340,
+      "sha256": "c221c35e44852a40ed9120fadf2ce565fb1ad3f63ca073dd8c461f8279a73ddf"
     },
     {
       "file": "stca-workbuddy-0.1.0.zip",
-      "size_bytes": 1658903,
-      "sha256": "f3cc5a6577490518370a8a7d73c33960d90e1312e6b7a91bec1ee0037d479aca"
+      "size_bytes": 1572327,
+      "sha256": "916e7f19d3738927ed9f1a84057398f5c4aafd58ba80ef297bda9cb9f7f61b13"
     }
   ]
 }

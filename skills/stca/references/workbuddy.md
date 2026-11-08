@@ -4,7 +4,7 @@
 
 ## 安装与开始
 
-在 WorkBuddy 的 skill 管理界面安装或导入 STCA。需要文件夹时使用完整 `stca` 目录；需要 ZIP 时使用 `stca-workbuddy-0.1.0.zip`。保留 `SKILL.md`、`scripts`、`references`、`assets` 的相对位置。
+在 WorkBuddy 的 skill 管理界面直接上传 `stca-workbuddy-0.1.0.zip`，导入并启用 STCA。无需解压或重新打包；不要套入额外文件夹。首次调用时由 AI 助手自动准备完整运行资源，后续仍用自然语言操作。
 
 输入 **“开始使用 STCA”**，选择：
 

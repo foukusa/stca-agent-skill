@@ -70,7 +70,7 @@ ChatGPT 和 Codex 使用同一份 skill 包，按各自客户端的[安装说明
 | 平台 | 下载 | 官方说明与调用 |
 |---|---|---|
 | **ChatGPT＋Codex** | [OpenAI skill ZIP](downloads/stca-openai-skill-0.1.0.zip?raw=true) | [ChatGPT 安装帮助](https://help.openai.com/en/articles/20001066-skills-in-chatgpt/) · [Codex skill 说明](https://learn.chatgpt.com/docs/build-skills)。ChatGPT 选择 STCA；Codex 输入“使用 $stca”。 |
-| **DeepSeek Harness** | [DeepSeek ZIP](downloads/stca-deepseek-harness-0.1.0.zip?raw=true) | [产品入口](https://www.deepseek.com/harness/) · [安装说明](docs/INSTALL.zh-CN.md#deepseek-harness)。输入 `/stca`。 |
+| **DeepSeek Harness** | [DSH 插件 TGZ](downloads/dsh-plugin-stca-0.1.0.tgz?raw=true) · [本地 skill ZIP](downloads/stca-deepseek-harness-0.1.0.zip?raw=true) | [产品入口](https://www.deepseek.com/harness/) · [安装说明](docs/INSTALL.zh-CN.md#deepseek-harness)。输入 `/stca`。 |
 | **WorkBuddy** | [WorkBuddy ZIP](downloads/stca-workbuddy-0.1.0.zip?raw=true) | [官方 skill 管理说明](https://www.workbuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Skills-Market)。选择 STCA 后直接描述任务。 |
 
 Codex 也可在对话中请求：
