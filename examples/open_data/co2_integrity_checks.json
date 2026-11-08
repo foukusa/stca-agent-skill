@@ -1,0 +1,182 @@
+{
+  "ecfp4_251": {
+    "n_input": 251,
+    "n_prepared": 251,
+    "excluded_n": 0,
+    "archive_working_all_fields_exact": true,
+    "prepared_all_fields_exact": true,
+    "hcap_graph_match_archival": true,
+    "split_membership_preserved": true,
+    "original_structure_preserved": true,
+    "roles_are_existing_split": true,
+    "outer_labels_used_for_selection": false,
+    "tiers": {
+      "0.3": {
+        "all_original_fields_exact": true,
+        "independent_maccs_prediction_match": true,
+        "valid_input_count": 251,
+        "unknown_count": 0,
+        "all_confusions_match": true,
+        "counts_by_role": {
+          "source_training": {
+            "n": 201,
+            "positive_n": 61,
+            "selected_n": 69,
+            "tp": 48,
+            "fp": 21,
+            "tn": 119,
+            "fn": 13
+          },
+          "outer_evaluation": {
+            "n": 50,
+            "positive_n": 15,
+            "selected_n": 18,
+            "tp": 11,
+            "fp": 7,
+            "tn": 28,
+            "fn": 4
+          }
+        }
+      },
+      "0.25": {
+        "all_original_fields_exact": true,
+        "independent_maccs_prediction_match": true,
+        "valid_input_count": 251,
+        "unknown_count": 0,
+        "all_confusions_match": true,
+        "counts_by_role": {
+          "source_training": {
+            "n": 201,
+            "positive_n": 51,
+            "selected_n": 51,
+            "tp": 34,
+            "fp": 17,
+            "tn": 133,
+            "fn": 17
+          },
+          "outer_evaluation": {
+            "n": 50,
+            "positive_n": 14,
+            "selected_n": 9,
+            "tp": 5,
+            "fp": 4,
+            "tn": 32,
+            "fn": 9
+          }
+        }
+      },
+      "0.2": {
+        "all_original_fields_exact": true,
+        "independent_maccs_prediction_match": true,
+        "valid_input_count": 251,
+        "unknown_count": 0,
+        "all_confusions_match": true,
+        "counts_by_role": {
+          "source_training": {
+            "n": 201,
+            "positive_n": 41,
+            "selected_n": 51,
+            "tp": 29,
+            "fp": 22,
+            "tn": 138,
+            "fn": 12
+          },
+          "outer_evaluation": {
+            "n": 50,
+            "positive_n": 9,
+            "selected_n": 9,
+            "tp": 3,
+            "fp": 6,
+            "tn": 35,
+            "fn": 6
+          }
+        }
+      },
+      "0.15": {
+        "all_original_fields_exact": true,
+        "independent_maccs_prediction_match": true,
+        "valid_input_count": 251,
+        "unknown_count": 0,
+        "all_confusions_match": true,
+        "counts_by_role": {
+          "source_training": {
+            "n": 201,
+            "positive_n": 31,
+            "selected_n": 28,
+            "tp": 16,
+            "fp": 12,
+            "tn": 158,
+            "fn": 15
+          },
+          "outer_evaluation": {
+            "n": 50,
+            "positive_n": 9,
+            "selected_n": 7,
+            "tp": 2,
+            "fp": 5,
+            "tn": 36,
+            "fn": 7
+          }
+        }
+      },
+      "0.1": {
+        "all_original_fields_exact": true,
+        "independent_maccs_prediction_match": true,
+        "valid_input_count": 251,
+        "unknown_count": 0,
+        "all_confusions_match": true,
+        "counts_by_role": {
+          "source_training": {
+            "n": 201,
+            "positive_n": 21,
+            "selected_n": 27,
+            "tp": 13,
+            "fp": 14,
+            "tn": 166,
+            "fn": 8
+          },
+          "outer_evaluation": {
+            "n": 50,
+            "positive_n": 9,
+            "selected_n": 7,
+            "tp": 2,
+            "fp": 5,
+            "tn": 36,
+            "fn": 7
+          }
+        }
+      }
+    },
+    "cross_role_identity_overlap": {
+      "stca_original_identity": 0,
+      "stca_hcap_identity": 0
+    },
+    "historical_comparison": {
+      "0.3": {
+        "cutoff_equal": true,
+        "representative_rule_equal": true,
+        "all_old_outer_metric_fields_equal": true,
+        "old_selected_n": 18,
+        "new_selected_n": 18
+      },
+      "0.2": {
+        "cutoff_equal": true,
+        "representative_rule_equal": true,
+        "all_old_outer_metric_fields_equal": true,
+        "old_selected_n": 9,
+        "new_selected_n": 9
+      },
+      "0.1": {
+        "cutoff_equal": true,
+        "representative_rule_equal": true,
+        "all_old_outer_metric_fields_equal": true,
+        "old_selected_n": 7,
+        "new_selected_n": 7
+      },
+      "15_vs_10": {
+        "outer_prediction_sets_equal": true,
+        "source_prediction_sets_equal": false
+      }
+    }
+  }
+}

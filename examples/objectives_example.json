@@ -1,27 +1,18 @@
 {
   "schema": "stca-objectives-v1",
-  "id_column": "CandidateKey",
+  "id_column": null,
   "smiles_column": "SMILES",
   "hcap_before_maccs": true,
-  "hcap_output_column": "stca_calculation_smiles_hcap",
   "objectives": [
     {
-      "name": "thermal_stability",
       "property": "Tg",
       "direction": "high",
-      "tier": 0.20
+      "tier": 0.2
     },
     {
-      "name": "electrical_insulation",
       "property": "EC",
       "direction": "low",
-      "tier": 0.10
-    },
-    {
-      "name": "heat_dissipation",
-      "property": "TC",
-      "direction": "high",
-      "tier": 0.20
+      "tier": 0.1
     }
   ]
 }

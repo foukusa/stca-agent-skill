@@ -79,7 +79,7 @@ def load_stca(source_path=None):
 def environment_receipt(source_path=None) -> dict:
     root = verify_source(source_path)
     versions = {}
-    for name in ("numpy", "pandas", "scipy", "rdkit"):
+    for name in ("numpy", "pandas", "scipy", "rdkit", "scikit-learn", "joblib", "threadpoolctl", "cloudpickle"):
         try:
             versions[name] = importlib.metadata.version(name)
         except importlib.metadata.PackageNotFoundError:

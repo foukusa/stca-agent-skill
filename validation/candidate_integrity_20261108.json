@@ -1,0 +1,26 @@
+{
+  "input_rows": 243,
+  "screen_rows": 243,
+  "prepared_rows": 243,
+  "excluded_rows": 0,
+  "id_and_order_preserved": true,
+  "all_original_fields_exactly_preserved": true,
+  "prepared_original_fields_exactly_preserved": true,
+  "original_star_smiles_preserved": true,
+  "computed_hcap_not_in_main_results": true,
+  "hcap_contains_no_star": true,
+  "independent_maccs_rule_predictions_match": true,
+  "selected_count": 21,
+  "selected_by_split": {
+    "train": 21,
+    "test": 0
+  },
+  "screen_target_not_claimed_as_measured_success": true,
+  "exported_representative_matches_screen": true,
+  "model_input_sha256_matches": true,
+  "all_tier_cutoffs_equal_prepatch": true,
+  "all_tier_bit_rules_equal_prepatch": true,
+  "all_families_equal_prepatch": true,
+  "screen_selection_equal_prepatch": true,
+  "outer_zero_selection_metrics_corrected": true
+}

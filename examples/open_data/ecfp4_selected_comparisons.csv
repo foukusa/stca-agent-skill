@@ -1,0 +1,5 @@
+data,tier,comparison,fingerprint_split,stca,wracc,rf,delta_vs_WRAcc,delta_vs_RF
+PI_RHO,0.3,same_dataset_fixed_train,Morgan_radius2_2048,0.8379947595810818,0.8075749970401622,0.7489503526604444,0.0304197625409196,0.0890444069206374
+AD_GAP,0.1,same_dataset_fixed_train,Morgan_radius2_2048,0.7028368248824721,0.4679582913102567,0.5667552239643757,0.2348785335722154,0.1360816009180964
+AD_RI -> PI_RI,0.2,cross_source_dataset_relative,Morgan_radius2_2048,0.6,0.54,0.44,0.05999999999999994,0.15999999999999998
+AD_RI -> PI_RI,0.1,cross_source_dataset_relative,Morgan_radius2_2048,0.5,0.41,0.37,0.09000000000000002,0.13

@@ -1,23 +1,50 @@
-STCA Agent Skill — license scope notice
-PUBLISHER REVIEW DRAFT; confirm the new integration license before public distribution.
+STCA Agent Skill Academic Use License
+Version 1.0 — 2026-11-08
 
-This preparation file preserves the license of the original polymer-stca
-implementation at revision 5951b0ef23d63edc8f7e803aaaffa5e4168288f6.
-The quoted upstream grant applies to that upstream software. It is not a
-license grant for newly written skill integration scripts, documentation,
-visual assets or example fixtures. Those rights are to be specified by their
-authorized publisher. See PUBLISHER_LICENSE_NOTES.md.
+Copyright (c) 2026 Weihao Wang
 
-BEGIN UNCHANGED UPSTREAM LICENSE
+1. Covered materials
 
-Copyright (c) 2025, The University of Tokyo, University College London
+This license applies to the original STCA Agent Skill integration materials in
+this repository, including the skill instructions, integration and packaging
+scripts, documentation, examples, validation records, and the bundled STCA
+logo (collectively, the “Covered Materials”).
 
-Permission is granted to use and modify this software for non-commercial academic research, education, and reproduction of scientific results.
+This license does not apply to the original `polymer-stca` implementation,
+pretrained artifacts, measured research datasets, Python, RDKit, or other
+third-party software. Those components remain subject to their own terms. See
+`THIRD_PARTY_NOTICES.md`.
 
-Commercial use and redistribution, including distribution of modified versions, require prior written permission from the copyright holders.
+2. Permitted use
 
-This copyright notice and license text must be retained in copies of the software.
+Permission is granted to use, copy, and modify the Covered Materials for
+non-commercial academic research, education, and reproduction of scientific
+results.
 
-The software is provided "AS IS", without warranty of any kind. The copyright holders are not liable for claims or damages arising from its use.
+3. Commercial use and redistribution
 
-END UNCHANGED UPSTREAM LICENSE
+Commercial use and redistribution of the Covered Materials, including
+redistribution of modified versions, require prior written permission from the
+copyright holder.
+
+4. Attribution and notices
+
+This copyright notice and license text must be retained in copies of the
+Covered Materials. Publications or public research outputs that materially use
+STCA should cite the STCA paper and the software metadata provided in
+`CITATION.cff`.
+
+5. Name and logo
+
+The STCA name and logo may be used only to identify an unmodified copy of the
+STCA Agent Skill or to make an accurate scholarly reference to it. This license
+does not grant permission to imply endorsement, affiliation, or certification.
+
+6. No warranty
+
+THE COVERED MATERIALS ARE PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. IN NO
+EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+LIABILITY ARISING FROM, OUT OF, OR IN CONNECTION WITH THE COVERED MATERIALS OR
+THEIR USE.

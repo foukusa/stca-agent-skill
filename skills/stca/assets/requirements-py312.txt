@@ -12,3 +12,9 @@ rdkit==2025.9.4
 scipy==1.17.0
 six==1.17.0
 tzdata==2026.6
+
+# ECFP4 automatic splitting and source-only configuration (verified 2026-11-08).
+scikit-learn==1.7.2
+joblib==1.6.0
+threadpoolctl==3.8.0
+cloudpickle==3.1.2

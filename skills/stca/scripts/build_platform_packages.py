@@ -17,9 +17,11 @@ import zipfile
 CORE_SCRIPTS = (
     "audit_dataset.py", "prepare_hcap.py", "setup_locked_environment.py",
     "stca_io.py", "stca_runtime.py", "stca_tools.py",
+    "data_readiness.py", "custom_fit.py", "evaluate_custom.py",
+    "data_cleaning.py", "auto_screen.py",
 )
 PUBLICATION_FILES = (
-    "LICENSE", "THIRD_PARTY_NOTICES.md", "PUBLISHER_LICENSE_NOTES.md", "CITATION.cff",
+    "LICENSE", "THIRD_PARTY_NOTICES.md", "CITATION.cff",
 )
 PLATFORMS = ("deepseek-harness", "workbuddy")
 
@@ -106,7 +108,7 @@ def main() -> int:
             "common_instruction_body_sha256": sha256(body.encode("utf-8")),
             "platform_end_to_end_tested": False,
             "public_market_submission_performed": False,
-            "publisher_license_confirmation_required": True,
+            "publisher_license_confirmation_required": False,
         }
         files["assets/platform-release.json"] = (json.dumps(manifest, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
         checksums = "".join(sha256(data) + "  " + name + "\n" for name, data in sorted(files.items()))

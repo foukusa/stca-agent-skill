@@ -23,7 +23,7 @@ export STCA_SOURCE="$(python3.12 -c 'import json,sys; print(json.load(open(sys.a
 ## Windows PowerShell
 
 ```powershell
-$SkillDir = (Resolve-Path "C:ctual\path\stca").Path
+$SkillDir = (Resolve-Path "C:\actual\path\stca").Path
 $StcaEnvDir = Join-Path $env:USERPROFILE ".venvs\stca-0.1.0"
 $env:PYTHONUTF8 = "1"
 

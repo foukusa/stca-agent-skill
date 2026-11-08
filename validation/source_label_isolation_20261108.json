@@ -1,0 +1,6 @@
+{
+  "test": "outer_evaluation_targets_replaced_by_constant_1e12",
+  "source_rules_rankings_scan_and_config_identical": true,
+  "source_only_settings_identical": true,
+  "note": "Full input hashes differ intentionally; training decisions do not."
+}

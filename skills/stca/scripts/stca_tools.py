@@ -212,8 +212,98 @@ def _load_model(stca, spec: dict, base_dir: Path):
         "selection_protocol": model.provenance.get("selection_protocol"),
         "external_labels_used_for_fit": model.provenance.get("external_labels_used_for_fit"),
         "provenance": model.provenance,
+        "custom_data_contract": _custom_contract(artifact),
+        "generic_protocol_retained": saved_protocol is None,
     }
     return model, metadata
+
+
+def _custom_contract(artifact: dict) -> dict:
+    caller = artifact.get("provenance", {}).get("caller_metadata", {})
+    contract = caller.get("custom_data_contract", {}) if isinstance(caller, dict) else {}
+    if not isinstance(contract, dict):
+        raise ValueError("Saved custom_data_contract must be an object.")
+    return contract
+
+
+def _property_token(value) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError("A property must be a nonempty string.")
+    key = re.sub(r"\s+", " ", value.strip().lower().replace("–", "-").replace("—", "-"))
+    return PROPERTY_ALIASES.get(key, key)
+
+
+def _check_target_metadata(requirement: dict, model):
+    """Check requested target against saved semantics; never guess equivalences."""
+    a = model.artifact
+    contract = _custom_contract(a)
+    actual = contract.get("property", a["target_name"])
+    requested = requirement.get("property")
+    transfer = requested is not None and _property_token(requested) != _property_token(actual)
+    allowed = requirement.get("allow_transfer", False)
+    if not isinstance(allowed, bool):
+        raise ValueError("allow_transfer must be a boolean.")
+    if transfer and not allowed:
+        raise ValueError(
+            f"Requested property {requested!r} differs from model property {actual!r}. "
+            "Cross-property screening requires explicit allow_transfer:true and is an unvalidated transfer hypothesis."
+        )
+    direction = requirement.get("direction")
+    if direction is not None and direction != a["direction"]:
+        raise ValueError("Requested direction conflicts with the frozen model direction.")
+    declared_source = requirement.get("source_property")
+    if declared_source is not None and _property_token(declared_source) != _property_token(actual):
+        raise ValueError("source_property conflicts with the saved model target.")
+    if not transfer and requirement.get("objective_unit") is not None:
+        actual_unit = contract.get("original_unit", a["target_unit"])
+        if str(requirement["objective_unit"]).strip() != str(actual_unit).strip():
+            raise ValueError(f"Requested unit does not match saved unit {actual_unit!r}; no implicit unit conversion is performed.")
+    return {
+        "requested_property": requested or actual,
+        "source_property": actual,
+        "cross_property_transfer": transfer,
+        "allow_transfer": allowed,
+        "measured_target_performance_known": False,
+        "performance_warning": (
+            "Cross-property structural proxy only. The trial includes weak and negative transfer; "
+            "no target-property cutoff or performance guarantee follows from this rule."
+            if transfer else "Rule compliance is not a measured-property success guarantee."
+        ),
+    }
+
+
+def _target_metadata(artifact: dict, entry: dict) -> dict:
+    contract = _custom_contract(artifact)
+    transform = contract.get("transform", "none")
+    kind = transform.get("kind", transform.get("name", "none")) if isinstance(transform, dict) else transform
+    model_cutoff = entry.get("train_cutoff")
+    physical_cutoff = model_cutoff
+    already_log = bool(contract.get("already_log", False))
+    physical_unit = contract.get("original_unit", artifact["target_unit"])
+    if already_log:
+        match = re.fullmatch(r"log10\((.+)\)", str(physical_unit).strip())
+        physical_unit = match.group(1) if match else None
+    if (kind == "log10" or already_log) and model_cutoff is not None:
+        try:
+            physical_cutoff = 10.0 ** float(model_cutoff)
+        except OverflowError:
+            physical_cutoff = None
+    elif kind not in (None, "none", "identity"):
+        # Unknown transformations are not inverted by assumption.
+        physical_cutoff = None
+    return {
+        "name": artifact["target_name"], "unit": artifact["target_unit"],
+        "direction": artifact["direction"],
+        "reference_train_cutoff": model_cutoff,
+        "model_space_cutoff": model_cutoff,
+        "model_space_unit": contract.get("model_unit", artifact["target_unit"]),
+        "physical_train_cutoff": physical_cutoff,
+        "physical_unit": physical_unit,
+        "target_transform": transform,
+        "input_already_logarithmic": already_log,
+        "label_comparison": ">=" if artifact["direction"] == "high" else "<=",
+        "cutoff_role": "Stored training-label boundary; not a property prediction or guarantee for a selected structure.",
+    }
 
 
 def _maccs_definition(key: int):
@@ -261,11 +351,7 @@ def _constraint(stca, model, metadata, tier):
         "status": "frozen_representative" if rule is not None else "no_valid_rule",
         "model": metadata,
         "tier_fraction": tier,
-        "target": {"name": artifact["target_name"], "unit": artifact["target_unit"],
-                   "direction": artifact["direction"],
-                   "reference_train_cutoff": entry.get("train_cutoff"),
-                   "label_comparison": ">=" if artifact["direction"] == "high" else "<=",
-                   "cutoff_role": "Stored training-label boundary; not a property prediction or guarantee for a selected structure."},
+        "target": _target_metadata(artifact, entry),
         "feature_spec": artifact["feature_spec"],
         "feature_names": artifact["feature_names"],
         "combiner": "AND",
@@ -286,7 +372,8 @@ def _prompt(constraint: dict) -> str:
     head = ["# STCA 冻结规则生成约束", "",
             f"目标：{target['name']}；方向：{target['direction']}；性能单位：{target['unit']}。",
             f"协议：{protocol}；训练目标尾部比例：{constraint['tier_fraction']:g}。",
-            f"保存的训练标签边界：{target['label_comparison']} {target['reference_train_cutoff']} {target['unit']}。", ""]
+            f"保存的训练标签边界：{target['label_comparison']} {target['reference_train_cutoff']} {target['unit']}。",
+            f"物理单位边界：{target['label_comparison']} {target.get('physical_train_cutoff')} {target.get('physical_unit')}；变换：{target.get('target_transform')}。", ""]
     if constraint["status"] == "no_valid_rule":
         return "\n".join(head + ["当前 tier 没有有效的冻结代表规则，不能据此生成‘已满足 STCA’的候选。",
                                   "保留这一结果；报告候选家族与缺失证据，不新增、放宽或猜测条件。", ""])
@@ -367,138 +454,89 @@ def _normalise_direction(value, property_name: str) -> str:
     return result
 
 
-def _cutoff_to_reference_value(prop: str, value, unit) -> tuple[float, str]:
-    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
-        raise ValueError("Objective cutoff must be a finite number.")
-    raw_unit = "" if unit is None else str(unit).strip().lower().replace(" ", "")
-    if prop in {"tg", "tm", "td"}:
-        if raw_unit in {"", "degc", "c", "°c", "celsius"}:
-            return float(value), "degC"
-        if raw_unit in {"k", "kelvin"}:
-            return float(value) - 273.15, "degC"
-        raise ValueError(f"Unsupported temperature unit {unit!r}; use degC or K.")
-    if prop == "tc":
-        if raw_unit in {"", "w/(m·k)", "w/(m*k)", "w/mk", "w/(m.k)"}:
-            return float(value), "W/(m·K)"
-        raise ValueError(f"Unsupported thermal-conductivity unit {unit!r}; use W/(m·K).")
-    if prop == "epsilon_ac":
-        if raw_unit in {"", "dimensionless", "1", "relative"}:
-            return float(value), "dimensionless"
-        raise ValueError("ε-AC cutoff is dimensionless.")
-    if prop == "ec":
-        if raw_unit in {"log10(s/cm)", "logs/cm", "log10s/cm"}:
-            return float(value), "log10(S/cm)"
-        if raw_unit in {"log10(s/m)", "logs/m", "log10s/m"}:
-            return float(value) - 2.0, "log10(S/cm)"
-        if raw_unit in {"s/cm", "scm-1"}:
-            if value <= 0:
-                raise ValueError("Electrical conductivity must be positive before log conversion.")
-            return math.log10(float(value)), "log10(S/cm)"
-        if raw_unit in {"", "s/m", "sm-1"}:
-            if value <= 0:
-                raise ValueError("Electrical conductivity must be positive before log conversion.")
-            return math.log10(float(value)) - 2.0, "log10(S/cm)"
-        raise ValueError(f"Unsupported EC unit {unit!r}; use S/m, S/cm, log10(S/m) or log10(S/cm).")
-    raise ValueError(f"No cutoff conversion is defined for {prop}.")
+def _objective_identity(objective: dict, prop_slug: str, direction: str, tier: float, index: int):
+    raw_name = objective.get("name") or f"{prop_slug}_{direction}_{index + 1}"
+    name = re.sub(r"[^A-Za-z0-9_]", "_", str(raw_name))
+    if not re.match(r"[A-Za-z]", name):
+        name = "objective_" + name
+    name = name[:48]
+    return name, objective.get("label") or f"{objective['property']} {direction} ({tier:g})"
 
 
-def _nearest_reference_tier(prop: str, direction: str, cutoff, unit) -> tuple[float, dict, dict]:
-    table = PAPER_REFERENCE_THRESHOLDS.get((prop, direction))
-    if not table:
-        raise ValueError(
-            f"No paper reference threshold table is available for {PROPERTY_LABELS[prop]} {direction}; "
-            "provide an explicit tier instead."
-        )
-    converted, converted_unit = _cutoff_to_reference_value(prop, cutoff, unit)
-    tier, reference = min(table.items(), key=lambda item: abs(converted - float(item[1]["value"])))
-    mapping = {
-        "input_cutoff": float(cutoff),
-        "input_unit": unit,
-        "converted_cutoff": converted,
-        "converted_unit": converted_unit,
-        "nearest_reference_tier": tier,
-        "nearest_reference_threshold": reference,
-        "absolute_distance": abs(converted - float(reference["value"])),
-    }
-    return tier, reference, mapping
-
-
-def _route_objective(objective: dict, index: int) -> tuple[dict, dict]:
+def _route_objective(objective: dict, index: int, *, base_dir=None, stca=None) -> tuple[dict, dict]:
     if not isinstance(objective, dict):
         raise ValueError("Each objective must be a JSON object.")
-    allowed = {"name", "property", "direction", "tier", "cutoff", "unit", "protocol", "label"}
+    allowed = {"name", "property", "direction", "tier", "cutoff", "unit", "protocol", "label", "model", "allow_transfer"}
     extras = set(objective) - allowed
     if extras:
         raise ValueError(f"Unknown objective fields: {sorted(extras)}")
+    if objective.get("tier") is None:
+        raise ValueError("Each objective requires an explicit tier. A physical cutoff never chooses the nearest paper tier.")
+    tier = _tier(objective["tier"])
+    cutoff = objective.get("cutoff")
+    if cutoff is not None and (isinstance(cutoff, bool) or not isinstance(cutoff, (int, float)) or not math.isfinite(cutoff)):
+        raise ValueError("Objective cutoff metadata must be finite.")
+    if "allow_transfer" in objective and not isinstance(objective["allow_transfer"], bool):
+        raise ValueError("allow_transfer must be true or false.")
+    if "label" in objective and not isinstance(objective["label"], str):
+        raise ValueError("Objective label must be a string.")
+    if objective.get("model") is not None:
+        if stca is None:
+            raise ValueError("Saved-model objective planning requires the pinned runtime.")
+        prop = objective.get("property")
+        _property_token(prop)
+        direction = objective.get("direction")
+        if direction not in ("high", "low"):
+            raise ValueError("Saved-model objectives require explicit direction high or low.")
+        model, metadata = _load_model(stca, objective, Path(base_dir or Path.cwd()))
+        if format(tier, ".12g") not in model.artifact["tiers"]:
+            raise ValueError(f"Tier {tier} not available in the saved model.")
+        name, label = _objective_identity(objective, re.sub(r"[^a-z0-9]", "_", prop.lower()), direction, tier, index)
+        requirement = {
+            "name": name, "label": label, "model": metadata["origin"]["path"], "tier": tier,
+            "property": prop, "direction": direction, "tier_source": "user_tier",
+            "allow_transfer": objective.get("allow_transfer", False),
+            "objective_cutoff": cutoff, "objective_unit": objective.get("unit"),
+        }
+        if objective.get("protocol") is not None:
+            requirement["protocol"] = objective["protocol"]
+        checked = _check_target_metadata(requirement, model)
+        requirement.update({"source_property": checked["source_property"],
+                            "transfer_role": "explicit_saved_model_transfer" if checked["cross_property_transfer"] else "saved_model_native"})
+        return {**requirement, "domain": "saved_model", "model_metadata": metadata,
+                "target_evidence": checked, "cutoff_metadata_only": True}, requirement
+
     prop = _normalise_property(objective.get("property"))
     direction = _normalise_direction(objective.get("direction"), prop)
     domain = "thermal" if prop in {"tg", "tm", "td", "tc"} else "electrical"
     if prop in {"tg", "tm", "td", "tc"}:
-        profile = "tg-high"
-        source_property = "Tg"
-        transfer_role = "native" if prop == "tg" else "Tg-derived thermal transfer"
-        available = THERMAL_TIERS
+        profile, source_property, available = "tg-high", "Tg", THERMAL_TIERS
     else:
         profile = "ec-high" if direction == "high" else "ec-low"
-        source_property = "EC"
-        transfer_role = "native" if prop == "ec" else "EC-derived electrical transfer"
-        available = ELECTRICAL_TIERS
-    tier_value = objective.get("tier")
-    cutoff = objective.get("cutoff")
-    selectors = sum(value is not None for value in (tier_value, cutoff))
-    if selectors > 1:
-        raise ValueError("Specify only one of tier or cutoff for each objective.")
-    cutoff_mapping = None
-    if tier_value is not None:
-        tier = _tier(tier_value)
-        tier_source = "user_tier"
-    elif cutoff is not None:
-        tier, _, cutoff_mapping = _nearest_reference_tier(prop, direction, cutoff, objective.get("unit"))
-        tier_source = "nearest_paper_reference_cutoff"
-    else:
-        raise ValueError(
-            "Each objective requires an explicit percentage tier. "
-            "For published rules choose one of the profile tiers; for custom rule extraction "
-            "define the percentage thresholds in the training command."
-        )
+        source_property, available = "EC", ELECTRICAL_TIERS
+    transfer = prop not in {"tg", "ec"}
+    if transfer and objective.get("allow_transfer") is not True:
+        raise ValueError(f"{PROPERTY_LABELS[prop]} uses a cross-property paper proxy; add allow_transfer:true or supply a target-specific saved model.")
     if not any(abs(tier - allowed_tier) < 1e-12 for allowed_tier in available):
-        raise ValueError(
-            f"Tier {tier:g} is unavailable for {PROPERTY_LABELS[prop]}; choose one of {list(available)}."
-        )
+        raise ValueError(f"Tier {tier:g} unavailable for {PROPERTY_LABELS[prop]}; choose {list(available)}.")
     protocol = objective.get("protocol", "paper")
     if protocol not in PROTOCOLS:
         raise ValueError("Objective protocol must be paper or source_locked.")
-    raw_name = objective.get("name") or f"{PROPERTY_SLUGS[prop]}_{direction}_{index + 1}"
-    safe_name = re.sub(r"[^A-Za-z0-9_]", "_", str(raw_name))
-    if not re.match(r"[A-Za-z]", safe_name):
-        safe_name = "objective_" + safe_name
-    safe_name = safe_name[:48]
-    label = objective.get("label") or f"{PROPERTY_LABELS[prop]} {direction} ({tier:g})"
-    reference = PAPER_REFERENCE_THRESHOLDS.get((prop, direction), {}).get(tier)
-    normalised = {
-        "name": safe_name,
-        "property": PROPERTY_LABELS[prop],
-        "direction": direction,
-        "domain": domain,
-        "tier": tier,
-        "tier_source": tier_source,
-        "profile": profile,
-        "protocol": protocol,
-        "source_property": source_property,
-        "transfer_role": transfer_role,
-        "paper_reference_threshold": reference,
-        "cutoff_mapping": cutoff_mapping,
-        "label": label,
-    }
+    transfer_role = "native" if not transfer else f"{source_property}-derived cross-property structural proxy"
+    name, label = _objective_identity(objective, PROPERTY_SLUGS[prop], direction, tier, index)
     requirement = {
-        "name": safe_name, "label": label, "profile": profile, "protocol": protocol, "tier": tier,
+        "name": name, "label": label, "profile": profile, "protocol": protocol, "tier": tier,
         "property": PROPERTY_LABELS[prop], "direction": direction,
         "source_property": source_property, "transfer_role": transfer_role,
-        "tier_source": tier_source,
-        "objective_cutoff": cutoff,
-        "objective_unit": objective.get("unit"),
+        "tier_source": "user_tier", "allow_transfer": objective.get("allow_transfer", False),
+        "objective_cutoff": cutoff, "objective_unit": objective.get("unit"),
     }
-    return normalised, requirement
+    return {**requirement, "domain": domain,
+            "paper_reference_threshold": PAPER_REFERENCE_THRESHOLDS.get((prop, direction), {}).get(tier),
+            "cutoff_mapping": None, "cutoff_metadata_only": True,
+            "target_evidence": {"cross_property_transfer": transfer,
+                                "measured_target_performance_known": False,
+                                "performance_warning": "Cross-property rule compliance is a transfer hypothesis; negative transfer is possible." if transfer else "Rule compliance is not property confirmation."}}, requirement
 
 
 def plan_objectives(args) -> int:
@@ -532,8 +570,9 @@ def plan_objectives(args) -> int:
             hcap_output_column == smiles_column):
         raise ValueError("hcap_output_column must be a nonempty calculation-only column distinct from smiles_column.")
     normalised, requirements, names = [], [], set()
+    saved_runtime = load_stca(getattr(args, "source", None)) if any(isinstance(x, dict) and x.get("model") is not None for x in objectives) else None
     for index, objective in enumerate(objectives):
-        plan, requirement = _route_objective(objective, index)
+        plan, requirement = _route_objective(objective, index, base_dir=source_path.parent, stca=saved_runtime)
         if requirement["name"] in names:
             raise ValueError(f"Repeated generated objective name: {requirement['name']}")
         names.add(requirement["name"])
@@ -555,9 +594,9 @@ def plan_objectives(args) -> int:
         "objectives": normalised,
         "joint_config": config,
         "interpretation": (
-            "Each objective keeps its own property, direction and tier. Tm/Td/TC reuse the published "
-            "Tg-derived thermal family; ε-AC reuses the corresponding EC-derived electrical family. "
-            "The generated config applies every frozen structural rule to the same candidate rows."
+            "Each objective keeps its own property, direction and explicit tier. Cross-property proxies "
+            "require allow_transfer:true and carry no measured target-performance guarantee. "
+            "Cutoff metadata never selects or changes a tier. Saved custom models retain their own target contract."
         ),
     }
     output = _new_directory(args.output_dir)
@@ -614,7 +653,7 @@ def _config_object(config: dict) -> dict:
         extras = set(requirement) - {
             "name", "label", "profile", "model", "protocol", "tier",
             "property", "direction", "source_property", "transfer_role", "tier_source",
-            "objective_cutoff", "objective_unit",
+            "objective_cutoff", "objective_unit", "allow_transfer",
         }
         if extras:
             raise ValueError(f"Unknown requirement fields: {sorted(extras)}")
@@ -744,6 +783,18 @@ def _candidate_matrix(frame, config: dict, models, *, np, pd, maccs_from_smiles)
     raw_smiles = frame[original_column].astype("string").fillna("").tolist()
     calculation_column = config["hcap_output_column"]
     hcap_enabled = config["hcap_before_maccs"]
+    contracts = []
+    for _, model, _, _ in models:
+        contract = _custom_contract(model.artifact)
+        representation = contract.get("representation")
+        if representation == "hcap_maccs167" and not hcap_enabled and any("*" in x for x in raw_smiles):
+            raise ValueError("Saved model was trained on H-cap MACCS, but input contains raw connection points while H-cap is disabled.")
+        if representation in {"as_provided_maccs167", "raw_maccs167"} and hcap_enabled:
+            raise ValueError("Saved model requires its as-provided MACCS representation; H-cap cannot be enabled silently.")
+        if representation not in (None, "hcap_maccs167", "as_provided_maccs167", "raw_maccs167"):
+            raise ValueError(f"Unsupported saved training representation {representation!r}.")
+        contracts.append(representation or "legacy_unspecified")
+    calculation["saved_representation_contracts"] = contracts
     prepared, counts, hcap_errors = [], [], []
     for value in raw_smiles:
         if not hcap_enabled:
@@ -787,6 +838,37 @@ def _candidate_matrix(frame, config: dict, models, *, np, pd, maccs_from_smiles)
     return X, audit, valid, extra_columns, calculation
 
 
+def _candidate_duplicates(frame, config, audit, candidate_ids, valid):
+    """Report identity ambiguity; never merge or discard candidates."""
+    if config.get("features"):
+        return {"status": "structure_audit_unavailable_binary_input", "rows_dropped": 0}
+    from collections import defaultdict
+    from rdkit import Chem
+    original = defaultdict(list)
+    hcap = defaultdict(list)
+    original_canonical = {}
+    for i, text in enumerate(frame[config["smiles_column"]].tolist()):
+        try:
+            mol = Chem.MolFromSmiles(str(text))
+            canon = None if mol is None else Chem.MolToSmiles(mol, canonical=True)
+        except (ValueError, RuntimeError):
+            canon = None
+        if canon is not None:
+            original[canon].append(i)
+            original_canonical[i] = canon
+        if bool(valid.iloc[i]) and "canonical_smiles" in audit:
+            hcap[str(audit.iloc[i]["canonical_smiles"])].append(i)
+    def record(canon, positions):
+        return {"canonical_smiles": canon, "row_positions": positions,
+                "candidate_ids": [str(candidate_ids.iloc[i]) for i in positions]}
+    duplicates = [record(k, v) for k, v in original.items() if len(v) > 1]
+    collisions = [record(k, v) for k, v in hcap.items()
+                  if len({original_canonical.get(i) for i in v if i in original_canonical}) > 1]
+    return {"status": "audited", "canonical_original_duplicate_groups": duplicates,
+            "hcap_collision_groups": collisions, "rows_dropped": 0,
+            "policy": "Report only. H-cap equality does not identify the same polymer; original connections remain authoritative."}
+
+
 def _run_candidate_screen(*, input_path: Path, config_path: Path | None, config: dict,
                           output_dir, stca, source) -> int:
     import numpy as np
@@ -799,6 +881,7 @@ def _run_candidate_screen(*, input_path: Path, config_path: Path | None, config:
     for requirement in config["requirements"]:
         base_dir = config_path.parent if config_path is not None else Path.cwd()
         model, metadata = _load_model(stca, requirement, base_dir)
+        metadata["target_evidence"] = _check_target_metadata(requirement, model)
         constraint = _constraint(stca, model, metadata, requirement["tier"])
         models.append((requirement, model, metadata, constraint))
         constraints.append((requirement["name"], constraint))
@@ -807,6 +890,7 @@ def _run_candidate_screen(*, input_path: Path, config_path: Path | None, config:
     X, audit, valid, extra_columns, calculation = _candidate_matrix(
         frame, config, models, np=np, pd=pd, maccs_from_smiles=maccs_from_smiles,
     )
+    candidate_audit = _candidate_duplicates(frame, config, audit, candidate_ids, valid)
     out = frame.copy()
     out.insert(0, "stca_row_position", range(len(frame)))
     if config["id_column"] is None:
@@ -844,6 +928,8 @@ def _run_candidate_screen(*, input_path: Path, config_path: Path | None, config:
             "direction": requirement.get("direction"),
             "source_property": requirement.get("source_property"),
             "transfer_role": requirement.get("transfer_role"),
+            "target_evidence": metadata.get("target_evidence"),
+            "objective_cutoff_role": "metadata_only_not_evaluated_without_measured_labels",
             "tier_source": requirement.get("tier_source"),
             "objective_cutoff": requirement.get("objective_cutoff"),
             "objective_unit": requirement.get("objective_unit"),
@@ -882,6 +968,7 @@ def _run_candidate_screen(*, input_path: Path, config_path: Path | None, config:
         "row_identity": {**identity, "unique_nonempty_ids": True,
                          "same_input_rows_used_for_every_requirement": True},
         "structure_representation": calculation,
+        "candidate_audit": candidate_audit,
         "input_count": len(frame), "valid_input_count": int(valid.sum()),
         "invalid_input_count": int((~valid).sum()), "joint_assessed_count": int(assessed.sum()),
         "joint_selected_count": int(joint.fillna(False).sum()),
@@ -908,6 +995,7 @@ def _run_candidate_screen(*, input_path: Path, config_path: Path | None, config:
     presentation.to_csv(output / "results.csv", index=False)
     out.to_csv(output / "rows.csv", index=False)
     _write_json(output / "summary.json", summary)
+    _write_json(output / "candidate_audit.json", candidate_audit)
     _write_json(output / "manifest.json", receipt)
     _write_json(output / "joint_constraints.json", {"schema": "stca-joint-constraints-v1", "combiner": "AND",
                                                     "requirements": [{"name": name, **c} for name, c in constraints]})
@@ -946,6 +1034,7 @@ def screen_candidates(args, stca) -> int:
         "direction": args.direction,
         "source_property": args.source_property,
         "transfer_role": args.transfer_role,
+        "allow_transfer": getattr(args, "allow_transfer", False),
         "tier_source": "user_tier",
         "objective_cutoff": None,
         "objective_unit": None,
@@ -1009,6 +1098,7 @@ def main(argv=None) -> int:
     screen.add_argument("--direction", choices=("high", "low"))
     screen.add_argument("--source-property")
     screen.add_argument("--transfer-role")
+    screen.add_argument("--allow-transfer", action="store_true", help="Explicitly permit cross-property structural proxy screening; not measured target confirmation.")
     screen.add_argument("--output-dir", required=True, help="A new output directory.")
     joint = commands.add_parser("joint-screen", help="Apply multiple frozen rules to each row of one candidate CSV.")
     joint.add_argument("--input", required=True)

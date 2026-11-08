@@ -1,0 +1,428 @@
+{
+  "case": "GAS_CO2",
+  "data_kind": "experimental_variable_recorded_conditions",
+  "input_rows": 778,
+  "cleaned_rows": 481,
+  "excluded_rows": 297,
+  "reason_counts": {
+    "missing_target": 296,
+    "unsupported_hcap_structure": 1
+  },
+  "source_n": 381,
+  "holdout_n": 100,
+  "target_transform": "log10",
+  "scan_step": 0.0005,
+  "min_subset_size": 20,
+  "recommended_tier": 0.1,
+  "recommendation_scope": "source inner only",
+  "outer_labels_used_for_settings": false,
+  "data_values_preformatted_by_user": false,
+  "input_raw_preserved": true,
+  "format_repair_audit": {
+    "schema": "stca-auto-input-format-v1",
+    "input_sha256": "496df857061e09dcaee50c1aaeae931635cc53fe631ae1e040035569df0195b8",
+    "encoding": "utf-8-sig",
+    "csv_strict": true,
+    "original_header": [
+      "",
+      "index",
+      "Name",
+      "PID",
+      "Smiles",
+      "Details",
+      "Condition",
+      "Reference",
+      "Year",
+      "He",
+      "H2",
+      "O2",
+      "N2",
+      "CO2",
+      "CH4",
+      "log10_He",
+      "log10_H2",
+      "log10_O2",
+      "log10_N2",
+      "log10_CO2",
+      "log10_CH4",
+      "log10_He_Bayesian",
+      "log10_H2_Bayesian",
+      "log10_O2_Bayesian",
+      "log10_N2_Bayesian",
+      "log10_CO2_Bayesian",
+      "log10_CH4_Bayesian",
+      "log10_He_Etree",
+      "log10_H2_Etree",
+      "log10_O2_Etree",
+      "log10_N2_Etree",
+      "log10_CO2_Etree",
+      "log10_CH4_Etree"
+    ],
+    "normalized_header": [
+      "archive_unnamed_column_1",
+      "index",
+      "Name",
+      "PID",
+      "Smiles",
+      "Details",
+      "Condition",
+      "Reference",
+      "Year",
+      "He",
+      "H2",
+      "O2",
+      "N2",
+      "CO2",
+      "CH4",
+      "log10_He",
+      "log10_H2",
+      "log10_O2",
+      "log10_N2",
+      "log10_CO2",
+      "log10_CH4",
+      "log10_He_Bayesian",
+      "log10_H2_Bayesian",
+      "log10_O2_Bayesian",
+      "log10_N2_Bayesian",
+      "log10_CO2_Bayesian",
+      "log10_CH4_Bayesian",
+      "log10_He_Etree",
+      "log10_H2_Etree",
+      "log10_O2_Etree",
+      "log10_N2_Etree",
+      "log10_CO2_Etree",
+      "log10_CH4_Etree"
+    ],
+    "column_alias_map": [
+      {
+        "column_position_1based": 1,
+        "original_header": "",
+        "normalized_header": "archive_unnamed_column_1",
+        "changed": true
+      },
+      {
+        "column_position_1based": 2,
+        "original_header": "index",
+        "normalized_header": "index",
+        "changed": false
+      },
+      {
+        "column_position_1based": 3,
+        "original_header": "Name",
+        "normalized_header": "Name",
+        "changed": false
+      },
+      {
+        "column_position_1based": 4,
+        "original_header": "PID",
+        "normalized_header": "PID",
+        "changed": false
+      },
+      {
+        "column_position_1based": 5,
+        "original_header": "Smiles",
+        "normalized_header": "Smiles",
+        "changed": false
+      },
+      {
+        "column_position_1based": 6,
+        "original_header": "Details",
+        "normalized_header": "Details",
+        "changed": false
+      },
+      {
+        "column_position_1based": 7,
+        "original_header": "Condition",
+        "normalized_header": "Condition",
+        "changed": false
+      },
+      {
+        "column_position_1based": 8,
+        "original_header": "Reference",
+        "normalized_header": "Reference",
+        "changed": false
+      },
+      {
+        "column_position_1based": 9,
+        "original_header": "Year",
+        "normalized_header": "Year",
+        "changed": false
+      },
+      {
+        "column_position_1based": 10,
+        "original_header": "He",
+        "normalized_header": "He",
+        "changed": false
+      },
+      {
+        "column_position_1based": 11,
+        "original_header": "H2",
+        "normalized_header": "H2",
+        "changed": false
+      },
+      {
+        "column_position_1based": 12,
+        "original_header": "O2",
+        "normalized_header": "O2",
+        "changed": false
+      },
+      {
+        "column_position_1based": 13,
+        "original_header": "N2",
+        "normalized_header": "N2",
+        "changed": false
+      },
+      {
+        "column_position_1based": 14,
+        "original_header": "CO2",
+        "normalized_header": "CO2",
+        "changed": false
+      },
+      {
+        "column_position_1based": 15,
+        "original_header": "CH4",
+        "normalized_header": "CH4",
+        "changed": false
+      },
+      {
+        "column_position_1based": 16,
+        "original_header": "log10_He",
+        "normalized_header": "log10_He",
+        "changed": false
+      },
+      {
+        "column_position_1based": 17,
+        "original_header": "log10_H2",
+        "normalized_header": "log10_H2",
+        "changed": false
+      },
+      {
+        "column_position_1based": 18,
+        "original_header": "log10_O2",
+        "normalized_header": "log10_O2",
+        "changed": false
+      },
+      {
+        "column_position_1based": 19,
+        "original_header": "log10_N2",
+        "normalized_header": "log10_N2",
+        "changed": false
+      },
+      {
+        "column_position_1based": 20,
+        "original_header": "log10_CO2",
+        "normalized_header": "log10_CO2",
+        "changed": false
+      },
+      {
+        "column_position_1based": 21,
+        "original_header": "log10_CH4",
+        "normalized_header": "log10_CH4",
+        "changed": false
+      },
+      {
+        "column_position_1based": 22,
+        "original_header": "log10_He_Bayesian",
+        "normalized_header": "log10_He_Bayesian",
+        "changed": false
+      },
+      {
+        "column_position_1based": 23,
+        "original_header": "log10_H2_Bayesian",
+        "normalized_header": "log10_H2_Bayesian",
+        "changed": false
+      },
+      {
+        "column_position_1based": 24,
+        "original_header": "log10_O2_Bayesian",
+        "normalized_header": "log10_O2_Bayesian",
+        "changed": false
+      },
+      {
+        "column_position_1based": 25,
+        "original_header": "log10_N2_Bayesian",
+        "normalized_header": "log10_N2_Bayesian",
+        "changed": false
+      },
+      {
+        "column_position_1based": 26,
+        "original_header": "log10_CO2_Bayesian",
+        "normalized_header": "log10_CO2_Bayesian",
+        "changed": false
+      },
+      {
+        "column_position_1based": 27,
+        "original_header": "log10_CH4_Bayesian",
+        "normalized_header": "log10_CH4_Bayesian",
+        "changed": false
+      },
+      {
+        "column_position_1based": 28,
+        "original_header": "log10_He_Etree",
+        "normalized_header": "log10_He_Etree",
+        "changed": false
+      },
+      {
+        "column_position_1based": 29,
+        "original_header": "log10_H2_Etree",
+        "normalized_header": "log10_H2_Etree",
+        "changed": false
+      },
+      {
+        "column_position_1based": 30,
+        "original_header": "log10_O2_Etree",
+        "normalized_header": "log10_O2_Etree",
+        "changed": false
+      },
+      {
+        "column_position_1based": 31,
+        "original_header": "log10_N2_Etree",
+        "normalized_header": "log10_N2_Etree",
+        "changed": false
+      },
+      {
+        "column_position_1based": 32,
+        "original_header": "log10_CO2_Etree",
+        "normalized_header": "log10_CO2_Etree",
+        "changed": false
+      },
+      {
+        "column_position_1based": 33,
+        "original_header": "log10_CH4_Etree",
+        "normalized_header": "log10_CH4_Etree",
+        "changed": false
+      }
+    ],
+    "data_records": 778,
+    "blank_physical_record_count": 0,
+    "blank_record_policy": "skip_only_zero_field_physical_records_outside_quotes",
+    "column_count": 33,
+    "record_width_validated": true,
+    "data_values_changed": false,
+    "columns_removed": 0,
+    "data_rows_removed": 0,
+    "numeric_coercion_performed": false,
+    "input_filename": "GAS_DatasetA.csv"
+  },
+  "split_fingerprint": {
+    "family": "Morgan",
+    "radius": 2,
+    "diameter": 4,
+    "bits": 2048,
+    "input": "calculation_only_hcap"
+  },
+  "split_protected_group_overlap": 0,
+  "scientific_claim": "Execution-contract demonstration; no claim that variable-condition gas measurements constitute a newly validated material-screening rule.",
+  "tier_results": [
+    {
+      "case": "GAS_CO2",
+      "tier": 0.1,
+      "physical_cutoff_Barrer": 3950.999999999998,
+      "source_n": 381,
+      "holdout_n": 100,
+      "transform": "log10",
+      "scan_step": 0.0005,
+      "min_subset_size": 20,
+      "positive_n": 30,
+      "selected_n": 24,
+      "tp": 16,
+      "fp": 8,
+      "precision": 0.6666666666666666,
+      "recall": 0.5333333333333333,
+      "f1": 0.5925925925925926,
+      "mcc": 0.44963551562230825,
+      "ef": 2.2222222222222223,
+      "status": "evaluated",
+      "metric_status": "computed",
+      "evidence_status": "support_threshold_met_not_external_validation_guarantee"
+    },
+    {
+      "case": "GAS_CO2",
+      "tier": 0.15,
+      "physical_cutoff_Barrer": 2800.0000000000014,
+      "source_n": 381,
+      "holdout_n": 100,
+      "transform": "log10",
+      "scan_step": 0.0005,
+      "min_subset_size": 20,
+      "positive_n": 34,
+      "selected_n": 24,
+      "tp": 18,
+      "fp": 6,
+      "precision": 0.75,
+      "recall": 0.5294117647058824,
+      "f1": 0.6206896551724138,
+      "mcc": 0.4863750126901275,
+      "ef": 2.205882352941176,
+      "status": "evaluated",
+      "metric_status": "computed",
+      "evidence_status": "support_threshold_met_not_external_validation_guarantee"
+    },
+    {
+      "case": "GAS_CO2",
+      "tier": 0.2,
+      "physical_cutoff_Barrer": 1099.9999999999998,
+      "source_n": 381,
+      "holdout_n": 100,
+      "transform": "log10",
+      "scan_step": 0.0005,
+      "min_subset_size": 20,
+      "positive_n": 47,
+      "selected_n": 24,
+      "tp": 22,
+      "fp": 2,
+      "precision": 0.9166666666666666,
+      "recall": 0.46808510638297873,
+      "f1": 0.6197183098591549,
+      "mcc": 0.5029160601098142,
+      "ef": 1.950354609929078,
+      "status": "evaluated",
+      "metric_status": "computed",
+      "evidence_status": "support_threshold_met_not_external_validation_guarantee"
+    },
+    {
+      "case": "GAS_CO2",
+      "tier": 0.25,
+      "physical_cutoff_Barrer": 634.2105263000001,
+      "source_n": 381,
+      "holdout_n": 100,
+      "transform": "log10",
+      "scan_step": 0.0005,
+      "min_subset_size": 20,
+      "positive_n": 49,
+      "selected_n": 24,
+      "tp": 23,
+      "fp": 1,
+      "precision": 0.9583333333333334,
+      "recall": 0.46938775510204084,
+      "f1": 0.6301369863013698,
+      "mcc": 0.5264665299463382,
+      "ef": 1.9557823129251701,
+      "status": "evaluated",
+      "metric_status": "computed",
+      "evidence_status": "support_threshold_met_not_external_validation_guarantee"
+    },
+    {
+      "case": "GAS_CO2",
+      "tier": 0.3,
+      "physical_cutoff_Barrer": 292.59999999999997,
+      "source_n": 381,
+      "holdout_n": 100,
+      "transform": "log10",
+      "scan_step": 0.0005,
+      "min_subset_size": 20,
+      "positive_n": 49,
+      "selected_n": 24,
+      "tp": 23,
+      "fp": 1,
+      "precision": 0.9583333333333334,
+      "recall": 0.46938775510204084,
+      "f1": 0.6301369863013698,
+      "mcc": 0.5264665299463382,
+      "ef": 1.9557823129251701,
+      "status": "evaluated",
+      "metric_status": "computed",
+      "evidence_status": "support_threshold_met_not_external_validation_guarantee"
+    }
+  ]
+}

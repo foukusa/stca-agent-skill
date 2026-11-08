@@ -24,7 +24,7 @@ This copyright notice and license text must be retained in copies of the softwar
 The software is provided "AS IS", without warranty of any kind. The copyright holders are not liable for claims or damages arising from its use.
 ```
 
-The notice above applies to the upstream software. It does not itself establish a license for newly written integration scripts, documentation, visual assets or example fixtures. The publisher should specify those rights separately before public distribution. No broader commercial or redistribution permission is asserted here.
+The notice above applies only to the upstream software. The newly written STCA Agent Skill integration, documentation, examples, validation records, and bundled logo are governed by the repository-level `LICENSE`. No broader permission for the upstream implementation is asserted by the integration license.
 
 ## Python and scientific dependencies
 

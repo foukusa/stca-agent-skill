@@ -21,13 +21,12 @@ import tempfile
 import zipfile
 
 ROOT_FILES = (
-    "README.md", "README.zh-CN.md", "LICENSE", "PUBLISHER_LICENSE_NOTES.md", "THIRD_PARTY_NOTICES.md",
-    "CITATION.cff", "CHANGELOG.md", "PUBLISH_STEPS.zh-CN.md", "plugin.json",
-    "LISTING_TEXT.txt", "BRAND.md", ".gitignore",
+    "README.md", "README.zh-CN.md", "LICENSE", "THIRD_PARTY_NOTICES.md",
+    "CITATION.cff", "CHANGELOG.md", "plugin.json", ".gitignore",
 )
 ROOT_DIRS = ("skills", "assets", "examples", "tools", "validation", "docs")
 PUBLICATION_FILES = (
-    "LICENSE", "CITATION.cff", "THIRD_PARTY_NOTICES.md", "PUBLISHER_LICENSE_NOTES.md",
+    "LICENSE", "CITATION.cff", "THIRD_PARTY_NOTICES.md",
 )
 PLATFORMS = ("deepseek-harness", "workbuddy")
 EXCLUDED_DIRS = {

@@ -25,3 +25,7 @@ uses the included wheel-hash lock; other systems use the exact version snapshot 
 must have compatible wheels.
 
 Detailed user commands are in `skills/stca/references/commands.md`.
+
+## Automatic ECFP4 workflow dependencies
+
+The 2026-11-08 automatic workflow additionally pins scikit-learn1.7.2, joblib1.6.0, threadpoolctl3.8.0 and cloudpickle3.1.2. The portable pins and Linux CPython3.12 wheel hashes include these packages. Installed-environment imports and pip check passed on the recorded Linux runtime; native macOS installation remains a separate check.

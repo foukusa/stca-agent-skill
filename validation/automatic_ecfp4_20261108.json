@@ -1,0 +1,110 @@
+{
+  "schema": "stca-ecfp4-automatic-validation-v1",
+  "date": "2026-11-08",
+  "integration_version": "0.1.0",
+  "upstream_commit": "5951b0ef23d63edc8f7e803aaaffa5e4168288f6",
+  "skill_commit": "0e3867b",
+  "default_entry": "auto_screen.py",
+  "split_fingerprint": {
+    "Morgan_radius": 2,
+    "bits": 2048,
+    "input": "Hcap calculation copy"
+  },
+  "rule_fingerprint": "MACCS167",
+  "automatic_modules": [
+    "input formatting",
+    "validity cleaning",
+    "outer and inner ECFP4 roles",
+    "source-only identity/log10",
+    "bounded source-scale value step",
+    "inner-validation min-subset selection",
+    "inner tier recommendations",
+    "frozen evaluation",
+    "optional candidate screening"
+  ],
+  "actual_raw_cases": {
+    "PI_RHO": {
+      "input": 1077,
+      "usable": 1077,
+      "source": 862,
+      "holdout": 215,
+      "transform": "none",
+      "step": 0.001,
+      "min_subset": 44
+    },
+    "AD_GAP": {
+      "input": 2916,
+      "usable": 2916,
+      "source": 2333,
+      "holdout": 583,
+      "transform": "none",
+      "step": 0.01,
+      "min_subset": 1
+    },
+    "GAS_CO2": {
+      "input": 778,
+      "usable": 481,
+      "excluded_missing_target": 296,
+      "excluded_unsupported_structure": 1,
+      "source": 381,
+      "holdout": 100,
+      "transform": "log10",
+      "step": 0.0005,
+      "min_subset": 20
+    }
+  },
+  "tests": {
+    "readiness": 10,
+    "cleaning": 6,
+    "automatic_integration": 5,
+    "independent_forward": "PASS_72_TO70",
+    "pip_check": "PASS",
+    "same_rows_benchmark_STCA_parity": "PASS_1e-12"
+  },
+  "baseline_recipe": {
+    "WRAcc_depth": 3,
+    "WRAcc_beam": 30,
+    "WRAcc_min_support": 5,
+    "RF_trees": 500,
+    "RF_min_samples_leaf": 2,
+    "RF_class_weight": "balanced",
+    "RF_seed": 0
+  },
+  "fresh_display_case": {
+    "case": "PI_RHO Top15%",
+    "cutoff_g_cm3": 1.27979818395,
+    "mcc_STCA": 0.5422666669708349,
+    "mcc_WRAcc": 0.390058009055158,
+    "mcc_RF": 0.4308079886260048,
+    "selected": 24,
+    "TP": 19,
+    "outer_positives": 41,
+    "inner_deployment_recommendation": 0.1,
+    "display_tier_chosen_for_illustration": true
+  },
+  "historical_display_case": {
+    "case": "AD_GAP Top10%",
+    "mcc_STCA": 0.7028368248824721,
+    "mcc_WRAcc": 0.4679582913102567,
+    "mcc_RF": 0.5667552239643757,
+    "new_automatic_rerun_parity_claimed": false
+  },
+  "all_13_rerun": false,
+  "macos_execution_tested": false,
+  "raw_per_material_data_bundled": false,
+  "evidence_files": {
+    "ecfp4_selected_comparisons.csv": "17cde44510657005352d9fa670b954d8d7ec9036757873bb353d21b595a1e09b",
+    "ecfp4_cross_source_all.csv": "9d0b8aecf063c473c10fb4ff294525048a68051631d956aeb1dc2446e96ecc94",
+    "gas_auto_contract_summary.json": "4a9df97933434856aca5ca6a887af276e1092518134d4b97cc207866d26bc61a",
+    "co2_tier_comparison.csv": "b08fa6e97c7bfe5c13913c6db7bc1048ccdb0bacf6a1a29b55ceee134e49df14",
+    "current_auto_comparisons.csv": "6ab50f474c9d7a084d203b93ba3a819698fb80f51d509c56a95bf57c7faa5b15",
+    "README.zh-CN.md": "a4bbc598f8438b9e4eed513303d94e03be7dfe3ee46c395ed5bf85900251cecd",
+    "README.md": "bed8ea3b680e37211c00932f1895b12ef26040604288ff2bd4462c83cdbb395a",
+    "gas_auto_contract_summary.csv": "3820bf3f06ddd84393736131b3f90808ac9f2a7dec726054700dfd90cf7e74ec",
+    "co2_integrity_checks.json": "ee75fb88cdba4906b8b45d7a48080a5f1163313679a8ae49b2c1ab7fc428e2b2",
+    "dataset_registry.csv": "349ba2d2ed674a361a1e149f0d15ae8d3eb1c4cb48453f616b8ce8c58cc7cadc",
+    "current_computed_cases.csv": "55133ca70cd11cb1c4c51fdad7dca39766de5e05846b078ef31567b2df86c4e7",
+    "archived_case_metrics.csv": "7cddbf9c7795e1bc5fdeaa7f587e18a250f197da01efdc910afd0620c69318df",
+    "current_case_provenance.json": "a5acf2c98e2248f70601496f5fcbb31ca29dc699a0d25cc359d3cabf648c431e"
+  }
+}

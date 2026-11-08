@@ -1,189 +1,134 @@
-# STCA 命令与数据合同
+# STCA 可执行命令
 
 ## 目录
 
 - [环境](#环境)
-- [标识列、数据角色与 H-cap](#标识列数据角色与-h-cap)
-- [1. 审计数据](#1-审计数据)
-- [2. 应用论文预置规则](#2-应用论文预置规则)
-- [3. 新测量数据的源内拟合](#3-新测量数据的源内拟合)
-- [4. 自定义二值输入](#4-自定义二值输入)
-- [5. 冻结评价](#5-冻结评价)
-- [6. 精确约束及 prompt 导出](#6-精确约束及-prompt-导出)
-- [7. 自动规划并执行多性能筛选](#7-自动规划并执行多性能筛选)
-- [8. 原始研究结果重建](#8-原始研究结果重建)
+- [论文冻结筛选](#论文冻结筛选)
+- [自动新数据流程](#自动新数据流程)
+- [新数据诊断](#新数据诊断)
+- [自定义拟合与评价](#自定义拟合与评价)
+- [模型约束与多目标](#模型约束与多目标)
+- [原始上游命令](#原始上游命令)
 
 ## 环境
 
-把 `SKILL_DIR` 设置为当前技能目录。发行版使用 CPython 3.12 建立隔离环境：
+从当前 `SKILL.md` 位置获得 `SKILL_DIR`。首次准备全新目录：
 
 ```bash
-export SKILL_DIR="/absolute/path/to/stca"
-export STCA_ENV_DIR="$HOME/.venvs/stca-0.1.0"
-
-python3.12 "$SKILL_DIR/scripts/setup_locked_environment.py" \
-  --env-dir "$STCA_ENV_DIR" > stca-setup.json
-
+python3.12 "$SKILL_DIR/scripts/setup_locked_environment.py" --env-dir "$HOME/.venvs/stca-0.1.0" > stca-setup.json
 STCA_PY="$(python3.12 -c 'import json; print(json.load(open("stca-setup.json"))["python"])')"
 export STCA_SOURCE="$(python3.12 -c 'import json; print(json.load(open("stca-setup.json"))["source"])')"
-
 "$STCA_PY" "$SKILL_DIR/scripts/stca_runtime.py" doctor
 ```
 
-Linux x86_64 默认使用带 wheel SHA256 的锁定文件；其他系统使用精确版本快照并需在实际设备上验证。已有兼容源码时，可向安装器传入 `--source /absolute/clean/checkout`。输出始终写入用户工作目录，不写进 skill 安装目录。
+若已安装直接复用，不覆盖旧环境。所有输出目录/文件用新路径，输入只读。锁定源码无修改；源码已有可显式 `--source` 指定。
 
-## 标识列、数据角色与 H-cap
+## 论文冻结筛选
 
-### 标识列
-
-- 不要求 `PID`。
-- 可以使用 `ID`、`CandidateKey`、`RecordName`、`SampleCode` 等任意列名和任意文本值。
-- 标识仅用于追踪记录，不作为 MACCS 或 STCA 特征。
-- 候选筛选时，提供的标识应非空且唯一。
-- 不提供标识列时，`screen-candidates`／`joint-screen` 自动生成 `row-000001` 形式的运行回执 ID。
-
-### 数据角色
-
-随机行 ID 不定义 source／evaluation。已发表规则模式直接应用冻结规则，不重新划分候选表；自定义数据模式必须由用户提供明确的数据角色，或说明只在全量数据上归纳而没有独立评价。论文复现只能使用论文原始 ECFP2 interpolation／extrapolation 角色。
-
-### H-cap
-
-原始带 `*` 结构始终保留。H-cap 只建立计算副本：
-
-```text
-原始 SMILES → 临时 H-cap → MACCS/STCA → 主结果恢复显示原始 SMILES
-```
-
-不是从 H-cap 分子逆推出星号，而是始终保留原始输入。`results.csv` 是主结果；`rows.csv` 保存 H-cap 审计列。
-
-需要单独生成 H-cap 文件时：
-
-```bash
-"$STCA_PY" "$SKILL_DIR/scripts/prepare_hcap.py" \
-  --input candidates.csv \
-  --output candidates_hcap.csv \
-  --smiles-column SMILES \
-  --output-column stca_calculation_smiles_hcap \
-  --id-column CandidateKey
-```
-
-`--id-column` 可省略。该命令不覆盖原输入，也不会删除原始结构列。
-
-## 1. 审计数据
-
-标识列是可选的，列名任意：
-
-```bash
-"$STCA_PY" "$SKILL_DIR/scripts/audit_dataset.py" \
-  --input source.csv \
-  --test holdout.csv \
-  --id-column RecordKey \
-  --smiles-column SMILES \
-  --target Tg \
-  --output data_audit.json
-```
-
-没有标识列时删除 `--id-column RecordKey`；审计器会生成仅用于回执的行 ID，并且不会据此判断跨集 ID 重叠。它仍会检查结构重复与用户提供的数据角色重叠。
-
-训练中使用 selection 数据时加 `--selection-input selection.csv`。二值矩阵加 `--features aromatic,ether,carbonyl`，并保证所有数据使用相同特征含义和列序。重复测量不应仅因标签不同而被删除；应保留测量条件和冲突证据。
-
-## 2. 应用论文预置规则
-
-### 推荐：直接筛选原始带星号候选
+标识列可任意命名或省略；无标识生成行回执。原始星号 SMILES 返回到主结果，H-cap 自动在计算副本完成。
 
 ```bash
 "$STCA_PY" "$SKILL_DIR/scripts/stca_tools.py" screen-candidates \
-  --profile ec-low \
-  --protocol paper \
-  --tier 0.10 \
-  --input candidates.csv \
-  --id-column CandidateKey \
-  --smiles-column SMILES \
-  --output-dir ec_low_10
+  --profile tg-high --protocol paper --tier 0.20 \
+  --input candidates.csv --id-column CandidateKey --smiles-column SMILES \
+  --output-dir out/tg_top20
 ```
 
-无标识列时删除 `--id-column CandidateKey`。输出：
+paper profiles：Tg high 0.30/0.20/0.10；EC low 或 high 0.20/0.15/0.10/0.05。没有默认 5%。最终看 `results.csv`；审计看 `rows.csv` 和 `summary.json`。无标签不计算真实性能 Precision。
 
-- `results.csv`：用户主结果，保留原始带 `*` 的 SMILES；
-- `rows.csv`：完整审计表，另含 H-cap 计算结构；
-- `summary.json`：规则、数量、输入表示与运行信息；
-- `joint_constraints.json`：本次冻结结构条件。
-
-### 高级：输入已经是训练表示
-
-如果输入已明确是 H-cap 表示，可以加 `--input-is-hcap`。只有在输入契约已经核实时才使用；不能因为原档案没有星号就默认新候选也无需 H-cap。
-
-预置 `tg-high` 的 tier 为 0.30/0.20/0.10；`ec-low` 与 `ec-high` 为 0.20/0.15/0.10/0.05。不要插值未支持档位。
-
-## 3. 在用户实测数据上重新归纳规则
-
-行标识可以任意命名或省略。自定义数据模式必须使用用户明确提供的 source／evaluation 角色。若沿用已发表 profile 的档位，可在 source 数据上拟合后冻结评价：
+## 自动新数据流程
 
 ```bash
-"$STCA_PY" "$SKILL_DIR/scripts/stca_runtime.py" run -- \
-  train-profile --profile tg-high --protocol source_locked \
-  --input tg_source.csv --target Tg --tg-unit degC \
-  --output-dir tg_fit
-
-"$STCA_PY" "$SKILL_DIR/scripts/stca_runtime.py" run -- \
-  train-profile --profile ec-low --protocol source_locked \
-  --input ec_source.csv --target EC --ec-input-unit 'S/m' \
-  --output-dir ec_fit
+"$STCA_PY" "$SKILL_DIR/scripts/auto_screen.py" \
+  --input permeability.csv --target Permeability --unit Barrer \
+  --direction high --tiers 0.10,0.15,0.20,0.25,0.30 \
+  --smiles-column SMILES --data-kind experimental --output-dir out/permeability_auto
 ```
 
-这里的 `source_locked` 是自定义数据模式的内部协议：只在 source 角色选择规则，再冻结到 evaluation 角色。它不是论文原始 ECFP2 划分的替代名称。
+默认自动清理、ECFP4（radius2/2048）外层及source内角色、auto目标形式与步长、nested配置选择。已有角色用 `--role-column Role --source-value source --evaluation-value holdout`；显式 `--scan-policy fixed` 可固定扫描支持量。质量过滤用 `--quality-column QC --exclude-quality-value failed`，物理范围用 `--target-min`/`--target-max`；只执行声明条件。
 
-如果用户要定义不同于预置 profile 的百分位集合，应先按 H-cap 合同生成 MACCS 二值表，再使用通用 `train --tiers ...` 命令显式传入百分位。EC 始终转换为 `log10(S/cm)` 后拟合。
+输出：`input_format_audit.json`、`cleaned_input.csv`、`excluded_rows.csv`、`cleaning_audit.json`、`split_membership.csv`、`split_audit.json`、`fit/model.json`、`fit/source_settings.json`、`fit/tier_cutoffs.csv`、`fit/evaluation_metrics.json`、`tier_recommendations.json`。加 `--candidates candidates.csv` 可应用源内建议档位；`--screen-tier` 指定已学习档位。
 
-论文历史选择重建：
+## 新数据诊断
+
+先在 JSON 中或自然语言确认列、单位和数据角色。诊断只读 source 决定 transform/网格，外评只报告目标支持量。
 
 ```bash
-"$STCA_PY" "$SKILL_DIR/scripts/stca_runtime.py" run -- \
-  train-profile --profile ec-low --protocol paper \
-  --input ec_source.csv --selection-input ec_selection.csv \
-  --target EC --ec-input-unit 'log10(S/cm)' \
-  --group-column StructureGroup \
-  --acknowledge-selection-labels --output-dir ec_paper_refit
+"$STCA_PY" "$SKILL_DIR/scripts/data_readiness.py" \
+  --input measured.csv --target Permeability --unit Barrer --direction high \
+  --tiers 0.30,0.20,0.10 --role-column Role --source-value source \
+  --evaluation-value holdout --smiles-column SMILES \
+  --transform auto --output out/readiness.json
 ```
 
-这里的 acknowledgement 表明论文 selection 标签参与过规则选择。只有实际使用论文原始 ECFP2 数据角色时，才能称为论文流程重建。
+已是 log 输入必须声明 `--already-log`，并给出真实的 log 单位。处理历史、重复冲突和 outlier 标记默认不触发删除或聚合。某 tier 外评只有 0–1 正例不阻止筛选，但不能给出可靠的外推能力结论。
 
-## 4. 自定义二值输入
+## 自定义拟合与评价
 
-```bash
-"$STCA_PY" "$SKILL_DIR/scripts/stca_runtime.py" run -- \
-  train --input binary_data.csv --features feature_a,feature_b,feature_c \
-  --target measured_value --target-name example_property --target-unit explicit_unit \
-  --direction high --tiers 0.30,0.20,0.10 --scan-mode value --scan-step 0.25 \
-  --max-rank 3 --family-size 8 --split-column split \
-  --group-column StructureGroup --output-dir binary_fit
+输入示例：
+
+```csv
+CandidateKey,SMILES,Permeability,Role,InnerRole
+obs-a,*CC*,10,source,train
+obs-b,*CO*,100,source,validation
+obs-c,*CF*,25,holdout,
 ```
 
-普通二值列不能冒充 MACCS 结构位。`--tiers` 是用户明确指定的百分位列表；`explicit_unit` 和 `0.25` 仅是参数示例，不是通用默认值。
-
-## 5. 冻结评价
+示例仅说明字段，三条记录不足以训练真实规则。`Role` 决定 source/holdout，`InnerRole` 只在 nested 选择时使用；ID 不自动定义材料身份。真实结构不能跨 source/holdout 而声称独立。
 
 ```bash
-"$STCA_PY" "$SKILL_DIR/scripts/stca_runtime.py" run -- \
-  evaluate --model ec_fit/model.json --input ec_holdout.csv \
-  --target EC --ec-input-unit 'S/m' --group-column StructureGroup \
-  --tier 0.20 --cutoff-mode fixed_train --output ec_test_metrics.json
+"$STCA_PY" "$SKILL_DIR/scripts/custom_fit.py" \
+  --input measured.csv --smiles-column SMILES \
+  --target Permeability --unit Barrer --direction high --tiers 0.30,0.20,0.10 \
+  --role-column Role --source-value source --evaluation-value holdout \
+  --transform auto --scan-policy fixed --min-subset-size 1 \
+  --output-dir out/permeability_fit
 ```
 
-只有冻结规则的外部评价可以支持泛化判断。`paper` selection 重评和 `--allow-overlap` 结果不能称为 untouched test。无标签筛选不产生 F1/Precision。
-
-## 6. 精确约束及 prompt 导出
+用户请求 source-only nested 适配时，改用：
 
 ```bash
+"$STCA_PY" "$SKILL_DIR/scripts/custom_fit.py" \
+  --input measured.csv --smiles-column SMILES \
+  --target Permeability --unit Barrer --direction high --tiers 0.30,0.20,0.10 \
+  --role-column Role --source-value source --evaluation-value holdout \
+  --inner-role-column InnerRole --inner-train-value train \
+  --inner-validation-value validation --scan-policy nested --transform auto \
+  --output-dir out/permeability_nested
+```
+
+nested 必须显式 source 内角色，不能从外评标签调参。固定扫描可显式 `--scan-step`；步长与 min subset 写入合同。自定义 generic STCA 与命名 Tg/EC `source_locked` 配方不同。
+
+主要交付：`model.json`、`source_audit.json`、`source_settings.json`、`tier_cutoffs.csv`、`evaluation_metrics.json`、`prepared_rows.csv`、`excluded_rows.csv`、`diagnostics/` 下的完整规则家族和 `run_manifest.json`。默认变换为 none；auto 必须显式选择。`--invalid-policy error` 默认遇无效行报错；`report` 显式排除拟合无效行并保留 exclusion 表。查看状态字段区分无规则、零覆盖、有限支持和运行异常；拟合失败写 `failure.json`，不能将异常转成 0 分。源空间变换为 log 时 cutoff 表同时含物理单位阈值。
+
+对同性质新来源的标签，复用已经冻结的模型和保存的 transform：
+
+```bash
+"$STCA_PY" "$SKILL_DIR/scripts/evaluate_custom.py" \
+  --model out/permeability_fit/model.json --input independent.csv \
+  --target Permeability --property Permeability --unit Barrer \
+  --smiles-column SMILES --cutoff-mode fixed_train \
+  --output-dir out/independent_evaluation
+```
+
+`--target` 是新表标签列，`--property` 与 `--unit` 必须匹配保存的目标身份和输入单位。不重训；输出 `rows.csv`、原始结构主表 `results.csv`、`evaluation_metrics.json`。`--cutoff-mode dataset_relative` 需显式声明，并报告重定义的 cutoff。目标不足只标状态，不把无定义 MCC/Recall 写成 0。
+
+## 模型约束与多目标
+
+自定义模型直接通过 `--model` 调用；不附一个与其不符的 `--protocol paper`。
+
+```bash
+"$STCA_PY" "$SKILL_DIR/scripts/stca_tools.py" screen-candidates \
+  --model out/permeability_fit/model.json --tier 0.20 \
+  --input candidates.csv --smiles-column SMILES \
+  --output-dir out/permeability_candidates
+
 "$STCA_PY" "$SKILL_DIR/scripts/stca_tools.py" export-rules \
-  --profile ec-low --protocol paper --tier 0.10 --output-dir ec_rules
+  --model out/permeability_fit/model.json --tier 0.20 \
+  --output-dir out/permeability_constraints
 ```
 
-也可以用 `--model ec_fit/model.json` 替代 profile。输出 `rules.csv`、`constraints.json` 和 `prompt.md`。语言模型负责提出候选，结构是否符合规则必须由程序重新核验。
-
-## 7. 自动规划并执行多性能筛选
-
-目标文件直接引用原始重复单元列。标识列可任意命名，也可省略：
+目标 JSON（模型路径相对 JSON 所在目录）：
 
 ```json
 {
@@ -191,42 +136,32 @@ Linux x86_64 默认使用带 wheel SHA256 的锁定文件；其他系统使用�
   "id_column": "CandidateKey",
   "smiles_column": "SMILES",
   "hcap_before_maccs": true,
-  "hcap_output_column": "stca_calculation_smiles_hcap",
   "objectives": [
     {"property": "Tg", "direction": "high", "tier": 0.20},
-    {"property": "EC", "direction": "low", "tier": 0.10},
-    {"property": "TC", "direction": "high", "tier": 0.20}
+    {"name": "permeability", "property": "Permeability", "direction": "high", "tier": 0.20,
+     "unit": "Barrer", "model": "out/permeability_fit/model.json"}
   ]
 }
 ```
 
-如果没有标识列，删除 `id_column`。生成配置：
-
 ```bash
 "$STCA_PY" "$SKILL_DIR/scripts/stca_tools.py" plan-objectives \
-  --objectives objectives.json \
-  --output-dir objective_plan
-```
-
-执行：
-
-```bash
+  --objectives objectives.json --output-dir out/plan
 "$STCA_PY" "$SKILL_DIR/scripts/stca_tools.py" joint-screen \
-  --input candidates.csv \
-  --config objective_plan/joint_config.json \
-  --output-dir multi_property_screen
+  --input candidates.csv --config out/plan/joint_config.json \
+  --output-dir out/joint
 ```
 
-`results.csv` 恢复显示原始 SMILES；`rows.csv` 包含 H-cap 计算副本。结构交集只表示同一候选同时满足各条冻结规则；真实性能联合命中仍需同一材料、可比条件下的配对多性能标签。
+`plan-objectives` 每项显式 tier。数值 cutoff 可另作评价/说明，不能用“最近论文阈值”偷偷替用户选 tier。跨性质 paper 迁移必须显式 `allow_transfer:true` 并在输出标注；新性质优先使用该性质自己的模型。不同模型方向、单位、target 身份应校验。
 
-## 8. 原始研究结果重建
+## 原始上游命令
 
-用户拥有原始研究结果包并明确要求重建时：
+论文精确复现、MACCS 矩阵和现有命名训练配方仍可用 `stca_runtime.py run -- <原命令>`。例：
 
 ```bash
-"$STCA_PY" "$SKILL_DIR/scripts/stca_runtime.py" run -- \
-  verify-results --reference-dir /absolute/private/reference_archives \
-  --output /absolute/work/reproduction_results
+"$STCA_PY" "$SKILL_DIR/scripts/stca_runtime.py" run --   profiles --protocol paper
+"$STCA_PY" "$SKILL_DIR/scripts/stca_runtime.py" run --   train-profile --profile tg-high --protocol source_locked \
+  --input tg_source.csv --target Tg --tg-unit degC --output-dir out/tg_source_fit
 ```
 
-公开代码不包含原始测量表。不能用合成数据替代后声称完成论文复现，也不能把私有逐材料结果写入公开 skill 或外部服务。
+paper 重建保留原数据角色及参数，selection 标签参与选优时必须承认。不要因为 source-only 赢者不同便报告原 paper 复现失败。普通二值列显式输入 `train --features ...`，绝不当作 MACCS 自动解释；用户 ID/role/目标列不可作为特征。
