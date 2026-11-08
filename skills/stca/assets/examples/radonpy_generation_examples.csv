@@ -1,0 +1,6 @@
+candidate_id,SMILES,design_note,verification_status,failed_conditions,K42_required,K42_observed,star_count,terminal_single_bond_stars,connected_components,valid_input,catalog_id,density_value,calculation_smiles_hcap
+RHO_TOP30_01,*OC(=O)c1cc(F)c(OCCOc2ccc(*)cc2)cc1,单氟芳香酯与乙二醇芳醚片段组合,selected,[],1,1,2,True,1,True,latest-pi-rho-stca-high-30,not_predicted,O=C(O)c1ccc(OCCOc2ccccc2)c(F)c1
+RHO_TOP30_02,*NCC(F)(F)CNC(=O)c1ccc(S(=O)(=O)c2ccc(*)cc2)cc1,二氟脂肪链与芳香酰胺砜骨架组合,selected,[],1,1,2,True,1,True,latest-pi-rho-stca-high-30,not_predicted,NCC(F)(F)CNC(=O)c1ccc(S(=O)(=O)c2ccccc2)cc1
+RHO_TOP30_03,*CC(F)OC(=O)Nc1cc(F)c(Oc2ccc(*)cc2)cc1,含脂肪氟与芳香氟的氨基甲酸酯芳醚骨架,selected,[],1,1,2,True,1,True,latest-pi-rho-stca-high-30,not_predicted,CC(F)OC(=O)Nc1ccc(Oc2ccccc2)c(F)c1
+RHO_TOP30_04,*c1cc(F)c(-c2nnc(-c3ccc(*)cc3)o2)cc1,单氟芳环与噁二唑连接的刚性芳香骨架,selected,[],1,1,2,True,1,True,latest-pi-rho-stca-high-30,not_predicted,Fc1ccccc1-c1nnc(-c2ccccc2)o1
+RHO_TOP30_05,*N1C(=O)c2cc(F)c(Oc3ccc(C(F)(F)F)c(*)c3)cc2C1=O,芳香氟及三氟甲基取代的酰亚胺芳醚骨架,selected,[],1,1,2,True,1,True,latest-pi-rho-stca-high-30,not_predicted,O=C1NC(=O)c2cc(Oc3ccc(C(F)(F)F)cc3)c(F)cc21

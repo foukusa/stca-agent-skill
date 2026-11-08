@@ -6,7 +6,7 @@
 ## Contents
 
 - [Start here](#start-here)
-- [Try a small example](#try-a-small-example)
+- [Try RadonPy density](#try-radonpy-density)
 - [Save rules and continue](#save-rules-and-continue)
 - [Natural-language examples after installation](docs/USAGE.md)
 - [Download and install](#download-and-install)
@@ -27,27 +27,49 @@ STCA works with polymer structure–property data and repeat units. After instal
 
 STCA is a skill used by your AI assistant in the conversation. The task instructions are built in: describe what you need, attach your data when needed, and continue in natural language. The assistant reads files, offers relevant rules and asks only for missing information. When learning rules, omitted percentages use Top or Bottom **10%, 20% and 30%** automatically; you can specify any percentage strictly between 0% and 100%, such as **15% and 25%**. You do not enter rule IDs or manage Python. Calculations use a CPU and support Python 3.10 or later; generation uses your current AI assistant.
 
-## Try a small example
+## Try RadonPy density
 
-**Screen with an existing rule.** Use the bundled [five-candidate CSV](examples/quick_start/candidates.csv?raw=true), or ask directly:
+Use the same [RadonPy `PI1070.csv`](https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv) for screening, learning and generation. Open the GitHub file page, download the CSV and upload it to the conversation. This fixed file contains **1,077 records and 157 columns**; the assistant selects columns by name, so you do not need to edit the integrated dataset.
+
+| Use | Column | Spreadsheet position |
+|---|---|---|
+| Optional identifier | `monomer_ID` | A · column 1 |
+| Polymer repeat-unit structure | `smiles` | B · column 2 |
+| Density target, g/cm³ | `density` | AA · column 27 |
+
+Row 1 contains headers; rows **2–1078** contain data. Use all records initially. `polymer_class` is metadata, and `density_min`, `density_max`, `density_std` and `density_count` are not the target. Density labels come from molecular-dynamics calculations.
+
+**Screen with an existing rule:**
 
 ```text
-Use the bundled fluorinated-candidate example. Screen it with the RadonPy high-density Top 30% STCA rule and show every unmet rule condition.
+Use the existing RadonPy high-density Top 30% STCA rule to screen this dataset.
 ```
 
-This example returns three structural-rule matches and two non-matches, preserving the original star-containing SMILES.
+This fixed file gives **137 rule matches, 940 non-matches and no unknowns**; the rule's density target boundary is **≥ 1.222343047 g/cm³**.
 
-**Learn rules from open data.** Download [RadonPy’s PI1070 CSV](https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv), upload it and ask:
+**Learn from the same data and save the result:**
 
 ```text
-Learn high-density rules from this RadonPy dataset, return the screening results and save the rules.
+Learn high-density Top 30% rules from this RadonPy dataset, return screening results, compare them with the existing rule and save the new rules.
 ```
 
-The assistant uses `smiles` for the polymer structures and `density` in g/cm³ for the calculated density. It prepares the data, chooses the data transform and scan step, and returns both methods’ rules and screening results for the default Top 10%, 20% and 30%. You can request other percentages.
+The assistant chooses the data transform and scan step, and returns STCA and WRAcc separately. With the same prepared data, fingerprints, learning settings and software version, repeating the fit should give the same rule; a new adaptive fit can differ from an existing frozen rule. To check saved-rule reuse, say **“Reload the Top 30% STCA rule just saved and screen the same dataset again.”** Its row-level decisions must match those returned when that rule was learned.
+
+**Generate with the selected rule:**
+
+```text
+Use the high-density Top 30% STCA rule just saved to directly generate and verify five polymer repeat units.
+```
+
+For a preview first, say **“Show the complete prompt for five repeat units before generating.”** Adjust it as needed, then say **“Confirm and generate.”** The current LLM generates the proposals; STCA checks each original star-containing repeat unit using an H-cap calculation copy. See the [complete RadonPy case](examples/radonpy_density/README.md).
+
+See [five actual generated proposals and their verification](examples/radonpy_density/generated_examples.csv).
 
 ## Save rules and continue
 
 With your own data, STCA automatically cleans unusable records, chooses data transforms and scan settings, and compares **STCA and WRAcc within your data range**. It returns both methods separately and recommends one for each tier. The recommendation uses cross-validation: rules are repeatedly learned from part of the supplied data and evaluated on the remaining part. Its average screening score, introduced and validated in the author’s [STCA paper](https://doi.org/10.1038/s41524-026-02345-x), is the mean of the **Matthews correlation coefficient, precision and F1 score**; F1 combines precision and recall. The results explain the recommendation. Say “Use the recommended rule” to continue, or name either method. [Evaluation details](docs/USAGE.md).
+
+WRAcc automatically chooses its maximum condition count within the training data. You can also say **“Allow up to 10 WRAcc conditions”** or **“Do not limit the number of WRAcc conditions.”**
 
 After learning, it returns **both methods’ rules and corresponding screening results for every tier**: the percentage and its **numeric physical cutoff, ≥/≤ comparison and unit**, original SMILES, selection decisions, every unmet rule condition and uncomputable records. Cutoffs use the original physical scale even when learning uses log10. Results always cover the original uploaded table; a separate candidate table receives its own results.
 
@@ -70,16 +92,16 @@ Choose your platform below. The [installation guide](docs/INSTALL.md) includes e
 
 | Platform | Installation route | Start |
 |---|---|---|
-| **Codex** | Install the GitHub skill folder or the [Codex ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-codex-0.1.0.zip?raw=true). | `Use $stca` |
+| **Codex** | Install the GitHub skill folder or the [Codex ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-codex-0.1.0.zip). | `Use $stca` |
 | **DeepSeek Harness** | Add the GitHub repository as a plugin; use the npm package name after publication. | `/stca` |
-| **WorkBuddy** | Import the [WorkBuddy ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.1.zip?raw=true). | “Start STCA” |
-| **ChatGPT** | Import the [OpenAI skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-openai-skill-0.1.0.zip?raw=true) using a client with skill installation support. | Select STCA or ask to use it. |
+| **WorkBuddy** | Import the [WorkBuddy ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.1.zip). | “Start STCA” |
+| **ChatGPT** | Import the [OpenAI skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-openai-skill-0.1.0.zip) using a client with skill installation support. | Select STCA or ask to use it. |
 
 ### Codex
 
 1. In Codex, send the installation request below.
 2. After installation, type `$stca` to select STCA, or send “Use $stca to screen this candidate table.” Attach the table when needed.
-3. For a manual installation, extract the Codex ZIP and put its complete `stca` folder at `~/.agents/skills/stca` (Windows: `%USERPROFILE%\.agents\skills\stca`). Keep `SKILL.md`, `scripts`, `references` and `assets` together.
+3. For a manual installation, extract the Codex ZIP and put its complete `stca` folder at `~/.agents/skills/stca`. Keep `SKILL.md`, `scripts`, `references` and `assets` together.
 
 ```text
 Use $skill-installer to install https://github.com/foukusa/stca-agent-skill/tree/main/skills/stca
@@ -89,7 +111,7 @@ Use $skill-installer to install https://github.com/foukusa/stca-agent-skill/tree
 
 1. Open **Plugins → Add plugin**, enter `https://github.com/foukusa/stca-agent-skill.git`, then install and enable the plugin.
 2. Enter `/stca` or say “Start STCA”. Describe your task and attach data where needed; continue in the same conversation.
-3. After the npm package is published, the Add plugin field also accepts `dsh-plugin-stca`. Alternatively, download the [plugin TGZ](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz?raw=true) and enter its complete local path.
+3. After the npm package is published, the Add plugin field also accepts `dsh-plugin-stca`. Alternatively, download the [plugin TGZ](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz) and enter its complete local path.
 
 CLI installation with the `web` profile:
 
@@ -103,7 +125,7 @@ After npm publication:
 dsh plugin --profile web add dsh-plugin-stca
 ```
 
-Replace `web` with the profile you use. A downloaded [DSH skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip?raw=true) is a different installation route: extract it and place the complete `stca` folder in your DSH skill root, normally `~/.dsh/skills/stca`, with the filesystem skill provider enabled. See the [DSH guide](README.DSH.md).
+Replace `web` with the profile you use. A downloaded [DSH skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip) is a different installation route: extract it and place the complete `stca` folder in your DSH skill root, normally `~/.dsh/skills/stca`, with the filesystem skill provider enabled. See the [DSH guide](README.DSH.md).
 
 Plugin-center link: — (to be added after listing).
 
@@ -125,7 +147,7 @@ The marketplace installation link will be added after approval and publication.
 
 ### Downloading the files
 
-The ZIP and TGZ links point to versioned files under the repository’s [`downloads` folder](https://github.com/foukusa/stca-agent-skill/tree/main/downloads). You can also open the [repository homepage](https://github.com/foukusa/stca-agent-skill), choose **Code → Download ZIP**, and extract it. The source contains `skills/stca`; platform packages are under `downloads` when included in that repository version. A source ZIP is extracted before folder-based installation; WorkBuddy’s upload accepts its platform ZIP directly.
+The ZIP and TGZ links open file pages in this repository’s [`downloads` folder](https://github.com/foukusa/stca-agent-skill/tree/main/downloads). On a file page, click **Download raw file** to save the package, then import the local file in your platform. You can also open the [repository homepage](https://github.com/foukusa/stca-agent-skill), choose **Code → Download ZIP**, and extract it. The source contains `skills/stca`; platform packages are under `downloads` when included in that repository version. A source ZIP is extracted before folder-based installation; WorkBuddy’s upload accepts its platform ZIP directly.
 
 At the first calculation, STCA looks for and checks a suitable local Python environment. You can use ordinary Python or a virtual environment; Conda is optional. The assistant needs access to your selected files, an output directory and local command execution. Preparing missing dependencies may access PyPI and the author’s public code repository; generation uses the current conversation’s LLM. See [environment behavior](docs/INSTALL.md#calculation-environment).
 

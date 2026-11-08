@@ -7,7 +7,7 @@ STCA combines the skill's rules and calculation tools with your current LLM conv
 ## Contents
 
 - [Start a conversation](#start-a-conversation)
-- [Try the open-data examples](#try-the-open-data-examples)
+- [Try RadonPy density](#try-radonpy-density)
 - [Learn rules and receive screening results](#learn-rules-and-receive-screening-results)
 - [Screen candidates with existing rules](#screen-candidates-with-existing-rules)
 - [Choose rules before generating](#choose-rules-before-generating)
@@ -23,23 +23,37 @@ Start STCA.
 
 The assistant can explain three workflows: learn from uploaded data, screen with existing rules, or generate with selected rules. You can state a complete task immediately and continue with requests such as “Use the rules just saved” or “Show other available rules.”
 
-## Try the open-data examples
+## Try RadonPy density
 
-For a screening trial, use the bundled [five-candidate CSV](../examples/quick_start/candidates.csv?raw=true), or ask:
+Use [RadonPy `PI1070.csv`](https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv) for all three workflows. Download it from the GitHub file page and upload the same file in the conversation.
+
+| Role | Column | Position |
+|---|---|---|
+| Optional identifier | `monomer_ID` | A · 1 |
+| Polymer structure | `smiles` | B · 2 |
+| MD density in g/cm³ | `density` | AA · 27 |
+
+This file has 1,077 data rows and 157 columns. Row 1 contains headers; data occupy rows 2–1078. Read all rows by column name; there is no need to select a polymer class or manually extract cells. `density_min`, `density_max`, `density_std` and `density_count` are not the target.
+
+**Apply an existing rule:**
 
 ```text
-Use the bundled fluorinated-candidate example. Screen it with the RadonPy high-density Top 30% STCA rule and show every unmet rule condition.
+Use the existing RadonPy high-density Top 30% STCA rule to screen this dataset.
 ```
 
-The supplied example has three structural-rule matches and two non-matches. Results preserve the original star-containing SMILES and identify each unmet condition.
-
-To try learning, download the [RadonPy PI1070 CSV](https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv), upload it and say:
+**Learn from the same file and receive its screening results:**
 
 ```text
-Learn high-density rules from this computed data in g/cm³. Automatically choose the data transform and scan step, return the screening results and save the rules.
+Learn high-density Top 30% rules from this RadonPy dataset, return screening results, compare them with the existing rule and save the new rules.
 ```
 
-The structure column is `smiles` and the density column is `density`. The assistant reports the chosen settings, both methods' rules and screening results, and the files saved. Continue with “Use the saved Top 30% STCA rule to screen this new candidate table.”
+The assistant reports the prepared data, chosen transform and scan step, both methods’ rules, numerical physical cutoffs and outputs. Reproducing an existing frozen rule requires matching its training cohort, preprocessing, fingerprints, learning parameters and software version; adaptive learning can choose different settings. To check reuse of your new model, ask:
+
+```text
+Reload the Top 30% STCA rule just saved and screen the same RadonPy dataset again. Check that every row's decision matches its earlier result.
+```
+
+This checks applying the saved model, without retraining. The [complete RadonPy case](../examples/radonpy_density/README.md) covers comparison and reuse. Continue to the generation examples below with that same saved Top 30% STCA rule.
 
 ## Learn rules and receive screening results
 
@@ -58,6 +72,20 @@ Learn high-density rules from this computed data in g/cm³, using Top 15% and 25
 Each tier reports the cutoff on the original physical scale, its comparison sign (≥ for high targets, ≤ for low targets) and unit. Log-transformed learning still returns physical cutoffs.
 
 STCA and WRAcc are evaluated separately using cross-validation within the supplied data. Their recommendation uses the **average screening score** introduced in the [STCA paper](https://doi.org/10.1038/s41524-026-02345-x): the arithmetic mean of **Matthews correlation coefficient, precision and F1 score**. The software calls this Average Score (AS). When both methods are evaluable, WRAcc becomes the primary only if its cross-validation average screening score exceeds STCA's by more than 0.02; otherwise STCA remains primary. The assistant returns both methods' results and explains its recommendation. Say “Use the recommendation” or name either method.
+
+WRAcc automatically selects a maximum condition count from **1, 2, 3, 5, 10 and no length limit**, separately for each target tier. For every evaluation split, that choice uses grouped validation **inside its training portion**; it never uses that split's test outcomes. The final saved rule repeats the selection within the full training data. The chosen setting and actual condition count are saved with the rule. If there is insufficient evidence to choose a length, the report states this instead of presenting the fallback as validated.
+
+You may override the length policy in ordinary language:
+
+```text
+Learn these rules with at most 10 WRAcc conditions.
+```
+
+```text
+Learn these rules without a WRAcc condition-count limit.
+```
+
+“No length limit” removes the condition-count ceiling; WRAcc still uses a beam of 30 conjunctions and a minimum selected support of 5. More conditions do not necessarily improve validation performance. STCA also has a defined search scope: up to 10 ranked positive and 10 ranked negative MACCS conditions, with 8 candidates retained per family. Neither search enumerates every possible rule. Existing frozen rules keep their saved conditions; these settings apply when learning new rules.
 
 You receive:
 
@@ -104,18 +132,18 @@ If no rule is selected, start with:
 I want to generate polymer repeat units. Show the available rules first.
 ```
 
-Choose the source, property and percentage in the conversation. You may also use a saved rule.
+Choose the source, property and percentage in the conversation. For the RadonPy example, select the existing high-density Top 30% STCA rule or explicitly use the new Top 30% STCA rule just saved; the following requests use the saved rule.
 
 **Preview and confirm:**
 
 ```text
-Use the high-Tg Top 20% STCA-paper rule. Show me the complete prompt before generating 20 polymer repeat units.
+Use the high-density Top 30% STCA rule just saved. Show the complete prompt for five polymer repeat units before generating.
 ```
 
 The assistant shows the prompt and waits. Adjust it in ordinary language:
 
 ```text
-Change the count to 10, prefer ether linkages, and show the revised prompt.
+Keep five candidates, prefer ether linkages, and show the revised prompt.
 ```
 
 Then say **“Confirm and generate.”** The current LLM generates using the approved prompt, and STCA's calculation tools verify the proposals.
@@ -123,7 +151,7 @@ Then say **“Confirm and generate.”** The current LLM generates using the app
 **Generate directly:**
 
 ```text
-Use the high-Tg Top 20% STCA-paper rule to directly generate 20 polymer repeat units and verify them.
+Use the high-density Top 30% STCA rule just saved to directly generate and verify five polymer repeat units.
 ```
 
 This uses the current conversation's LLM without separate model API setup for STCA. Counts, structural preferences and output formats can be changed; changing the target or frozen conditions requires choosing the corresponding rule.

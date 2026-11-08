@@ -6,7 +6,7 @@
 ## 目录
 
 - [开始使用](#开始使用)
-- [简单试用](#简单试用)
+- [用 RadonPy 密度数据试用](#用-radonpy-密度数据试用)
 - [保存规则并继续](#保存规则并继续)
 - [安装后的自然语言使用案例](docs/USAGE.zh-CN.md)
 - [下载与安装](#下载与安装)
@@ -27,27 +27,49 @@ STCA 面向聚合物结构与性质数据。安装后输入 **“开始使用 ST
 
 STCA 是由当前 AI 助手在对话中使用的 skill，处理流程已内置。直接说明需求，按需上传数据，再用自然语言继续；AI 助手会读取文件、展示相关规则，并补问必要信息。归纳规则时，未指定百分比就直接使用 Top 或 Bottom **10%、20%、30%**；也可指定 0% 与 100% 之间的任意百分比，例如 **15%、25%**。你无需输入规则编号或操作 Python。计算使用 CPU，兼容 Python 3.10 及以上环境，生成使用当前 AI 助手。
 
-## 简单试用
+## 用 RadonPy 密度数据试用
 
-**直接使用已有规则筛选。** 可上传随包的 [5 条候选示例 CSV](examples/quick_start/candidates.csv?raw=true)，也可直接发送：
+使用同一份 [RadonPy `PI1070.csv`](https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv) 完成筛选、学习和生成。在 GitHub 文件页下载 CSV，再上传到对话。这份固定文件有 **1,077 条记录、157 列**；AI 助手按列名读取，你无需手工拆分这个集成数据集。
+
+| 用途 | 列名 | 表格位置 |
+|---|---|---|
+| 可选标识 | `monomer_ID` | A 列 · 第 1 列 |
+| 聚合物重复单元结构 | `smiles` | B 列 · 第 2 列 |
+| 密度目标，g/cm³ | `density` | AA 列 · 第 27 列 |
+
+第 1 行是表头，**第 2–1078 行**是数据，先读取全部记录。`polymer_class` 是元数据，`density_min`、`density_max`、`density_std`、`density_count` 不作为目标列。密度标签来自分子动力学计算。
+
+**直接使用已有规则筛选：**
 
 ```text
-使用内置含氟候选示例，按 RadonPy 高密度 Top 30% 的 STCA 规则筛选，并给出每条未满足的规则条件。
+使用现成的 RadonPy 高密度 Top 30% STCA 规则筛选这份数据。
 ```
 
-这个示例会返回 3 条结构规则匹配和 2 条未匹配，保留原始带星号 SMILES。
+这个固定文件应返回 **137 条规则匹配、940 条未匹配、0 条未知**；规则的密度目标边界为 **≥ 1.222343047 g/cm³**。
 
-**从开源数据总结规则。** 下载 [RadonPy 的 PI1070 CSV](https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv)，上传后发送：
+**从同一数据总结规则并保存：**
 
 ```text
-从这份 RadonPy 数据总结高密度规则，返回筛选结果并保存规则。
+从这份 RadonPy 数据总结高密度 Top 30% 规则，返回筛选结果，与现成规则比较，并保存新规则。
 ```
 
-AI 助手使用 `smiles` 结构列和 `density` 密度列，单位为 g/cm³，标签来自分子动力学计算。它会准备数据、调整数据形式与扫描步长，并返回默认 Top 10%、20%、30% 对应的两种方法规则及筛选结果。你也可以指定其他百分比。
+AI 助手自动选择数据形式与扫描步长，分别返回 STCA 和 WRAcc 结果。固定相同的训练数据、预处理、指纹、学习设置与程序版本时，重新计算应得到相同规则；重新自适应学习可能与现成冻结规则不同。要核对保存复用，可接着说 **“重新载入刚保存的 Top 30% STCA 规则，再筛选同一份数据。”** 逐行判断应与这条规则学习完成时的筛选结果一致。
+
+**使用选定规则生成：**
+
+```text
+使用刚保存的高密度 Top 30% STCA 规则，直接生成 5 个聚合物重复单元并核验。
+```
+
+想先调整 prompt，可说 **“先给我看生成 5 个重复单元的完整 prompt，暂不生成。”** 修改后回复 **“确认，开始生成”**。当前 LLM 实际生成提案，STCA 保留原始星号结构，并用 H-cap 计算副本逐条核验。详见[完整 RadonPy 案例](examples/radonpy_density/README.zh-CN.md)。
+
+也可查看[一次实际生成的五条提案及核验结果](examples/radonpy_density/generated_examples.csv)。
 
 ## 保存规则并继续
 
 上传自己的数据后，STCA 自动清理不可用记录、调整数据形式与扫描设置，并在你的数据范围内比较 **STCA 与 WRAcc**。两种方法分别交付，每档明确推荐结果及理由。推荐依据数据内部的**交叉验证**：多次用部分数据学习规则，再用其余数据评价。综合得分采用作者 [STCA 论文](https://doi.org/10.1038/s41524-026-02345-x)提出并验证使用的**马修斯相关系数、精确率和 F1 分数的平均值**；F1 综合衡量精确率与召回率。说“使用推荐规则”即可继续，也可明确指定方法。[评价方式说明](docs/USAGE.zh-CN.md)。
+
+WRAcc 默认在训练数据内自动选择条件数上限。也可以直接说 **“WRAcc 最多使用 10 条条件”** 或 **“不限制 WRAcc 条件数”**。
 
 总结完成后，同时交付**两种方法在每个档位的规则与对应筛选结果**：包含百分比对应的**具体物理数值、≥／≤ 比较符及单位**，以及原始 SMILES、入选判断、每条未满足的规则条件及不可计算记录。即使用 log10 归纳，也返回原始物理尺度的阈值。原上传表始终返回逐档结果；另传独立候选表时，其结果另列。
 
@@ -70,16 +92,16 @@ AI 助手将模型、规则、物理阈值和完整中英文生成 prompt 保存
 
 | 平台 | 安装方式 | 调用 |
 |---|---|---|
-| **Codex** | 安装 GitHub 中的 skill 目录，或使用 [Codex ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-codex-0.1.0.zip?raw=true)。 | `使用 $stca` |
+| **Codex** | 安装 GitHub 中的 skill 目录，或使用 [Codex ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-codex-0.1.0.zip)。 | `使用 $stca` |
 | **DeepSeek Harness** | 在“添加插件”中填写 GitHub 仓库地址；npm 发布后也可填写包名。 | `/stca` |
-| **WorkBuddy** | 导入 [WorkBuddy ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.1.zip?raw=true)。 | “开始使用 STCA” |
-| **ChatGPT** | 在支持 skill 安装的客户端中导入 [OpenAI skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-openai-skill-0.1.0.zip?raw=true)。 | 选择 STCA 或要求使用 STCA。 |
+| **WorkBuddy** | 导入 [WorkBuddy ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.1.zip)。 | “开始使用 STCA” |
+| **ChatGPT** | 在支持 skill 安装的客户端中导入 [OpenAI skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-openai-skill-0.1.0.zip)。 | 选择 STCA 或要求使用 STCA。 |
 
 ### Codex
 
 1. 在 Codex 中发送下方安装请求。
 2. 安装完成后，输入 `$stca` 选择 STCA，或直接说“使用 $stca 筛选这份候选表”，按需附上文件。
-3. 如需手动安装，解压 Codex ZIP，将完整 `stca` 文件夹放在 `~/.agents/skills/stca`（Windows 为 `%USERPROFILE%\.agents\skills\stca`）。保留其中的 `SKILL.md`、`scripts`、`references` 和 `assets`。
+3. 如需手动安装，解压 Codex ZIP，将完整 `stca` 文件夹放在 `~/.agents/skills/stca`。保留其中的 `SKILL.md`、`scripts`、`references` 和 `assets`。
 
 ```text
 使用 $skill-installer 安装 https://github.com/foukusa/stca-agent-skill/tree/main/skills/stca
@@ -89,7 +111,7 @@ AI 助手将模型、规则、物理阈值和完整中英文生成 prompt 保存
 
 1. 打开 **插件 → 添加插件**，填写 `https://github.com/foukusa/stca-agent-skill.git`，安装并启用。
 2. 输入 `/stca` 或“开始使用 STCA”，说明任务，按需上传数据，在同一对话中继续。
-3. npm 发布后，“添加插件”也可填写 `dsh-plugin-stca`；或下载[插件 TGZ](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz?raw=true)，填写其完整本地路径。
+3. npm 发布后，“添加插件”也可填写 `dsh-plugin-stca`；或下载[插件 TGZ](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz)，填写其完整本地路径。
 
 使用 DSH CLI、`web` profile 时：
 
@@ -103,7 +125,7 @@ npm 发布后：
 dsh plugin --profile web add dsh-plugin-stca
 ```
 
-`web` 替换为自己实际使用的 profile。另有[本地 DSH skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip?raw=true)：解压后，将完整 `stca` 文件夹放入 DSH 的 skill 目录，通常为 `~/.dsh/skills/stca`，并启用 filesystem skill provider。详见 [DSH 专用说明](README.DSH.zh-CN.md)。
+`web` 替换为自己实际使用的 profile。另有[本地 DSH skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip)：解压后，将完整 `stca` 文件夹放入 DSH 的 skill 目录，通常为 `~/.dsh/skills/stca`，并启用 filesystem skill provider。详见 [DSH 专用说明](README.DSH.zh-CN.md)。
 
 插件中心链接：—（上架后补充）。
 
@@ -125,7 +147,7 @@ dsh plugin --profile web add dsh-plugin-stca
 
 ### 下载文件
 
-ZIP 和 TGZ 链接对应仓库 [`downloads` 目录](https://github.com/foukusa/stca-agent-skill/tree/main/downloads)中的版本文件。也可打开[仓库首页](https://github.com/foukusa/stca-agent-skill)，选择 **Code → Download ZIP**，解压后获取 `skills/stca` 源码目录；该仓库版本包含的各平台安装包位于 `downloads`。源码 ZIP 需先解压再按文件夹安装，WorkBuddy 则直接上传其专用 ZIP。
+ZIP 和 TGZ 链接均指向本仓库 [`downloads` 目录](https://github.com/foukusa/stca-agent-skill/tree/main/downloads)内的文件页。打开后点击 **Download raw file** 下载，再到对应平台导入本地文件。也可打开[仓库首页](https://github.com/foukusa/stca-agent-skill)，选择 **Code → Download ZIP**，解压后获取 `skills/stca` 源码目录；该仓库版本包含的各平台安装包位于 `downloads`。源码 ZIP 需先解压再按文件夹安装，WorkBuddy 则直接上传其专用 ZIP。
 
 首次计算会查找并检查合适的本地 Python 环境。普通 Python、虚拟环境均可使用，不要求 Conda。AI 助手需要读取指定文件、写入结果目录和执行本地计算；准备缺失依赖时可能访问 PyPI 和作者公开代码仓库，生成使用当前对话的 LLM。详见[环境处理方式](docs/INSTALL.zh-CN.md#计算环境)。
 

@@ -19,9 +19,11 @@
       },
       "workflow": "learn_inrange_rules_and_compare_methods",
       "agent_steps": [
+        "Run the bundled inrange_evaluation.py via agent_runtime for the default workflow; do not replace it with inline learning code or raw-star MACCS. Require the actual run manifest, fingerprint_contract.json, CV fold assignments and out-of-fold predictions before claiming verified completion. Execute fingerprint_contract.py --run-dir RUN_DIR to confirm H-cap preparation and matrix consistency. Missing receipts or mismatches are verification failures, not successful learning.",
         "Read the uploaded polymer structures, target, units, direction and experimental/computed meaning; preserve original SMILES and select polymer_repeat_unit as the generation structure kind. Ask only for missing scientific information.",
         "Accept the user’s explicitly requested percentages, including arbitrary valid tiers such as 7%, 15% or 25%. Once the scientific target is clear, omitted percentages automatically use Top or Bottom 10%, 20% and 30%; do not ask the user to choose percentages before starting.",
         "With no explicit holdout protocol, run inrange_evaluation.py: transparent data preparation, protected structural-group CV (5 folds x 3 repeats), per-tier STCA and WRAcc comparison by AS, then full-data frozen rules. Use the source-only auto_screen.py route when the user has supplied source/holdout roles or requested a fixed extrapolation protocol.",
+        "By default use --wracc-max-literals auto --wracc-length-folds 3. Select the WRAcc length cap from 1,2,3,5,10,unlimited using grouped validation strictly inside each supplied training partition, with each inner cutoff fitted from inner training labels. Never use outer evaluation outcomes to select length. Repeat selection within full training data for the final model, save the chosen cap and actual length, and report insufficient selection evidence. Honor natural-language requests for a fixed positive maximum or unlimited; neither beam search nor STCA is exhaustive. Frozen catalog rules keep their exact saved conditions.",
         "Present each method and tier with exact cutoffs, cross-validation mean and standard deviation and full-data rule-application results as distinct outputs. Prefer WRAcc only when its average cross-validation screening score exceeds STCA by more than 0.02; retain and deliver both methods. Define this score as the average of the Matthews correlation coefficient, precision and F1 score, summarized across validation folds. Method selection is not OR or AND fusion.",
         "Always show a compact per-tier comparison table: Top/Bottom percentage, exact physical comparison, numeric cutoff and unit, both methods’ independent selected/unknown counts and the fully named average cross-validation screening score, recommended method and reason. Keep full screening/failed-condition files for both methods; do not return only the winner or model-scale thresholds.",
         "Return all original uploaded rows, original fields and molecular SMILES (including any original attachment points) for each requested method/tier, selected tables, full unmet rule conditions, unknown/no-rule states and input-preparation mapping. Deliver any independent candidate results separately.",
@@ -82,7 +84,24 @@
         "honor_explicit_method_choice": true,
         "accept_recommended_method_without_another_confirmation": true,
         "never_union_or_intersect_alternative_methods_automatically": true,
-        "explicit_single_method_choice": "honor_user_choice; do_not_require_delivery_or_selection_of_the_other_method"
+        "explicit_single_method_choice": "honor_user_choice; do_not_require_delivery_or_selection_of_the_other_method",
+        "wracc_length_policy": {
+          "default": "auto",
+          "candidate_maximum_literals": [
+            1,
+            2,
+            3,
+            5,
+            10,
+            "unlimited"
+          ],
+          "selection_scope": "grouped_validation_inside_each_training_partition_only",
+          "default_inner_folds": 3,
+          "allow_user_fixed_positive_maximum": true,
+          "allow_user_unlimited": true,
+          "preserve_frozen_rules": true,
+          "record_selected_cap_and_actual_length": true
+        }
       },
       "required_summary_columns": [
         "property",
@@ -102,7 +121,20 @@
         "recommended_method",
         "recommendation_reason",
         "per_method_full_results_and_failed_conditions"
-      ]
+      ],
+      "execution_contract": {
+        "entrypoint": "inrange_evaluation.py",
+        "representation": "hcap_maccs167",
+        "verification_script": "fingerprint_contract.py",
+        "verification_action": "--run-dir",
+        "required_evidence": [
+          "run_manifest.json",
+          "fingerprint_contract.json",
+          "cv_group_assignments.csv",
+          "cv_oof_predictions.csv"
+        ],
+        "on_missing_or_failed_evidence": "report_unverified; do_not_invent_or_summarize_as_success"
+      }
     },
     {
       "number": 2,
@@ -117,6 +149,7 @@
       },
       "workflow": "apply_existing_rules",
       "agent_steps": [
+        "Resolve named existing rules through the current curated task_menu rule directory. Do not silently choose an older same-name compatibility entry. The public RadonPy density case uses assets/examples/radonpy_density_case.json and latest-pi-rho-stca-high-30; generation reuses the exact rule already selected in the conversation.",
         "The current open-data directory provides STCA and WRAcc rules as primary and alternative methods for each source/property/tier. Let the user select a method or accept the marked primary after choosing the target. Do not combine the alternative methods unless explicitly requested; a single rule contains AND literals.",
         "Honor user-defined percentages only when an exact frozen rule exists; never substitute a nearby tier or interpolate conditions/cutoffs. Once source, property and direction are clear, omitted percentages automatically apply the available exact Top/Bottom 10%, 20%, 30% defaults without another percentage question. Report any unavailable default tier. If the target is still unclear, offer target choices and wait; defaults do not choose a source or property.",
         "By default, return separate STCA and WRAcc results for every requested available tier, together with their recorded AS evidence, primary method and recommendation reason. Apply methods separately, not as an AND or OR. Honor an explicit request for only STCA or only WRAcc. If the user accepts the recommendation for subsequent use, adopt the marked per-tier primary without another method-confirmation question. Show Top/Bottom, physical comparison, numeric cutoff and unit; mark missing evidence or an unavailable alternative honestly.",
@@ -221,6 +254,7 @@
       "workflow": "generate_and_verify",
       "default_count": 20,
       "agent_steps": [
+        "Resolve named existing rules through the current curated task_menu rule directory. Do not silently choose an older same-name compatibility entry. The public RadonPy density case uses assets/examples/radonpy_density_case.json and latest-pi-rho-stca-high-30; generation reuses the exact rule already selected in the conversation.",
         "The current open-data directory provides STCA and WRAcc rules as primary and alternative methods for each source/property/tier. Let the user select a method or accept the marked primary after choosing the target. Do not combine the alternative methods unless explicitly requested; a single rule contains AND literals.",
         "The selected exact frozen rule already defines its percentage. Do not implicitly expand generation to 10%, 20%, 30%. Honor user-defined percentages only when an exact frozen rule exists; if unavailable, offer a saved exact rule or learning from labelled data. If the user explicitly requests multiple tiers, prepare a separate session and prompt, generate and verify independently for every tier; never AND different tiers of the same property into a single prompt.",
         "If the user requests automatic method choice or accepts the recommendation, apply the marked per-tier primary method without another method-confirmation question. Honor an explicitly named STCA or WRAcc method. Show each selected tier as Top/Bottom, physical comparison, numeric cutoff and unit.",
@@ -382,5 +416,24 @@
   "score_explanation": {
     "zh-CN": "交叉验证平均筛选得分：先在各验证折计算马修斯相关系数、精确率和 F1 分数的平均值，再汇总各折；面向用户显示完整名称和三个组成指标，不单独使用 CV AS。",
     "en": "Average cross-validation screening score: average the Matthews correlation coefficient, precision and F1 score within each validation fold, then summarize the folds. Show the full name and its components rather than the unexplained abbreviation CV AS."
-  }
+  },
+  "example_cases": [
+    {
+      "id": "radonpy_density",
+      "configuration": "assets/examples/radonpy_density_case.json",
+      "use_cases": [
+        "screen_existing",
+        "learn_rules",
+        "design_verify"
+      ],
+      "preferred_builtin_rule": "latest-pi-rho-stca-high-30",
+      "input_columns": {
+        "smiles": "smiles",
+        "target": "density",
+        "id": "monomer_ID"
+      },
+      "row_policy": "all_original_rows_preserved",
+      "relearn_equality": "same_model_and_tier_reapplication_is_identical; adaptive_refit_may_differ_from_legacy_frozen_profile"
+    }
+  ]
 }

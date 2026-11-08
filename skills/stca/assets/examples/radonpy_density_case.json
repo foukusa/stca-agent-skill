@@ -1,0 +1,75 @@
+{
+  "schema": "stca-radonpy-density-example-v1",
+  "version": "0.1.0",
+  "source": {
+    "repository": "https://github.com/RadonPy/RadonPy",
+    "file_url": "https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv",
+    "filename": "PI1070.csv",
+    "sha256": "4ee41d526db3d03eb5b83010672b4e63a4d51a114871a2187ca7fd57d30556a4",
+    "records": 1077,
+    "columns": 157
+  },
+  "input": {
+    "header_row": 1,
+    "spreadsheet_data_rows": [
+      2,
+      1078
+    ],
+    "id_column": "monomer_ID",
+    "smiles_column": "smiles",
+    "target_column": "density",
+    "target_spreadsheet_column": "AA",
+    "target_column_number": 27,
+    "unit": "g/cm3",
+    "data_kind": "computed_MD",
+    "direction": "high",
+    "input_rows": "all",
+    "preserve_all_original_columns": true
+  },
+  "existing_rule": {
+    "id": "latest-pi-rho-stca-high-30",
+    "method": "STCA",
+    "fraction": 0.3,
+    "physical_operator": ">=",
+    "physical_cutoff": 1.222343047,
+    "rule": "K42=1",
+    "expected_selected": 137,
+    "expected_not_selected": 940,
+    "expected_unknown": 0,
+    "physical_cutoff_policy": "keep_frozen_source_cutoff; never_recalculate_from_candidate_table"
+  },
+  "relearn": {
+    "entrypoint": "inrange_evaluation.py",
+    "default_tiers": [
+      0.1,
+      0.2,
+      0.3
+    ],
+    "transform": "automatic",
+    "scan_step": "automatic",
+    "min_subset_size": "automatic",
+    "representation": "Hcap_MACCS167",
+    "identity": "preserve_original_repeat_unit_and_conditions",
+    "required_receipts": [
+      "run_manifest.json",
+      "fingerprint_contract.json",
+      "preparation/audit.json",
+      "cv_summary.json",
+      "cv_group_assignments.csv",
+      "cv_oof_predictions.csv",
+      "saved_rule_receipts.json"
+    ],
+    "comparison": "same_csv_does_not_imply_same_preparation_and_training_settings",
+    "saved_model_reapplication": "same_model_tier_same_input_must_match_every_row"
+  },
+  "generation": {
+    "count": 5,
+    "structure_kind": "polymer_repeat_unit",
+    "modes": [
+      "preview_then_confirm",
+      "direct"
+    ],
+    "generator": "current_LLM",
+    "verification": "same_exact_rule; Hcap_computation_copy; preserve_original_star_SMILES"
+  }
+}

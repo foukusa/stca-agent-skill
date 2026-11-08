@@ -17,7 +17,7 @@ https://github.com/foukusa/stca-agent-skill.git
 ## 直接描述任务
 
 - **从上传数据学习：**“从这份 RadonPy 数据总结高密度规则，返回筛选结果并保存。”读取 `smiles`、`density`，单位 g/cm³，标签来自计算。
-- **现成筛选：**“使用内置含氟候选示例，按 RadonPy 高密度 Top 30% STCA 规则筛选。”
+- **现成筛选：**“使用现成 RadonPy 高密度 Top 30% STCA 规则筛选这份 PI1070.csv。”
 - **规则生成：**“先给我看高 Tg Top 20% 规则的生成 prompt。”或“用选定规则直接生成 10 个聚合物重复单元并核验。”
 - **继续复用：**“使用刚才保存的 Top 20% 推荐规则筛选这份新候选表。”
 

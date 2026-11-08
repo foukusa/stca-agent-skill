@@ -21,7 +21,7 @@ CORE_SCRIPTS = (
     "stca_io.py", "stca_runtime.py", "stca_tools.py",
     "data_readiness.py", "custom_fit.py", "evaluate_custom.py",
     "data_cleaning.py", "auto_screen.py", "learning_results.py",
-    "auto_data_layer.py", "inrange_evaluation.py", "frozen_literal_model.py",
+    "auto_data_layer.py", "inrange_evaluation.py", "wracc_search.py", "fingerprint_contract.py", "frozen_literal_model.py",
     "agent_runtime.py", "runtime_discovery.py", "rule_library.py", "generation_prompt.py", "generation_session.py", "runtime_compat.py", "task_menu.py", "user_rule_library.py",
 )
 PUBLICATION_FILES = (

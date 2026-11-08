@@ -21,7 +21,7 @@
       "Use STCA to choose a rule, then directly generate and verify 20 polymer repeat units."
     ]
   },
-  "entry_note": "加载STCA后输入“开始使用STCA”，选择1上传聚合物数据总结规则、2已有规则筛选、3已有规则生成。学习默认比较STCA与WRAcc，分别返回各档筛选结果、保存完整规则和双语prompt，再返回主菜单。生成先选来源、性质和百分比；可采用主推规则；保留原始聚合物SMILES和连接点，H-cap只用于计算。可先查看和调整prompt、确认后调用当前LLM，或直接生成聚合物重复单元并核验。",
+  "entry_note": "加载 STCA 后直接用自然语言说明：从上传的聚合物数据总结规则、用已有规则筛选，或按规则生成。学习默认分别返回 STCA 与 WRAcc 的规则及各档筛选结果，WRAcc 条件数在训练数据内部自动选择，也可明确指定上限或不设上限。保存完整规则和双语 prompt 后，显示真实文件位置及规则包并继续对话。生成尚未选定规则时先展示来源、性质和百分比；可先查看和调整 prompt、经确认后调用当前 LLM，或直接生成聚合物重复单元并核验。保留原始 SMILES 和连接点，H-cap 只用于计算。",
   "official_docs": [
     "https://open.workbuddy.cn/docs/skill",
     "https://www.workbuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Skills-Market"

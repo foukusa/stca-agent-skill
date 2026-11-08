@@ -10,7 +10,7 @@
 
 - [安装与开始](#安装与开始)
 - [选择任务](#选择任务)
-- [试用筛选示例](#试用筛选示例)
+- [用 RadonPy 密度数据试用](#用-radonpy-密度数据试用)
 - [运行环境与权限](#运行环境与权限)
 - [许可与来源](#许可与来源)
 
@@ -40,7 +40,7 @@ npm 发布完成后，可按包名安装：
 dsh plugin --profile web add dsh-plugin-stca
 ```
 
-也可在[GitHub 仓库](https://github.com/foukusa/stca-agent-skill)选择 **Code → Download ZIP** 下载源码，其中 DSH skill 位于 `skills/stca`。下载[插件 TGZ](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz?raw=true)，在“添加插件”中填写其完整本地路径。[skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip?raw=true) 则采用解压后放置文件夹的方式，具体见[安装说明](https://github.com/foukusa/stca-agent-skill/blob/main/docs/INSTALL.zh-CN.md#deepseek-harness)。
+下面的安装包链接均指向本仓库内的文件页，打开后点击 **Download raw file** 下载。也可在[GitHub 仓库](https://github.com/foukusa/stca-agent-skill)选择 **Code → Download ZIP** 下载源码，其中 DSH skill 位于 `skills/stca`。下载[插件 TGZ](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz)，在“添加插件”中填写其完整本地路径。[skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip) 则采用解压后放置文件夹的方式，具体见[安装说明](https://github.com/foukusa/stca-agent-skill/blob/main/docs/INSTALL.zh-CN.md#deepseek-harness)。
 
 启用后输入 **`/stca`**，或直接说 **“开始使用 STCA”**。
 
@@ -54,19 +54,39 @@ STCA 通过当前 LLM 对话工作。你可以直接提出任务；只说“开�
 | **用已有规则筛选** | 每条原始候选的判断、未满足的规则条件及入选表 | “先显示规则目录，用我选的规则筛选这份候选。” |
 | **用已有规则生成** | 当前 LLM 按规则生成重复单元，再逐条核验结构条件 | “先选规则，再直接生成 20 个聚合物重复单元并核验。” |
 
-完整处理 prompt 已内置。归纳时未指定百分比，就使用 Top 或 Bottom **10%、20%、30%**；也可自定其他合法百分比。每档返回具体阈值、比较符和单位。保留原始 SMILES 与重复单元连接点，H-cap 仅用于计算副本。
+完整处理 prompt 已内置。归纳时未指定百分比，就使用 Top 或 Bottom **10%、20%、30%**；也可自定其他合法百分比。每档返回具体阈值、比较符和单位。WRAcc 默认在训练数据内选择条件数上限；也可直接说“WRAcc 最多使用 10 条条件”或“不限制 WRAcc 条件数”。两种方法分别返回，并给出推荐。保留原始 SMILES 与重复单元连接点，H-cap 仅用于计算副本。
 
 尚未指定规则时，AI 助手先显示可选规则目录。可选择**先预览，确认后生成**，查看并调整 prompt；也可选择**直接生成**。AI 助手会返回保存的规则文件和位置。接着说“用刚才保存的规则筛选这份候选”或“用这些规则生成”，即可继续。完整对话见[自然语言使用案例](https://github.com/foukusa/stca-agent-skill/blob/main/docs/USAGE.zh-CN.md)，现成结论见[规则目录](https://github.com/foukusa/stca-agent-skill/blob/main/docs/RULE_LIBRARY.zh-CN.md)。
 
-## 试用筛选示例
+## 用 RadonPy 密度数据试用
+
+在 GitHub 文件页下载 [RadonPy `PI1070.csv`](https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv) 并上传到 DSH。先读取全部 **1,077 条记录**：第 1 行是表头，第 2–1078 行是数据。结构使用 `smiles`（B 列／第 2 列），目标使用 `density`（AA 列／第 27 列），单位 g/cm³，标签来自分子动力学计算；`monomer_ID`（A 列／第 1 列）是可选标识。AI 助手按列名读取，无需手工选取单元格，其他密度统计列不作为目标。
+
+**现成规则筛选：**
 
 ```text
-使用内置含氟候选示例，按 RadonPy 高密度 Top 30% 的 STCA 规则筛选，并给出每条未满足的规则条件。
+使用现成的 RadonPy 高密度 Top 30% STCA 规则筛选这份数据。
 ```
 
-[预置的五条候选](https://github.com/foukusa/stca-agent-skill/blob/main/examples/quick_start/candidates.csv)中，PVDF、PTFE、PVF **3 条匹配**冻结条件 `K42=1`，PE、PEO **2 条不匹配**。这个内置示例用于演示结构规则筛选。
+这个固定文件应返回 **137 条规则匹配、940 条未匹配、0 条未知**；规则的密度目标边界为 **≥ 1.222343047 g/cm³**。
 
-想学习自己的规则，可上传 [RadonPy PI1070 CSV](https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv)，然后说：“从这份计算数据总结高密度规则，单位 g/cm³，返回筛选结果并保存规则。”其中结构列为 `smiles`，目标列为 `density`。
+**学习、筛选并保存：**
+
+```text
+从这份 RadonPy 数据总结高密度 Top 30% 规则，返回筛选结果，与现成规则比较，并保存新规则。
+```
+
+相同训练数据、预处理、指纹和设置下重新计算应得到相同规则；自适应重学可能与现成规则不同。重新载入刚保存的模型再筛同表，逐行判断应与该模型学习完成时一致，可直接说：“重新载入刚保存的 Top 30% STCA 规则，再筛选同一份数据。”
+
+**生成：**
+
+```text
+使用刚保存的高密度 Top 30% STCA 规则，直接生成 5 个聚合物重复单元并核验。
+```
+
+也可先要求展示完整 prompt，调整后回复“确认，开始生成”。当前 DSH 的 LLM 实际生成提案，STCA 执行结构核验。详见[完整 RadonPy 案例](https://github.com/foukusa/stca-agent-skill/blob/main/examples/radonpy_density/README.zh-CN.md)。
+
+也可查看[一次实际生成的五条提案及核验结果](https://github.com/foukusa/stca-agent-skill/blob/main/examples/radonpy_density/generated_examples.csv)。
 
 ## 运行环境与权限
 

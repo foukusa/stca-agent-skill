@@ -2,19 +2,19 @@
 
 STCA is used by the current LLM in the conversation. It does not create a fixed numbered application menu or a separate saved-rules page. Follow a complete request directly. When the goal is missing, briefly offer learning, screening or generation in the user's language. Use actual output files and execution receipts; fill counts only after running the requested calculation.
 
-## 快速筛选
+## 同一份 RadonPy 数据试用筛选
 
-用户：使用内置含氟候选示例，按 RadonPy 高密度 Top 30% 的 STCA 规则筛选。
+读取 [案例配置](../assets/examples/radonpy_density_case.json)。用户上传完整 PI1070.csv，说明：使用现成 RadonPy 高密度 Top 30% STCA 规则筛选这份数据。
 
-读取[五条候选](../assets/examples/quick_start_candidates.csv)和 `latest-pi-rho-stca-high-30` 的精确冻结条件，实际执行筛选。交付全部原始行、入选表和未满足的条件。该结构示例中 PVDF/PTFE/PVF 匹配 K42=1，PE/PEO 不匹配；实际计数以运行结果为准。示例没有性质标签，不用于训练或评价密度性能。
+按列名读取全部1077条输入：可选标识monomer_ID、结构smiles、目标density（g/cm³，MD计算），不让用户逐格选取集成表。当前精选条目为`latest-pi-rho-stca-high-30`，条件K42=1，物理目标边界≥1.222343047g/cm³。实际筛选应得到137条匹配、940条未匹配、0未知；读取真实输出才报数字。不要静默选用同名旧兼容条目，也不从候选表重算冻结阈值。
 
 ## 从公开数据总结规则后继续筛选
 
 用户上传 RadonPy 的 PI1070.csv，说明：从这份 RadonPy 数据总结高密度规则，返回筛选结果并保存规则。
 
-读取 `smiles` 与 `density` 列，目标单位 g/cm³，标签为分子动力学计算值。默认执行 Top 10%、20%、30%，用户明确给出的其他合法百分比按请求计算。自动准备数据、选择变换和步长；同时返回 STCA 与 WRAcc 在各档位的规则、原始物理阈值、比较符、单位、完整原表筛选和主推理由。读取实际文件后说明采用的设置，不能凭预期声称已自适应。
+读取 `smiles` 与 `density` 列，目标单位 g/cm³，标签为分子动力学计算值。默认执行 Top 10%、20%、30%，用户明确给出的其他合法百分比按请求计算。自动准备数据、选择变换和步长；WRAcc 条件数上限仅在当前训练部分内部选择，也接受用户指定上限或不限制。不能按外部测试分数挑选长度。同时返回 STCA 与 WRAcc 在各档位的规则、原始物理阈值、比较符、单位、完整原表筛选和主推理由。读取实际文件后说明采用的设置，不能凭预期声称已自适应。
 
-保存成功后交付真实文件名、位置及便携规则包。用户可以接着说：
+检查run_manifest.json、fingerprint_contract.json、真实交叉验证分组和折外预测，再执行fingerprint_contract.py --run-dir输出目录。只有表示核对通过后才交付成功状态。保存成功后交付真实文件名、位置及便携规则包。用户可以接着说：
 
 > 用刚才保存的高密度 Top 20% 推荐规则筛选这份新候选表。
 
@@ -25,6 +25,10 @@ STCA is used by the current LLM in the conversation. It does not create a fixed 
 用户：这是我的聚合物热导率数据，单位 W/(m K)，计算值。我想总结高值规则，考虑 Top 15% 和 25%。
 
 只询问缺失的科学信息，使用用户的百分比，不替换为默认值。交付两方法独立结果和推荐理由。首次解释评分时，说明交叉验证用未参与本折训练的数据评价规则；平均筛选评分为马修斯相关系数、精确率和 F1 分数的平均值。不能只报“CV AS”缩写。精确条件、原始 SMILES 和全部未满足条件保留。
+
+用户：WRAcc 最多用 10 条条件。
+
+传入明确上限，保留实际规则长度和设置。用户说“不限制 WRAcc 条件数”时移除长度上限；beam 搜索范围和最小支持要求仍生效，不承诺更长一定更好。已有冻结规则不因该请求被修改；要比较长度，需要重新学习。
 
 ## 从现成规则开始
 
@@ -52,6 +56,8 @@ STCA is used by the current LLM in the conversation. It does not create a fixed 
 
 ## 直接生成
 
+同一RadonPy案例可说：“用刚才选定的高密度 Top 30% STCA 规则直接生成5个聚合物重复单元并核验。”生成前读取该精确条目的完整prompt；静态示例只供展示，不当作新提案复制。
+
 用户：用刚才选定的规则直接生成 20 个聚合物重复单元并核验。
 
 复用明确选择，读取完整 prompt，连续生成和核验，不增加预览确认。若仍有多个性质或档位，只补问未明确的目标。生成的是带两个末端单键连接点的聚合物重复单元，H-cap 只用于计算副本，原始星号结构保持。
@@ -70,3 +76,5 @@ STCA is used by the current LLM in the conversation. It does not create a fixed 
 - **Preview:** “Use the STCA-paper high-Tg Top 20% rule. Show the prompt for five repeat units first.” Display the complete prompt and wait for explicit confirmation.
 - **Direct:** “Generate and verify 20 polymer repeat units directly with the selected rule.” The current LLM generates; the calculation verifies. Preserve proposals as pending if verification cannot run.
 - **Continue elsewhere:** “Load this saved rule bundle and continue.” Import it, then resolve the intended saved target from the conversation.
+
+同一保存模型重新载入后应用同表必须逐行一致；自适应重学与旧冻结规则只有在原始数据、准备方法、H-cap、算法及全部设置相同时才应一致。保留不同原始连接图，不按H-cap结果相同强行合并。

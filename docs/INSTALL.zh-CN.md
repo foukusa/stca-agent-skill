@@ -15,15 +15,15 @@
 
 ## 选择安装包
 
-按所用平台选择下方步骤。发行文件也位于仓库的 [downloads 目录](https://github.com/foukusa/stca-agent-skill/tree/main/downloads)：打开文件后点击 **Download raw file**；也可在[仓库首页](https://github.com/foukusa/stca-agent-skill)选择 **Code → Download ZIP**，解压后从 `downloads` 找到对应发行文件。WorkBuddy 商店链接将在发布后补充。
+按所用平台选择下方步骤。所有安装包链接都打开本 GitHub 仓库 [downloads 目录](https://github.com/foukusa/stca-agent-skill/tree/main/downloads)中的文件页。在文件页点击 **Download raw file**（下载按钮），将 ZIP 或 TGZ 保存到本地；也可在[仓库首页](https://github.com/foukusa/stca-agent-skill)选择 **Code → Download ZIP**，解压后从 `downloads` 找到对应发行文件。WorkBuddy 商店链接将在发布后补充。
 
 | 平台 | 下载 |
 |---|---|
-| Codex | [stca-codex-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-codex-0.1.0.zip?raw=true) |
-| DeepSeek Harness：本地 skill | [stca-deepseek-harness-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip?raw=true) |
-| DeepSeek Harness：插件 | [dsh-plugin-stca-0.1.0.tgz](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz?raw=true) |
-| WorkBuddy | [stca-workbuddy-0.1.1.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.1.zip?raw=true) |
-| ChatGPT 桌面端 | [stca-openai-skill-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-openai-skill-0.1.0.zip?raw=true) |
+| Codex | [stca-codex-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-codex-0.1.0.zip) |
+| DeepSeek Harness：本地 skill | [stca-deepseek-harness-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip) |
+| DeepSeek Harness：插件 | [dsh-plugin-stca-0.1.0.tgz](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz) |
+| WorkBuddy | [stca-workbuddy-0.1.1.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.1.zip) |
+| ChatGPT 桌面端 | [stca-openai-skill-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-openai-skill-0.1.0.zip) |
 
 所有 STCA 功能均可用自然语言调用。AI 助手会查找计算环境，安装时不需要填写 Python 路径。
 
@@ -42,7 +42,7 @@
 ~/.agents/skills/stca/SKILL.md
 ```
 
-只在某个项目中使用时，可放在该项目的 `.agents/skills/stca`。Windows 的个人目录为 `%USERPROFILE%\.agents\skills\stca`。保留 `SKILL.md` 旁的 `scripts`、`references` 和 `assets`，不要只复制 Markdown 文件。
+在 Finder 中选择 **前往 → 前往文件夹…**，输入 `~/.agents/skills`；目录不存在时先创建，再放入完整 `stca` 文件夹。只在某个项目中使用时，可放在该项目的 `.agents/skills/stca`。保留 `SKILL.md` 旁的 `scripts`、`references` 和 `assets`。
 
 4. 在 Codex 中打开 `/skills`，或输入 `$stca` 选择 STCA，然后发送：
 
@@ -95,7 +95,7 @@ dsh plugin --profile web add dsh-plugin-stca
 
 ### 下载 skill ZIP
 
-1. 下载 [stca-deepseek-harness-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip?raw=true) 并解压。
+1. 下载 [stca-deepseek-harness-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip) 并解压。
 2. 将完整 `stca` 文件夹复制到 DSH 用户 skill 根目录。使用默认 DSH home 时，最终路径为 `~/.dsh/skills/stca/SKILL.md`；仅供项目使用时，可放入项目根目录的 `.dsh/skills/stca`。自定义 DSH home 或 skill 目录时，以实际配置为准。
 3. 保留 `SKILL.md` 旁的 `scripts`、`references` 和 `assets`；当前 DSH profile 需启用本地文件 skill 提供器。
 4. 输入 `/stca` 或“开始使用 STCA”。
@@ -104,7 +104,7 @@ skill ZIP 采用解压后放置文件夹的方式安装，不应将 ZIP 填进�
 
 ### 下载插件 TGZ
 
-希望通过“添加插件”安装、又不使用 Git 时，可下载 [dsh-plugin-stca-0.1.0.tgz](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz?raw=true)，在“添加插件”中填写该文件的完整本地路径。使用 CLI 时，在下载文件所在目录执行：
+希望通过“添加插件”安装、又不使用 Git 时，可下载 [dsh-plugin-stca-0.1.0.tgz](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz)，在“添加插件”中填写该文件的完整本地路径。使用 CLI 时，在下载文件所在目录执行：
 
 ```bash
 dsh plugin --profile web add ./dsh-plugin-stca-0.1.0.tgz
@@ -118,7 +118,7 @@ TGZ 已经是插件包，无需解压或重新打包。
 
 1. 打开 [WorkBuddy](https://www.workbuddy.cn/)，进入 skill 管理界面。
 2. 选择添加和上传本地 skill 包。
-3. 直接选择 [stca-workbuddy-0.1.1.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.1.zip?raw=true)，完成导入并启用 **STCA 聚合物规则与设计**；上传前无需解压，也不要套入其他文件夹。
+3. 打开仓库中的 [stca-workbuddy-0.1.1.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.1.zip) 文件页，点击 **Download raw file**。在 WorkBuddy 中选择下载好的 ZIP，完成导入并启用 **STCA 聚合物规则与设计**；保持 ZIP 原样上传。
 4. 输入“开始使用 STCA”。
 
 包内按上传目录要求提供所引用的启动资源和 logo。公开商店安装链接将在审核通过并发布后补充。
@@ -127,7 +127,7 @@ TGZ 已经是插件包，无需解压或重新打包。
 
 ## ChatGPT 桌面端
 
-1. 下载 [OpenAI skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-openai-skill-0.1.0.zip?raw=true)。
+1. 打开本仓库的 [OpenAI skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-openai-skill-0.1.0.zip) 文件页，点击 **Download raw file**。
 2. 若当前 ChatGPT 桌面客户端提供本地 skill 创建／导入入口，在该入口导入 ZIP 并启用 STCA；是否开放取决于客户端及账号。
 3. 选择 STCA 并说明任务。计算需要文件访问与命令执行环境；普通文件附件本身不会完成 skill 的安装或运行。
 

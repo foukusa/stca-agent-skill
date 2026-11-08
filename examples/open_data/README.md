@@ -12,10 +12,10 @@
 
 ## Start with a built-in task
 
-Enable STCA and say **“Start STCA”**, then choose:
+Enable STCA and say **“Start STCA”**, or state your goal directly:
 
 1. **Upload data and learn rules**: provide structures and numeric property values. Specify the direction and any percentages you want; omitted percentages use 10%, 20% and 30%.
-2. **Screen with existing rules**: upload candidates and choose bundled rules or My rules.
+2. **Screen with existing rules**: upload candidates and choose bundled rules or your saved rules.
 3. **Generate with existing rules**: view the catalog, choose your rules, then preview and confirm the prompt or generate directly.
 
 The complete task prompts are built in. The AI assistant reads the headers, offers available sources and asks only for essential missing information. You do not need rule IDs or technical commands.
@@ -27,6 +27,8 @@ The [rule and generation-prompt directory](../../docs/RULE_LIBRARY.md) includes 
 Each source, property and percentage has **two separately usable rules: STCA and WRAcc**. Both methods’ results are returned separately, with scores, a recommended method and the reason for each tier. Accept the recommendation or choose a method yourself. All conditions within a selected rule must hold.
 
 AS (Average Score) follows the definition introduced and used for screening validation in the [STCA paper](https://doi.org/10.1038/s41524-026-02345-x): the arithmetic mean of MCC, Precision and F1. The primary method is chosen using grouped cross-validation AS, the mean of Precision, F1 and MCC. WRAcc is recommended only when its AS exceeds STCA by more than 0.02; otherwise STCA is retained. These scores describe evaluation within the source data; they do not guarantee a new candidate's property value.
+
+When learning from your own data, WRAcc selects its condition-count limit within training data by default. You can also request “at most 10 conditions” or “no condition-count limit.”
 
 To use another direction or a percentage such as **15% or 25%**, upload suitable labelled data and learn new rules. For example: “Learn high-refractive-index Top 15% and 25% rules from this computed table.”
 
@@ -43,7 +45,7 @@ Upload your candidate table, then use one of these requests:
 
 STCA is primary for the first three examples; WRAcc is primary for the ADEPT dielectric example. You can ask to see both methods' scores before choosing. High and low dielectric constant are different objectives; learn from your own data if you need the low direction.
 
-For generation, first say **“3”**. After the catalog appears, choose a source, property, percentage and method. For example: “Choose ADEPT high dielectric constant, Top 20%, WRAcc; generate 20 candidates directly and verify them.” To review first, say “Show me the complete prompt before generating”; you can adjust it, then say “Confirm and generate.” The current LLM generates the candidates in either mode.
+For generation, ask to see the available rules, or specify the source, property, percentage and method directly. For example: “Choose ADEPT high dielectric constant, Top 20%, WRAcc; generate 20 candidates directly and verify them.” To review first, say “Show me the complete prompt before generating”; you can adjust it, then say “Confirm and generate.” The current LLM generates the candidates in either mode.
 
 ## Data sources and fields
 
@@ -84,6 +86,6 @@ After learning, STCA returns rules, physical cutoffs and **a separate screening 
 
 Every screening table preserves original star-containing SMILES and identifiers, with selection decisions, each unmet rule condition and uncomputable records. A method or tier without a valid rule retains its status and reason. Empty conditions do not mean all structures pass.
 
-The model, rules and complete bilingual generation prompts are saved under **My rules**. STCA shows the saved name and returns to the main menu; choose task **2** or **3** to reuse them. “Main menu” or “Back” preserves saved rules. To continue in another session or platform, download the rule bundle and upload it in the new session.
+Models, rules and complete bilingual generation prompts are saved as reusable files. The assistant reports their actual location and provides a rule bundle. Continue with “Screen this table with the rules just saved” or “Generate with those rules.” Upload the saved bundle to reuse it in another conversation or platform.
 
-Task **3** offers **Preview and confirm** and **Generate directly** after rule selection. Both return every proposal and its verification results, including unmet rule conditions, then return to the main menu. No additional LLM API setup is needed. To use another LLM instead, ask **“Give me only the complete generation prompt”**, copy it there, then upload its candidate table and say **“Verify these candidates with the same rules.”** Structural rule compliance and actual property validation are reported separately. See [installation instructions](../../docs/INSTALL.md) and the [natural-language usage guide](../../docs/USAGE.md).
+After selecting the rules, choose **Preview and confirm** or **Generate directly**. Both return every proposal and its verification results, including unmet rule conditions, and let you continue the conversation. No additional LLM API setup is needed. To use another LLM instead, ask **“Give me only the complete generation prompt”**, copy it there, then upload its candidate table and say **“Verify these candidates with the same rules.”** Structural rule compliance and actual property validation are reported separately. See [installation instructions](../../docs/INSTALL.md) and the [natural-language usage guide](../../docs/USAGE.md).

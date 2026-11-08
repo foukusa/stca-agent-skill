@@ -10,7 +10,7 @@ Learn readable polymer structure–property rules, screen candidates, or generat
 
 - [Install and start](#install-and-start)
 - [Choose a task](#choose-a-task)
-- [Try a screening example](#try-a-screening-example)
+- [Try RadonPy density](#try-radonpy-density)
 - [Runtime and permissions](#runtime-and-permissions)
 - [License and sources](#license-and-sources)
 
@@ -40,7 +40,7 @@ After npm publication, the package-name command is:
 dsh plugin --profile web add dsh-plugin-stca
 ```
 
-From the [GitHub repository](https://github.com/foukusa/stca-agent-skill), **Code → Download ZIP** downloads the source; the DSH skill is at `skills/stca`. You can also download the [plugin TGZ](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz?raw=true) and enter its complete local path in Add plugin. The [skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip?raw=true) uses manual folder installation; see the [installation guide](https://github.com/foukusa/stca-agent-skill/blob/main/docs/INSTALL.md#deepseek-harness).
+Package links below open files inside this GitHub repository; click **Download raw file** on the file page. From the [GitHub repository](https://github.com/foukusa/stca-agent-skill), **Code → Download ZIP** downloads the source; the DSH skill is at `skills/stca`. You can also download the [plugin TGZ](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz) and enter its complete local path in Add plugin. The [skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip) uses manual folder installation; see the [installation guide](https://github.com/foukusa/stca-agent-skill/blob/main/docs/INSTALL.md#deepseek-harness).
 
 After enabling the plugin, enter **`/stca`** or say **“Start STCA.”**
 
@@ -54,19 +54,39 @@ STCA works through the current LLM conversation. State a task directly; if you o
 | **Screen with existing rules** | Decisions for every original candidate, unmet rule conditions and selected records | “Show the rule catalog and screen my candidates with the rule I choose.” |
 | **Generate with existing rules** | Rule-guided proposals from the current LLM, followed by structural-rule verification | “Choose a rule, then directly generate and verify 20 polymer repeat units.” |
 
-Complete task prompts are built in. Learning uses Top or Bottom **10%, 20% and 30%** when percentages are omitted; you may choose other valid percentages. Every tier reports its numeric cutoff, comparison and unit. Original SMILES and repeat-unit attachment points are preserved; H-cap is calculation-only.
+Complete task prompts are built in. Learning uses Top or Bottom **10%, 20% and 30%** when percentages are omitted; you may choose other valid percentages. Every tier reports its numeric cutoff, comparison and unit. WRAcc chooses rule length within the training data; you can instead request “At most 10 WRAcc conditions” or “No WRAcc condition-count limit.” Both methods and their recommendation are returned separately. Original SMILES and repeat-unit attachment points are preserved; H-cap is calculation-only.
 
 When you have not selected a rule, the assistant shows the available rule catalog. Choose **preview and confirm** to inspect and adjust the prompt before generation, or **generate directly**. The assistant returns the saved rule files and their location. Continue with “Screen these candidates with the rules just saved” or “Generate with those rules.” See the [natural-language examples](https://github.com/foukusa/stca-agent-skill/blob/main/docs/USAGE.md) and [rule catalog](https://github.com/foukusa/stca-agent-skill/blob/main/docs/RULE_LIBRARY.md).
 
-## Try a screening example
+## Try RadonPy density
+
+Download [RadonPy `PI1070.csv`](https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv) from its GitHub file page and upload it in DSH. Use all **1,077 records**: row 1 is the header and rows 2–1078 are data. Select `smiles` (B / column 2) for structures and `density` (AA / column 27), in g/cm³, for the molecular-dynamics target. `monomer_ID` (A / column 1) is an optional identifier. The assistant reads column names; you do not need to extract cells. Other density statistics are not the target.
+
+**Existing-rule screening:**
 
 ```text
-Use the bundled fluorinated-candidate example. Screen it with the RadonPy high-density Top 30% STCA rule and show every unmet rule condition.
+Use the existing RadonPy high-density Top 30% STCA rule to screen this dataset.
 ```
 
-The [five predefined candidates](https://github.com/foukusa/stca-agent-skill/blob/main/examples/quick_start/candidates.csv) include **three matches** (PVDF, PTFE and PVF) and **two non-matches** (PE and PEO) for the frozen `K42=1` rule. This bundled example demonstrates structural-rule screening.
+This fixed file gives **137 rule matches, 940 non-matches and no unknowns**; the rule's density target boundary is **≥ 1.222343047 g/cm³**.
 
-To learn your own rules, upload the [RadonPy PI1070 CSV](https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv) and say: “Learn high-density rules from this computed data in g/cm³, return the screening results and save the rules.” The structure column is `smiles` and the target is `density`.
+**Learning, screening and saving:**
+
+```text
+Learn high-density Top 30% rules from this RadonPy dataset, return screening results, compare them with the existing rule and save the new rules.
+```
+
+A repeat fit requires identical prepared data, fingerprints and settings to reproduce an existing rule. A new adaptive fit may differ. Reapplying the newly saved model to the same table must reproduce that model’s screening decisions: “Reload the Top 30% STCA rule just saved and screen the same dataset again.”
+
+**Generation:**
+
+```text
+Use the high-density Top 30% STCA rule just saved to directly generate and verify five polymer repeat units.
+```
+
+Or ask to see the complete prompt first, adjust it, then say “Confirm and generate.” The current DSH LLM generates; STCA performs the structural checks. See the [complete RadonPy case](https://github.com/foukusa/stca-agent-skill/blob/main/examples/radonpy_density/README.md).
+
+See [five actual generated proposals and their verification](https://github.com/foukusa/stca-agent-skill/blob/main/examples/radonpy_density/generated_examples.csv).
 
 ## Runtime and permissions
 

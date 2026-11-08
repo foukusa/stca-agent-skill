@@ -13,38 +13,38 @@
   "files": [
     {
       "file": "dsh-plugin-stca-0.1.0.tgz",
-      "size_bytes": 732662,
-      "sha256": "880b041d9abfdcbda9e54bcb8f606e64adce87ef0eebd648286aef68e964f6dd"
+      "size_bytes": 747770,
+      "sha256": "4a6ccba19c2b48b3cc5c28ea394fa1b32d15cf6c417a3009d1d4b59240d88abd"
     },
     {
       "file": "stca-chatgpt-0.1.0.zip",
-      "size_bytes": 1659815,
-      "sha256": "850e946c049dec5fe1adb1d8514602dffeffdc17f4f1df2c809bd243c6be19a3"
+      "size_bytes": 1673956,
+      "sha256": "9f93a64b2eff5aaa9a4e98cd2873fca646fb9164b30a391d83fbf798c01b58d6"
     },
     {
       "file": "stca-codex-0.1.0.zip",
-      "size_bytes": 1659815,
-      "sha256": "850e946c049dec5fe1adb1d8514602dffeffdc17f4f1df2c809bd243c6be19a3"
+      "size_bytes": 1673956,
+      "sha256": "9f93a64b2eff5aaa9a4e98cd2873fca646fb9164b30a391d83fbf798c01b58d6"
     },
     {
       "file": "stca-deepseek-harness-0.1.0.zip",
-      "size_bytes": 1671584,
-      "sha256": "1960c01f600d9ee3b562647821d91a6b17a40f4cb90cff07e39491439d4aa554"
+      "size_bytes": 1685892,
+      "sha256": "b6469009743fd12d372b262a41de04d577684010e85769161376844ca901ebba"
     },
     {
       "file": "stca-openai-plugin-0.1.0.zip",
-      "size_bytes": 1946477,
-      "sha256": "0d433fd674b27babb82d979982b58d398d23e32e08cc84a3f3b7a8fefc1864f1"
+      "size_bytes": 1979206,
+      "sha256": "1a688ba28a5d9e83c5087c0abec818a2da492a809a6cdecc2a0016ca7b128886"
     },
     {
       "file": "stca-openai-skill-0.1.0.zip",
-      "size_bytes": 1659815,
-      "sha256": "850e946c049dec5fe1adb1d8514602dffeffdc17f4f1df2c809bd243c6be19a3"
+      "size_bytes": 1673956,
+      "sha256": "9f93a64b2eff5aaa9a4e98cd2873fca646fb9164b30a391d83fbf798c01b58d6"
     },
     {
       "file": "stca-workbuddy-0.1.1.zip",
-      "size_bytes": 1595760,
-      "sha256": "34ebce4ce82c475c77f8dd51adce1a128269cb64c1582d8b5da968e1ba9e1b12"
+      "size_bytes": 1614727,
+      "sha256": "984661ce3bd96760eb20b3c5f2abad14ce00062721f8d921b54d7e9e734050be"
     }
   ]
 }

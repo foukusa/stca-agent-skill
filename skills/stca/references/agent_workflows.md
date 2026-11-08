@@ -1,6 +1,6 @@
 # 三条agent执行路径
 
-用户只说开始时展示1归纳、2筛选、3生成。明确请求直接进入。普通用户无需脚本、Python路径或规则ID；以下命令仅供agent内部使用。版本0.1.0。
+用户只说开始时简短介绍归纳、筛选、生成三种用法；不要求用户回复固定编号。明确请求直接进入。普通用户无需脚本、Python路径或规则ID；以下命令仅供agent内部使用。版本0.1.0。
 
 ## 1 默认：自己数据范围内归纳
 
@@ -12,9 +12,11 @@ PY SKILL_DIR/scripts/agent_runtime.py run --script inrange_evaluation.py -- --st
 
 参数按实际文件填写，ID可省略或用--id-column。未定义百分比时直接用10/20/30，明确百分比时按请求（包括15/25）计算，不为缺省档位再问。读取screening_summary.json/recommendation.md，向用户同时显示每档物理cutoff、比较符、单位，两方法各自入选/未知数、AS及主推理由和结果表。先读取文件单位及是否已log；`--metadata-columns`只传样品加工描述，`--condition-columns`传可比测量条件，Reference/DOI/Journal是书目信息，不能作为加工描述扫描。用户可给任意合法档位，例如0.10 0.15 0.20 0.25 0.30；内置目录只有已供给的10/20/30，不能插值伪造15/25。
 
-默认准备数据、按protected_group做5折×3，STCA与WRAcc在相同训练折标签边界比较；AS差超过0.02才取WRAcc，否则STCA优先。`--nested`按外层训练内部3折选择方法，`--with-rf`仅在用户要求预测参照时启用。
+默认准备数据、按protected_group做5折×3，STCA与WRAcc在相同训练折标签边界比较。WRAcc 默认 `--wracc-max-literals auto --wracc-length-folds 3`，在每个训练分区内部按分组验证，从 1、2、3、5、10 及 unlimited 的长度上限中选择；内部标签阈值来自各内部训练折。外层标签不参与长度选择。最终全量模型在全量训练部分内部重新选择，并保存选择记录和实际长度。用户明确说最多 N 条条件时传 N，说不限制时传 unlimited；数据不足以选择时显示实际回退与证据不足状态。STCA 正负方向各最多10条排序条件、每家族保留8个候选，不改变作者算法。WRAcc beam宽度30、最小入选支持5，不把两种不同支持参数等同。AS差超过0.02才取WRAcc，否则STCA优先。`--nested`按外层训练内部3折选择方法，`--with-rf`仅在用户要求预测参照时启用。
 
 读取run_manifest、inrange结果、两方法各模型与导出约束、全量逐档筛选表和主推记录。预处理后CV、最终全量回筛和可选外推各自注明范围；方法选择不是规则OR或AND。没有有效规则、单一标签类、无法CV和运行失败不能填伪0。
+
+默认学习必须执行随包入口，不另写原始 MACCS 学习脚本。读取 run_manifest.json、fingerprint_contract.json、分组和折外预测凭据；再执行 `PY SKILL_DIR/scripts/fingerprint_contract.py --run-dir RUN_DIR`。缺少或不匹配时不能仅凭汇总 MD 声称正确完成。核对实际 WRAcc 搜索设置、训练内部长度选择记录及最终规则身份；十条或更长条件可以是合法输出，不能仅按条件数判错。旧版最多三条的运行仍按其原设置核对，不能把新实现追认为旧运行。
 
 流程会自动导出每方法的精确约束、完整双语prompt，保存并导出用户规则包；检查真实save/export状态后才告知已保存。对原上传表每方法/每档返回全部原行、原字段、星号SMILES、明确布尔判断或unknown、每条未满足的规则条件与入选子表。独立候选另用相同冻结模型screen-candidates，不替换原上传表。
 

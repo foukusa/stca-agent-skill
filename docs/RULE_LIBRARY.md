@@ -2,7 +2,7 @@
 
 **Version 0.1.0** · [简体中文](RULE_LIBRARY.zh-CN.md) · [Home](../README.md)
 
-Say **“Start STCA”** and choose **2 Screen** or **3 Generate** to open the catalog automatically. Select a source, property, percentage and rule; the AI assistant loads every condition. You do not need rule IDs. Click a method below to get its complete English generation prompt directly.
+Say **“Start STCA”** and ask to screen or generate with the chosen rules to open the catalog automatically. Select a source, property, percentage and rule; the AI assistant loads every condition. You do not need rule IDs. Click a method below to get its complete English generation prompt directly.
 
 ## Contents
 
@@ -14,6 +14,8 @@ Say **“Start STCA”** and choose **2 Screen** or **3 Generate** to open the c
 - [Use your own data](#use-your-own-data)
 
 ## How to choose
+
+Bundled rules and scores retain the settings used to create them. New learning selects the WRAcc condition-count limit inside the training partition by default; a fixed limit or no limit can also be requested. This does not rewrite bundled rules or their catalog scores.
 
 The open-data catalog covers **12 tasks**, all in the high-value direction at Top **10%, 20% and 30%**. Each tier offers complete **STCA and WRAcc** rules, marked primary and alternative. Accept the recommendation to use the primary directly, or explicitly choose either method. The methods have separate rules and screening results; a comparison returns both.
 

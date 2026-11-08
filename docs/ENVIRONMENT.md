@@ -6,7 +6,7 @@ The agent starts through the bundled native launcher, so a Python executable doe
 
 The runtime accepts compatible Python 3.10+ environments. Rule screening checks RDKit and MACCS behavior; learning also checks the numerical APIs. If preparation is required and permitted, dependencies are installed into a separate cache environment. Existing user environments are not modified. Discovery itself does not install software. If no usable interpreter or permitted preparation route is available, the agent reports the specific blocker.
 
-The bundled rules and bilingual prompts are readable without scientific dependencies. The agent uses `scripts/launch_runtime.sh` on macOS/Linux or `scripts/launch_runtime.ps1` on Windows to start `scripts/agent_runtime.py`. WorkBuddy's packaged entry restores the complete rule resources before calculation. These are internal operations, not setup commands for ordinary users. See [agent workflows](../skills/stca/references/agent_workflows.md) and [runtime reference](../skills/stca/references/platform-runtime.md).
+The bundled rules and bilingual prompts are readable without scientific dependencies. The agent uses `scripts/launch_runtime.sh` on macOS/Linux to start `scripts/agent_runtime.py`. WorkBuddy's packaged entry restores the complete rule resources before calculation. These are internal operations, not setup commands for ordinary users. See [agent workflows](../skills/stca/references/agent_workflows.md) and [runtime reference](../skills/stca/references/platform-runtime.md).
 
 After learning valid rules, the agent returns reusable models, exact constraints, complete bilingual prompts and their screening results. A natural-language request can continue through current-LLM generation and frozen-rule verification.
 

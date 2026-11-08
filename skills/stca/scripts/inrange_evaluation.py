@@ -26,6 +26,8 @@ import pandas as pd
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from generation_prompt import infer_structure_kind, STRUCTURE_KINDS
+from fingerprint_contract import audit_fit_fingerprints, verify_run_artifacts
+from wracc_search import DEFAULT_CAPS, cap_name, normalize_wracc_limit, search_wracc
 
 TIE = 0.02
 METRICS = ("precision", "recall", "f1", "mcc", "AS")
@@ -145,39 +147,9 @@ def rule_mask(matrix, rule):
 
 
 def beam_wracc(matrix, truth, depth=3, width=30, min_support=5):
-    """Positive-WRAcc beam search over at most three distinct MACCS literals."""
-    n = len(truth)
-    if not n or not np.any(truth) or np.all(truth):
-        return None
-    prevalence = float(np.mean(truth))
-    keys = [j for j in range(1, matrix.shape[1]) if matrix[:, j].min() != matrix[:, j].max()]
-    literals = [(j, value) for j in keys for value in (0, 1)]
-    beam = [((), np.ones(n, dtype=bool))]
-    best = None
-    for _ in range(min(3, depth)):
-        candidates = {}
-        for existing, mask in beam:
-            used = {j for j, _ in existing}
-            for literal in literals:
-                if literal[0] in used:
-                    continue
-                combination = tuple(sorted(existing + (literal,)))
-                if combination in candidates:
-                    continue
-                selected = mask & (matrix[:, literal[0]] == literal[1])
-                support = int(selected.sum())
-                if support < min_support:
-                    continue
-                wracc = support / n * (float(np.mean(truth[selected])) - prevalence)
-                if wracc > 0:
-                    candidates[combination] = (wracc, selected)
-        ordered = sorted(candidates.items(), key=lambda kv: (-kv[1][0], len(kv[0]), kv[0]))[:width]
-        beam = [(rule, details[1]) for rule, details in ordered]
-        if ordered:
-            candidate = ordered[0]
-            if best is None or (-candidate[1][0], len(candidate[0]), candidate[0]) < (-best[1][0], len(best[0]), best[0]):
-                best = candidate
-    return None if best is None else {"literals": list(best[0]), "wracc": float(best[1][0])}
+    """Compatibility wrapper; a supplied depth is honored without a hidden cap."""
+    chosen = search_wracc(matrix, truth, caps=(depth,), width=width, min_support=min_support)["caps"][cap_name(depth)]
+    return None if chosen is None else {"literals": chosen["literals"], "wracc": chosen["wracc"]}
 
 
 def grouped_folds(groups, folds, seed):
@@ -199,11 +171,102 @@ def grouped_folds(groups, folds, seed):
 
 
 class Learners:
-    def __init__(self, matrix, target, groups, tiers, direction, scan, target_name, model_unit):
+    def __init__(self, matrix, target, groups, tiers, direction, scan, target_name, model_unit,
+                 wracc_max_literals="auto", wracc_length_folds=3):
         self.matrix, self.target = matrix, target
         self.groups, self.tiers, self.direction = np.asarray(groups, dtype=str), tiers, direction
         self.scan, self.target_name, self.model_unit = scan, target_name, model_unit
-        self.cache = {}
+        self.wracc_max_literals = normalize_wracc_limit(wracc_max_literals)
+        self.wracc_length_folds = int(wracc_length_folds)
+        if self.wracc_length_folds < 2:
+            raise ValueError("WRAcc length selection requires at least two inner folds.")
+        self.cache, self.length_cache = {}, {}
+
+    def wracc_settings(self):
+        return {"maximum_literals": self.wracc_max_literals, "beam_width": 30, "minimum_support": 5,
+                "length_candidates": [cap_name(cap) for cap in DEFAULT_CAPS] if self.wracc_max_literals == "auto" else [],
+                "inner_folds_requested": self.wracc_length_folds,
+                "length_selection_scope": "inside_each_supplied_training_partition",
+                "length_selection_score": "pooled_inner_OOF_(MCC+Precision+F1)/3",
+                "tie_policy": "smaller_maximum_literals_then_unlimited",
+                "unavailable_length_selection_fallback": "unlimited_with_explicit_unavailable_status",
+                "unlimited_definition": "all_distinct_varying_MACCS_keys_or_positive_beam_exhaustion_no_plateau_stop"}
+
+    def select_wracc_length(self, positions, tier):
+        """Choose a depth using only the supplied training partition's groups/labels."""
+        positions = np.asarray(positions, dtype=int)
+        cache_key = (tuple(positions.tolist()), float(tier))
+        if cache_key in self.length_cache:
+            return self.length_cache[cache_key]
+        setting = self.wracc_max_literals
+        metadata = {"requested_maximum_literals": setting, "selected_max_literals": setting,
+                    "selection_status": "user_specified", "training_positions": positions.tolist(),
+                    "training_n": len(positions), "inner_folds_requested": self.wracc_length_folds,
+                    "inner_folds_used": 0, "inner_folds": [], "candidates": [],
+                    "criterion": "pooled_inner_OOF_(MCC+Precision+F1)/3",
+                    "tie_policy": "smaller_maximum_literals_then_unlimited"}
+        if setting != "auto":
+            self.length_cache[cache_key] = metadata
+            return metadata
+        groups = self.groups[positions]
+        folds = min(self.wracc_length_folds, len(np.unique(groups)))
+        metadata.update(selected_max_literals="unlimited", selection_status="unavailable",
+                        fallback="unlimited", fallback_reason="insufficient_protected_groups")
+        if folds < 2 or len(positions) < 2:
+            self.length_cache[cache_key] = metadata
+            return metadata
+        fold_ids = grouped_folds(groups, folds, 7319)
+        metadata["inner_folds_used"] = folds
+        predictions = {cap_name(cap): np.full(len(positions), -1, dtype=np.int8) for cap in DEFAULT_CAPS}
+        truths = np.zeros(len(positions), dtype=bool)
+        for fold in range(folds):
+            local_train, local_test = np.flatnonzero(fold_ids != fold), np.flatnonzero(fold_ids == fold)
+            train, test = positions[local_train], positions[local_test]
+            overlap = set(self.groups[train]) & set(self.groups[test])
+            if overlap:
+                raise RuntimeError("Protected group leakage in WRAcc inner length-selection folds.")
+            threshold = cutoff(self.target[train], tier, self.direction)
+            train_truth = labels(self.target[train], threshold, self.direction)
+            truths[local_test] = labels(self.target[test], threshold, self.direction)
+            searched = search_wracc(self.matrix[train], train_truth, caps=DEFAULT_CAPS)
+            candidates = {}
+            for cap in DEFAULT_CAPS:
+                name, learned = cap_name(cap), searched["caps"][cap_name(cap)]
+                if learned is None:
+                    candidates[name] = {"status": "no_valid_rule", "rule": None}
+                    continue
+                rule = {"keys": [j for j, _ in learned["literals"]],
+                        "values": [v for _, v in learned["literals"]]}
+                mask = rule_mask(self.matrix[test], rule)
+                predictions[name][local_test] = mask.astype(np.int8)
+                candidates[name] = {"status": "rule_fitted", "rule": rule,
+                                    "training_wracc": learned["wracc"], "actual_literal_n": learned["length"]}
+            metadata["inner_folds"].append({"fold": fold + 1, "train_positions": train.tolist(),
+                "test_positions": test.tolist(), "training_cutoff_model": threshold,
+                "training_n": len(train), "test_n": len(test), "protected_group_overlap_n": 0,
+                "candidates": candidates, "search_last_depth": searched["last_depth"],
+                "search_termination": searched["termination"]})
+        eligible = []
+        for cap in DEFAULT_CAPS:
+            name = cap_name(cap)
+            unknown = int((predictions[name] < 0).sum())
+            metric = ({"status": "unavailable_missing_inner_rule", "AS": None,
+                       "unknown_prediction_n": unknown} if unknown else scores(truths, predictions[name] == 1))
+            item = {"max_literals": name if cap is None else cap, **metric}
+            metadata["candidates"].append(item)
+            if metric.get("AS") is not None and metric.get("status") == "evaluated":
+                eligible.append((float(metric["AS"]), float("inf") if cap is None else cap, cap))
+        if eligible:
+            # Scores first; exact score ties prefer the simpler requested cap.
+            _, _, selected = min(eligible, key=lambda item: (-item[0], item[1]))
+            metadata.update(selected_max_literals="unlimited" if selected is None else selected,
+                            selection_status="selected_by_training_only_grouped_inner_cv")
+            metadata.pop("fallback", None)
+            metadata.pop("fallback_reason", None)
+        else:
+            metadata["fallback_reason"] = "no_cap_has_complete_two_class_inner_OOF_evidence"
+        self.length_cache[cache_key] = metadata
+        return metadata
 
     def fit(self, positions):
         positions = np.asarray(positions, dtype=int)
@@ -243,11 +306,16 @@ class Learners:
             if not len(y):
                 continue
             truth = labels(y, result["WRAcc"][tier]["train_cutoff"], self.direction)
-            learned = beam_wracc(matrix, truth)
+            selection = self.select_wracc_length(positions, tier)
+            selected_cap = selection["selected_max_literals"]
+            result["WRAcc"][tier]["length_selection"] = selection
+            search = search_wracc(matrix, truth, caps=(selected_cap,))
+            result["WRAcc"][tier]["search"] = {key: value for key, value in search.items() if key != "caps"}
+            learned = search["caps"][cap_name(selected_cap)]
             if learned is not None:
                 literal_pairs = learned["literals"]
                 rule = {"keys": [j for j, _ in literal_pairs], "values": [v for _, v in literal_pairs],
-                        "name": f"WRAcc_{tier_key(tier)}", "family": "WRAcc_beam_max3"}
+                        "name": f"WRAcc_{tier_key(tier)}", "family": f"WRAcc_beam_max_{cap_name(selected_cap)}"}
                 result["WRAcc"][tier].update(rule=rule, status="rule_fitted",
                     source_metrics={**scores(truth, rule_mask(matrix, rule)), "wracc": learned["wracc"]})
         self.cache[cache_key] = result
@@ -350,7 +418,9 @@ def evaluate(learners, *, folds=5, repeats=3, nested=False, with_rf=False,
                         "training_group_n": len(set(learners.groups[train])), "test_group_n": len(set(learners.groups[test])),
                         "protected_group_overlap_n": len(overlap), "training_fold_cutoff_model": threshold,
                         "test_positive_n_at_training_cutoff": int(truths[tier][local_test].sum()),
-                        "rule": entry["rule"]})
+                        "rule": entry["rule"],
+                        **({"WRAcc_length_selection": entry.get("length_selection"),
+                            "WRAcc_search": entry.get("search")} if method == "WRAcc" else {})})
                 if nested:
                     selected, reason = choose_by_cv(inner["summary"]["STCA"][tier], inner["summary"]["WRAcc"][tier])
                     predicted["nested_integrated"][tier][local_test] = predicted[selected][tier][local_test]
@@ -421,6 +491,11 @@ def user_summary(rows, deployment, *, target_name, direction, unit, original_inp
                 "selected_n": selected, "not_selected_n": original_input_rows - selected - unknown,
                 "unknown_n": unknown, "original_input_n": original_input_rows,
                 "rule": row[method.lower() + "_rule"],
+                **({"WRAcc_length_selection": {key: value for key, value in (item.get("WRAcc_length_selection") or {}).items()
+                        if key in {"requested_maximum_literals", "selected_max_literals", "selection_status",
+                                   "inner_folds_used", "fallback", "fallback_reason"}},
+                    "WRAcc_search": item.get("WRAcc_search"),
+                    "WRAcc_length_selection_details": "wracc_length_selection.json"} if method == "WRAcc" else {}),
                 "results_with_failed_conditions": prefix + "/screening/results.csv",
                 "selected_rows": prefix + "/selected.csv", "constraints": prefix + "/constraints.json"}
         tiers.append(target)
@@ -439,6 +514,12 @@ def render_user_summary(summary):
              "WRAcc 的交叉验证平均筛选评分高于 STCA 超过 0.02 时主推 WRAcc，否则保留 STCA；无法比较时明确标注。", "",
              "| 档位 | 具体物理阈值 | STCA 入选 / 未知 | STCA 交叉验证平均评分 | WRAcc 入选 / 未知 | WRAcc 交叉验证平均评分 | 主推 |",
              "|---|---|---:|---:|---:|---:|---|"]
+    if summary.get("fingerprint_contract", {}).get("status") == "verified":
+        lines.insert(2, "计算约定：H-cap 核验通过；拟合指纹已逐位核对，见 [计算记录](fingerprint_contract.json)。")
+    if summary.get("WRAcc_search"):
+        setting = summary["WRAcc_search"]["maximum_literals"]
+        lines.insert(3, "WRAcc 条件数：训练分区内自动比较 1、2、3、5、10 条与不限制条件数；评价折只用于评价。" if setting == "auto"
+                     else f"WRAcc 条件数：按用户要求设置为 {setting}；不限制时搜索至所有可变键或候选耗尽。")
     for item in summary["tiers"]:
         left, right = item["methods"]["STCA"], item["methods"]["WRAcc"]
         threshold = f"{item['operator']} {number(item['physical_cutoff'])} {item['unit']}"
@@ -456,6 +537,15 @@ def render_user_summary(summary):
             lines += [f"- **{method}**：入选 {result['selected_n']}，未入选 {result['not_selected_n']}，未知 {result['unknown_n']}；交叉验证状态 {result['cv_status']}。",
                       f"  [全部原行及未满足的规则条件]({result['results_with_failed_conditions']}) · [入选表]({result['selected_rows']}) · [精确约束]({result['constraints']})。",
                       f"  规则：`{result['rule']}`。" if result['rule'] else "  无有效规则，结果保持未知。"]
+            if method == "WRAcc" and result.get("WRAcc_length_selection"):
+                choice = result["WRAcc_length_selection"]
+                value = choice["selected_max_literals"]
+                label = "不限制" if value == "unlimited" else str(value)
+                status = {"user_specified": "用户指定", "selected_by_training_only_grouped_inner_cv": "训练分区内自动选择",
+                          "unavailable": "内层评价不可用"}.get(choice["selection_status"], choice["selection_status"])
+                lines.append(f"  搜索条件数上限：{label}；本条规则实际 {len(result['rule'].split(' AND ')) if result['rule'] else 0} 条；选择状态：{status}。")
+                if choice.get("fallback_reason"):
+                    lines.append("  内层评价证据不足，使用明确记录的不限制搜索回退；未声称已验证最优条件数。")
     lines += ["", "百分比对应准备后数据的目标尾部，表中阈值为最终部署模型的原始物理尺度边界；不是候选入选配额。",
               "交叉验证使用各训练折的阈值；最终原表回筛使用全量冻结阈值。二者不混同，评价范围见 run_manifest.json。",
               "完整中英文 prompt、模型和规则包按保存凭据交付。可接着要求用刚保存的规则筛选或生成；具体文件位置见保存记录。", ""]
@@ -525,6 +615,8 @@ def run(args):
         matrix = np.asarray(matrix, dtype=np.int8)
     else:
         matrix = np.empty((0, 167), dtype=np.int8)
+    fingerprint_contract = audit_fit_fingerprints(data, matrix)
+    write_json(output / "fingerprint_contract.json", fingerprint_contract)
     target = data["y_model"].to_numpy(dtype=float)
     groups = data["protected_group"].astype(str).to_numpy()
     scan_audit = audit.get("C1_scan", {})
@@ -533,7 +625,10 @@ def run(args):
     if isinstance(step, (float, int)) and math.isfinite(step) and step > 0:
         scan = {"mode": "value", "step": float(step), "min_subset_size": int(scan_audit.get("min_subset_size", 1)),
                 "max_points": int(scan_audit.get("scan_plan", {}).get("max_grid_points", 20000))}
-    learners = Learners(matrix, target, groups, tiers, args.direction, scan, target_name, model_unit)
+    wracc_limit = normalize_wracc_limit(getattr(args, "wracc_max_literals", "auto"))
+    wracc_length_folds = int(getattr(args, "wracc_length_folds", 3))
+    learners = Learners(matrix, target, groups, tiers, args.direction, scan, target_name, model_unit,
+                        wracc_max_literals=wracc_limit, wracc_length_folds=wracc_length_folds)
     evaluation = evaluate(learners, folds=args.folds, repeats=args.repeats, nested=args.nested, with_rf=args.with_rf)
     for record in evaluation["folds"]:
         record["training_fold_cutoff_physical"] = physical_cutoff(record.get("training_fold_cutoff_model"), transform)
@@ -541,6 +636,7 @@ def run(args):
     write_json(output / "cv_summary.json", {"schema": "stca-inrange-cv-v1", "evidence_status": EVIDENCE,
         "limitation": LIMITATION, "folds": args.folds, "repeats": args.repeats,
         "method_choice": "WRAcc only if AS exceeds STCA by more than 0.02; otherwise STCA",
+        "WRAcc_search": learners.wracc_settings(),
         "fixed_preparation_scan": scan, "eligibility": evaluation["eligibility"], "methods": evaluation["summary"],
         "nested": {"requested": args.nested, "inner_folds": 3, "scope": "method_selection_inside_outer_training_fold",
                    "evidence_status": EVIDENCE, "entire_pipeline_unbiased": False},
@@ -582,7 +678,9 @@ def run(args):
                 "training_record_n": len(data), "protected_group_n": len(set(groups)),
                 "scan": scan if method == "STCA" else None, "conditional_evaluation": EVIDENCE,
                 "not_complete_STCA_discovery_archive": True,
-                "WRAcc_search": {"max_literals": 3, "beam_width": 30, "minimum_support": 5} if method == "WRAcc" else None})
+                "WRAcc_search": learners.wracc_settings() if method == "WRAcc" else None,
+                "WRAcc_tier_length_selection": {tier_key(tier): full[method][tier].get("length_selection")
+                                                for tier in tiers} if method == "WRAcc" else None})
         model_path = method_dir / "model.json"
         write_json(model_path, artifact)
         constraints, delivered_tiers = [], []
@@ -627,6 +725,8 @@ def run(args):
                 "deployment_cutoff_physical": physical_cutoff(fitted["train_cutoff"], transform),
                 "unit": unit, "model_unit": model_unit, "rule": fitted["rule"],
                 "expression": rule_expression(fitted["rule"]), "source_insample_metrics": fitted["source_metrics"],
+                **({"WRAcc_length_selection": fitted.get("length_selection"),
+                    "WRAcc_search": fitted.get("search")} if method == "WRAcc" else {}),
                 "original_input_row_n": len(raw), "selected_original_row_n": int(selected.sum()),
                 "unknown_original_row_n": int(results["stca_joint__selected"].eq("").sum())})
             delivered_tiers.append({"tier": tier, "bundle": str(bundle), "status": constraint["status"],
@@ -698,16 +798,40 @@ def run(args):
         "evidence_status": EVIDENCE, "measured_property_guarantee": False, "tiers": generation_tiers})
     summary = user_summary(rows, deployment, target_name=target_name, direction=args.direction, unit=unit,
                            original_input_rows=len(raw), folds=args.folds, repeats=args.repeats)
+    write_json(output / "wracc_length_selection.json", {"settings": learners.wracc_settings(),
+        "deployment": {tier_key(tier): full["WRAcc"][tier].get("length_selection") for tier in tiers},
+        "evaluation": [{"repeat": item["repeat"], "fold": item["fold"], "tier": item["tier"],
+                        "selection": item.get("WRAcc_length_selection")} for item in evaluation["folds"]
+                       if item.get("method") == "WRAcc"]})
+    summary["WRAcc_search"] = learners.wracc_settings()
+    summary["fingerprint_contract"] = {"status": fingerprint_contract["status"],
+        "path": "fingerprint_contract.json", "representation": fingerprint_contract["representation"]}
     write_json(output / "screening_summary.json", summary)
     (output / "recommendation.md").write_text(render_user_summary(summary), encoding="utf-8")
     manifest = {"schema": "stca-inrange-workflow-v1", "status": "completed", "next_action": "continue_conversation",
+        "entrypoint": "inrange_evaluation.py",
+        "entrypoint_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        "fingerprint_contract": {"path": "fingerprint_contract.json", "status": fingerprint_contract["status"],
+            "sha256": hashlib.sha256((output / "fingerprint_contract.json").read_bytes()).hexdigest(),
+            "representation": fingerprint_contract["representation"], "matrix_sha256": fingerprint_contract["matrix_sha256"]},
+        "learner_implementations": {"STCA": "author_STCA_prefix_rule_selection",
+            "WRAcc": "adapter_signed_literal_beam_WRAcc_training_only_length_selection",
+            "WRAcc_search_sha256": hashlib.sha256((HERE / "wracc_search.py").read_bytes()).hexdigest()},
         "generated_at_utc": datetime.now(timezone.utc).isoformat(), "input": str(Path(args.input).resolve()),
         "input_sha256": format_audit["input_sha256"], "original_input_row_n": len(raw),
         "prepared_measurement_n": len(data), "protected_group_n": len(set(groups)),
+        "prepared_data_sha256": hashlib.sha256((output / "preparation" / "cleaned.csv").read_bytes()).hexdigest(),
+        "preparation_audit_sha256": hashlib.sha256((output / "preparation" / "audit.json").read_bytes()).hexdigest(),
+        "learning_settings": {"target_column": resolve(args.target), "smiles_column": resolve(args.smiles_column),
+            "transform": transform, "scan": scan, "folds": args.folds, "repeats": args.repeats,
+            "nested_method_selection": args.nested, "direction": args.direction, "tiers": tiers,
+            "WRAcc_search": learners.wracc_settings()},
         "fit_scope": "full_prepared_data_deployment", "evaluation_scope": "inrange_grouped_repeated_CV",
         "evidence_status": EVIDENCE, "limitation": LIMITATION, "tiers": tiers,
         "methods": methods_delivered, "saved_rules": saved, "runtime": environment_receipt(args.source)}
     write_json(output / "run_manifest.json", manifest)
+    delivery_check = verify_run_artifacts(output)
+    write_json(output / "delivery_verification.json", delivery_check)
     print(json.dumps({"status": "completed", "output_directory": str(output), "next_action": "continue_conversation",
                       "screening_summary": str(output / "screening_summary.json"),
                       "tiers": summary["tiers"]}, ensure_ascii=False))
@@ -738,6 +862,11 @@ def main(argv=None):
     parser.add_argument("--repeats", type=int, default=3)
     parser.add_argument("--nested", action="store_true")
     parser.add_argument("--with-rf", action="store_true")
+    parser.add_argument("--wracc-max-literals", default="auto", type=normalize_wracc_limit,
+                        metavar="auto|unlimited|N",
+                        help="WRAcc maximum conditions: training-only adaptive choice (default), unlimited, or positive integer.")
+    parser.add_argument("--wracc-length-folds", type=int, default=3,
+                        help="Grouped inner folds for WRAcc depth selection, inside each training partition (default: 3).")
     parser.add_argument("--count", type=int, default=20)
     parser.add_argument("--preferences", default="")
     args = parser.parse_args(argv)
