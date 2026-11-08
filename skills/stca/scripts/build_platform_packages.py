@@ -94,14 +94,14 @@ def frontmatter(meta: dict) -> str:
     return "".join(lines) + "---\n"
 
 
-def workbuddy_payload(files: dict[str, bytes]) -> bytes:
+def workbuddy_payload(files: dict[str, bytes], version: str) -> bytes:
     """Keep the complete runtime byte-for-byte behind one shallow resource."""
     inner = json.dumps({"files": {
         name: {"sha256": sha256(data), "data": base64.b64encode(data).decode("ascii")}
         for name, data in sorted(files.items())
     }}, sort_keys=True, separators=(",", ":")).encode("utf-8")
     return (json.dumps({
-        "schema": "stca-workbuddy-runtime-v1", "version": "0.1.0",
+        "schema": "stca-workbuddy-runtime-v1", "version": version,
         "payload_encoding": "zlib+base64", "payload_sha256": sha256(inner),
         "file_count": len(files),
         "payload": base64.b64encode(zlib.compress(inner, level=9)).decode("ascii"),
@@ -114,7 +114,7 @@ def workbuddy_entry(meta: dict) -> bytes:
 
 Use natural language to learn and save rules from uploaded polymer data, screen
 with existing rules, or ask the current LLM to generate and verify polymer repeat units.
-Keep version **0.1.0**, original polymer SMILES and repeat-unit attachment points, and all frozen rule conditions.
+WorkBuddy package version **{{PACKAGE_VERSION}}**. Keep original polymer SMILES, repeat-unit attachment points, and all frozen rule conditions.
 
 ## Prepare once, then continue the user's task
 
@@ -161,11 +161,11 @@ capability; do not claim that preparation or screening has completed.
 prompt 后调用当前 LLM，或直接生成并核验。完成后返回主菜单，保留已保存
 规则。其他默认百分比、STCA/WRAcc 双结果和推荐标准均遵循准备后的完整说明。
 '''
-    return (frontmatter(meta) + body).encode("utf-8")
+    return (frontmatter(meta) + body.replace("{{PACKAGE_VERSION}}", meta["package_version"])).encode("utf-8")
 
 
 def shallow_workbuddy_files(skill: Path, files: dict[str, bytes], meta: dict) -> dict[str, bytes]:
-    payload = workbuddy_payload(files)
+    payload = workbuddy_payload(files, meta["package_version"])
     payload_metadata = json.loads(payload)
     manifest = json.loads(files["assets/platform-release.json"])
     entrypoints = {
@@ -254,15 +254,36 @@ def main() -> int:
         version = meta["package_version"]
         if not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", version):
             raise ValueError("Use an explicit semantic release version.")
+        if "version" in meta["frontmatter"] and meta["frontmatter"]["version"] != version:
+            raise ValueError("Platform frontmatter version must match package_version.")
         files = dict(base)
-        files["SKILL.md"] = (frontmatter(meta) + "\n> " + meta["entry_note"] + "\n\n" + body).encode("utf-8")
+        platform_body = body
+        if platform_name == "workbuddy":
+            platform_body, replacements = re.subn(
+                r"版本保持 \*\*[0-9]+\.[0-9]+\.[0-9]+\*\*。",
+                f"WorkBuddy 发布版本 **{version}**。", body, count=1)
+            if replacements != 1:
+                raise ValueError("Cannot locate the WorkBuddy instruction release version.")
+            citation = files["CITATION.cff"].decode("utf-8")
+            citation, replacements = re.subn(r"(?m)^version:.*$", f"version: '{version}'", citation, count=1)
+            if replacements != 1:
+                raise ValueError("Cannot locate the software citation version.")
+            files["CITATION.cff"] = citation.encode("utf-8")
+            reference = files["references/workbuddy.md"].decode("utf-8")
+            reference, replacements = re.subn(
+                r"版本 \*\*[0-9]+\.[0-9]+\.[0-9]+\*\*。",
+                f"WorkBuddy 发布版本 **{version}**。", reference, count=1)
+            if replacements != 1:
+                raise ValueError("Cannot locate the WorkBuddy reference release version.")
+            files["references/workbuddy.md"] = reference.encode("utf-8")
+        files["SKILL.md"] = (frontmatter(meta) + "\n> " + meta["entry_note"] + "\n\n" + platform_body).encode("utf-8")
         manifest = {
             "skill": "stca", "platform": platform_name, "package_version": version,
             "upstream_commit": "5951b0ef23d63edc8f7e803aaaffa5e4168288f6",
             "official_documentation_checked": "2026-11-07",
             "official_docs": meta["official_docs"],
             "core_scripts_sha256": {n: sha256(files["scripts/" + n]) for n in CORE_SCRIPTS},
-            "common_instruction_body_sha256": sha256(body.encode("utf-8")),
+            "common_instruction_body_sha256": sha256(platform_body.encode("utf-8")),
             "platform_end_to_end_tested": False,
             "public_market_submission_performed": False,
             "publisher_license_confirmation_required": False,

@@ -10,6 +10,7 @@
 - [保存规则并继续](#保存规则并继续)
 - [安装后的自然语言使用案例](docs/USAGE.zh-CN.md)
 - [下载与安装](#下载与安装)
+- [DeepSeek Harness 专用说明](README.DSH.zh-CN.md)
 - [现成规则与生成 prompt](#现成规则与生成-prompt)
 - [准备数据](#准备数据)
 - [论文与作者](#论文与作者)
@@ -71,7 +72,7 @@ AI 助手会使用原始实测 `CO2` 列，自动准备数据、返回规则及�
 |---|---|---|
 | **Codex** | 让 `$skill-installer` 安装 [STCA skill 目录](https://github.com/foukusa/stca-agent-skill/tree/main/skills/stca)，或下载 [Codex skill ZIP](downloads/stca-codex-0.1.0.zip?raw=true)。 | `使用 $stca` |
 | **DeepSeek Harness** | 在“添加插件”中填写 GitHub 地址，或在 npm 发布后填写包名 `dsh-plugin-stca`；插件中心入口见下表。也可下载[本地 skill ZIP](downloads/stca-deepseek-harness-0.1.0.zip?raw=true)。 | `/stca` |
-| **WorkBuddy** | 下载 [WorkBuddy ZIP](downloads/stca-workbuddy-0.1.0.zip?raw=true)，作为本地 skill 导入。 | 选择 STCA，输入“开始使用 STCA”。 |
+| **WorkBuddy** | 下载 [WorkBuddy ZIP](downloads/stca-workbuddy-0.1.1.zip?raw=true)，作为本地 skill 导入。 | 选择 STCA，输入“开始使用 STCA”。 |
 | **ChatGPT 桌面端** | 按客户端开放的 skill 安装方式加载 [OpenAI skill ZIP](downloads/stca-openai-skill-0.1.0.zip?raw=true)。 | 选择 STCA。 |
 
 在 Codex 对话中发送：
@@ -97,6 +98,14 @@ AI 助手会使用原始实测 `CO2` 列，自动准备数据、返回规则及�
 ```bash
 dsh plugin --profile web add github:foukusa/stca-agent-skill
 ```
+
+npm 包发布完成后，也可按包名安装：
+
+```bash
+dsh plugin --profile web add dsh-plugin-stca
+```
+
+`web` 是示例 profile，请替换为自己实际使用的名称。安装、首次使用、权限与许可详见 [DSH 专用说明](README.DSH.zh-CN.md)。STCA 需要读取你指定的文件、写入结果目录及执行本地计算；准备缺失依赖时可能访问 PyPI 和作者公开代码仓库，生成使用当前 DSH 会话的 LLM。不要求使用 Conda。
 
 首次计算会自动查找并检查合适的本地 Python 环境；路径仅作为可选备用项，不是安装必填项，详见[环境处理方式](docs/INSTALL.zh-CN.md#计算环境)。Codex 可直接使用独立 skill，OpenAI 公开目录上架属于另一条发布流程。
 
@@ -141,6 +150,6 @@ sample-A7,*CCO*
 
 [ORCID](https://orcid.org/0009-0005-4445-7074) · [ResearchGate](https://www.researchgate.net/profile/Weihao-Wang-23) · [Google Scholar](https://scholar.google.com/citations?user=d9WIMyMAAAAJ)
 
-许可见 [LICENSE](LICENSE) 和 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+源码公开，采用 **STCA Agent Skill Academic Use License**，允许非商业学术研究、教育与科学结果复现；商业使用及再分发需事先取得书面许可。详见 [LICENSE](LICENSE) 和 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
 <p align="center"><em>化繁为简，拨云见日</em></p>

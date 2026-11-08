@@ -22,7 +22,7 @@
 | Codex | [stca-codex-0.1.0.zip](../downloads/stca-codex-0.1.0.zip?raw=true) |
 | DeepSeek Harness：本地 skill | [stca-deepseek-harness-0.1.0.zip](../downloads/stca-deepseek-harness-0.1.0.zip?raw=true) |
 | DeepSeek Harness：插件 | [dsh-plugin-stca-0.1.0.tgz](../downloads/dsh-plugin-stca-0.1.0.tgz?raw=true) |
-| WorkBuddy | [stca-workbuddy-0.1.0.zip](../downloads/stca-workbuddy-0.1.0.zip?raw=true) |
+| WorkBuddy | [stca-workbuddy-0.1.1.zip](../downloads/stca-workbuddy-0.1.1.zip?raw=true) |
 | ChatGPT 桌面端 | [stca-openai-skill-0.1.0.zip](../downloads/stca-openai-skill-0.1.0.zip?raw=true) |
 
 所有 STCA 功能均可用自然语言调用。AI 助手会查找计算环境，安装时不需要填写 Python 路径。
@@ -114,7 +114,7 @@ TGZ 已经是插件包，无需解压或重新打包。
 
 1. 打开 [WorkBuddy](https://www.workbuddy.cn/)，进入 skill 管理界面。
 2. 选择添加和上传本地 skill 包。
-3. 直接选择 [stca-workbuddy-0.1.0.zip](../downloads/stca-workbuddy-0.1.0.zip?raw=true)，完成导入并启用 **STCA 聚合物规则与设计**；上传前无需解压，也不要套入其他文件夹。
+3. 直接选择 [stca-workbuddy-0.1.1.zip](../downloads/stca-workbuddy-0.1.1.zip?raw=true)，完成导入并启用 **STCA 聚合物规则与设计**；上传前无需解压，也不要套入其他文件夹。
 4. 输入“开始使用 STCA”。
 
 包内按上传目录要求提供所引用的启动资源和 logo。公开商店安装链接将在审核通过并发布后补充。

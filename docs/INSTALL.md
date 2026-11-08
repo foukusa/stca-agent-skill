@@ -22,7 +22,7 @@ Use a direct installation below. Store listing links will be added after the cor
 | Codex | [stca-codex-0.1.0.zip](../downloads/stca-codex-0.1.0.zip?raw=true) |
 | DeepSeek Harness: local skill | [stca-deepseek-harness-0.1.0.zip](../downloads/stca-deepseek-harness-0.1.0.zip?raw=true) |
 | DeepSeek Harness: plugin | [dsh-plugin-stca-0.1.0.tgz](../downloads/dsh-plugin-stca-0.1.0.tgz?raw=true) |
-| WorkBuddy | [stca-workbuddy-0.1.0.zip](../downloads/stca-workbuddy-0.1.0.zip?raw=true) |
+| WorkBuddy | [stca-workbuddy-0.1.1.zip](../downloads/stca-workbuddy-0.1.1.zip?raw=true) |
 | ChatGPT desktop | [stca-openai-skill-0.1.0.zip](../downloads/stca-openai-skill-0.1.0.zip?raw=true) |
 
 All STCA tasks accept natural language. The assistant handles calculation-environment discovery; you do not need to enter a Python path during installation.
@@ -114,7 +114,7 @@ See the [official plugin installation guide](https://github.com/deepseek-ai/deep
 
 1. Open [WorkBuddy](https://www.workbuddy.cn/) and its skill management page.
 2. Choose the action for adding and uploading a local skill package.
-3. Select [stca-workbuddy-0.1.0.zip](../downloads/stca-workbuddy-0.1.0.zip?raw=true) directly, complete import and enable **STCA Polymer Rules and Design**. Do not extract it or wrap it in another folder before uploading.
+3. Select [stca-workbuddy-0.1.1.zip](../downloads/stca-workbuddy-0.1.1.zip?raw=true) directly, complete import and enable **STCA Polymer Rules and Design**. Do not extract it or wrap it in another folder before uploading.
 4. Say “Start STCA”.
 
 The package includes its referenced startup resources and logo in the upload layout. The public marketplace installation link will be added after review and publication.

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Build STCA platform ZIPs and publishable direct downloads (Python 3.9+).
 
-Root publication files and plugin.json are authoritative. After a successful
-build, their duplicated publication/version metadata is synchronized into
-the exported skill source. Computational scripts are never changed.
+Root publication files and plugin.json own the core release. Each platform
+metadata file owns its package version so a platform patch is not reset.
+After a successful build, duplicated metadata is synchronized into the skill
+source. Computational scripts are never changed.
 """
 from __future__ import annotations
 
@@ -21,7 +22,7 @@ import tempfile
 import zipfile
 
 ROOT_FILES = (
-    "README.md", "README.zh-CN.md", "LICENSE", "THIRD_PARTY_NOTICES.md",
+    "README.md", "README.zh-CN.md", "README.DSH.md", "README.DSH.zh-CN.md", "LICENSE", "THIRD_PARTY_NOTICES.md",
     "CITATION.cff", "CHANGELOG.md", "plugin.json", "package.json", ".gitignore", ".npmignore",
 )
 ROOT_DIRS = ("skills", "assets", "examples", "tools", "validation", "docs", "dsh")
@@ -190,20 +191,25 @@ def main() -> int:
     synchronized[agent_metadata] = public_openai_metadata(files[agent_metadata])
     for name in PUBLICATION_FILES:
         synchronized[f"skills/stca/assets/publication/{name}"] = files[name]
+    platform_versions = {}
     for platform in PLATFORMS:
         relative = f"skills/stca/assets/platforms/{platform}.json"
         metadata = json.loads(files[relative])
         if metadata.get("platform") != platform or not isinstance(metadata.get("frontmatter"), dict):
             raise ValueError(f"Invalid platform metadata: {relative}")
-        metadata["package_version"] = version
+        platform_version = metadata.get("package_version", version)
+        if not isinstance(platform_version, str) or not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", platform_version):
+            raise ValueError(f"Invalid {platform} package version: {platform_version!r}")
+        platform_versions[platform] = platform_version
+        metadata["package_version"] = platform_version
         if "version" in metadata["frontmatter"]:
-            metadata["frontmatter"]["version"] = version
+            metadata["frontmatter"]["version"] = platform_version
         synchronized[relative] = (json.dumps(metadata, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
     files.update(synchronized)
     installer_names = [
         f"stca-openai-skill-{version}.zip",
         f"stca-chatgpt-{version}.zip", f"stca-codex-{version}.zip",
-        *(f"stca-{platform}-{version}.zip" for platform in PLATFORMS),
+        *(f"stca-{platform}-{platform_versions[platform]}.zip" for platform in PLATFORMS),
         f"stca-openai-plugin-{version}.zip",
         f"dsh-plugin-stca-{version}.tgz",
     ]
@@ -236,13 +242,20 @@ def main() -> int:
         for platform in ("openai-skill", "chatgpt", "codex"):
             write_archive(prepared / f"stca-{platform}-{version}.zip", native, "stca/")
         for platform in PLATFORMS:
-            name = f"stca-{platform}-{version}.zip"
+            name = f"stca-{platform}-{platform_versions[platform]}.zip"
             shutil.copyfile(platform_output / name, prepared / name)
         # DSH's Add plugin accepts an npm-compatible tarball, not a skill ZIP.
         # The same manifest/entry also makes the repository root Git-installable.
         dsh_manifest = json.loads(files["package.json"])
         if dsh_manifest.get("name") != "dsh-plugin-stca" or dsh_manifest.get("version") != version:
             raise ValueError("DSH package identity/version must match the release.")
+        # npm users see DSH-specific product instructions; GitHub keeps the
+        # multi-platform README and both dedicated DSH README sources.
+        for npm_readme, dsh_readme in (("README.md", "README.DSH.md"),
+                                       ("README.zh-CN.md", "README.DSH.zh-CN.md")):
+            if dsh_readme not in files:
+                raise ValueError(f"Missing DSH package documentation: {dsh_readme}")
+            (stage / npm_readme).write_bytes(files[dsh_readme])
         packed = subprocess.run(
             ["npm", "pack", "--ignore-scripts", "--json", "--pack-destination", str(prepared)],
             cwd=stage, capture_output=True, text=True, timeout=120,
@@ -255,6 +268,7 @@ def main() -> int:
         downloads = {name: (prepared / name).read_bytes() for name in installer_names}
         download_manifest = {
             "schema": "stca-direct-downloads-v1", "version": version,
+            "platform_versions": platform_versions,
             "shared_openai_skill": f"stca-openai-skill-{version}.zip",
             "compatibility_aliases": [f"stca-chatgpt-{version}.zip", f"stca-codex-{version}.zip"],
             "files": [

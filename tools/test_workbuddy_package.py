@@ -28,7 +28,9 @@ class WorkBuddyPackageTests(unittest.TestCase):
                                 capture_output=True, text=True)
         if result.returncode:
             raise RuntimeError(result.stderr)
-        cls.archive = cls.root/'archives/stca-workbuddy-0.1.0.zip'
+        metadata=json.loads((SKILL/'assets/platforms/workbuddy.json').read_bytes())
+        cls.version=metadata['package_version']
+        cls.archive = cls.root/f'archives/stca-workbuddy-{cls.version}.zip' 
         cls.install = cls.root/'installed skill'
         with zipfile.ZipFile(cls.archive) as archive:
             cls.names = archive.namelist()
@@ -71,6 +73,36 @@ class WorkBuddyPackageTests(unittest.TestCase):
         self.assertIn('skill_instructions',entry)
         self.assertIn('runtime_skill_dir',entry)
         self.assertNotIn('](assets/rule_library/',entry)
+
+    def test_upload_and_restored_release_versions_are_consistent(self):
+        def declared_version(text):
+            line=next(line for line in text.splitlines() if line.startswith('version:'))
+            return line.split(':',1)[1].strip().strip("'\"")
+        expected=self.version
+        self.assertGreater(tuple(map(int,expected.split('.'))),(0,1,0))
+        entry=(self.install/'SKILL.md').read_text()
+        self.assertEqual(declared_version(entry.split('---',2)[1]),expected)
+        self.assertIn(f'WorkBuddy package version **{expected}**',entry)
+        outer=json.loads((self.install/'assets/runtime_payload.json').read_bytes())
+        manifest=json.loads((self.install/'assets/platform-release.json').read_bytes())
+        self.assertEqual(outer['version'],expected)
+        self.assertEqual(manifest['package_version'],expected)
+        runtime=Path(self.prepare()['runtime_skill_dir'])
+        restored=(runtime/'SKILL.md').read_text()
+        self.assertEqual(declared_version(restored.split('---',2)[1]),expected)
+        self.assertIn(f'WorkBuddy 发布版本 **{expected}**',restored)
+        self.assertNotIn('版本保持 **0.1.0**',restored)
+        self.assertEqual(json.loads((runtime/'assets/platform-release.json').read_bytes())['package_version'],expected)
+        self.assertEqual(declared_version((runtime/'CITATION.cff').read_text()),expected)
+        self.assertIn(f'WorkBuddy 发布版本 **{expected}**',(runtime/'references/workbuddy.md').read_text())
+
+    def test_release_version_mismatch_is_rejected_before_materialization(self):
+        copied=self.root/'mismatched release skill';shutil.copytree(self.install,copied)
+        path=copied/'assets/platform-release.json'
+        value=json.loads(path.read_bytes());value['package_version']='99.0.0';path.write_text(json.dumps(value))
+        result=self.invoke('prepare',expected=2,script=copied/'scripts/workbuddy_runtime.py')
+        self.assertIn(b'payload version does not match',result.stderr)
+        self.assertFalse(Path(self.env['STCA_WORKBUDDY_CACHE_DIR']).exists())
 
     def test_every_entry_resource_reference_is_bundled(self):
         entry=(self.install/'SKILL.md').read_text()
@@ -128,7 +160,13 @@ class WorkBuddyPackageTests(unittest.TestCase):
             if relative not in {'SKILL.md','assets/platform-release.json','SHA256SUMS.txt'}:
                 if relative in {'LICENSE','THIRD_PARTY_NOTICES.md','CITATION.cff'}:
                     original=SKILL/'assets/publication'/relative
-                self.assertEqual(data,original.read_bytes(),relative)
+                expected=original.read_bytes()
+                if relative == 'CITATION.cff':
+                    expected=re.sub(rb"(?m)^version:.*$", f"version: '{self.version}'".encode(), expected, count=1)
+                elif relative == 'references/workbuddy.md':
+                    expected=re.sub(r'版本 \*\*[0-9]+\.[0-9]+\.[0-9]+\*\*。',
+                                    f'WorkBuddy 发布版本 **{self.version}**。', expected.decode(), count=1).encode()
+                self.assertEqual(data,expected,relative)
         catalog=json.loads((runtime/'assets/rule_library/catalog.json').read_bytes())
         self.assertEqual(len(catalog['entries']),149)
         self.assertEqual(sum(len(e['prompts']) for e in catalog['entries']),298)

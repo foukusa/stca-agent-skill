@@ -10,6 +10,7 @@
 - [Save rules and continue](#save-rules-and-continue)
 - [Natural-language examples after installation](docs/USAGE.md)
 - [Download and install](#download-and-install)
+- [DeepSeek Harness guide](README.DSH.md)
 - [Existing rules and generation prompts](#existing-rules-and-generation-prompts)
 - [Prepare your data](#prepare-your-data)
 - [Paper and author](#paper-and-author)
@@ -71,7 +72,7 @@ Install directly from GitHub or a downloaded package. Store listing links will b
 |---|---|---|
 | **Codex** | Ask `$skill-installer` to install the [STCA skill folder](https://github.com/foukusa/stca-agent-skill/tree/main/skills/stca), or download the [Codex skill ZIP](downloads/stca-codex-0.1.0.zip?raw=true). | `Use $stca` |
 | **DeepSeek Harness** | Enter the GitHub URL in Add plugin, or use `dsh-plugin-stca` after its npm publication. See the plugin-center entry below. A [local skill ZIP](downloads/stca-deepseek-harness-0.1.0.zip?raw=true) is also available. | `/stca` |
-| **WorkBuddy** | Import the [WorkBuddy ZIP](downloads/stca-workbuddy-0.1.0.zip?raw=true) as a local skill. | Select STCA and say “Start STCA”. |
+| **WorkBuddy** | Import the [WorkBuddy ZIP](downloads/stca-workbuddy-0.1.1.zip?raw=true) as a local skill. | Select STCA and say “Start STCA”. |
 | **ChatGPT desktop** | Use the [OpenAI skill ZIP](downloads/stca-openai-skill-0.1.0.zip?raw=true) with the skill installation options available in your app. | Select STCA. |
 
 In Codex, send:
@@ -97,6 +98,14 @@ For GitHub installation with the DSH CLI and the `web` profile:
 ```bash
 dsh plugin --profile web add github:foukusa/stca-agent-skill
 ```
+
+After the npm package is published, install by package name:
+
+```bash
+dsh plugin --profile web add dsh-plugin-stca
+```
+
+`web` is an example profile; replace it with the profile you use. The [DSH guide](README.DSH.md) covers installation, first use, permissions and licensing. STCA needs access to the files you select, an output directory and local command execution. Dependency preparation can contact PyPI and the author's public code repository; generation uses the current DSH conversation's LLM. Conda is optional.
 
 The first calculation automatically looks for and checks a suitable local Python environment. A Python path is an optional fallback, not an installation requirement. See [environment behavior](docs/INSTALL.md#calculation-environment). Codex can use the standalone skill immediately; a public OpenAI directory listing is a separate publication route.
 
@@ -141,6 +150,6 @@ Try the [STCA simplified reproduction version on Code Ocean](https://doi.org/10.
 
 [ORCID](https://orcid.org/0009-0005-4445-7074) · [ResearchGate](https://www.researchgate.net/profile/Weihao-Wang-23) · [Google Scholar](https://scholar.google.com/citations?user=d9WIMyMAAAAJ)
 
-See [LICENSE](LICENSE) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+The source is publicly available under the **STCA Agent Skill Academic Use License** for non-commercial academic research, education and scientific reproduction. Commercial use and redistribution require prior written permission. See [LICENSE](LICENSE) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 <p align="center"><em>“Out of clutter, find simplicity.”</em><br><sub>— attributed to Albert Einstein</sub></p>

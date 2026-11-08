@@ -26,11 +26,10 @@ import zlib
 
 
 SCHEMA = "stca-workbuddy-runtime-v1"
-VERSION = "0.1.0"
 PAYLOAD = Path(__file__).resolve().parents[1] / "assets" / "runtime_payload.json"
 MAX_PAYLOAD_BYTES = 64 * 1024 * 1024
 HEX_DIGEST = re.compile(r"[0-9a-f]{64}")
-REQUIRED_FILES = {"SKILL.md", "scripts/agent_runtime.py"}
+REQUIRED_FILES = {"SKILL.md", "scripts/agent_runtime.py", "assets/platform-release.json"}
 
 
 def _digest(data: bytes) -> str:
@@ -86,8 +85,16 @@ def load_payload(path=PAYLOAD):
     if path.stat().st_size > MAX_PAYLOAD_BYTES:
         raise ValueError("The installed runtime payload exceeds the supported size.")
     outer = _json(path.read_bytes())
-    if not isinstance(outer, dict) or outer.get("schema") != SCHEMA or outer.get("version") != VERSION:
-        raise ValueError("Unsupported WorkBuddy runtime payload schema or version.")
+    manifest_path = path.parent / "platform-release.json"
+    if manifest_path.is_symlink() or not manifest_path.is_file():
+        raise ValueError("The WorkBuddy release manifest is missing or unsafe.")
+    manifest = _json(manifest_path.read_bytes())
+    version = manifest.get("package_version") if isinstance(manifest, dict) else None
+    if (not isinstance(version, str) or re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", version) is None
+            or manifest.get("platform") != "workbuddy"):
+        raise ValueError("Invalid WorkBuddy release version or platform.")
+    if not isinstance(outer, dict) or outer.get("schema") != SCHEMA or outer.get("version") != version:
+        raise ValueError("WorkBuddy payload version does not match its release manifest.")
     if outer.get("payload_encoding") != "zlib+base64":
         raise ValueError("Unsupported runtime payload encoding.")
     expected = _hash(outer.get("payload_sha256"), "runtime payload")
@@ -132,6 +139,10 @@ def load_payload(path=PAYLOAD):
                 raise ValueError(f"Runtime resource file/directory collision: {relative!r}")
     if not REQUIRED_FILES.issubset(files):
         raise ValueError("Runtime payload lacks its instructions or agent entry point.")
+    restored_manifest = _json(files["assets/platform-release.json"]["data"])
+    if (not isinstance(restored_manifest, dict) or restored_manifest.get("package_version") != version
+            or restored_manifest.get("platform") != "workbuddy"):
+        raise ValueError("Restored runtime version does not match its WorkBuddy package.")
     return expected, files
 
 
