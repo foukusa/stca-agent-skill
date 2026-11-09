@@ -1,28 +1,21 @@
 <p align="center"><img src="assets/stca-logo.png" alt="STCA logo" width="104"></p>
 <h1 align="center">STCA Agent Skill</h1>
-<p align="center">用自然语言，将聚合物数据转成可复用规则，筛选候选并生成重复单元。</p>
+<p align="center">使用滑动阈值相关分析实现可解释的聚合物筛选、规则提取与规则引导候选核验。</p>
 <p align="center"><strong>0.1.0</strong> · <a href="README.md">English</a> · 简体中文</p>
 <p align="center"><a href="https://doi.org/10.1038/s41524-026-02345-x">STCA 论文</a> · <a href="https://github.com/foukusa/polymer-stca">Python 程序库</a> · <a href="#下载与安装">安装 skill</a></p>
 
 ## 目录
 
-- [STCA 的意义与优势](#stca-的意义与优势)
 - [开始使用](#开始使用)
-- [用 RadonPy 密度数据试用](#用-radonpy-密度数据试用)
-- [用水接触角数据试用](#用水接触角数据试用)
+- [用 ADEPT 能隙数据试用](#用-adept-能隙数据试用)
 - [保存规则并继续](#保存规则并继续)
 - [安装后的自然语言使用案例](docs/USAGE.zh-CN.md)
 - [下载与安装](#下载与安装)
 - [DeepSeek Harness 专用说明](README.DSH.zh-CN.md)
 - [现成规则与生成 prompt](#现成规则与生成-prompt)
 - [准备数据](#准备数据)
+- [数据划分与评价](#数据划分与评价)
 - [论文与作者](#论文与作者)
-
-## STCA 的意义与优势
-
-**STCA（Sliding Threshold Correlation Analysis，滑动阈值相关分析）将聚合物结构与性质数据转成可读的结构规则。** 它追踪不同性质阈值下的子结构关联，将筛选目标表达为重复单元需要同时满足的一组条件。
-
-这些规则贯通三项工作：理解哪些结构条件支持目标、用同一组条件筛选新候选，以及指导 LLM 设计并核验新的重复单元。规则、具体性质阈值和完整生成 prompt 可以保存复用。通过自然语言说明需求，skill 会完成计算，并在你的数据上比较 STCA 与 WRAcc，给出可继续使用的结果。
 
 ## 开始使用
 
@@ -38,65 +31,50 @@ STCA 是由当前 AI 助手在对话中使用的 skill，处理流程已内置�
 
 开始学习前，AI 助手会说明本次使用的**结构列、性质列、单位及高低方向**。已知数据集按内置配置匹配；自己的表格可直接指定列名。若多个列都可能是目标，例如实测密度、计算密度或不同温度下的密度，会先请你选择，再开始学习。详见[准备数据](#准备数据)。
 
-## 用 RadonPy 密度数据试用
+## 用 ADEPT 能隙数据试用
 
-使用同一份 [RadonPy `PI1070.csv`](https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv) 完成筛选、学习和生成。在 GitHub 文件页下载 CSV，再上传到对话。这份固定文件有 **1,077 条记录、157 列**；AI 助手按列名读取，你无需手工拆分这个集成数据集。
+下载 [ADEPT `BANDGAP_DFT.csv`](https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/BANDGAP_DFT.csv)，上传到对话。文件有 **2,916 条记录、两列**，目标是**氢封端孤立单体的 DFT HOMO–LUMO 能隙**，单位 eV。
 
 | 用途 | 列名 | 表格位置 |
 |---|---|---|
-| 可选标识 | `monomer_ID` | A 列 · 第 1 列 |
-| 聚合物重复单元结构 | `smiles` | B 列 · 第 2 列 |
-| 密度目标，g/cm³ | `density` | AA 列 · 第 27 列 |
+| 重复单元结构 | `SMILES` | A · 第 1 列 |
+| 孤立单体能隙 | `BANDGAP` | B · 第 2 列 |
 
-第 1 行是表头，**第 2–1078 行**是数据，先读取全部记录。`polymer_class` 是元数据，`density_min`、`density_max`、`density_std`、`density_count` 不作为目标列。密度标签来自分子动力学计算。
+第1行是表头，第 **2–2917行**是数据；全部数据行作为输入，无需标识列。
 
-**直接使用已有规则筛选：**
-
-```text
-使用推荐的 RadonPy 高密度 Top 30% 规则筛选这份数据。
-```
-
-AI 助手会显示所选规则、**以 g/cm³ 表示的具体密度阈值**，以及两种方法的筛选结果。规则逐行应用且保持不变；Top 30% 定义的是训练数据中的性质目标，并不要求候选恰好入选 30%。
-
-**从同一数据总结规则并保存：**
+**使用已有 STCA 规则筛选：**
 
 ```text
-从这份 RadonPy 数据总结高密度 Top 30% 规则。结构列为 smiles，性质列为 density，单位 g/cm³，使用全部数据行。返回筛选结果，与现成规则比较，并保存新规则。
+使用已有的 ADEPT 高孤立单体 HOMO–LUMO 能隙 Top 30% STCA 规则筛选这份文件。
 ```
 
-AI 助手先用 Morgan 指纹留出结构距离较远的评价记录，再为每个百分比**只在训练数据内**选择变换、扫描步长和支持量。返回 STCA 与 WRAcc 两种规则、训练数据确定的密度阈值、独立外推成绩，以及全部原始行的筛选结果。复用时可接着说 **“重新载入刚保存的 Top 30% 推荐规则，再筛选同一份数据。”** 每行判断应与刚才一致。
+冻结目标为**能隙 ≥ 11.914537535 eV**。这份文件应返回 **976条匹配、1,940条未匹配、0条未知**。在584条独立 Morgan 距离留出记录上，该 STCA 规则的**精确率为0.7500、召回率为0.7784、F1为0.7639、马修斯相关系数为0.6517**。原表匹配数量与独立评价分别返回。
 
-**使用选定规则生成：**
+**重新总结规则、筛选并保存：**
 
 ```text
-使用刚保存的高密度 Top 30% STCA 规则，直接生成 5 个聚合物重复单元并核验。
+从这份 ADEPT 文件总结高孤立单体 HOMO–LUMO 能隙 Top 30% 规则。结构列为 SMILES，性质列为 BANDGAP，单位 eV。使用全部数据行，返回两种方法、外推评价和筛选结果，并保存规则。
 ```
 
-想先调整 prompt，可说 **“先给我看生成 5 个重复单元的完整 prompt，暂不生成。”** 修改后回复 **“确认，开始生成”**。当前 LLM 实际生成提案，STCA 保留原始星号结构，并用 H-cap 计算副本逐条核验。详见[完整 RadonPy 案例](examples/radonpy_density/README.zh-CN.md)。
+AI助手在训练部分学习 STCA 与 WRAcc，分别交付结果。接着说**“重新载入刚保存的 Top 30% STCA 规则，再筛选同一份文件。”**，每行判断应与之前一致。
 
-也可查看[一次实际生成的五条提案及核验结果](examples/radonpy_density/generated_examples.csv)。
-
-## 用水接触角数据试用
-
-无需修改学习器，也可以分析其他聚合物性质。[OpenPoly 水接触角案例](examples/water_contact_angle/README.zh-CN.md)使用 `PSMILES` 作为重复单元结构，`Water Contact Angle (deg)` 作为实测目标。上传来源 CSV 后直接说：
+**按选定规则生成：**
 
 ```text
-从这份 OpenPoly 数据总结高水接触角 Top 30% 规则。结构列为 PSMILES，性质列为 Water Contact Angle (deg)，单位为度。返回两种方法、外推评价和筛选结果，并保存规则。
+使用刚保存的 Top 30% STCA 规则，直接生成5个聚合物重复单元并核验。
 ```
 
-AI 助手使用具有有效目标标签的记录学习，其余结构可继续用于候选筛选。也可在规则目录选择现成的水接触角规则，直接筛选，或调用当前 LLM 按规则生成并核验重复单元。数据来源、列映射和实算结果见该案例。
+想先调整，可说**“生成前先给我看完整 prompt。”**，修改后回复**“确认，开始生成。”**。当前LLM实际生成候选，STCA逐条核验精确结构条件。详见[完整 ADEPT 范例](examples/adept_gap/README.zh-CN.md)和[生成提案](examples/adept_gap/generated_examples.csv)。
 
 ## 保存规则并继续
 
-新学习默认进行 **Morgan 距离外推评价**。使用 ECFP4（radius 2、2,048 位）划分训练与评价结构，保证每条评价重复单元到最近训练结构的 Tanimoto 距离**至少为 0.5**。相似性缓冲记录不参与训练或评价，但原始输入表仍完整返回筛选结果；输出文件标明各行角色及实际距离。
-
-所有依赖标签的数据清理、变换、扫描设置与规则选择均在训练部分完成，分别返回 **STCA 与 WRAcc**。推荐方法由训练内部验证确定，较远的评价集只用于报告外推表现。综合筛选评分采用作者 [STCA 论文](https://doi.org/10.1038/s41524-026-02345-x)提出并验证使用的**马修斯相关系数、精确率和 F1 分数的平均值**。说“使用推荐规则”即可继续，也可明确指定方法。[评价方式说明](docs/USAGE.zh-CN.md)。
+学习会分别返回STCA与WRAcc，并给出每档推荐。推荐依据训练侧验证，沿用作者[STCA论文](https://doi.org/10.1038/s41524-026-02345-x)定义的**马修斯相关系数、精确率与F1分数的平均值**。说“使用推荐规则”即可继续，也可明确选择方法。[数据划分与评价](#数据划分与评价)。
 
 WRAcc 默认在训练数据内自动选择条件数上限。也可以直接说 **“WRAcc 最多使用 10 条条件”** 或 **“不限制 WRAcc 条件数”**。
 
 总结完成后，同时交付**两种方法在每个档位的结果与规则可用状态**：包含百分比对应的**具体物理数值、≥／≤ 比较符及单位**，以及原始 SMILES、入选判断、每条未满足的规则条件及不可计算记录。即使用 log10 归纳，也返回原始物理尺度的阈值。原上传表始终返回逐档结果；另传独立候选表时，其结果另列。
 
-AI 助手将可用模型、规则、物理阈值和完整中英文生成 prompt 保存为文件，并报告文件名与位置。接着说 **“用刚才保存的规则筛选这份表”**，或 **“用刚才的高密度规则生成 20 个重复单元”**，即可继续。需要在新会话或其他平台复用时，下载并携带规则包；本地文件能否长期保留取决于当前工作区。
+AI 助手将可用模型、规则、物理阈值和完整中英文生成 prompt 保存为文件，并报告文件名与位置。接着说 **“用刚才保存的规则筛选这份表”**，或 **“用刚才的能隙规则生成20个重复单元”**，即可继续。需要在新会话或其他平台复用时，下载并携带规则包；本地文件能否长期保留取决于当前工作区。
 
 ![STCA 工作流程](assets/workflow.zh-CN.svg)
 
@@ -117,7 +95,7 @@ AI 助手将可用模型、规则、物理阈值和完整中英文生成 prompt 
 |---|---|---|
 | **Codex** | 安装 GitHub 中的 skill 目录，或使用 [Codex ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-codex-0.1.0.zip)。 | `使用 $stca` |
 | **DeepSeek Harness** | 在“添加插件”中填写下方 GitHub 安装地址；无需先发布 npm。 | `/stca` |
-| **WorkBuddy** | 导入 [WorkBuddy ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.4.zip)。 | “开始使用 STCA” |
+| **WorkBuddy** | 导入 [WorkBuddy ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.5.zip)。 | “开始使用 STCA” |
 | **ChatGPT** | 在支持 skill 安装的客户端中导入 [OpenAI skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-openai-skill-0.1.0.zip)。 | 选择 STCA 或要求使用 STCA。 |
 
 ### Codex
@@ -157,7 +135,7 @@ dsh plugin --profile web add github:foukusa/stca-agent-skill
 
 ### WorkBuddy
 
-1. 从上表下载 `stca-workbuddy-0.1.4.zip`。
+1. 从上表下载 `stca-workbuddy-0.1.5.zip`。
 2. 打开 WorkBuddy 的 skill 管理页面，选择添加／上传本地 skill 包，直接选择 ZIP，完成导入并启用 **STCA Polymer Rules and Design**。
 3. 输入“开始使用 STCA”，上传文件，再说明要总结规则、筛选候选还是生成重复单元。
 
@@ -185,7 +163,9 @@ ZIP 和 TGZ 链接均指向本仓库 [`downloads` 目录](https://github.com/fou
 | [GAS 实测数据](https://github.com/jsunn-y/PolymerGasMembraneML) | CO₂、O₂ 渗透率 |
 | [RadonPy 计算数据](https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv) | 热导率、折射率、密度、比热、介电常数 |
 | [ADEPT 计算数据](https://github.com/sobinalosious/PolyGraphMT/tree/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw) | 热导率、密度、孤立单体 HOMO–LUMO 能隙、介电常数、折射率 |
-| [OpenPoly 实测数据](examples/water_contact_angle/README.zh-CN.md) | 水接触角 |
+| [OpenPoly 文献数据](examples/water_contact_angle/README.zh-CN.md) | 水接触角 |
+
+目录也支持水接触角Top **10%、20%、30%**的结构筛选。其他用法可参考[RadonPy密度案例](examples/radonpy_density/README.zh-CN.md)。
 
 目录显示每个档位的**方法、规则可用状态、推荐、具体物理阈值、比较符及单位**。接受推荐就直接使用，也可明确选择可用方法；可用规则分别应用。所选冻结目录没有的百分比，例如开源数据目录之外的 15%、25%，需上传带标签数据学习新规则，不能插值或改用相邻档位。若只想将 prompt 用于其他 LLM，可明确请求“只给完整 prompt，暂不生成”。
 
@@ -203,7 +183,7 @@ Tg 与电导率规则用于作者 STCA 论文中展示的实验性质筛选任�
 使用 STCA 总结高密度规则。结构列为 SMILES，性质列为 Density，单位 g/cm³，使用全部数据行。返回筛选结果并保存规则。
 ```
 
-AI 助手会在学习前说明读取的文件、数据行数、结构列、性质列、单位和方向。含义唯一时可自动匹配并继续；存在多个性质候选、重复表头或单位不明时，先确认再计算。RadonPy 示例明确使用 `smiles` 与 `density`，不会将密度最小值、最大值、标准差或计数列用作目标。你指定的列名优先使用；已有数据划分也可要求保留。
+AI 助手会在学习前说明读取的文件、数据行数、结构列、性质列、单位和方向。含义唯一时可自动匹配并继续；存在多个性质候选、重复表头或单位不明时，先确认再计算。ADEPT范例明确绑定 `SMILES` 与 `BANDGAP`，单位为eV。你指定的列名优先使用；已有数据划分也可要求保留。
 
 ### 输入星号、计算 H-cap、输出星号
 
@@ -226,6 +206,19 @@ sample-A7,*CCO*
 ```
 
 学习时还需在同一行提供对应的数值性质列，并说明标签是实验测量还是计算结果。
+
+## 数据划分与评价
+
+结构距离使用 **ECFP4**：对H-cap计算副本生成radius=2、2,048位Morgan指纹，**距离 = 1 − Tanimoto相似度**。相同原始结构及相同H-cap副本保持在同一保护组。
+
+| 分区或评价 | 具体做法 |
+|---|---|
+| **训练集（source）** | 仅在这里归纳规则，选择数据变换、扫描步长及支持量。 |
+| **独立外推集（holdout）** | 使用性质标签前，先在结构空间外围选择一个邻域，目标约占有效结构记录的20%；每条留出结构到source的最近邻距离均**≥0.5**。 |
+| **相似性缓冲区** | 将与外推集距离不足0.5的其他结构组隔离，不训练、不外评，但仍返回筛选结果。 |
+| **范围内诊断** | 在source中按保护结构组进行5折、3次重复交叉验证；结果条件于source的数据准备，不是另设的严格距离内推测试。 |
+
+这样划分是为了防止相同或近邻结构跨越训练与外推边界，检验规则向不同聚合物结构的迁移能力。推荐方法由**source内部的另一层Morgan距离验证**确定，再评价外部holdout；冻结后的阈值与规则保持不变。详见[评价说明](docs/MORGAN_EVALUATION.zh-CN.md)。
 
 ## 论文与作者
 

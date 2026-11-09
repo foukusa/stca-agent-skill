@@ -183,8 +183,8 @@ def rule_options(directory, language="zh-CN", catalog_root=CATALOG_ROOT, *, incl
 
 def display_rules(options):
     zh = options["language"] == "zh-CN"
-    print("请选择规则来源、性质和百分比；例如“RadonPy，高密度，Top 30%”。" if zh else
-          'Choose a rule source, property and percentage, for example "RadonPy, high density, Top 30%".')
+    print("请选择规则来源、性质和百分比；例如“ADEPT，高单体能隙，Top 30%，STCA”。" if zh else
+          'Choose a rule source, property and percentage, for example "ADEPT, high monomer gap, Top 30%, STCA".')
     for group in options["groups"]:
         print(f"\n{group['title']}")
         if not group["properties"]:

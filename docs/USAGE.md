@@ -8,7 +8,7 @@ STCA combines the skill's rules and calculation tools with your current LLM conv
 
 - [Start a conversation](#start-a-conversation)
 - [Bind columns and preserve attachment points](#bind-columns-and-preserve-attachment-points)
-- [Try RadonPy density](#try-radonpy-density)
+- [Try ADEPT monomer gap](#try-adept-monomer-gap)
 - [Learn rules and receive screening results](#learn-rules-and-receive-screening-results)
 - [Screen candidates with existing rules](#screen-candidates-with-existing-rules)
 - [Choose rules before generating](#choose-rules-before-generating)
@@ -26,7 +26,7 @@ The assistant can explain three workflows: learn from uploaded data, screen with
 
 ## Bind columns and preserve attachment points
 
-Learning requires an explicitly bound **structure column, numeric property column and unit**. You can name them in your request. For a recognized source such as the RadonPy example below, the mapping is already supplied; otherwise the assistant reads the headers and displays the columns, target meaning and unit it will use before learning. If more than one column could mean the target—such as measured versus calculated density, different temperatures, or a mean versus a minimum/maximum—it asks you to choose first. Your explicit column names take precedence. Numeric ranges alone do not establish a column's meaning. Screening with an existing rule needs the structure column, without property labels for the candidates.
+Learning requires an explicitly bound **structure column, numeric property column and unit**. You can name them in your request. For a recognized source such as the ADEPT data below, the mapping is already supplied; otherwise the assistant reads the headers and displays the columns, target meaning and unit it will use before learning. If more than one column could mean the target—such as measured versus calculated density, different temperatures, or a mean versus a minimum/maximum—it asks you to choose first. Your explicit column names take precedence. Numeric ranges alone do not establish a column's meaning. Screening with an existing rule needs the structure column, without property labels for the candidates.
 
 Upload the original repeat-unit SMILES **with their `*` attachment points retained**. STCA keeps that original text and creates a separate calculation copy: supported terminal single-bond attachment atoms are capped with hydrogen (**H-cap**) before fingerprints are calculated. Results return the preserved original SMILES with the same `*` positions. This is not a text replacement or an attempt to infer attachment positions from the capped molecule. Already capped inputs remain as supplied; attachment points are not invented.
 
@@ -34,37 +34,38 @@ Upload the original repeat-unit SMILES **with their `*` attachment points retain
 |---|---|---|
 | `*CCO*` | `CCO` | `*CCO*` |
 
-## Try RadonPy density
+## Try ADEPT monomer gap
 
-Use [RadonPy `PI1070.csv`](https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv) for all three workflows. Download it from the GitHub file page and upload the same file in the conversation.
+Use the same [ADEPT `BANDGAP_DFT.csv`](https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/BANDGAP_DFT.csv) for screening, learning and generation. Download the CSV from its source file page and upload it to the conversation.
 
-| Role | Column | Position |
+| Use | Column | Position |
 |---|---|---|
-| Optional identifier | `monomer_ID` | A · 1 |
-| Polymer structure | `smiles` | B · 2 |
-| MD density in g/cm³ | `density` | AA · 27 |
+| Polymer repeat-unit structure | `SMILES` | A · column 1 |
+| DFT monomer gap, eV | `BANDGAP` | B · column 2 |
 
-This file has 1,077 data rows and 157 columns. Row 1 contains headers; data occupy rows 2–1078. Read all rows by column name; there is no need to select a polymer class or manually extract cells. `density_min`, `density_max`, `density_std` and `density_count` are not the target.
+The file has 2,916 data rows and 2 columns: row 1 is the header and rows 2–2917 are data. The target is the **HOMO–LUMO gap of a hydrogen-capped isolated monomer**, rather than a bulk-polymer bandgap. This example explicitly chooses STCA.
 
 **Apply an existing rule:**
 
 ```text
-Use the existing RadonPy high-density Top 30% STCA rule to screen this dataset.
+Use the existing ADEPT high-monomer-gap Top 30% STCA rule to screen this dataset.
 ```
 
-**Learn from the same file and receive its screening results:**
+For this fixed file, the target boundary is **≥11.914537535 eV**; STCA matches 976 records, with 0 unknown. Its 584 labeled distance-holdout records give precision 0.7500, recall 0.7784, F1 0.7639 and MCC 0.6517. Original-table matches and independent extrapolation performance are reported separately.
+
+**Learn from the same file and return its screening results:**
 
 ```text
-Learn high-density Top 30% rules from all rows of this RadonPy file. Use smiles for structures and density for the target, in g/cm³. Return screening results, compare them with the existing rule and save the new rules.
+Learn high-monomer-gap Top 30% rules from all rows of this ADEPT file. Use SMILES for structures and BANDGAP for the target, in eV. Return both methods and screening results, compare with the existing rules and save the rules.
 ```
 
-The assistant first separates structurally distant holdout records, then learns both methods within source. It reports the source-only transform, scan step, support and physical cutoff for each percentage; the method recommendation comes from Morgan-distance validation inside source. The independent holdout scores and the original-table screening counts are returned separately. With the same file, version and split settings, learning reproduces the corresponding bundled rules. Requesting additional percentages does not change the Top 30% task. To check reuse of your new STCA model, ask:
+The assistant splits structures first, then selects transformations, scan step and support within source, learns STCA and WRAcc and saves both. Subsequent requests in this example explicitly use STCA. The catalog's automatic recommendation still follows training-side validation.
 
 ```text
-Reload the Top 30% STCA rule just saved and screen the same RadonPy dataset again. Check that every row's decision matches its earlier result.
+Reload the Top 30% STCA rule just saved and screen the same ADEPT file again. Check that every row matches its earlier decision.
 ```
 
-This checks applying the saved model, without retraining. The [complete RadonPy case](../examples/radonpy_density/README.md) covers comparison and reuse. Continue to the generation examples below with that same saved Top 30% STCA rule.
+Reloading applies the saved model without retraining. See the [complete ADEPT monomer-gap case](../examples/adept_gap/README.md). [RadonPy density](../examples/radonpy_density/README.md) remains an optional task.
 
 ## Learn rules and receive screening results
 
@@ -145,18 +146,18 @@ If no rule is selected, start with:
 I want to generate polymer repeat units. Show the available rules first.
 ```
 
-Choose the source, property and percentage in the conversation. For the RadonPy example, select the existing high-density Top 30% STCA rule or explicitly use the new Top 30% STCA rule just saved; the following requests use the saved rule.
+Choose the source, property and percentage in the conversation. For the ADEPT case, continue with the existing high-monomer-gap Top 30% STCA rule or the STCA rule just saved.
 
 **Preview and confirm:**
 
 ```text
-Use the high-density Top 30% STCA rule just saved. Show the complete prompt for five polymer repeat units before generating.
+Use the high-monomer-gap Top 30% STCA rule just saved. Show the complete prompt for five polymer repeat units before generating.
 ```
 
 The assistant shows the prompt and waits. Adjust it in ordinary language:
 
 ```text
-Keep five candidates, prefer ether linkages, and show the revised prompt.
+Keep five candidates, increase structural diversity, and show the revised prompt.
 ```
 
 Then say **“Confirm and generate.”** The current LLM generates using the approved prompt, and STCA's calculation tools verify the proposals.
@@ -164,7 +165,7 @@ Then say **“Confirm and generate.”** The current LLM generates using the app
 **Generate directly:**
 
 ```text
-Use the high-density Top 30% STCA rule just saved to directly generate and verify five polymer repeat units.
+Use the high-monomer-gap Top 30% STCA rule just saved to directly generate and verify five polymer repeat units.
 ```
 
 This uses the current conversation's LLM without separate model API setup for STCA. Counts, structural preferences and output formats can be changed; changing the target or frozen conditions requires choosing the corresponding rule.

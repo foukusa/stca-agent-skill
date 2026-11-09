@@ -1,4 +1,4 @@
-# More application examples
+# Supported data and properties
 
 [简体中文](README.zh-CN.md) · [Main guide](../../README.md) · Version **0.1.0**
 
@@ -6,9 +6,11 @@
 
 - [Start with a built-in task](#start-with-a-built-in-task)
 - [Choose a rule and method](#choose-a-rule-and-method)
-- [Try a short request](#try-a-short-request)
+- [Use existing rules](#use-existing-rules)
 - [Data sources and fields](#data-sources-and-fields)
 - [Learn, save and continue](#learn-save-and-continue)
+
+See the [ADEPT monomer-gap tutorial](../adept_gap/README.md) for screening, learning and generation with one data file.
 
 ## Start with a built-in task
 
@@ -34,7 +36,7 @@ When learning from your own data, WRAcc selects its condition-count limit within
 
 To use another direction or a percentage such as **15% or 25%**, upload suitable labelled data and learn new rules. For example: “Learn high-refractive-index Top 15% and 25% rules from this computed table.”
 
-## Try a short request
+## Use existing rules
 
 Upload your candidate table, then use one of these requests:
 
@@ -42,7 +44,6 @@ Upload your candidate table, then use one of these requests:
 |---|---|
 | High CO₂ permeability | “Use the recommended measured GAS high-CO₂-permeability Top 10% rule to screen this table.” |
 | High O₂ permeability | “Screen these candidates with the recommended measured GAS high-O₂-permeability Top 10% rule.” |
-| High water contact angle | “Use the existing OpenPoly high-water-contact-angle Top 30% rule to screen these candidates.” |
 | High specific heat | “Use RadonPy's recommended high-specific-heat Top 10% rule to screen my candidates.” |
 | High dielectric constant | “Use ADEPT's recommended high-dielectric-constant Top 20% rule to screen this table.” |
 
@@ -81,13 +82,13 @@ Use the original columns when uploading these source files:
 | Refractive index | ADEPT: `RI_MD.csv` | `SMILES` | `RI` | dimensionless |
 | Water contact angle | OpenPoly: [`OpenPoly.csv`](../water_contact_angle/OpenPoly.csv) | `PSMILES` | `Water Contact Angle (deg)` | degrees |
 
-The [water-contact-angle example](../water_contact_angle/README.md) includes the original OpenPoly table, exact column binding and natural-language requests. A 0° contact angle is valid and retained. OpenPoly measurement conditions are not supplied in the property table.
+OpenPoly water contact angle remains a [supported property](../../docs/RULE_LIBRARY.md#openpoly-water-contact-angle), with Top 10%, 20% and 30% rules and their recorded evaluations. It extends the property coverage of the catalog. The [source details](../water_contact_angle/README.md) give the original table and columns; 0° is valid.
 
 The ADEPT gap is the DFT HOMO–LUMO gap of a hydrogen-capped isolated monomer. The [source and field index](dataset_registry.csv) provides dataset links, original columns, units and licence information. Cite the original sources when using their data.
 
 Your own learning data needs structures and numeric property values. Supply units, experimental/computed origin and any existing split when needed. Identifiers are optional and may have any name.
 
-Learning requires an explicitly bound **structure column, numeric property column and unit**. You can name them in your request. For a recognized source such as the RadonPy example below, the mapping is already supplied; otherwise the assistant reads the headers and displays the columns, target meaning and unit it will use before learning. If more than one column could mean the target—such as measured versus calculated density, different temperatures, or a mean versus a minimum/maximum—it asks you to choose first. Your explicit column names take precedence. Numeric ranges alone do not establish a column's meaning. Screening with an existing rule needs the structure column, without property labels for the candidates.
+Learning requires an explicitly bound **structure column, numeric property column and unit**. You can name them in your request. For a recognized source such as ADEPT, the mapping is already supplied; otherwise the assistant reads the headers and displays the columns, target meaning and unit it will use before learning. If more than one column could mean the target—such as measured versus calculated density, different temperatures, or a mean versus a minimum/maximum—it asks you to choose first. Your explicit column names take precedence. Numeric ranges alone do not establish a column's meaning. Screening with an existing rule needs the structure column, without property labels for the candidates.
 
 Upload the original repeat-unit SMILES **with their `*` attachment points retained**. STCA keeps that original text and creates a separate calculation copy: supported terminal single-bond attachment atoms are capped with hydrogen (**H-cap**) before fingerprints are calculated. Results return the preserved original SMILES with the same `*` positions. This is not a text replacement or an attempt to infer attachment positions from the capped molecule. Already capped inputs remain as supplied; attachment points are not invented. Different original attachment patterns remain separate records even when their H-cap calculation copies coincide.
 

@@ -77,7 +77,7 @@ Source: [ADEPT data distributed with PolyGraphMT](https://github.com/sobinalosio
 
 ## OpenPoly: water contact angle
 
-Source: [OpenPoly](https://github.com/WangGroupFDU/Openpoly_benchmark), a literature-reported polymer-property collection. STCA learns and evaluates water-contact-angle rules with the same source-first Morgan-distance protocol. Use [the complete example](../examples/water_contact_angle/README.md) for the original CSV, columns and usage.
+Source: [OpenPoly](https://github.com/WangGroupFDU/Openpoly_benchmark), a literature-reported polymer-property collection. STCA learns and evaluates water-contact-angle rules with the same source-first Morgan-distance protocol. It extends the catalog’s property coverage. All three tiers, both methods and their recorded evaluation scores remain available; see [source details](../examples/water_contact_angle/README.md) for the table and columns.
 
 | Property | Unit | Top 10% | Top 20% | Top 30% |
 |---|---|---|---|---|

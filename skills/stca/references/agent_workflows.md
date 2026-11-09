@@ -40,7 +40,7 @@ PY SKILL_DIR/scripts/rule_library.py show RULE_ID
 PY SKILL_DIR/scripts/agent_runtime.py run --script rule_library.py -- screen RULE_ID --input candidates.csv --smiles-column SMILES --output-dir out/screening
 ```
 
-按用户来源、性质、档位与方法选择，允许接受标出的主推。RadonPy高密度Top 30%示例读取当前目录标记的推荐及实际筛选结果；用户明确选择STCA或WRAcc时保留该选择。生成沿用当前选定的精确规则，不能因静态示例使用STCA就更换用户选择。两种方法是备选关系：比较时分别screen，不将同一目标主备自动AND。不同性质的明确联合请求才给选定规则交集。用户明确要求同目标方法交集时才使用--allow-method-intersection。
+按用户来源、性质、档位与方法选择，允许接受标出的主推。主计算范例为ADEPT高单体能隙Top30%，明确选择STCA；该档目录自动推荐仍为WRAcc，用户明确选择任一方法时保留其选择。使用推荐时读取当前目录，不根据展示范例改写主推。生成沿用当前选定的精确规则，不能因静态示例使用STCA就更换用户选择。两种方法是备选关系：比较时分别screen，不将同一目标主备自动AND。不同性质的明确联合请求才给选定规则交集。用户明确要求同目标方法交集时才使用--allow-method-intersection。
 
 读取实际保存的用户规则目录（不是平台页面）：
 

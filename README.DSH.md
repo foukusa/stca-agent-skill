@@ -2,7 +2,7 @@
 
 # STCA for DeepSeek Harness
 
-Bring STCA into your DeepSeek Harness conversation: learn and save readable polymer rules, screen candidates, and generate and verify repeat units with the current AI assistant.
+Interpretable polymer screening, rule extraction and rule-guided candidate verification with STCA in DeepSeek Harness.
 
 **Version 0.1.0** · [简体中文](https://github.com/foukusa/stca-agent-skill/blob/main/README.DSH.zh-CN.md)
 
@@ -10,18 +10,14 @@ Bring STCA into your DeepSeek Harness conversation: learn and save readable poly
 
 ## Contents
 
-- [Why STCA](#why-stca)
 - [Install and start](#install-and-start)
 - [Choose a task](#choose-a-task)
 - [Data columns and attachment points](#data-columns-and-attachment-points)
-- [Try RadonPy density](#try-radonpy-density)
-- [Try water contact angle](#try-water-contact-angle)
+- [Data splitting and evaluation](#data-splitting-and-evaluation)
+- [Try ADEPT gap data](#try-adept-gap-data)
+- [Existing rules and supported properties](#existing-rules-and-supported-properties)
 - [Runtime and permissions](#runtime-and-permissions)
 - [License and sources](#license-and-sources)
-
-## Why STCA
-
-**STCA — Sliding Threshold Correlation Analysis — turns polymer structure–property data into readable structural rules.** It follows substructure associations across property thresholds and expresses the target as conditions that a repeat unit must satisfy together. You can inspect and reuse the same rules to screen candidates or guide the current LLM in designing and verifying new repeat units. The skill handles the calculations through ordinary conversation and compares STCA with WRAcc for your data.
 
 ## Install and start
 
@@ -73,7 +69,7 @@ When you have not selected a rule, the assistant shows the available rule catalo
 
 ## Data columns and attachment points
 
-Learning requires an explicitly bound **structure column, numeric property column and unit**. You can name them in your request. For a recognized source such as the RadonPy example below, the mapping is already supplied; otherwise the assistant reads the headers and displays the columns, target meaning and unit it will use before learning. If more than one column could mean the target—such as measured versus calculated density, different temperatures, or a mean versus a minimum/maximum—it asks you to choose first. Your explicit column names take precedence. Numeric ranges alone do not establish a column's meaning. Screening with an existing rule needs the structure column, without property labels for the candidates.
+Learning requires an explicitly bound **structure column, numeric property column and unit**. You can name them in your request. For a recognized source such as the ADEPT example below, the mapping is already supplied; otherwise the assistant reads the headers and displays the columns, target meaning and unit it will use before learning. If more than one column could mean the target—such as measured versus calculated density, different temperatures, or a mean versus a minimum/maximum—it asks you to choose first. Your explicit column names take precedence. Numeric ranges alone do not establish a column's meaning. Screening with an existing rule needs the structure column, without property labels for the candidates.
 
 Upload the original repeat-unit SMILES **with their `*` attachment points retained**. STCA keeps that original text and creates a separate calculation copy: supported terminal single-bond attachment atoms are capped with hydrogen (**H-cap**) before fingerprints are calculated. ECFP4 defines structural distance; MACCS167 encodes the rule conditions. Results return the preserved original SMILES with the same `*` positions. This is not a text replacement or an attempt to infer attachment positions from the capped molecule. Already capped inputs remain as supplied; attachment points are not invented.
 
@@ -81,45 +77,57 @@ Upload the original repeat-unit SMILES **with their `*` attachment points retain
 |---|---|---|
 | `*CCO*` | `CCO` | `*CCO*` |
 
-## Try RadonPy density
+## Data splitting and evaluation
 
-Download [RadonPy `PI1070.csv`](https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv) from its GitHub file page and upload it in DSH. Use all **1,077 records**: row 1 is the header and rows 2–1078 are data. Select `smiles` (B / column 2) for structures and `density` (AA / column 27), in g/cm³, for the molecular-dynamics target. `monomer_ID` (A / column 1) is an optional identifier. The assistant reads column names; you do not need to extract cells. Other density statistics are not the target.
+Structural distance uses **ECFP4**: 2,048-bit Morgan fingerprints with radius 2, calculated from the H-cap copy; **distance = 1 − Tanimoto similarity**. Identical original structures and identical H-cap copies stay in the same protected group.
 
-**Existing-rule screening:**
+| Partition or evaluation | How it is used |
+|---|---|
+| **Training (`source`)** | Learn rules and choose data transforms, scan steps and support using this partition only. |
+| **Independent extrapolation (`holdout`)** | Select a peripheral structural neighborhood, targeting 20% of structurally valid records, before using target labels. Every holdout structure has nearest-source distance **≥0.5**. |
+| **Similarity buffer** | Keep groups closer than 0.5 to the holdout out of training and evaluation. They remain in the returned screening table. |
+| **Within-range diagnostic** | Protected-group 5-fold cross-validation, repeated three times within source. This is a diagnostic conditional on source preparation, not a separate distance-defined interpolation test. |
 
-```text
-Use the recommended RadonPy high-density Top 30% rule to screen this dataset.
-```
+This design keeps identical and nearby structures from bridging the training–holdout boundary and tests whether rules transfer to structurally different polymers. A further Morgan-distance validation **inside source** selects the recommended method before the outer holdout is evaluated. Frozen source thresholds and rules are then applied unchanged. See [evaluation details](https://github.com/foukusa/stca-agent-skill/blob/main/docs/MORGAN_EVALUATION.md).
 
-The assistant shows the rule, its **numeric density cutoff in g/cm³**, and both methods’ screening results. Top 30% describes the property target in the rule’s training data; it does not require exactly 30% of candidate structures to match.
+## Try ADEPT gap data
 
-**Learning, screening and saving:**
+Download [ADEPT `BANDGAP_DFT.csv`](https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/BANDGAP_DFT.csv) and upload it to the conversation. This file has **2,916 records and two columns**. The target is the **DFT HOMO–LUMO gap of a hydrogen-capped isolated monomer**, in eV.
 
-```text
-Learn high-density Top 30% rules from all rows of this RadonPy file. Use smiles for structures and density for the target, in g/cm³. Return screening results, compare them with the existing rule and save the new rules.
-```
+| Use | Column | Spreadsheet position |
+|---|---|---|
+| Repeat-unit structure | `SMILES` | A · column 1 |
+| Isolated-monomer gap | `BANDGAP` | B · column 2 |
 
-Each percentage is prepared and fitted independently within the training part. The assistant returns STCA and WRAcc, independent Morgan-distance extrapolation results, and screening results for every original row. To reuse the recommendation, say “Reload the recommended Top 30% rule just saved and screen the same dataset again.” Every row must match its earlier decision.
+Row 1 is the header; rows **2–2917** contain data. Use all rows as input. No identifier column is required.
 
-**Generation:**
-
-```text
-Use the high-density Top 30% STCA rule just saved to directly generate and verify five polymer repeat units.
-```
-
-Or ask to see the complete prompt first, adjust it, then say “Confirm and generate.” The current DSH LLM generates; STCA performs the structural checks. See the [complete RadonPy case](https://github.com/foukusa/stca-agent-skill/blob/main/examples/radonpy_density/README.md).
-
-See [five actual generated proposals and their verification](https://github.com/foukusa/stca-agent-skill/blob/main/examples/radonpy_density/generated_examples.csv).
-
-## Try water contact angle
-
-The [OpenPoly example](https://github.com/foukusa/stca-agent-skill/blob/main/examples/water_contact_angle/README.md) extends the same workflow to measured water contact angle. Upload its source CSV and say:
+**Screen with the existing STCA rule:**
 
 ```text
-/stca Learn high water-contact-angle Top 30% rules from this OpenPoly file. Use PSMILES for structures and Water Contact Angle (deg) for the property, in degrees. Return both methods, extrapolation results and screening results, then save the rules.
+Use the existing ADEPT high isolated-monomer HOMO–LUMO gap Top 30% STCA rule to screen this file.
 ```
 
-Records with usable labels support learning; the remaining structures can be screened as candidates. You can also choose an existing water-contact-angle rule from the catalog, or ask the current DSH LLM to generate and verify repeat units with it. The example includes the public data source, column mapping and computed results.
+The frozen target is **gap ≥ 11.914537535 eV**. This file produces **976 matches, 1,940 non-matches and no unknowns**. On 584 independent Morgan-distance holdout records, the STCA rule has **precision 0.7500, recall 0.7784, F1 0.7639 and Matthews correlation coefficient 0.6517**. Full-table matches and independent evaluation are reported separately.
+
+**Learn rules, screen and save:**
+
+```text
+Learn high isolated-monomer HOMO–LUMO gap Top 30% rules from this ADEPT file. Use SMILES for structures and BANDGAP for the target, in eV. Use all input rows, return both methods, extrapolation evaluation and screening results, and save the rules.
+```
+
+The assistant learns STCA and WRAcc from the training partition and returns both results. Continue with **“Reload the Top 30% STCA rule just saved and screen the same file.”** Every row must match its previous decision.
+
+**Generate with the selected rule:**
+
+```text
+Use the Top 30% STCA rule just saved to directly generate and verify five polymer repeat units.
+```
+
+To adjust the prompt first, say **“Show the complete generation prompt before generating.”** After your edits, say **“Confirm and generate.”** The current LLM proposes candidates and STCA verifies their exact structural conditions. See the [complete ADEPT example](https://github.com/foukusa/stca-agent-skill/blob/main/examples/adept_gap/README.md) and [generated proposals](https://github.com/foukusa/stca-agent-skill/blob/main/examples/adept_gap/generated_examples.csv).
+
+## Existing rules and supported properties
+
+The [rule catalog](https://github.com/foukusa/stca-agent-skill/blob/main/docs/RULE_LIBRARY.md) includes the paper Tg/conductivity rules, gas permeability, RadonPy and ADEPT properties, and **OpenPoly water-contact-angle Top10%,20%,30%** rules. Choose a source, property, percentage and method to screen candidates; the catalog provides each tier’s thresholds, structural conditions and screening evaluation.
 
 ## Runtime and permissions
 

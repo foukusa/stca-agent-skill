@@ -122,7 +122,8 @@ class StarterTaskTests(unittest.TestCase):
         self.assertEqual(case['relearn']['contract'], evidence['contract'])
         self.assertEqual(case['selection_policy']['default_screening_method'], 'catalog_primary')
         self.assertTrue(case['selection_policy']['honor_explicit_method'])
-        self.assertEqual(tasks['example_cases'][0]['preferred_builtin_rule'], primary['id'])
+        density_case = next(item for item in tasks['example_cases'] if item['id'] == 'radonpy_density')
+        self.assertEqual(density_case['preferred_builtin_rule'], primary['id'])
         result = self.call('2', '--rule', primary['id'])
         self.assertEqual(result.returncode, 0, result.stderr)
         selected = json.loads(result.stdout)['selected_rules']
@@ -136,6 +137,31 @@ class StarterTaskTests(unittest.TestCase):
         self.assertEqual({row['catalog_id'] for row in proposals}, {generation_rule})
         self.assertTrue(all('*' in row['SMILES'] for row in proposals))
         self.assertTrue(all('*' not in row['calculation_smiles_hcap'] for row in proposals))
+
+    def test_featured_example_preserves_explicit_stca_and_true_catalog_recommendation(self):
+        tasks = json.loads((SKILL/'assets/starter_tasks.json').read_text())
+        self.assertEqual(tasks['featured_example_id'], 'adept_gap')
+        self.assertEqual(tasks['example_cases'][0]['id'], 'adept_gap')
+        water = next(item for item in tasks['example_cases'] if item['id'] == 'water_contact_angle')
+        self.assertEqual(water['role'], 'supported_property_only')
+        case = json.loads((SKILL/'assets/examples/adept_gap_case.json').read_text())
+        catalog = json.loads((SKILL/'assets/rule_library/catalog.json').read_text())
+        entries = {entry['id']: entry for entry in catalog['entries']}
+        selected = case['existing_rule']
+        self.assertEqual(selected['method'], 'STCA')
+        self.assertEqual(selected['id'], 'current-ad-gap-stca-high-30')
+        self.assertFalse(entries[selected['id']]['is_primary'])
+        self.assertEqual(case['catalog_recommended_method'], 'WRAcc')
+        self.assertEqual(case['input']['smiles_column'], 'SMILES')
+        self.assertEqual(case['input']['target_column'], 'BANDGAP')
+        self.assertEqual(case['source']['records'], 2916)
+        self.assertEqual(selected['expected_selected'], 976)
+        self.assertEqual(selected['physical_cutoff'], 11.914537535)
+        with (SKILL/'assets/examples/adept_gap_generation_examples.csv').open(newline='') as stream:
+            rows = list(csv.DictReader(stream))
+        self.assertEqual(len(rows), 5)
+        self.assertTrue(all('*' in row['SMILES'] and '*' not in row['calculation_smiles_hcap'] for row in rows))
+        self.assertEqual({row['catalog_id'] for row in rows}, {selected['id']})
 
     def test_current_catalog_metrics_belong_to_the_source_frozen_distance_models(self):
         root = SKILL/'assets/rule_library'

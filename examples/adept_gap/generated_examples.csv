@@ -1,0 +1,6 @@
+candidate_id,SMILES,design_note,verification_status,failed_conditions,star_count,terminal_single_bond_stars,connected_components,valid_input,catalog_id,in_reference_dataset,hcap_in_reference_dataset,property_value_status,calculation_smiles_hcap
+ADEPT-GEN-001,*CC(F)(F)COCC(C)(C)CO*,无环二氟取代并含支化碳中心的聚醚候选。,selected,[],2,True,1,True,current-ad-gap-stca-high-30,False,False,not_predicted,CC(F)(F)COCC(C)(C)CO
+ADEPT-GEN-002,*CC(CF)COC(=O)CC(C)O*,无环含氟甲基支链的脂肪族聚酯候选。,selected,[],2,True,1,True,current-ad-gap-stca-high-30,False,False,not_predicted,CC(O)CC(=O)OCC(C)CF
+ADEPT-GEN-003,*COCC(C)OC(=O)OCC(F)C*,无环含甲基及氟取代的脂肪族聚碳酸酯候选。,selected,[],2,True,1,True,current-ad-gap-stca-high-30,False,False,not_predicted,COCC(C)OC(=O)OCC(C)F
+ADEPT-GEN-004,*COC(C)(CC)OCC(C)C*,无环含乙基支链与缩酮中心的聚醚候选。,selected,[],2,True,1,True,current-ad-gap-stca-high-30,False,False,not_predicted,CCC(C)(OC)OCC(C)C
+ADEPT-GEN-005,*CC(C)N(C)CCOCC*,无环单个叔胺氮与醚键的候选；用单氮结构保留计数位语义。,selected,[],2,True,1,True,current-ad-gap-stca-high-30,False,False,not_predicted,CCOCCN(C)C(C)C

@@ -14,6 +14,16 @@ The average screening score was introduced in the [STCA paper](https://doi.org/1
 
 If the requested distance split cannot be formed, or a holdout contains only one target class, the assistant reports the unavailable result and its reason. It does not silently substitute a random split. Small test sets and undefined metrics retain their actual status.
 
-Earlier protected-group random fivefold results describe evaluation within the observed data distribution. Earlier ECFP4–t-SNE peripheral splits describe that projection-based protocol. Neither is relabelled as a strict Morgan-distance test. The STCA-paper frozen rules retain their original rules and evaluation protocol.
+## Within-range diagnostics, internal validation and extrapolation
+
+| Data part | Split | Purpose |
+|---|---|---|
+| Within-source diagnostic | Protect identical original/H-cap structures as groups; random grouped fivefold CV, repeated three times | Check the same source distribution, conditional on its preparation settings; this is not a separate interpolation test |
+| Source-inner Morgan validation | Further ECFP4 distance holdout within source, with nearest-training distance ≥ 0.5 | Select STCA or WRAcc before outer evaluation |
+| Independent outer holdout | Select a peripheral structural neighborhood, about 20% by default; place other groups closer than 0.5 to it in buffer and use the remainder as source | Test transfer to substantially different structures |
+
+This protects against identical or highly similar structures crossing training and evaluation, and defines extrapolation through a measurable chemical-structure distance. The buffer enforces that boundary. Its rows are still screened but do not train or score the rules. Source-inner Morgan validation is also a distance holdout, not interpolation; the current workflow does not provide a separate distance-defined interpolation test set.
+
+The STCA-paper frozen rules retain their original conditions and evaluation protocol.
 
 A percentage defines a source-label tail, not a quota of selected candidates. Each percentage is prepared independently. Original `*` attachment points are retained in returned SMILES; H-cap is used only for calculation copies.

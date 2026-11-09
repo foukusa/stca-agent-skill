@@ -2,23 +2,27 @@
 
 STCA is used by the current LLM in the conversation. It does not create a fixed numbered application menu or a separate saved-rules page. Follow a complete request directly. When the goal is missing, briefly offer learning, screening or generation in the user's language. Use actual output files and execution receipts; fill counts only after running the requested calculation.
 
-## 同一份 RadonPy 数据试用筛选
+## 用 ADEPT 单体能隙数据筛选
 
-读取 [案例配置](../assets/examples/radonpy_density_case.json)。用户上传完整 PI1070.csv，说明：使用推荐的现成 RadonPy 高密度 Top 30% 规则筛选这份数据。
+读取[案例配置](../assets/examples/adept_gap_case.json)。用户上传完整 `BANDGAP_DFT.csv`，说明：“使用现成的 ADEPT 高单体能隙 Top30% STCA 规则筛选这份数据。”
 
-按列名读取全部1077条输入：可选标识monomer_ID、结构smiles、目标density（g/cm³，MD计算），不让用户逐格选取集成表。读取当前案例配置和目录的推荐及精确规则，用户明确指定STCA或WRAcc时保留该选择。运行后才报告实际匹配、未匹配、未知数量和冻结物理阈值；不要引用旧全量拟合数量作为当前距离留出规则的预期。不从候选表重算阈值。
+按列名读取全部2,916条输入：结构`SMILES`（A/第1列）、目标`BANDGAP`（B/第2列），单位eV。目标是氢封端孤立单体的DFT HOMO–LUMO能隙，不是体相聚合物带隙。此演示明确选择STCA，使用`current-ad-gap-stca-high-30`；不要替换成目录自动推荐的WRAcc。实际运行后核对冻结边界≥11.914537535 eV、全表976条匹配、0条未知；保留全部原始字段、星号和未满足条件。
 
-## 从公开数据总结规则后继续筛选
+## 从同一份公开数据学习并复用
 
-用户上传 RadonPy 的 PI1070.csv，说明：“从这份数据总结高密度规则。结构列为smiles，性质列为density，单位g/cm³，使用全部数据行，返回筛选结果并保存规则。”
+用户：“从这份 ADEPT 文件总结高单体能隙 Top30% 规则。结构列SMILES，性质列BANDGAP，单位eV，使用全部数据行。返回两种方法和筛选结果，与现成规则比较并保存。”
 
-学习前简短告知实际绑定：“PI1070.csv，1077行；结构列smiles；目标列density（第27列/AA），单位g/cm³，MD计算，高值方向。”按列名执行，其他密度统计列不作为目标。已知案例与用户列名一致时直接继续；不要求额外确认。自己的文件含多个候选密度列或单位/条件不清时，列出候选并等待选择，再开始学习。默认执行 Top 10%、20%、30%，用户明确给出的其他合法百分比按请求计算。先以ECFP4／Morgan最近邻距离至少0.5建立外部留出，buffer单列；仅在source自动准备数据、选择变换和步长，source内Morgan验证确定方法推荐；WRAcc 条件数上限仅在当前训练部分内部选择，也接受用户指定上限或不限制。不能按外部测试分数挑选长度。同时返回 STCA 与 WRAcc 在各档位的规则、原始物理阈值、比较符、单位、完整原表筛选和主推理由。读取实际文件后说明采用的设置，不能凭预期声称已自适应。
+学习前简短说明文件、2,916行、实际列名、单位和DFT标签含义。调用默认 `morgan_evaluation.py`：仅结构决定source/holdout/buffer，外推最近邻ECFP4距离≥0.5；数据清理、形式、步长、支持量和拟合仅用source。用户明确给出的百分比优先，未给时直接用10%、20%、30%。source内部另一次Morgan验证选择方法，不使用最终holdout选优。
 
-检查run_manifest.json、split_audit.json、split_membership.csv、source_inner_selection.json及holdout_metrics.json，核对距离约束、source-only准备和内部推荐。对source_fit运行fingerprint_contract.py --run-dir RUN_DIR/source_fit，核对逐档指纹凭据。成功后交付真实文件名、位置及便携规则包。用户可以接着说：
+每档交付STCA与WRAcc的精确条件、实际数值阈值、比较符和单位、全部原表筛选、独立外推分数及自动推荐理由。本例随后明确复用STCA；不据此改动目录的WRAcc自动推荐。独立外推不是原表回筛；source内随机分组CV仅作范围内诊断。
 
-> 用刚才保存的高密度 Top 20% 推荐规则筛选这份新候选表。
+执行 `fingerprint_contract.py --run-dir RUN_DIR` 核对source指纹、距离和冻结模型。读取真实保存凭据后交付便携规则包。用户接着说：
 
-读取实际保存的精确模型与档位，直接筛选，不重新要求训练数据。跨会话时让用户上传保存的规则包，不承诺临时文件自动保留。
+> 重新载入刚保存的Top30% STCA规则，再筛选同一份ADEPT文件，核对每行是否一致。
+
+应用保存模型，不重新训练，不要求再上传原训练数据。新会话可导入规则包继续。
+
+RadonPy密度仍是可选任务，按其[案例配置](../assets/examples/radonpy_density_case.json)绑定原始列。OpenPoly水接触角保留在现成规则目录，用于展示支持的性质范围；不作为效果展示或默认计算范例。
 
 ## 原始星号结构的处理
 
@@ -60,7 +64,7 @@ STCA is used by the current LLM in the conversation. It does not create a fixed 
 
 ## 直接生成
 
-同一RadonPy案例可说：“用刚才选定的高密度 Top 30% 规则直接生成5个聚合物重复单元并核验。”生成前读取该精确条目的完整prompt，不因推荐方法而替换当前选择。随包静态五条生成示例明确使用 STCA，只供展示，不当作新提案复制。
+同一ADEPT案例可说：“用刚才选定的高单体能隙 Top30% STCA规则直接生成5个聚合物重复单元并核验。”生成前读取该精确条目的完整prompt，不因推荐方法而替换当前选择。随包静态五条生成示例明确使用 STCA，只供展示，不当作新提案复制。
 
 用户：用刚才选定的规则直接生成 20 个聚合物重复单元并核验。
 
@@ -75,7 +79,7 @@ STCA is used by the current LLM in the conversation. It does not create a fixed 
 
 ## English requests
 
-- **Learn:** “Learn high-density rules from all rows of this RadonPy dataset. The structure column is `smiles`, the target is `density`, in g/cm³. Return screening results and save the rules.” State the actual binding before learning; resolve ambiguous columns with the user first. Return independent methods and numerical cutoffs.
+- **Learn:** “Learn high-monomer-gap Top30% rules from this ADEPT dataset. Use `SMILES` for structures and `BANDGAP` for the target, in eV. Return both methods and screening results, then save the rules.” State the actual binding before learning; resolve ambiguous columns with the user first. Return independent methods and numerical cutoffs.
 - **Reuse:** “Use the recommended Top 20% rule just saved to screen this new candidate table.” Read the actual files, apply the selected rule and retain all original inputs.
 - **Preview:** “Use the STCA-paper high-Tg Top 20% rule. Show the prompt for five repeat units first.” Display the complete prompt and wait for explicit confirmation.
 - **Direct:** “Generate and verify 20 polymer repeat units directly with the selected rule.” The current LLM generates; the calculation verifies. Preserve proposals as pending if verification cannot run.

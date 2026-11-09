@@ -1,6 +1,6 @@
 {
   "platform": "workbuddy",
-  "package_version": "0.1.4",
+  "package_version": "0.1.5",
   "frontmatter": {
     "name": "stca",
     "display_name": "STCA 聚合物规则与设计",
@@ -8,7 +8,7 @@
     "description": "Use STCA for polymer structure-property rules, screening and repeat-unit design. Learn and save readable STCA/WRAcc rules from uploaded polymer data, apply existing rules, or generate and verify polymer repeat units with the current LLM. Preserve original SMILES and exact rule conditions. Triggers: STCA、聚合物筛选、规则归纳、多性能筛选、聚合物设计、生成prompt。",
     "description_zh": "从聚合物结构与性质数据中总结并保存可读规则，返回筛选结果；也可选择现成规则筛选候选，或调用当前 AI 按规则生成新的聚合物重复单元并逐条核验。支持自定义目标百分比、多性质联合筛选，以及生成前预览和调整 prompt。",
     "description_en": "Learn and save readable rules from polymer structures and property data, with screening results. Choose existing rules to screen candidates or guide the current AI in generating and verifying polymer repeat units. Supports custom target percentages, joint property screening and editable generation prompts.",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "author": "Weihao Wang",
     "examples_zh": [
       "使用 STCA，从这份聚合物数据总结规则并返回筛选结果。",

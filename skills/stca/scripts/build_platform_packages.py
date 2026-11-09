@@ -85,6 +85,8 @@ def source_payload(skill: Path) -> dict[str, bytes]:
         "assets/starter_tasks.json", "assets/property_registry.json",
         "assets/examples/candidates.csv",
         "assets/examples/quick_start_candidates.csv",
+        "assets/examples/adept_gap_case.json",
+        "assets/examples/adept_gap_generation_examples.csv",
         "assets/rule_library/original_trial_evidence.json",
         "validation/historical_validation_20261107.json",
         "references/platform-runtime.md", "references/deepseek-harness.md",

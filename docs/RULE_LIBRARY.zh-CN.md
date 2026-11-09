@@ -77,7 +77,7 @@ AS（Average Score）是作者 [STCA 论文](https://doi.org/10.1038/s41524-026-
 
 ## OpenPoly：水接触角
 
-数据来源：[OpenPoly](https://github.com/WangGroupFDU/Openpoly_benchmark)，收录文献报道的聚合物性质。水接触角使用同样的先结构划分、仅 source 学习及 Morgan 距离评价流程。原始 CSV、列名和用法见[完整案例](../examples/water_contact_angle/README.zh-CN.md)。
+数据来源：[OpenPoly](https://github.com/WangGroupFDU/Openpoly_benchmark)，收录文献报道的聚合物性质。水接触角使用同样的先结构划分、仅 source 学习及 Morgan 距离评价流程。该性质用于展示规则库的适用范围；三档两方法及实际分数全部保留，原表和字段见[来源说明](../examples/water_contact_angle/README.zh-CN.md)。
 
 | 性质 | 单位 | Top 10% | Top 20% | Top 30% |
 |---|---|---|---|---|

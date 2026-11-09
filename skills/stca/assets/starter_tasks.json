@@ -19,8 +19,9 @@
       },
       "workflow": "learn_source_rules_with_strict_morgan_holdout",
       "agent_steps": [
+        "Use ADEPT isolated hydrogen-capped monomer HOMO–LUMO gap Top30% STCA as the featured calculation tutorial when a demonstration is requested. Read assets/examples/adept_gap_case.json. Keep the concise original STCA positioning; do not add a verbose Why STCA section or promote water contact angle as a high-performing example.",
         "Run bundled morgan_evaluation.py via agent_runtime by default. Require a source-only fit manifest, exact split memberships, per-holdout nearest-source ECFP4 distances, frozen thresholds, fingerprint receipts and actual heldout predictions. Verify all artifacts using fingerprint_contract.py --run-dir RUN_DIR. Do not replace the pipeline with inline learners or raw-star MACCS.",
-        "For the OpenPoly water-contact-angle example, read assets/examples/water_contact_angle_case.json. Bind PSMILES and Water Contact Angle (deg), degrees, high direction. Zero degrees is valid complete wetting. Do not treat missing labels as zero or filter valid zero contact angles.",
+        "When the user selects the supported OpenPoly water-contact-angle property, read assets/examples/water_contact_angle_case.json. Bind PSMILES and Water Contact Angle (deg), degrees, high direction. Zero degrees is valid complete wetting. Do not treat missing labels as zero or filter valid zero contact angles.",
         "Read the uploaded polymer structures, target, units, direction and experimental/computed meaning; preserve original SMILES and select polymer_repeat_unit as the generation structure kind. Ask only for missing scientific information.",
         "Before learning, bind the exact input file and row scope, structure column, numeric target column, unit and high/low direction, and briefly show that mapping to the user. Honor explicit user column names. Continue automatically for a unique unambiguous mapping or a matching known dataset template; when duplicate or competing columns, measured/computed labels, temperatures, statistics or units are ambiguous, show candidates and wait for the user before learning. Never infer the scientific target from value range alone. Pass exact header names through --smiles-column and required --target, then verify the actual run_manifest.learning_settings mapping; spreadsheet positions are explanatory only.",
         "Preserve original star-containing polymer SMILES as the primary input/output structure. Build a separate H-cap calculation copy by hydrogen-capping supported terminal single-bond attachment points, compute MACCS rule fingerprints only from that copy, and return the stored original SMILES with the same stars and positions. Returning stars means retrieving the original structure, never reverse-capping or replacing hydrogen text. Already capped input is returned unchanged.",
@@ -167,7 +168,8 @@
       },
       "workflow": "apply_existing_rules",
       "agent_steps": [
-        "Resolve named existing rules through the current task_menu rule directory. For the RadonPy density case, read assets/examples/radonpy_density_case.json: use its catalog-primary Top 30% rule unless the user explicitly selects STCA. Preserve an explicit method choice. Generation reuses the exact rule already selected in the conversation; the static five-candidate illustration is explicitly STCA.",
+        "Use ADEPT isolated hydrogen-capped monomer HOMO–LUMO gap Top30% STCA as the featured calculation tutorial when a demonstration is requested. Read assets/examples/adept_gap_case.json. Keep the concise original STCA positioning; do not add a verbose Why STCA section or promote water contact angle as a high-performing example.",
+        "Resolve named existing rules through the current task_menu rule directory. For the featured ADEPT isolated-monomer gap case, read assets/examples/adept_gap_case.json and honor the explicit Top30% STCA example. Its catalog recommendation remains WRAcc; never change either identity. Generation reuses the exact rule selected in the conversation. RadonPy is an additional dataset and water contact angle only a supported-property catalog entry, not a featured tutorial.",
         "The current open-data directory provides STCA and WRAcc rules as primary and alternative methods for each source/property/tier. Let the user select a method or accept the marked primary after choosing the target. Do not combine the alternative methods unless explicitly requested; a single rule contains AND literals.",
         "Honor user-defined percentages only when an exact frozen rule exists; never substitute a nearby tier or interpolate conditions/cutoffs. Once source, property and direction are clear, omitted percentages automatically apply the available exact Top/Bottom 10%, 20%, 30% defaults without another percentage question. Report any unavailable default tier. If the target is still unclear, offer target choices and wait; defaults do not choose a source or property.",
         "By default, return separate STCA and WRAcc results for every requested available tier, together with their recorded AS evidence, primary method and recommendation reason. Apply methods separately, not as an AND or OR. Honor an explicit request for only STCA or only WRAcc. If the user accepts the recommendation for subsequent use, adopt the marked per-tier primary without another method-confirmation question. Show Top/Bottom, physical comparison, numeric cutoff and unit; mark missing evidence or an unavailable alternative honestly.",
@@ -273,7 +275,8 @@
       "workflow": "generate_and_verify",
       "default_count": 20,
       "agent_steps": [
-        "Resolve named existing rules through the current task_menu rule directory. For the RadonPy density case, read assets/examples/radonpy_density_case.json: use its catalog-primary Top 30% rule unless the user explicitly selects STCA. Preserve an explicit method choice. Generation reuses the exact rule already selected in the conversation; the static five-candidate illustration is explicitly STCA.",
+        "Use ADEPT isolated hydrogen-capped monomer HOMO–LUMO gap Top30% STCA as the featured calculation tutorial when a demonstration is requested. Read assets/examples/adept_gap_case.json. Keep the concise original STCA positioning; do not add a verbose Why STCA section or promote water contact angle as a high-performing example.",
+        "Resolve named existing rules through the current task_menu rule directory. For the featured ADEPT isolated-monomer gap case, read assets/examples/adept_gap_case.json and honor the explicit Top30% STCA example. Its catalog recommendation remains WRAcc; never change either identity. Generation reuses the exact rule selected in the conversation. RadonPy is an additional dataset and water contact angle only a supported-property catalog entry, not a featured tutorial.",
         "The current open-data directory provides STCA and WRAcc rules as primary and alternative methods for each source/property/tier. Let the user select a method or accept the marked primary after choosing the target. Do not combine the alternative methods unless explicitly requested; a single rule contains AND literals.",
         "The selected exact frozen rule already defines its percentage. Do not implicitly expand generation to 10%, 20%, 30%. Honor user-defined percentages only when an exact frozen rule exists; if unavailable, offer a saved exact rule or learning from labelled data. If the user explicitly requests multiple tiers, prepare a separate session and prompt, generate and verify independently for every tier; never AND different tiers of the same property into a single prompt.",
         "If the user requests automatic method choice or accepts the recommendation, apply the marked per-tier primary method without another method-confirmation question. Honor an explicitly named STCA or WRAcc method. Show each selected tier as Top/Bottom, physical comparison, numeric cutoff and unit.",
@@ -439,6 +442,27 @@
   },
   "example_cases": [
     {
+      "id": "adept_gap",
+      "role": "featured_calculation",
+      "configuration": "assets/examples/adept_gap_case.json",
+      "use_cases": [
+        "screen_existing",
+        "learn_rules",
+        "design_verify"
+      ],
+      "featured_method": "STCA",
+      "featured_builtin_rule": "current-ad-gap-stca-high-30",
+      "input_columns": {
+        "smiles": "SMILES",
+        "target": "BANDGAP",
+        "id": null
+      },
+      "row_policy": "all_original_rows_preserved",
+      "label_meaning": "H-capped isolated-monomer HOMO–LUMO gap; eV",
+      "honor_explicit_example_method": true,
+      "keep_catalog_recommendation_separate": true
+    },
+    {
       "id": "radonpy_density",
       "configuration": "assets/examples/radonpy_density_case.json",
       "use_cases": [
@@ -454,7 +478,8 @@
       },
       "row_policy": "all_original_rows_preserved",
       "relearn_equality": "same_source_columns_tier_settings_and_software_reproduce_current_bundled_rule; saved_model_reapplication_is_row_identical",
-      "explicit_stca_rule": "current-pi-rho-stca-high-30"
+      "explicit_stca_rule": "current-pi-rho-stca-high-30",
+      "role": "additional_dataset"
     },
     {
       "id": "water_contact_angle",
@@ -471,7 +496,8 @@
       },
       "row_policy": "all_original_rows_preserved",
       "valid_zero_target": true,
-      "name_metadata_column": "Name"
+      "name_metadata_column": "Name",
+      "role": "supported_property_only"
     }
   ],
   "execution_error_policy": {
@@ -485,5 +511,6 @@
     ],
     "partial_delivery": "read_status_and_storage_warnings; return_both_existing_method_outputs; never_claim_failed_rule_save_succeeded; do_not_retrain_for_storage_errors",
     "progress": "brief_task_status_and_actual_error; no_serial_patch_exploration"
-  }
+  },
+  "featured_example_id": "adept_gap"
 }

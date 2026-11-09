@@ -195,6 +195,7 @@ def native_skill_payload(files: dict[str, bytes]) -> dict[str, bytes]:
         "SKILL.md", "agents/openai.yaml", "assets/stca-logo.png",
         "assets/rule_library/catalog.json", "assets/runtime_compatibility.json",
         "assets/starter_tasks.json", "scripts/task_menu.py",
+        "assets/examples/adept_gap_case.json", "assets/examples/adept_gap_generation_examples.csv",
         "scripts/agent_runtime.py", "scripts/runtime_compat.py", "scripts/generation_session.py",
         "validation/historical_validation_20261107.json",
     }
