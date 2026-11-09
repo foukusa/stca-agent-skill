@@ -24,9 +24,11 @@ The complete task prompts are built in. The AI assistant reads the headers, offe
 
 The [rule and generation-prompt directory](../../docs/RULE_LIBRARY.md) includes **12 public-data property tasks**: two measured GAS tasks, five RadonPy computed tasks and five ADEPT computed tasks. Their frozen rules target **high values at Top 10%, 20% and 30%**.
 
-Each source, property and percentage has **two separately usable rules: STCA and WRAcc**. Both methods’ results are returned separately, with scores, a recommended method and the reason for each tier. Accept the recommendation or choose a method yourself. All conditions within a selected rule must hold.
+Each source, property and percentage reports **STCA and WRAcc separately, including rule availability**. Choose an available rule or accept the recommendation; the catalog gives scores and the reason for each recommendation. All conditions within a selected rule must hold.
 
-AS (Average Score) follows the definition introduced and used for screening validation in the [STCA paper](https://doi.org/10.1038/s41524-026-02345-x): the arithmetic mean of MCC, Precision and F1. The primary method is chosen using grouped cross-validation AS, the mean of Precision, F1 and MCC. WRAcc is recommended only when its AS exceeds STCA by more than 0.02; otherwise STCA is retained. These scores describe evaluation within the source data; they do not guarantee a new candidate's property value.
+For RadonPy dielectric constant at Top 20%, the current STCA result has no valid rule; the WRAcc rule is available. The catalog marks this status rather than offering an empty rule.
+
+See the [current rules and screening scores](current_rule_metrics.csv) for each task and percentage. Recommendations use the average screening score introduced in the [STCA paper](https://doi.org/10.1038/s41524-026-02345-x). The assistant explains the comparison; you can say “Use the recommended method” or select STCA or WRAcc. See the [usage guide](../../docs/USAGE.md#learn-rules-and-receive-screening-results) for the score definition and recommendation policy.
 
 When learning from your own data, WRAcc selects its condition-count limit within training data by default. You can also request “at most 10 conditions” or “no condition-count limit.”
 
@@ -38,14 +40,14 @@ Upload your candidate table, then use one of these requests:
 
 | Goal | A request to start with |
 |---|---|
-| High CO₂ permeability | “Use the measured GAS high-CO₂-permeability Top 10% rule, with the primary STCA method, to screen this table.” |
-| High O₂ permeability | “Screen these candidates with the measured GAS high-O₂-permeability Top 10% STCA rule.” |
-| High specific heat | “Use RadonPy's high-specific-heat Top 10% STCA rule to screen my candidates.” |
-| High dielectric constant | “Use ADEPT's high-dielectric-constant Top 20% WRAcc rule to screen this table.” |
+| High CO₂ permeability | “Use the recommended measured GAS high-CO₂-permeability Top 10% rule to screen this table.” |
+| High O₂ permeability | “Screen these candidates with the recommended measured GAS high-O₂-permeability Top 10% rule.” |
+| High specific heat | “Use RadonPy's recommended high-specific-heat Top 10% rule to screen my candidates.” |
+| High dielectric constant | “Use ADEPT's recommended high-dielectric-constant Top 20% rule to screen this table.” |
 
-STCA is primary for the first three examples; WRAcc is primary for the ADEPT dielectric example. You can ask to see both methods' scores before choosing. High and low dielectric constant are different objectives; learn from your own data if you need the low direction.
+The catalog supplies the current recommendation for the selected task. Ask to see both methods' scores if you want to choose yourself. High and low dielectric constant are different objectives; learn from your own data if you need the low direction.
 
-For generation, ask to see the available rules, or specify the source, property, percentage and method directly. For example: “Choose ADEPT high dielectric constant, Top 20%, WRAcc; generate 20 candidates directly and verify them.” To review first, say “Show me the complete prompt before generating”; you can adjust it, then say “Confirm and generate.” The current LLM generates the candidates in either mode.
+For generation, ask to see the available rules, or specify the source, property, percentage and method directly. For example: “Use the recommended ADEPT high-dielectric-constant Top 20% rule; generate 20 candidates directly and verify them.” To review first, say “Show me the complete prompt before generating”; you can adjust it, then say “Confirm and generate.” The current LLM generates the candidates in either mode.
 
 ## Data sources and fields
 
@@ -82,13 +84,15 @@ Your own learning data needs structures and numeric property values. Supply unit
 
 Learning requires an explicitly bound **structure column, numeric property column and unit**. You can name them in your request. For a recognized source such as the RadonPy example below, the mapping is already supplied; otherwise the assistant reads the headers and displays the columns, target meaning and unit it will use before learning. If more than one column could mean the target—such as measured versus calculated density, different temperatures, or a mean versus a minimum/maximum—it asks you to choose first. Your explicit column names take precedence. Numeric ranges alone do not establish a column's meaning. Screening with an existing rule needs the structure column, without property labels for the candidates.
 
-Upload the original repeat-unit SMILES **with their `*` attachment points retained**. STCA keeps that original text and creates a separate calculation copy: supported terminal single-bond attachment atoms are capped with hydrogen (**H-cap**) before fingerprints are calculated. Results return the preserved original SMILES with the same `*` positions. This is not a text replacement or an attempt to infer attachment positions from the capped molecule. Already capped inputs remain as supplied; attachment points are not invented.
+Upload the original repeat-unit SMILES **with their `*` attachment points retained**. STCA keeps that original text and creates a separate calculation copy: supported terminal single-bond attachment atoms are capped with hydrogen (**H-cap**) before fingerprints are calculated. Results return the preserved original SMILES with the same `*` positions. This is not a text replacement or an attempt to infer attachment positions from the capped molecule. Already capped inputs remain as supplied; attachment points are not invented. Different original attachment patterns remain separate records even when their H-cap calculation copies coincide.
 
 | Uploaded original | H-cap calculation copy | Returned structure |
 |---|---|---|
 | `*CCO*` | `CCO` | `*CCO*` |
 
 ## Learn, save and continue
+
+Each percentage independently selects its data preparation and scan settings. With the same input, version and settings, requesting a percentage alone or together with others gives the same result for that percentage.
 
 After learning, STCA returns rules, physical cutoffs and **a separate screening result for each method at every requested tier**. The original uploaded table is screened by default. If you also upload an independent candidate table, its screening results are returned separately.
 

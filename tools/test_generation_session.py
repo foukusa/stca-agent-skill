@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 
 SKILL = Path(os.environ.get("STCA_TEST_SKILL_DIR", Path(__file__).resolve().parents[1] / "skills/stca"))
@@ -156,6 +157,105 @@ class GenerationSessionTest(unittest.TestCase):
         current = run(["status", "--session", str(self.output), "--include-prompt"])
         self.assertIn("Use ethers.", current["prompt"])
         self.assertEqual(list(self.output.glob("*.csv")), [])
+
+    def test_prepare_revise_confirm_use_only_exclusive_file_creation(self):
+        original_open = Path.open
+        denied = PermissionError('Simulated create-only workspace')
+
+        def create_only(path, mode='r', *args, **kwargs):
+            if any(character in mode for character in 'wa+'):
+                raise denied
+            return original_open(path, mode, *args, **kwargs)
+
+        with mock.patch.object(Path, 'open', new=create_only), \
+             mock.patch.object(Path, 'rename', side_effect=denied), \
+             mock.patch.object(Path, 'replace', side_effect=denied), \
+             mock.patch.object(Path, 'unlink', side_effect=denied), \
+             mock.patch.object(os, 'rename', side_effect=denied), \
+             mock.patch.object(os, 'replace', side_effect=denied), \
+             mock.patch.object(os, 'unlink', side_effect=denied):
+            first = self.prepare()
+            anchor = Path(first['session_path'])
+            original = anchor.read_bytes()
+            confirmed = session.confirm_session(anchor, confirmation_text='Confirm this exact prompt.')
+            self.assertTrue(confirmed['generation_allowed'])
+            self.assertEqual(confirmed['state_sequence'], 2)
+            revised = session.revise_session(anchor, count=8, preferences='Prefer aromatic ethers.')
+            self.assertFalse(revised['generation_allowed'])
+            self.assertEqual(revised['state_sequence'], 3)
+            # Even an old handle resolves the latest unconfirmed revision.
+            self.assertFalse(session.session_status(confirmed['session_path'])['generation_allowed'])
+            approved = session.confirm_session(first['session_path'], confirmation_text='Confirm the eight candidates.')
+            self.assertTrue(approved['generation_allowed'])
+            self.assertEqual(approved['state_sequence'], 4)
+            self.assertEqual(approved['approved_revision'], 2)
+            self.assertEqual(anchor.read_bytes(), original)
+            self.assertFalse((self.output/'session.json.tmp').exists())
+            direct = session.prepare_session([self.constraint], self.root/'direct-generation', mode='direct')
+            self.assertTrue(direct['generation_allowed'])
+            self.assertTrue(session.session_status(direct['session_path'])['generation_allowed'])
+
+    def test_legacy_session_reads_and_migrates_without_overwriting_anchor(self):
+        initial = self.prepare()
+        anchor = Path(initial['session_path'])
+        legacy = json.loads(anchor.read_text())
+        legacy.pop('state_sequence'); legacy.pop('previous_state_sha256')
+        anchor.write_text(json.dumps(legacy), encoding='utf-8')
+        original = anchor.read_bytes()
+        self.assertFalse(session.session_status(anchor)['generation_allowed'])
+        updated = session.confirm_session(anchor, confirmation_text='Proceed.')
+        self.assertEqual(updated['state_sequence'], 2)
+        self.assertEqual(anchor.read_bytes(), original)
+        self.assertTrue(session.session_status(anchor)['generation_allowed'])
+
+    def test_interrupted_revision_never_falls_back_to_previous_approval(self):
+        initial = self.prepare('direct')
+        anchor = Path(initial['session_path'])
+        original = anchor.read_bytes()
+        error = PermissionError(13, 'Actual simulated prompt creation denial', str(self.output/'prompt-revision-0002.md'))
+        with mock.patch.object(session, '_write_prompt', side_effect=error):
+            with self.assertRaisesRegex(PermissionError, 'Actual simulated prompt creation denial'):
+                session.revise_session(anchor, count=7)
+        self.assertEqual(anchor.read_bytes(), original)
+        self.assertTrue((self.output/'session-intent-00000002.json').is_file())
+        with self.assertRaisesRegex(ValueError, 'update is incomplete'):
+            session.session_status(anchor)
+
+    def test_changed_state_history_is_rejected(self):
+        initial = self.prepare()
+        confirmed = session.confirm_session(self.output, confirmation_text='Confirm.')
+        revised = session.revise_session(self.output, count=5)
+        earlier = Path(confirmed['session_path'])
+        value = json.loads(earlier.read_text()); value['requested_count'] = 999
+        earlier.write_text(json.dumps(value), encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'state history changed'):
+            session.session_status(revised['session_path'])
+
+    def test_state_creation_failure_preserves_error_and_prevents_stale_approval(self):
+        initial = self.prepare()
+        original = Path(initial['session_path']).read_bytes()
+        original_open = Path.open
+
+        def deny_state(path, mode='r', *args, **kwargs):
+            if path.name.startswith('session-state-') and mode == 'xb':
+                raise PermissionError(13, 'Specific denied state snapshot', str(path))
+            return original_open(path, mode, *args, **kwargs)
+
+        with mock.patch.object(Path, 'open', new=deny_state):
+            with self.assertRaisesRegex(PermissionError, 'Specific denied state snapshot'):
+                session.confirm_session(self.output, confirmation_text='Confirm.')
+        self.assertEqual(Path(initial['session_path']).read_bytes(), original)
+        with self.assertRaisesRegex(ValueError, 'update is incomplete'):
+            session.session_status(initial['session_path'])
+
+    def test_legacy_pending_update_is_not_ignored_or_deleted(self):
+        initial = self.prepare('direct')
+        pending = self.output/'session.json.tmp'
+        pending.write_text('{"unfinished":true}',encoding='utf-8')
+        with mock.patch.object(Path,'unlink',side_effect=AssertionError('Must preserve pending legacy state')):
+            with self.assertRaisesRegex(ValueError,'legacy generation session update is incomplete'):
+                session.session_status(initial['session_path'])
+        self.assertTrue(pending.is_file())
 
 
 if __name__ == "__main__":

@@ -1,100 +1,93 @@
 # STCA rule and prompt library
 
-Tg 与电导率规则来自作者的 [STCA 论文实现](https://doi.org/10.1038/s41524-026-02345-x)，可直接选择相应性质与档位，用于筛选或引导生成。
+Choose a source, property and percentage. Each exact rule is an AND conjunction; recommended and alternative methods remain separate.
 
+Version 0.1.0. 83 catalog results: 11 STCA paper rules and 72 current open-data method results. There are 82 applicable rules and one unavailable STCA result (RadonPy dielectric constant, Top 20%); its WRAcc alternative is available.
 
-83 visible choices from 149 retained frozen entries. Version 0.1.0.
+Current open-data rules preserve original polymer connection graphs and prepare each percentage independently. Physical boundaries describe the training objective; matching a rule does not measure a candidate's property.
 
-The visible library contains 11 published-profile rules and 72 supplied full-data rules: 12 datasets × 3 target tiers × 2 learners. Select a dataset, learner and tier explicitly. Each rule is an exact AND conjunction; primary/alternative denotes learner choice by grouped cross-validation and does not merge their conditions.
-
-The latest 36 dataset/tier choices have 15 STCA and 21 WRAcc primary rules. The other 36 learner rules remain visible as alternatives. CV mean/SD, full-data screening support and optional extrapolation evidence are separate. Physical cutoffs define training-label boundaries, not property predictions or coverage guarantees.
-
-The 66 older non-paper entries retain their IDs, files and original evidence for explicit compatibility lookup; they are marked legacy and hidden from default menus. Their extrapolation or historical zero-coverage statuses do not apply to the new full-data rules.
-
-| Rule ID | Dataset / target | Learner / role | Tier / physical boundary | CV AS | Full-data selected |
-|---|---|---|---|---:|---:|
-| `paper-tg-high-30` | STCA paper · Glass-transition temperature | STCA published profile | Top 30% | published evidence | — |
-| `paper-tg-high-20` | STCA paper · Glass-transition temperature | STCA published profile | Top 20% | published evidence | — |
-| `paper-tg-high-10` | STCA paper · Glass-transition temperature | STCA published profile | Top 10% | published evidence | — |
-| `paper-ec-low-20` | STCA paper · Electrical conductivity | STCA published profile | Bottom 20% | published evidence | — |
-| `paper-ec-low-15` | STCA paper · Electrical conductivity | STCA published profile | Bottom 15% | published evidence | — |
-| `paper-ec-low-10` | STCA paper · Electrical conductivity | STCA published profile | Bottom 10% | published evidence | — |
-| `paper-ec-low-5` | STCA paper · Electrical conductivity | STCA published profile | Bottom 5% | published evidence | — |
-| `paper-ec-high-20` | STCA paper · Electrical conductivity | STCA published profile | Top 20% | published evidence | — |
-| `paper-ec-high-15` | STCA paper · Electrical conductivity | STCA published profile | Top 15% | published evidence | — |
-| `paper-ec-high-10` | STCA paper · Electrical conductivity | STCA published profile | Top 10% | published evidence | — |
-| `paper-ec-high-5` | STCA paper · Electrical conductivity | STCA published profile | Top 5% | published evidence | — |
-| `latest-gas-co2-stca-high-30` | GAS_CO2 · CO2 permeability | STCA / primary | Top 30%; ≥ 526.9799741241644 Barrer | 0.602 ± 0.039 | 69 |
-| `latest-gas-co2-wracc-high-30` | GAS_CO2 · CO2 permeability | WRAcc / alternative | Top 30%; ≥ 526.9799741241644 Barrer | 0.600 ± 0.023 | 88 |
-| `latest-gas-co2-stca-high-20` | GAS_CO2 · CO2 permeability | STCA / primary | Top 20%; ≥ 2199.9999999999995 Barrer | 0.609 ± 0.016 | 32 |
-| `latest-gas-co2-wracc-high-20` | GAS_CO2 · CO2 permeability | WRAcc / alternative | Top 20%; ≥ 2199.9999999999995 Barrer | 0.541 ± 0.019 | 85 |
-| `latest-gas-co2-stca-high-10` | GAS_CO2 · CO2 permeability | STCA / primary | Top 10%; ≥ 5309.630036708536 Barrer | 0.635 ± 0.078 | 32 |
-| `latest-gas-co2-wracc-high-10` | GAS_CO2 · CO2 permeability | WRAcc / alternative | Top 10%; ≥ 5309.630036708536 Barrer | 0.542 ± 0.032 | 35 |
-| `latest-gas-o2-stca-high-30` | GAS_O2 · O2 permeability | STCA / primary | Top 30%; ≥ 60.7285939633838 Barrer | 0.638 ± 0.024 | 85 |
-| `latest-gas-o2-wracc-high-30` | GAS_O2 · O2 permeability | WRAcc / alternative | Top 30%; ≥ 60.7285939633838 Barrer | 0.635 ± 0.040 | 116 |
-| `latest-gas-o2-stca-high-20` | GAS_O2 · O2 permeability | STCA / primary | Top 20%; ≥ 203.080764076594 Barrer | 0.582 ± 0.034 | 22 |
-| `latest-gas-o2-wracc-high-20` | GAS_O2 · O2 permeability | WRAcc / alternative | Top 20%; ≥ 203.080764076594 Barrer | 0.600 ± 0.026 | 87 |
-| `latest-gas-o2-stca-high-10` | GAS_O2 · O2 permeability | STCA / primary | Top 10%; ≥ 967.4524402529456 Barrer | 0.729 ± 0.038 | 22 |
-| `latest-gas-o2-wracc-high-10` | GAS_O2 · O2 permeability | WRAcc / alternative | Top 10%; ≥ 967.4524402529456 Barrer | 0.466 ± 0.010 | 68 |
-| `latest-pi-tc-stca-high-30` | PI_TC · Thermal conductivity | STCA / primary | Top 30%; ≥ 0.2582924293999999 W/(m K) | 0.520 ± 0.025 | 172 |
-| `latest-pi-tc-wracc-high-30` | PI_TC · Thermal conductivity | WRAcc / alternative | Top 30%; ≥ 0.2582924293999999 W/(m K) | 0.460 ± 0.008 | 605 |
-| `latest-pi-tc-stca-high-20` | PI_TC · Thermal conductivity | STCA / primary | Top 20%; ≥ 0.277747882 W/(m K) | 0.509 ± 0.028 | 163 |
-| `latest-pi-tc-wracc-high-20` | PI_TC · Thermal conductivity | WRAcc / alternative | Top 20%; ≥ 0.277747882 W/(m K) | 0.479 ± 0.006 | 216 |
-| `latest-pi-tc-stca-high-10` | PI_TC · Thermal conductivity | STCA / primary | Top 10%; ≥ 0.3089501144 W/(m K) | 0.344 ± 0.012 | 163 |
-| `latest-pi-tc-wracc-high-10` | PI_TC · Thermal conductivity | WRAcc / alternative | Top 10%; ≥ 0.3089501144 W/(m K) | 0.278 ± 0.047 | 180 |
-| `latest-pi-ri-stca-high-30` | PI_RI · Refractive index | STCA / alternative | Top 30%; ≥ 1.5912610684 1 | 0.643 ± 0.016 | 300 |
-| `latest-pi-ri-wracc-high-30` | PI_RI · Refractive index | WRAcc / primary | Top 30%; ≥ 1.5912610684 1 | 0.701 ± 0.009 | 417 |
-| `latest-pi-ri-stca-high-20` | PI_RI · Refractive index | STCA / alternative | Top 20%; ≥ 1.63051903 1 | 0.595 ± 0.010 | 189 |
-| `latest-pi-ri-wracc-high-20` | PI_RI · Refractive index | WRAcc / primary | Top 20%; ≥ 1.63051903 1 | 0.672 ± 0.011 | 296 |
-| `latest-pi-ri-stca-high-10` | PI_RI · Refractive index | STCA / alternative | Top 10%; ≥ 1.6695841006 1 | 0.465 ± 0.003 | 189 |
-| `latest-pi-ri-wracc-high-10` | PI_RI · Refractive index | WRAcc / primary | Top 10%; ≥ 1.6695841006 1 | 0.614 ± 0.026 | 171 |
-| `latest-pi-rho-stca-high-30` | PI_RHO · Density | STCA / alternative | Top 30%; ≥ 1.222343047 g/cm3 | 0.582 ± 0.017 | 135 |
-| `latest-pi-rho-wracc-high-30` | PI_RHO · Density | WRAcc / primary | Top 30%; ≥ 1.222343047 g/cm3 | 0.677 ± 0.003 | 408 |
-| `latest-pi-rho-stca-high-20` | PI_RHO · Density | STCA / primary | Top 20%; ≥ 1.264285557 g/cm3 | 0.568 ± 0.012 | 135 |
-| `latest-pi-rho-wracc-high-20` | PI_RHO · Density | WRAcc / alternative | Top 20%; ≥ 1.264285557 g/cm3 | 0.544 ± 0.001 | 366 |
-| `latest-pi-rho-stca-high-10` | PI_RHO · Density | STCA / alternative | Top 10%; ≥ 1.308883696 g/cm3 | 0.522 ± 0.008 | 135 |
-| `latest-pi-rho-wracc-high-10` | PI_RHO · Density | WRAcc / primary | Top 10%; ≥ 1.308883696 g/cm3 | 0.605 ± 0.002 | 172 |
-| `latest-pi-cp-stca-high-30` | PI_CP · Specific heat | STCA / alternative | Top 30%; ≥ 3450.9014262 J/(kg K) | 0.627 ± 0.004 | 229 |
-| `latest-pi-cp-wracc-high-30` | PI_CP · Specific heat | WRAcc / primary | Top 30%; ≥ 3450.9014262 J/(kg K) | 0.685 ± 0.008 | 466 |
-| `latest-pi-cp-stca-high-20` | PI_CP · Specific heat | STCA / alternative | Top 20%; ≥ 3697.8346674 J/(kg K) | 0.553 ± 0.004 | 123 |
-| `latest-pi-cp-wracc-high-20` | PI_CP · Specific heat | WRAcc / primary | Top 20%; ≥ 3697.8346674 J/(kg K) | 0.641 ± 0.015 | 271 |
-| `latest-pi-cp-stca-high-10` | PI_CP · Specific heat | STCA / primary | Top 10%; ≥ 4069.3747128 J/(kg K) | 0.657 ± 0.021 | 109 |
-| `latest-pi-cp-wracc-high-10` | PI_CP · Specific heat | WRAcc / alternative | Top 10%; ≥ 4069.3747128 J/(kg K) | 0.512 ± 0.010 | 234 |
-| `latest-pi-dc-stca-high-30` | PI_DC · Dielectric constant | STCA / alternative | Top 30%; ≥ 3.0140665484 1 | 0.298 ± 0.020 | 480 |
-| `latest-pi-dc-wracc-high-30` | PI_DC · Dielectric constant | WRAcc / primary | Top 30%; ≥ 3.0140665484 1 | 0.504 ± 0.015 | 355 |
-| `latest-pi-dc-stca-high-20` | PI_DC · Dielectric constant | STCA / alternative | Top 20%; ≥ 3.1726934324 1 | 0.200 ± 0.032 | 480 |
-| `latest-pi-dc-wracc-high-20` | PI_DC · Dielectric constant | WRAcc / primary | Top 20%; ≥ 3.1726934324 1 | 0.435 ± 0.009 | 300 |
-| `latest-pi-dc-stca-high-10` | PI_DC · Dielectric constant | STCA / alternative | Top 10%; ≥ 3.8002543686 1 | 0.157 ± 0.006 | 55 |
-| `latest-pi-dc-wracc-high-10` | PI_DC · Dielectric constant | WRAcc / primary | Top 10%; ≥ 3.8002543686 1 | 0.474 ± 0.019 | 158 |
-| `latest-ad-tc-stca-high-30` | AD_TC · Thermal conductivity | STCA / alternative | Top 30%; ≥ 0.272 W/(m K) | 0.428 ± 0.017 | 1092 |
-| `latest-ad-tc-wracc-high-30` | AD_TC · Thermal conductivity | WRAcc / primary | Top 30%; ≥ 0.272 W/(m K) | 0.581 ± 0.006 | 746 |
-| `latest-ad-tc-stca-high-20` | AD_TC · Thermal conductivity | STCA / alternative | Top 20%; ≥ 0.307 W/(m K) | 0.364 ± 0.019 | 1092 |
-| `latest-ad-tc-wracc-high-20` | AD_TC · Thermal conductivity | WRAcc / primary | Top 20%; ≥ 0.307 W/(m K) | 0.495 ± 0.003 | 580 |
-| `latest-ad-tc-stca-high-10` | AD_TC · Thermal conductivity | STCA / alternative | Top 10%; ≥ 0.354 W/(m K) | 0.218 ± 0.023 | 1092 |
-| `latest-ad-tc-wracc-high-10` | AD_TC · Thermal conductivity | WRAcc / primary | Top 10%; ≥ 0.354 W/(m K) | 0.252 ± 0.009 | 842 |
-| `latest-ad-rho-stca-high-30` | AD_RHO · Density | STCA / primary | Top 30%; ≥ 1.1357978 g/cm3 | 0.584 ± 0.012 | 298 |
-| `latest-ad-rho-wracc-high-30` | AD_RHO · Density | WRAcc / alternative | Top 30%; ≥ 1.1357978 g/cm3 | 0.576 ± 0.004 | 652 |
-| `latest-ad-rho-stca-high-20` | AD_RHO · Density | STCA / primary | Top 20%; ≥ 1.1933408 g/cm3 | 0.583 ± 0.011 | 298 |
-| `latest-ad-rho-wracc-high-20` | AD_RHO · Density | WRAcc / alternative | Top 20%; ≥ 1.1933408 g/cm3 | 0.483 ± 0.003 | 652 |
-| `latest-ad-rho-stca-high-10` | AD_RHO · Density | STCA / primary | Top 10%; ≥ 1.2680314 g/cm3 | 0.605 ± 0.007 | 143 |
-| `latest-ad-rho-wracc-high-10` | AD_RHO · Density | WRAcc / alternative | Top 10%; ≥ 1.2680314 g/cm3 | 0.561 ± 0.009 | 290 |
-| `latest-ad-gap-stca-high-30` | AD_GAP · Isolated-monomer HOMO-LUMO gap | STCA / alternative | Top 30%; ≥ 11.973042956 eV | 0.616 ± 0.005 | 899 |
-| `latest-ad-gap-wracc-high-30` | AD_GAP · Isolated-monomer HOMO-LUMO gap | WRAcc / primary | Top 30%; ≥ 11.973042956 eV | 0.766 ± 0.002 | 1086 |
-| `latest-ad-gap-stca-high-20` | AD_GAP · Isolated-monomer HOMO-LUMO gap | STCA / alternative | Top 20%; ≥ 12.52710563 eV | 0.499 ± 0.035 | 899 |
-| `latest-ad-gap-wracc-high-20` | AD_GAP · Isolated-monomer HOMO-LUMO gap | WRAcc / primary | Top 20%; ≥ 12.52710563 eV | 0.725 ± 0.001 | 848 |
-| `latest-ad-gap-stca-high-10` | AD_GAP · Isolated-monomer HOMO-LUMO gap | STCA / primary | Top 10%; ≥ 12.902463866 eV | 0.460 ± 0.006 | 121 |
-| `latest-ad-gap-wracc-high-10` | AD_GAP · Isolated-monomer HOMO-LUMO gap | WRAcc / alternative | Top 10%; ≥ 12.902463866 eV | 0.437 ± 0.001 | 848 |
-| `latest-ad-dc-stca-high-30` | AD_DC · Dielectric constant | STCA / alternative | Top 30%; ≥ 2.7478344 1 | 0.269 ± 0.021 | 3 |
-| `latest-ad-dc-wracc-high-30` | AD_DC · Dielectric constant | WRAcc / primary | Top 30%; ≥ 2.7478344 1 | 0.478 ± 0.014 | 301 |
-| `latest-ad-dc-stca-high-20` | AD_DC · Dielectric constant | STCA / alternative | Top 20%; ≥ 2.961622 1 | 0.231 ± 0.057 | 2 |
-| `latest-ad-dc-wracc-high-20` | AD_DC · Dielectric constant | WRAcc / primary | Top 20%; ≥ 2.961622 1 | 0.376 ± 0.024 | 273 |
-| `latest-ad-dc-stca-high-10` | AD_DC · Dielectric constant | STCA / alternative | Top 10%; ≥ 3.331636600000001 1 | 0.211 ± 0.117 | 2 |
-| `latest-ad-dc-wracc-high-10` | AD_DC · Dielectric constant | WRAcc / primary | Top 10%; ≥ 3.331636600000001 1 | 0.239 ± 0.021 | 189 |
-| `latest-ad-ri-stca-high-30` | AD_RI · Refractive index | STCA / alternative | Top 30%; ≥ 1.5128804 1 | 0.588 ± 0.043 | 310 |
-| `latest-ad-ri-wracc-high-30` | AD_RI · Refractive index | WRAcc / primary | Top 30%; ≥ 1.5128804 1 | 0.645 ± 0.002 | 267 |
-| `latest-ad-ri-stca-high-20` | AD_RI · Refractive index | STCA / alternative | Top 20%; ≥ 1.5359912 1 | 0.485 ± 0.021 | 310 |
-| `latest-ad-ri-wracc-high-20` | AD_RI · Refractive index | WRAcc / primary | Top 20%; ≥ 1.5359912 1 | 0.682 ± 0.016 | 169 |
-| `latest-ad-ri-stca-high-10` | AD_RI · Refractive index | STCA / alternative | Top 10%; ≥ 1.5686904000000002 1 | 0.333 ± 0.023 | 281 |
-| `latest-ad-ri-wracc-high-10` | AD_RI · Refractive index | WRAcc / primary | Top 10%; ≥ 1.5686904000000002 1 | 0.437 ± 0.006 | 169 |
-
-Latest source evidence is in `evidence/latest_20261108/`. Its native model is available only for AD_GAP; the 72 exact exported conjunctions are directly usable frozen rules and are not reconstructed native STCA/WRAcc models. Fold models and fold constraints were not supplied.
+| Rule ID | Source / property | Method | Percentage / boundary | Role |
+|---|---|---|---|---|
+| `paper-tg-high-30` | STCA paper / Glass-transition temperature | STCA | Top 30%; >= 204 degC | paper rule |
+| `paper-tg-high-20` | STCA paper / Glass-transition temperature | STCA | Top 20%; >= 238 degC | paper rule |
+| `paper-tg-high-10` | STCA paper / Glass-transition temperature | STCA | Top 10%; >= 275 degC | paper rule |
+| `paper-ec-low-20` | STCA paper / Electrical conductivity | STCA | Bottom 20%; <= 1.689999982e-13 S/cm | paper rule |
+| `paper-ec-low-15` | STCA paper / Electrical conductivity | STCA | Bottom 15%; <= 2.243078228e-14 S/cm | paper rule |
+| `paper-ec-low-10` | STCA paper / Electrical conductivity | STCA | Bottom 10%; <= 1.899999996e-15 S/cm | paper rule |
+| `paper-ec-low-5` | STCA paper / Electrical conductivity | STCA | Bottom 5%; <= 1.048808854e-16 S/cm | paper rule |
+| `paper-ec-high-20` | STCA paper / Electrical conductivity | STCA | Top 20%; >= 5.400000002e-05 S/cm | paper rule |
+| `paper-ec-high-15` | STCA paper / Electrical conductivity | STCA | Top 15%; >= 0.0003411378021 S/cm | paper rule |
+| `paper-ec-high-10` | STCA paper / Electrical conductivity | STCA | Top 10%; >= 0.004199999996 S/cm | paper rule |
+| `paper-ec-high-5` | STCA paper / Electrical conductivity | STCA | Top 5%; >= 0.0890772137 S/cm | paper rule |
+| `current-gas-co2-stca-high-10` | GAS_CO2 / CO2 permeability | STCA | Top 10%; >= 7140 Barrer | alternative |
+| `current-gas-co2-wracc-high-10` | GAS_CO2 / CO2 permeability | WRAcc | Top 10%; >= 7140 Barrer | primary |
+| `current-gas-co2-stca-high-20` | GAS_CO2 / CO2 permeability | STCA | Top 20%; >= 2390 Barrer | alternative |
+| `current-gas-co2-wracc-high-20` | GAS_CO2 / CO2 permeability | WRAcc | Top 20%; >= 2390 Barrer | primary |
+| `current-gas-co2-stca-high-30` | GAS_CO2 / CO2 permeability | STCA | Top 30%; >= 634.2105263 Barrer | alternative |
+| `current-gas-co2-wracc-high-30` | GAS_CO2 / CO2 permeability | WRAcc | Top 30%; >= 634.2105263 Barrer | primary |
+| `current-gas-o2-stca-high-10` | GAS_O2 / O2 permeability | STCA | Top 10%; >= 1339.402852 Barrer | alternative |
+| `current-gas-o2-wracc-high-10` | GAS_O2 / O2 permeability | WRAcc | Top 10%; >= 1339.402852 Barrer | primary |
+| `current-gas-o2-stca-high-20` | GAS_O2 / O2 permeability | STCA | Top 20%; >= 439.3983569 Barrer | alternative |
+| `current-gas-o2-wracc-high-20` | GAS_O2 / O2 permeability | WRAcc | Top 20%; >= 439.3983569 Barrer | primary |
+| `current-gas-o2-stca-high-30` | GAS_O2 / O2 permeability | STCA | Top 30%; >= 76.3997389 Barrer | alternative |
+| `current-gas-o2-wracc-high-30` | GAS_O2 / O2 permeability | WRAcc | Top 30%; >= 76.3997389 Barrer | primary |
+| `current-pi-tc-stca-high-10` | PI_TC / Thermal conductivity | STCA | Top 10%; >= 0.3098994358 W/(m K) | alternative |
+| `current-pi-tc-wracc-high-10` | PI_TC / Thermal conductivity | WRAcc | Top 10%; >= 0.3098994358 W/(m K) | primary |
+| `current-pi-tc-stca-high-20` | PI_TC / Thermal conductivity | STCA | Top 20%; >= 0.277747882 W/(m K) | alternative |
+| `current-pi-tc-wracc-high-20` | PI_TC / Thermal conductivity | WRAcc | Top 20%; >= 0.277747882 W/(m K) | primary |
+| `current-pi-tc-stca-high-30` | PI_TC / Thermal conductivity | STCA | Top 30%; >= 0.2586913575 W/(m K) | alternative |
+| `current-pi-tc-wracc-high-30` | PI_TC / Thermal conductivity | WRAcc | Top 30%; >= 0.2586913575 W/(m K) | primary |
+| `current-pi-ri-stca-high-10` | PI_RI / Refractive index | STCA | Top 10%; >= 1.671039499 1 | alternative |
+| `current-pi-ri-wracc-high-10` | PI_RI / Refractive index | WRAcc | Top 10%; >= 1.671039499 1 | primary |
+| `current-pi-ri-stca-high-20` | PI_RI / Refractive index | STCA | Top 20%; >= 1.631549914 1 | alternative |
+| `current-pi-ri-wracc-high-20` | PI_RI / Refractive index | WRAcc | Top 20%; >= 1.631549914 1 | primary |
+| `current-pi-ri-stca-high-30` | PI_RI / Refractive index | STCA | Top 30%; >= 1.591863746 1 | alternative |
+| `current-pi-ri-wracc-high-30` | PI_RI / Refractive index | WRAcc | Top 30%; >= 1.591863746 1 | primary |
+| `current-pi-rho-stca-high-10` | PI_RHO / Density | STCA | Top 10%; >= 1.307512211 g/cm3 | alternative |
+| `current-pi-rho-wracc-high-10` | PI_RHO / Density | WRAcc | Top 10%; >= 1.307512211 g/cm3 | primary |
+| `current-pi-rho-stca-high-20` | PI_RHO / Density | STCA | Top 20%; >= 1.265451171 g/cm3 | alternative |
+| `current-pi-rho-wracc-high-20` | PI_RHO / Density | WRAcc | Top 20%; >= 1.265451171 g/cm3 | primary |
+| `current-pi-rho-stca-high-30` | PI_RHO / Density | STCA | Top 30%; >= 1.222080875 g/cm3 | alternative |
+| `current-pi-rho-wracc-high-30` | PI_RHO / Density | WRAcc | Top 30%; >= 1.222080875 g/cm3 | primary |
+| `current-pi-cp-stca-high-10` | PI_CP / Specific heat | STCA | Top 10%; >= 4095.394701 J/(kg K) | primary |
+| `current-pi-cp-wracc-high-10` | PI_CP / Specific heat | WRAcc | Top 10%; >= 4095.394701 J/(kg K) | alternative |
+| `current-pi-cp-stca-high-20` | PI_CP / Specific heat | STCA | Top 20%; >= 3708.270525 J/(kg K) | alternative |
+| `current-pi-cp-wracc-high-20` | PI_CP / Specific heat | WRAcc | Top 20%; >= 3708.270525 J/(kg K) | primary |
+| `current-pi-cp-stca-high-30` | PI_CP / Specific heat | STCA | Top 30%; >= 3458.801419 J/(kg K) | alternative |
+| `current-pi-cp-wracc-high-30` | PI_CP / Specific heat | WRAcc | Top 30%; >= 3458.801419 J/(kg K) | primary |
+| `current-pi-dc-stca-high-10` | PI_DC / Dielectric constant | STCA | Top 10%; >= 3.672201564 1 | alternative |
+| `current-pi-dc-wracc-high-10` | PI_DC / Dielectric constant | WRAcc | Top 10%; >= 3.672201564 1 | primary |
+| `current-pi-dc-stca-high-20` | PI_DC / Dielectric constant | STCA | Top 20%; >= 3.160277715 1 | no valid rule; generation unavailable |
+| `current-pi-dc-wracc-high-20` | PI_DC / Dielectric constant | WRAcc | Top 20%; >= 3.160277715 1 | primary |
+| `current-pi-dc-stca-high-30` | PI_DC / Dielectric constant | STCA | Top 30%; >= 3.010841517 1 | primary |
+| `current-pi-dc-wracc-high-30` | PI_DC / Dielectric constant | WRAcc | Top 30%; >= 3.010841517 1 | alternative |
+| `current-ad-tc-stca-high-10` | AD_TC / Thermal conductivity | STCA | Top 10%; >= 0.356 W/(m K) | alternative |
+| `current-ad-tc-wracc-high-10` | AD_TC / Thermal conductivity | WRAcc | Top 10%; >= 0.356 W/(m K) | primary |
+| `current-ad-tc-stca-high-20` | AD_TC / Thermal conductivity | STCA | Top 20%; >= 0.308 W/(m K) | primary |
+| `current-ad-tc-wracc-high-20` | AD_TC / Thermal conductivity | WRAcc | Top 20%; >= 0.308 W/(m K) | alternative |
+| `current-ad-tc-stca-high-30` | AD_TC / Thermal conductivity | STCA | Top 30%; >= 0.272 W/(m K) | alternative |
+| `current-ad-tc-wracc-high-30` | AD_TC / Thermal conductivity | WRAcc | Top 30%; >= 0.272 W/(m K) | primary |
+| `current-ad-rho-stca-high-10` | AD_RHO / Density | STCA | Top 10%; >= 1.2675096 g/cm3 | primary |
+| `current-ad-rho-wracc-high-10` | AD_RHO / Density | WRAcc | Top 10%; >= 1.2675096 g/cm3 | alternative |
+| `current-ad-rho-stca-high-20` | AD_RHO / Density | STCA | Top 20%; >= 1.1927404 g/cm3 | alternative |
+| `current-ad-rho-wracc-high-20` | AD_RHO / Density | WRAcc | Top 20%; >= 1.1927404 g/cm3 | primary |
+| `current-ad-rho-stca-high-30` | AD_RHO / Density | STCA | Top 30%; >= 1.13529403 g/cm3 | primary |
+| `current-ad-rho-wracc-high-30` | AD_RHO / Density | WRAcc | Top 30%; >= 1.13529403 g/cm3 | alternative |
+| `current-ad-gap-stca-high-10` | AD_GAP / H-capped isolated-monomer HOMO–LUMO gap | STCA | Top 10%; >= 12.94009876 eV | alternative |
+| `current-ad-gap-wracc-high-10` | AD_GAP / H-capped isolated-monomer HOMO–LUMO gap | WRAcc | Top 10%; >= 12.94009876 eV | primary |
+| `current-ad-gap-stca-high-20` | AD_GAP / H-capped isolated-monomer HOMO–LUMO gap | STCA | Top 20%; >= 12.57122579 eV | alternative |
+| `current-ad-gap-wracc-high-20` | AD_GAP / H-capped isolated-monomer HOMO–LUMO gap | WRAcc | Top 20%; >= 12.57122579 eV | primary |
+| `current-ad-gap-stca-high-30` | AD_GAP / H-capped isolated-monomer HOMO–LUMO gap | STCA | Top 30%; >= 12.0108438 eV | alternative |
+| `current-ad-gap-wracc-high-30` | AD_GAP / H-capped isolated-monomer HOMO–LUMO gap | WRAcc | Top 30%; >= 12.0108438 eV | primary |
+| `current-ad-dc-stca-high-10` | AD_DC / Dielectric constant | STCA | Top 10%; >= 3.35917 1 | alternative |
+| `current-ad-dc-wracc-high-10` | AD_DC / Dielectric constant | WRAcc | Top 10%; >= 3.35917 1 | primary |
+| `current-ad-dc-stca-high-20` | AD_DC / Dielectric constant | STCA | Top 20%; >= 2.9605954 1 | alternative |
+| `current-ad-dc-wracc-high-20` | AD_DC / Dielectric constant | WRAcc | Top 20%; >= 2.9605954 1 | primary |
+| `current-ad-dc-stca-high-30` | AD_DC / Dielectric constant | STCA | Top 30%; >= 2.7474674 1 | alternative |
+| `current-ad-dc-wracc-high-30` | AD_DC / Dielectric constant | WRAcc | Top 30%; >= 2.7474674 1 | primary |
+| `current-ad-ri-stca-high-10` | AD_RI / Refractive index | STCA | Top 10%; >= 1.5689754 1 | alternative |
+| `current-ad-ri-wracc-high-10` | AD_RI / Refractive index | WRAcc | Top 10%; >= 1.5689754 1 | primary |
+| `current-ad-ri-stca-high-20` | AD_RI / Refractive index | STCA | Top 20%; >= 1.5372859 1 | alternative |
+| `current-ad-ri-wracc-high-20` | AD_RI / Refractive index | WRAcc | Top 20%; >= 1.5372859 1 | primary |
+| `current-ad-ri-stca-high-30` | AD_RI / Refractive index | STCA | Top 30%; >= 1.5129934 1 | alternative |
+| `current-ad-ri-wracc-high-30` | AD_RI / Refractive index | WRAcc | Top 30%; >= 1.5129934 1 | primary |

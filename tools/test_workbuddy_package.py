@@ -4,6 +4,7 @@ import hashlib
 import importlib.util
 import io
 import json
+import lzma
 import os
 import re
 import shutil
@@ -43,7 +44,11 @@ class WorkBuddyPackageTests(unittest.TestCase):
         cls.script = cls.install/'scripts/workbuddy_runtime.py'
         cls.workspace = cls.root/'user workspace';cls.workspace.mkdir()
         outer = json.loads((cls.install/'assets/runtime_payload.json').read_bytes())
-        cls.records = json.loads(zlib.decompress(base64.b64decode(outer['payload'])))['files']
+        if outer['payload_encoding'] == 'lzma+base85':
+            raw = lzma.decompress(base64.b85decode(outer['payload']))
+        else:
+            raw = zlib.decompress(base64.b64decode(outer['payload']))
+        cls.records = json.loads(raw)['files']
 
     @classmethod
     def tearDownClass(cls):
@@ -83,6 +88,59 @@ class WorkBuddyPackageTests(unittest.TestCase):
         self.assertIn('skill_instructions',entry)
         self.assertIn('runtime_skill_dir',entry)
         self.assertNotIn('](assets/rule_library/',entry)
+
+    def test_every_catalog_evidence_resource_is_restored(self):
+        runtime = Path(self.prepare()['runtime_skill_dir'])
+        library = runtime / 'assets/rule_library'
+        catalog = json.loads((library/'catalog.json').read_bytes())
+        checked = 0
+        for entry in catalog['entries']:
+            evidence = entry.get('reference_evaluation', {}).get('evidence_source')
+            if not evidence or evidence.startswith(('https://', 'http://')):
+                continue
+            candidates = [runtime / evidence, library / evidence]
+            resolved = next((path for path in candidates if path.is_file()), None)
+            self.assertIsNotNone(resolved, (entry['id'], evidence))
+            json.loads(resolved.read_bytes())
+            checked += 1
+        self.assertEqual(checked, 83)
+
+    def test_actual_upload_expanded_size_is_within_three_mebibytes(self):
+        with zipfile.ZipFile(self.archive) as archive:
+            expanded = sum(item.file_size for item in archive.infolist())
+        self.assertLessEqual(expanded, 3145728)
+        outer = json.loads((self.install/'assets/runtime_payload.json').read_bytes())
+        self.assertEqual(outer['payload_encoding'], 'lzma+base85')
+        manifest = json.loads((self.install/'assets/platform-release.json').read_bytes())
+        self.assertEqual(manifest['maximum_upload_expanded_bytes'],3145728)
+
+    def test_oversized_upload_is_rejected_by_both_release_guards(self):
+        builder_spec=importlib.util.spec_from_file_location('workbuddy_size_builder',SKILL/'scripts/build_platform_packages.py')
+        builder=importlib.util.module_from_spec(builder_spec);builder_spec.loader.exec_module(builder)
+        with self.assertRaisesRegex(ValueError,'3145728'):
+            builder.validate_workbuddy_size({'asset':b'x'*3145729})
+        with tempfile.TemporaryDirectory() as temp:
+            oversized=Path(temp)/'oversized.zip'
+            with zipfile.ZipFile(oversized,'w',zipfile.ZIP_DEFLATED) as archive:
+                archive.writestr('assets/data',b'x'*3145729)
+            release_spec=importlib.util.spec_from_file_location('release_size_builder',Path(__file__).with_name('build_packages.py'))
+            release=importlib.util.module_from_spec(release_spec);release_spec.loader.exec_module(release)
+            with self.assertRaisesRegex(ValueError,'3145728'):
+                release.validate_workbuddy_archive(oversized)
+
+    def test_legacy_encoding_is_readable_and_new_encoding_rejects_trailing_data(self):
+        runtime=self.loader()
+        copied=self.root/'codec compatibility skill';shutil.copytree(self.install,copied)
+        path=copied/'assets/runtime_payload.json';outer=json.loads(path.read_bytes())
+        raw=lzma.decompress(base64.b85decode(outer['payload']))
+        legacy=dict(outer,payload_encoding='zlib+base64',payload=base64.b64encode(zlib.compress(raw,9)).decode())
+        path.write_text(json.dumps(legacy))
+        expected,files=runtime.load_payload(path)
+        self.assertEqual(expected,outer['payload_sha256']);self.assertEqual(len(files),len(self.records))
+        tampered=dict(outer,payload=base64.b85encode(lzma.compress(raw)+b'trailing').decode())
+        path.write_text(json.dumps(tampered))
+        with self.assertRaisesRegex(ValueError,'trailing data'):
+            runtime.load_payload(path)
 
     def test_upload_and_restored_release_versions_are_consistent(self):
         def declared_version(text):
@@ -128,6 +186,63 @@ class WorkBuddyPackageTests(unittest.TestCase):
         builder=importlib.util.module_from_spec(spec);spec.loader.exec_module(builder)
         with self.assertRaisesRegex(ValueError, 'scripts/missing_runtime.py'):
             builder.validate_workbuddy_entry_resources({'SKILL.md':b'Use `scripts/missing_runtime.py`.'})
+        files={name:(self.install/name).read_bytes() for name in self.names}
+        builder.validate_workbuddy_entry_resources(files)
+        notice=files['THIRD_PARTY_NOTICES.md'].decode()
+        self.assertNotIn('skills/stca/assets/author_source',notice)
+        self.assertIn('`author_source`',notice)
+        self.assertIn('`author_source/LICENSE`',notice)
+        self.assertIn('`author_source/NOTICE`',notice)
+        self.assertIn('`author_source/source_manifest.json`',notice)
+        self.assertIn('`author_source/layout.json`',notice)
+        with self.assertRaisesRegex(ValueError,'author_source/NOTICE'):
+            builder.validate_workbuddy_entry_resources({name:data for name,data in files.items()
+                                                       if name!='author_source/NOTICE'})
+        with self.assertRaisesRegex(ValueError,'author_source'):
+            builder.validate_workbuddy_entry_resources({name:data for name,data in files.items()
+                                                       if not name.startswith('author_source/')})
+
+    def test_visible_author_implementation_is_complete_and_byte_exact(self):
+        layout=json.loads((self.install/'author_source/layout.json').read_bytes())
+        manifest=json.loads((self.install/'author_source/source_manifest.json').read_bytes())
+        original=SKILL/'assets/author_source'
+        self.assertEqual(set(layout['files']),set(manifest['files'])|{'source_manifest.json'})
+        self.assertEqual(len(layout['files']),38)
+        for relative,record in layout['files'].items():
+            visible=(self.install/record['path']).read_bytes()
+            self.assertEqual(hashlib.sha256(visible).hexdigest(),record['stored_sha256'])
+            if record['encoding']=='xz':
+                self.assertTrue(relative.startswith('src/stca/assets/'))
+                visible=lzma.decompress(visible)
+            else:
+                self.assertEqual(record['encoding'],'raw')
+            self.assertEqual(visible,(original/relative).read_bytes(),relative)
+            self.assertEqual(visible,base64.b64decode(self.records['assets/author_source/'+relative]['data']))
+            self.assertEqual(hashlib.sha256(visible).hexdigest(),record['sha256'])
+            if relative in manifest['files']:
+                self.assertEqual(record['sha256'],manifest['files'][relative])
+            if relative.endswith('.py') or relative in {'LICENSE','NOTICE','source_manifest.json'}:
+                self.assertEqual(record['encoding'],'raw')
+        self.assertEqual((self.install/'author_source/LICENSE').read_bytes(),(original/'LICENSE').read_bytes())
+        self.assertEqual((self.install/'author_source/NOTICE').read_bytes(),(original/'NOTICE').read_bytes())
+        release=json.loads((self.install/'assets/platform-release.json').read_bytes())
+        self.assertEqual(release['visible_author_source']['file_count'],38)
+
+    def test_missing_or_tampered_visible_source_is_rejected_even_with_hot_cache(self):
+        self.prepare()
+        for change in ('missing','tampered','extra'):
+            copied=self.root/('visible author '+change)
+            shutil.copytree(self.install,copied)
+            if change=='extra':
+                (copied/'author_source/injected.py').write_text('raise RuntimeError()')
+            else:
+                path=copied/'author_source/src__stca__training.py'
+                if change=='missing':
+                    path.unlink()
+                else:
+                    path.write_bytes(path.read_bytes()+b'\n# changed\n')
+            result=self.invoke('prepare',expected=2,script=copied/'scripts/workbuddy_runtime.py')
+            self.assertIn(b'author',result.stderr)
 
     def test_visible_agent_entry_runs_complete_runtime_and_preserves_workdir(self):
         script=self.install/'scripts/agent_runtime.py'
@@ -177,10 +292,16 @@ class WorkBuddyPackageTests(unittest.TestCase):
                 elif relative == 'references/workbuddy.md':
                     expected=re.sub(r'版本 \*\*[0-9]+\.[0-9]+\.[0-9]+\*\*。',
                                     f'WorkBuddy 发布版本 **{self.version}**。', expected.decode(), count=1).encode()
+                elif relative == 'THIRD_PARTY_NOTICES.md':
+                    spec=importlib.util.spec_from_file_location('notice_layout_builder',SKILL/'scripts/build_platform_packages.py')
+                    builder=importlib.util.module_from_spec(spec);spec.loader.exec_module(builder)
+                    expected=builder.publication_notice(expected,'assets/author_source')
                 self.assertEqual(data,expected,relative)
         catalog=json.loads((runtime/'assets/rule_library/catalog.json').read_bytes())
-        self.assertEqual(len(catalog['entries']),149)
-        self.assertEqual(sum(len(e['prompts']) for e in catalog['entries']),298)
+        source_catalog=json.loads((SKILL/'assets/rule_library/catalog.json').read_bytes())
+        self.assertEqual(len(catalog['entries']),len(source_catalog['entries']))
+        self.assertEqual(sum(len(e['prompts']) for e in catalog['entries']),
+                         sum(len(e['prompts']) for e in source_catalog['entries']))
 
     def test_menu_and_verbatim_prompt_from_unpacked_artifact(self):
         runtime=Path(self.prepare()['runtime_skill_dir'])

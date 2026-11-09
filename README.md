@@ -44,10 +44,17 @@ Row 1 contains headers; rows **2–1078** contain data. Use all records initiall
 **Screen with an existing rule:**
 
 ```text
-Use the existing RadonPy high-density Top 30% STCA rule to screen this dataset.
+Use the recommended RadonPy high-density Top 30% rule to screen this dataset.
 ```
 
-This fixed file gives **137 rule matches, 940 non-matches and no unknowns**; the rule's density target boundary is **≥ 1.222343047 g/cm³**.
+**WRAcc is recommended for this example.** Both methods use the density target boundary **≥ 1.222080875 g/cm³**. This fixed file gives:
+
+| Method | Rule matches | Non-matches | Unknowns | Cross-validation average screening score |
+|---|---:|---:|---:|---:|
+| **WRAcc (recommended)** | **389** | 688 | 0 | **0.7014** |
+| STCA | 282 | 795 | 0 | 0.6479 |
+
+WRAcc has the higher average score, recall and F1; STCA has higher precision. You can also explicitly request the STCA rule.
 
 **Learn from the same data and save the result:**
 
@@ -55,7 +62,7 @@ This fixed file gives **137 rule matches, 940 non-matches and no unknowns**; the
 Learn high-density Top 30% rules from this RadonPy dataset. Use smiles for structures and density for the property, in g/cm³, and include all data rows. Return screening results, compare them with the existing rule and save the new rules.
 ```
 
-The assistant chooses the data transform and scan step, and returns STCA and WRAcc separately. With the same prepared data, fingerprints, learning settings and software version, repeating the fit should give the same rule; a new adaptive fit can differ from an existing frozen rule. To check saved-rule reuse, say **“Reload the Top 30% STCA rule just saved and screen the same dataset again.”** Its row-level decisions must match those returned when that rule was learned.
+The assistant chooses the data transform, scan step and support separately for each percentage, then returns STCA and WRAcc. With this fixed file and the default settings in the same version, both newly learned Top 30% rules match their corresponding bundled rules. Requesting other percentages alongside 30% does not change that task. To reuse the recommended rule, say **“Reload the Top 30% WRAcc rule just saved and screen the same dataset again.”** Every row must match its earlier decision.
 
 **Generate with the selected rule:**
 
@@ -73,9 +80,9 @@ With your own data, STCA automatically cleans unusable records, chooses data tra
 
 WRAcc automatically chooses its maximum condition count within the training data. You can also say **“Allow up to 10 WRAcc conditions”** or **“Do not limit the number of WRAcc conditions.”**
 
-After learning, it returns **both methods’ rules and corresponding screening results for every tier**: the percentage and its **numeric physical cutoff, ≥/≤ comparison and unit**, original SMILES, selection decisions, every unmet rule condition and uncomputable records. Cutoffs use the original physical scale even when learning uses log10. Results always cover the original uploaded table; a separate candidate table receives its own results.
+After learning, it returns **both methods’ results and rule availability for every tier**: the percentage and its **numeric physical cutoff, ≥/≤ comparison and unit**, original SMILES, selection decisions, every unmet rule condition and uncomputable records. Cutoffs use the original physical scale even when learning uses log10. Results always cover the original uploaded table; a separate candidate table receives its own results.
 
-The assistant saves the model, rules, physical cutoffs and complete bilingual generation prompts as files, and reports their names and locations. Continue by saying **“Use the rules you just saved to screen this table”** or **“Use the saved high-density rule to generate 20 repeat units.”** Download the rule bundle for use in a new session or on another platform; availability of local files depends on the current workspace.
+The assistant saves available models, rules, physical cutoffs and complete bilingual generation prompts as files, and reports their names and locations. Continue by saying **“Use the rules you just saved to screen this table”** or **“Use the saved high-density rule to generate 20 repeat units.”** Download the rule bundle for use in a new session or on another platform; availability of local files depends on the current workspace.
 
 ![STCA workflow](assets/workflow.en.svg)
 
@@ -96,7 +103,7 @@ Choose your platform below. The [installation guide](docs/INSTALL.md) includes e
 |---|---|---|
 | **Codex** | Install the GitHub skill folder or the [Codex ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-codex-0.1.0.zip). | `Use $stca` |
 | **DeepSeek Harness** | Enter the GitHub installation address below in Add plugin; npm publication is not required. | `/stca` |
-| **WorkBuddy** | Import the [WorkBuddy ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.1.zip). | “Start STCA” |
+| **WorkBuddy** | Import the [WorkBuddy ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.3.zip). | “Start STCA” |
 | **ChatGPT** | Import the [OpenAI skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-openai-skill-0.1.0.zip) using a client with skill installation support. | Select STCA or ask to use it. |
 
 ### Codex
@@ -120,7 +127,7 @@ github:foukusa/stca-agent-skill
 
 3. Enable STCA, then enter `/stca` or say “Start STCA”. Describe the task and attach data when needed.
 
-**Installing from GitHub does not require npm publication.** DSH reads the plugin configuration and entry from the public repository. Entering only `dsh-plugin-stca` requires that package to have been published on npm; use the GitHub address above until then.
+**Installing from GitHub does not require npm publication.** DSH reads the plugin configuration and entry from the public repository. Entering only `dsh-plugin-stca` requires that package to have been published on npm; use the repository URL until then.
 
 If STCA is already listed, check and enable that entry instead of repeatedly adding it. See [DSH installation](docs/INSTALL.md#deepseek-harness) for installation errors, optional CLI use and the [plugin ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.zip) local-directory fallback. The separate [standalone skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip) is extracted into a DSH skill directory; it is different from the plugin root used by Add plugin. See the [DSH guide](README.DSH.md).
 
@@ -130,7 +137,7 @@ Plugin-center link: — (to be added after listing).
 
 ### WorkBuddy
 
-1. Download `stca-workbuddy-0.1.1.zip` from the table above.
+1. Download `stca-workbuddy-0.1.3.zip` from the table above.
 2. Open WorkBuddy’s skill management page and choose the action to add/upload a local skill package. Select the ZIP directly, complete import and enable **STCA Polymer Rules and Design**.
 3. Say “Start STCA”, attach your file, then describe whether you want to learn rules, screen candidates or generate repeat units.
 
@@ -150,7 +157,7 @@ At the first calculation, STCA looks for and checks a suitable local Python envi
 
 ## Existing rules and generation prompts
 
-The [rule and prompt directory](docs/RULE_LIBRARY.md) offers **source → property → percentage** choices. You can also load a rule bundle learned from your own data. The open-data library covers **12 tasks**, each with Top **10%, 20% and 30%** and primary/alternative rules from two methods. Frozen Tg and electrical-conductivity rules from the author’s STCA paper are also included.
+The [rule and prompt directory](docs/RULE_LIBRARY.md) offers **source → property → percentage** choices. You can also load a rule bundle learned from your own data. The open-data library covers **12 tasks**, each with Top **10%, 20% and 30%** results from both methods; the catalog identifies available rules and recommendations. Frozen Tg and electrical-conductivity rules from the author’s STCA paper are also included.
 
 | Source | Properties |
 |---|---|
@@ -159,7 +166,7 @@ The [rule and prompt directory](docs/RULE_LIBRARY.md) offers **source → proper
 | [RadonPy computed data](https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv) | Thermal conductivity, refractive index, density, specific heat, dielectric constant |
 | [ADEPT computed data](https://github.com/sobinalosious/PolyGraphMT/tree/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw) | Thermal conductivity, density, isolated-monomer HOMO–LUMO gap, dielectric constant, refractive index |
 
-The catalog shows each tier’s **method, primary/alternative status and numeric physical cutoff with its comparison and unit**. Accept the recommendation to use the primary directly, or specify either method; the two rule sets are applied separately. A percentage absent from the selected frozen catalog, such as 15% or 25% in the open-data library, requires labelled data to learn a new rule. Existing percentages are never interpolated or substituted. If you only want a prompt for another LLM, ask for the complete prompt without generation.
+The catalog shows each tier’s **method, rule availability, recommendation and numeric physical cutoff with its comparison and unit**. Accept the recommendation or choose an available method; available rule sets are applied separately. A percentage absent from the selected frozen catalog, such as 15% or 25% in the open-data library, requires labelled data to learn a new rule. Existing percentages are never interpolated or substituted. If you only want a prompt for another LLM, ask for the complete prompt without generation.
 
 The Tg and electrical-conductivity rules implement the experimental-property screening tasks presented in the author’s STCA paper. STCA has also been used with the GAS, RadonPy and ADEPT datasets for rule extraction and screening validation across the 12 open-data tasks. Choose rules matching your objective, or learn from your own data. See the [rule directory](docs/RULE_LIBRARY.md#stca-paper-rules), [dataset sources](examples/open_data/dataset_registry.csv) and [application examples](examples/open_data/README.md).
 

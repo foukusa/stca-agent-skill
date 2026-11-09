@@ -538,6 +538,10 @@ def render_user_summary(summary):
         lines += ["", f"## {item['label']}", "",
                   f"主推：**{item['recommended_method'] or '无有效规则'}**；备选：{item['alternative_method'] or '无'}。",
                   reasons.get(item["recommendation_reason"], item["recommendation_reason"]), ""]
+        if item.get("preparation"):
+            settings = item["preparation"]
+            actual_scan = settings.get("scan") or {}
+            lines += [f"自动设置：数值变换 {settings['transform']}；扫描步长 {actual_scan.get('step', '不可用')} {settings['unit']}；最小扫描子集 {actual_scan.get('min_subset_size', '不可用')}；准备后 {settings['prepared_measurement_n']} 条。各档独立准备、选择设置和训练。", ""]
         for method, result in item["methods"].items():
             lines += [f"- **{method}**：入选 {result['selected_n']}，未入选 {result['not_selected_n']}，未知 {result['unknown_n']}；交叉验证状态 {result['cv_status']}。",
                       f"  [全部原行及未满足的规则条件]({result['results_with_failed_conditions']}) · [入选表]({result['selected_rows']}) · [精确约束]({result['constraints']})。",
@@ -603,19 +607,6 @@ def run(args):
     target_name = args.target_name or args.property or args.target
     requested_kind = getattr(args, "structure_kind", None)
     property_domain = {"molecule": "molecule", "polymer_repeat_unit": "polymer"}.get(requested_kind, "auto")
-    prepared = prepare_dataset(args.input, smiles_column=args.smiles_column, target=args.target,
-        property_name=args.property or target_name, output_dir=output / "preparation", unit=args.unit,
-        already_log=args.already_log, direction=args.direction, tiers=tiers, id_column=args.id_column,
-        condition_columns=column_list(args.condition_columns), text_columns=column_list(args.metadata_columns),
-        skip_influence=args.skip_influence, source=args.source, property_domain=property_domain)
-    data, audit = prepared["data"], prepared["audit"]
-    observed_kind = infer_structure_kind(data["original_canon"].tolist())
-    transform = audit.get("D3_transform", "none")
-    if isinstance(transform, dict):
-        transform = transform.get("transform", transform.get("name", "none"))
-    transform = "log10" if transform == "log10" else "none"
-    unit = audit.get("unit") or args.unit or "user_specified"
-    model_unit = f"log10({unit})" if transform == "log10" else unit
     raw, format_audit = read_auto_frame(args.input)
     aliases = format_audit["column_alias_map"]
     def resolve(column):
@@ -628,8 +619,6 @@ def run(args):
     raw_path = output / "original_input.csv"
     raw.to_csv(raw_path, index=False)
     write_json(output / "input_format.json", format_audit)
-    # The lower-level screener reserves stca_* output names. Archive aliases
-    # exist only in its internal input; public results restore every raw name.
     screen_aliases, occupied = {}, set(raw.columns)
     for column in raw:
         if column.startswith("stca_"):
@@ -641,41 +630,108 @@ def run(args):
     screen_raw.to_csv(screen_path, index=False)
     write_json(output / "screening_input_aliases.json", {"internal_only": screen_aliases,
         "public_output_policy": "restore_all_original_input_columns_and_values_before_adding_derived_columns"})
-    if len(data):
-        matrix, _ = maccs_from_smiles(data["stca_calculation_smiles_hcap"].tolist())
-        matrix = np.asarray(matrix, dtype=np.int8)
-    else:
-        matrix = np.empty((0, 167), dtype=np.int8)
-    fingerprint_contract = audit_fit_fingerprints(data, matrix)
-    write_json(output / "fingerprint_contract.json", fingerprint_contract)
-    target = data["y_model"].to_numpy(dtype=float)
-    groups = data["protected_group"].astype(str).to_numpy()
-    scan_audit = audit.get("C1_scan", {})
-    step = scan_audit.get("value_step", scan_audit.get("step", scan_audit.get("scan_step")))
-    scan = None
-    if isinstance(step, (float, int)) and math.isfinite(step) and step > 0:
-        scan = {"mode": "value", "step": float(step), "min_subset_size": int(scan_audit.get("min_subset_size", 1)),
-                "max_points": int(scan_audit.get("scan_plan", {}).get("max_grid_points", 20000))}
     wracc_limit = normalize_wracc_limit(getattr(args, "wracc_max_literals", "auto"))
     wracc_length_folds = int(getattr(args, "wracc_length_folds", 3))
-    learners = Learners(matrix, target, groups, tiers, args.direction, scan, target_name, model_unit,
-                        wracc_max_literals=wracc_limit, wracc_length_folds=wracc_length_folds)
-    evaluation = evaluate(learners, folds=args.folds, repeats=args.repeats, nested=args.nested, with_rf=args.with_rf)
-    for record in evaluation["folds"]:
-        record["training_fold_cutoff_physical"] = physical_cutoff(record.get("training_fold_cutoff_model"), transform)
-        record["unit"] = unit
+    evaluation = {"summary": {}, "eligibility": {}, "folds": [], "assignments": [], "oof": []}
+    full = {"STCA": {}, "WRAcc": {}}
+    per_tier_preparation, tier_settings = {}, {}
+    first = None
+    # Each requested objective is prepared and fitted exactly as a singleton.
+    # This also isolates target-dependent D7 quarantine, not only scan support.
+    for tier in tiers:
+        name = tier_key(tier)
+        tier_root = output if first is None else output / "tier_preparations" / name
+        prepared = prepare_dataset(args.input, smiles_column=args.smiles_column, target=args.target,
+            property_name=args.property or target_name, output_dir=tier_root / "preparation", unit=args.unit,
+            already_log=args.already_log, direction=args.direction, tiers=[tier], id_column=args.id_column,
+            condition_columns=column_list(args.condition_columns), text_columns=column_list(args.metadata_columns),
+            skip_influence=args.skip_influence, source=args.source, property_domain=property_domain)
+        tier_data, tier_audit = prepared["data"], prepared["audit"]
+        tier_transform = tier_audit.get("D3_transform", "none")
+        if isinstance(tier_transform, dict):
+            tier_transform = tier_transform.get("transform", tier_transform.get("name", "none"))
+        tier_transform = "log10" if tier_transform == "log10" else "none"
+        tier_unit = tier_audit.get("unit") or args.unit or "user_specified"
+        if first is not None and (tier_transform, tier_unit) != (first["transform"], first["unit"]):
+            raise ValueError("Per-tier preparations disagree on input target transformation or unit; separate these tasks.")
+        if len(tier_data):
+            tier_matrix, _ = maccs_from_smiles(tier_data["stca_calculation_smiles_hcap"].tolist())
+            tier_matrix = np.asarray(tier_matrix, dtype=np.int8)
+        else:
+            tier_matrix = np.empty((0, 167), dtype=np.int8)
+        tier_fingerprint = audit_fit_fingerprints(tier_data, tier_matrix)
+        receipt_path = tier_root / "fingerprint_contract.json"
+        write_json(receipt_path, tier_fingerprint)
+        tier_target = tier_data["y_model"].to_numpy(dtype=float)
+        tier_groups = tier_data["protected_group"].astype(str).to_numpy()
+        scan_audit = tier_audit.get("C1_scan", {})
+        step = scan_audit.get("value_step", scan_audit.get("step", scan_audit.get("scan_step")))
+        tier_scan = None
+        if isinstance(step, (float, int)) and math.isfinite(step) and step > 0:
+            tier_scan = {"mode": "value", "step": float(step),
+                         "min_subset_size": int(scan_audit.get("min_subset_size", 1)),
+                         "max_points": int(scan_audit.get("scan_plan", {}).get("max_grid_points", 20000))}
+        tier_model_unit = f"log10({tier_unit})" if tier_transform == "log10" else tier_unit
+        tier_learner = Learners(tier_matrix, tier_target, tier_groups, [tier], args.direction,
+            tier_scan, target_name, tier_model_unit, wracc_max_literals=wracc_limit,
+            wracc_length_folds=wracc_length_folds)
+        current = evaluate(tier_learner, folds=args.folds, repeats=args.repeats,
+                           nested=args.nested, with_rf=args.with_rf)
+        for record in current["folds"]:
+            record["training_fold_cutoff_physical"] = physical_cutoff(record.get("training_fold_cutoff_model"), tier_transform)
+            record["unit"] = tier_unit
+        for method, values in current["summary"].items():
+            evaluation["summary"].setdefault(method, {}).update(values)
+        evaluation["eligibility"].update(current["eligibility"])
+        evaluation["folds"].extend(current["folds"])
+        if len(tiers) > 1:
+            for record in current["assignments"]:
+                record["tier"] = tier
+        evaluation["assignments"].extend(current["assignments"])
+        evaluation["oof"].extend(current["oof"])
+        current_full = tier_learner.fit(np.arange(len(tier_data)))
+        for method in full:
+            full[method].update(current_full[method])
+        settings = {"transform": tier_transform, "unit": tier_unit, "scan": tier_scan,
+            "prepared_measurement_n": len(tier_data), "protected_group_n": len(set(tier_groups)),
+            "scan_selection_status": scan_audit.get("selection_status"),
+            "scan_selected_policy": scan_audit.get("selected_policy"),
+            "preparation_scope": "independent_single_tier"}
+        tier_settings[name] = settings
+        per_tier_preparation[name] = {"preparation_directory": (tier_root / "preparation").relative_to(output).as_posix(),
+            "fingerprint_contract_path": receipt_path.relative_to(output).as_posix(),
+            "prepared_measurement_n": len(tier_data),
+            "prepared_data_sha256": hashlib.sha256((tier_root / "preparation/cleaned.csv").read_bytes()).hexdigest(),
+            "preparation_audit_sha256": hashlib.sha256((tier_root / "preparation/audit.json").read_bytes()).hexdigest(),
+            "fingerprint_contract": {"status": tier_fingerprint["status"],
+                "representation": tier_fingerprint["representation"],
+                "sha256": hashlib.sha256(receipt_path.read_bytes()).hexdigest(),
+                "matrix_sha256": tier_fingerprint["matrix_sha256"]}, "learning_settings": settings}
+        if first is None:
+            first = {"data": tier_data, "audit": tier_audit, "transform": tier_transform,
+                     "unit": tier_unit, "scan": tier_scan, "groups": tier_groups,
+                     "fingerprint": tier_fingerprint, "learner": tier_learner}
+    data, audit, transform, unit, scan, groups = (first[key] for key in ("data", "audit", "transform", "unit", "scan", "groups"))
+    fingerprint_contract, learners = first["fingerprint"], first["learner"]
+    observed_kind = infer_structure_kind(data["original_canon"].tolist())
+    model_unit = f"log10({unit})" if transform == "log10" else unit
+    write_json(output / "preparation_by_tier.json", {"schema": "stca-tier-preparation-v1",
+        "policy": "each_tier_prepared_and_fitted_as_independent_singleton",
+        "tiers": per_tier_preparation})
     write_json(output / "cv_summary.json", {"schema": "stca-inrange-cv-v1", "evidence_status": EVIDENCE,
         "limitation": LIMITATION, "folds": args.folds, "repeats": args.repeats,
         "method_choice": "WRAcc only if AS exceeds STCA by more than 0.02; otherwise STCA",
         "WRAcc_search": learners.wracc_settings(),
-        "fixed_preparation_scan": scan, "eligibility": evaluation["eligibility"], "methods": evaluation["summary"],
+        "fixed_preparation_scan": scan if len(tiers) == 1 else None,
+        "fixed_preparation_scan_by_tier": {key: value["scan"] for key, value in tier_settings.items()},
+        "preparation_scope": "independent_per_tier", "eligibility": evaluation["eligibility"],
+        "methods": evaluation["summary"],
         "nested": {"requested": args.nested, "inner_folds": 3, "scope": "method_selection_inside_outer_training_fold",
                    "evidence_status": EVIDENCE, "entire_pipeline_unbiased": False},
         "RF": {"requested": args.with_rf, "role": "optional_nonrule_reference_not_a_guaranteed_ceiling"}})
     write_json(output / "cv_fold_rules_and_cutoffs.json", evaluation["folds"])
     pd.DataFrame(evaluation["assignments"]).to_csv(output / "cv_group_assignments.csv", index=False)
     pd.DataFrame(evaluation["oof"]).to_csv(output / "cv_oof_predictions.csv", index=False)
-    full = learners.fit(np.arange(len(data)))
     deployment = []
     contract = {"property": target_name, "original_unit": unit, "model_unit": model_unit,
                 "uploaded_unit": audit.get("input_unit", args.unit),
@@ -707,7 +763,8 @@ def run(args):
                 "fit_scope": "full_prepared_data_deployment", "learner": method,
                 "source_input_sha256": format_audit["input_sha256"],
                 "training_record_n": len(data), "protected_group_n": len(set(groups)),
-                "scan": scan if method == "STCA" else None, "conditional_evaluation": EVIDENCE,
+                "scan": scan if method == "STCA" and len(tiers) == 1 else None,
+                "preparation_by_tier": tier_settings, "conditional_evaluation": EVIDENCE,
                 "not_complete_STCA_discovery_archive": True,
                 "WRAcc_search": learners.wracc_settings() if method == "WRAcc" else None,
                 "WRAcc_tier_length_selection": {tier_key(tier): full[method][tier].get("length_selection")
@@ -834,6 +891,9 @@ def run(args):
         "evaluation": [{"repeat": item["repeat"], "fold": item["fold"], "tier": item["tier"],
                         "selection": item.get("WRAcc_length_selection")} for item in evaluation["folds"]
                        if item.get("method") == "WRAcc"]})
+    summary["preparation_scope"] = "independent_per_tier"
+    for item in summary["tiers"]:
+        item["preparation"] = tier_settings[tier_key(item["fraction"])]
     summary["WRAcc_search"] = learners.wracc_settings()
     summary["fingerprint_contract"] = {"status": fingerprint_contract["status"],
         "path": "fingerprint_contract.json", "representation": fingerprint_contract["representation"]}
@@ -859,10 +919,15 @@ def run(args):
         "prepared_data_sha256": hashlib.sha256((output / "preparation" / "cleaned.csv").read_bytes()).hexdigest(),
         "preparation_audit_sha256": hashlib.sha256((output / "preparation" / "audit.json").read_bytes()).hexdigest(),
         "learning_settings": {"target_column": resolve(args.target), "smiles_column": resolve(args.smiles_column),
-            "transform": transform, "scan": scan, "folds": args.folds, "repeats": args.repeats,
+            "transform": transform, "scan": scan if len(tiers) == 1 else None,
+            "preparation_by_tier": tier_settings, "preparation_scope": "independent_per_tier",
+            "folds": args.folds, "repeats": args.repeats,
             "nested_method_selection": args.nested, "direction": args.direction, "tiers": tiers,
             "WRAcc_search": learners.wracc_settings()},
         "fit_scope": "full_prepared_data_deployment", "evaluation_scope": "inrange_grouped_repeated_CV",
+        "per_tier_preparation": per_tier_preparation,
+        "compatibility_preparation_tier": tier_key(tiers[0]),
+        "prepared_record_scope": "top_level_preparation_describes_compatibility_tier; per_tier_preparation_is_authoritative",
         "evidence_status": EVIDENCE, "limitation": LIMITATION, "tiers": tiers,
         "methods": methods_delivered, "saved_rules": saved, "runtime": environment_receipt(args.source)}
     write_json(output / "run_manifest.json", manifest)

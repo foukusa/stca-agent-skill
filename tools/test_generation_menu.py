@@ -11,7 +11,7 @@ import unittest
 SKILL = Path(os.environ.get('STCA_TEST_SKILL_DIR',
                            str(Path(__file__).resolve().parents[1]/'skills'/'stca')))
 SCRIPT = SKILL/'scripts/task_menu.py'
-RULE = 'latest-gas-co2-stca-high-10'
+RULE = 'current-gas-co2-stca-high-10'
 
 
 class GenerationMenuTests(unittest.TestCase):

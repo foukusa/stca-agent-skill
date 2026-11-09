@@ -12,13 +12,17 @@ import argparse
 from datetime import datetime, timezone
 import hashlib
 import json
+import os
 from pathlib import Path
+import re
 import sys
 
 from generation_prompt import render_prompt, resolve_structure_kind, STRUCTURE_KINDS
 
 
 SCHEMA = "stca-generation-session-v1"
+STATE_NAME = re.compile(r"session-state-([0-9]{8})\.json")
+INTENT_NAME = re.compile(r"session-intent-([0-9]{8})\.json")
 
 
 def _sha(data):
@@ -72,11 +76,93 @@ def _compose(constraints, state):
     return text.rstrip() + notice + (draft if draft else ("无额外调整。" if state["language"] == "zh-CN" else "No additional adjustments.")) + "\n"
 
 
-def _write_state(path, state):
-    temporary = path.with_name("session.json.tmp")
-    with temporary.open("xb") as stream:
-        stream.write(_json_bytes(state))
-    temporary.replace(path)
+def _create_json(path, value):
+    """Create an immutable record; preserve permission and collision errors."""
+    with path.open("xb") as stream:
+        stream.write(_json_bytes(value))
+        stream.flush()
+        os.fsync(stream.fileno())
+
+
+def _state_chain(path):
+    """Resolve any session handle to its latest complete, linked state.
+
+    An intent is created before an update writes prompts. Incomplete updates
+    therefore fail visibly instead of restoring an older generation approval.
+    The original session.json remains readable and is never overwritten.
+    """
+    root = path.parent
+    anchor = root / "session.json"
+    if (root / "session.json.tmp").exists():
+        raise ValueError("A legacy generation session update is incomplete; preserve its files and resolve the earlier write failure before continuing.")
+    state = _read_json(anchor)
+    if not isinstance(state, dict):
+        raise ValueError("Unsupported generation session.")
+    if (type(state.get("state_sequence", 1)) is not int or state.get("state_sequence", 1) != 1
+            or state.get("previous_state_sha256") is not None):
+        raise ValueError("Invalid initial generation session state.")
+    paths, intents = {}, {}
+    for pattern, expression, destination in (("session-state-*.json", STATE_NAME, paths),
+                                              ("session-intent-*.json", INTENT_NAME, intents)):
+        for resource in root.glob(pattern):
+            match = expression.fullmatch(resource.name)
+            if not match or resource.is_symlink():
+                raise ValueError("Invalid generation session journal resource.")
+            number = int(match.group(1))
+            if number < 2 or number in destination:
+                raise ValueError("Invalid generation session state sequence.")
+            destination[number] = resource
+    if set(paths) != set(intents):
+        raise ValueError("Generation session update is incomplete; preserve its files and resolve the reported write failure before continuing.")
+    previous = _sha(anchor.read_bytes())
+    current = anchor
+    for expected, number in enumerate(sorted(paths), 2):
+        if number != expected:
+            raise ValueError("Generation session state sequence has a gap.")
+        intent = _read_json(intents[number])
+        candidate = _read_json(paths[number])
+        if (not isinstance(intent, dict) or intent.get("schema") != SCHEMA + "-intent"
+                or type(intent.get("sequence")) is not int or intent.get("sequence") != number
+                or intent.get("previous_state_sha256") != previous
+                or intent.get("operation") not in {"revised", "confirmed"}
+                or not isinstance(candidate, dict) or type(candidate.get("state_sequence")) is not int
+                or candidate.get("state_sequence") != number
+                or candidate.get("previous_state_sha256") != previous):
+            raise ValueError("Generation session state history changed or is incomplete.")
+        if candidate.get("constraints") != state.get("constraints") or candidate.get("mode") != state.get("mode"):
+            raise ValueError("Frozen constraints or generation mode changed inside the session history.")
+        revised = intent["operation"] == "revised"
+        expected_revision = state["revision"] + (1 if revised else 0)
+        expected_status = "awaiting_confirmation" if revised else "ready_to_generate"
+        if (candidate.get("revision") != expected_revision or candidate.get("status") != expected_status
+                or candidate.get("generation_allowed") is not (not revised)):
+            raise ValueError("Generation session contains an invalid review or confirmation transition.")
+        current, state = paths[number], candidate
+        previous = _sha(current.read_bytes())
+    return current, state
+
+
+def _begin_state(path, state, operation):
+    sequence = state.get("state_sequence", 1) + 1
+    if sequence > 99999999:
+        raise ValueError("Generation session state sequence limit reached.")
+    previous = _sha(path.read_bytes())
+    intent = path.parent / f"session-intent-{sequence:08d}.json"
+    _create_json(intent, {"schema": SCHEMA + "-intent", "sequence": sequence,
+                          "previous_state_sha256": previous, "operation": operation})
+    return sequence, previous
+
+
+def _write_state(path, state, pending=None):
+    if pending is None:
+        destination = path.parent / "session.json"
+        state.update(state_sequence=1, previous_state_sha256=None)
+    else:
+        sequence, previous = pending
+        destination = path.parent / f"session-state-{sequence:08d}.json"
+        state.update(state_sequence=sequence, previous_state_sha256=previous)
+    _create_json(destination, state)
+    return destination
 
 
 def _constraints(root, state):
@@ -97,7 +183,11 @@ def _constraints(root, state):
 
 def _load(path):
     path = _session_path(path)
-    state = _read_json(path)
+    if path.name != "session.json" and STATE_NAME.fullmatch(path.name) is None:
+        raise ValueError("Choose the session directory, session.json or a returned session state path.")
+    if not path.is_file():
+        raise FileNotFoundError(f"Generation session state does not exist: {path}")
+    path, state = _state_chain(path)
     if not isinstance(state, dict) or state.get("schema") != SCHEMA or state.get("mode") not in {"preview", "direct"}:
         raise ValueError("Unsupported generation session.")
     if state.get("status") not in {"awaiting_confirmation", "ready_to_generate"}:
@@ -184,12 +274,13 @@ def prepare_session(constraint_paths, output_dir, *, mode, count=20, preferences
     _compose(values, state)
     output.mkdir(parents=True)
     for name, data in snapshots:
-        (output / name).write_bytes(data)
+        with (output / name).open("xb") as stream:
+            stream.write(data)
     _write_prompt(output, state, values)
     if mode == "direct":
         _authorize(output, state, {"kind": "direct_mode_requested", "at": _now()})
     path = output / "session.json"
-    _write_state(path, state)
+    path = _write_state(path, state)
     return _response(path, state)
 
 
@@ -209,8 +300,9 @@ def revise_session(session, *, count=None, preferences=None, draft_file=None, st
     state.update(revision=state["revision"] + 1, status="awaiting_confirmation", generation_allowed=False,
                  approved_prompt_path=None, approved_prompt_sha256=None, approved_revision=None, authorization=None)
     state["history"].append({"event": "revised", "at": _now(), "revision": state["revision"]})
+    pending = _begin_state(path, state, "revised")
     _write_prompt(path.parent, state, constraints)
-    _write_state(path, state)
+    path = _write_state(path, state, pending)
     return _response(path, state)
 
 
@@ -219,10 +311,11 @@ def confirm_session(session, *, confirmation_text):
         raise ValueError("Explicit observed user confirmation text is required; time or silence is not approval.")
     path, state, _ = _load(session)
     if not state["generation_allowed"]:
+        pending = _begin_state(path, state, "confirmed")
         _authorize(path.parent, state, {"kind": "explicit_user_confirmation",
                                      "text": confirmation_text.strip(), "at": _now()})
         state["history"].append({"event": "confirmed", "at": _now(), "revision": state["revision"]})
-        _write_state(path, state)
+        path = _write_state(path, state, pending)
     return _response(path, state)
 
 

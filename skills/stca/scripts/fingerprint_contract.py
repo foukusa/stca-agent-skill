@@ -90,34 +90,50 @@ def audit_fit_fingerprints(prepared, matrix):
     }
 
 
-def verify_run_artifacts(run_directory):
-    """Check stored representation artifacts again before result delivery.
-
-    This verifies stored-file consistency and representation, not an independent
-    rerun of cross-validation or evidence that an arbitrary external agent ran it.
-    """
+def _artifact_path(root, relative):
+    """Resolve declared artifact paths without following archive symlinks."""
     from pathlib import Path
+
+    if not isinstance(relative, str) or not relative:
+        raise ValueError("Fingerprint delivery check: artifact paths must be nonempty relative paths.")
+    path = Path(relative)
+    if path.is_absolute() or ".." in path.parts:
+        raise ValueError("Fingerprint delivery check: artifact paths must remain inside the run directory.")
+    current = root
+    for part in path.parts:
+        current /= part
+        if current.is_symlink():
+            raise ValueError("Fingerprint delivery check: artifact paths cannot contain symlinks.")
+    resolved = current.resolve()
+    if resolved != root and root not in resolved.parents:
+        raise ValueError("Fingerprint delivery check: artifact paths must remain inside the run directory.")
+    return resolved
+
+
+def _verify_preparation(root, *, preparation_directory, fingerprint_contract_path,
+                        reference, prepared_measurement_n, prepared_data_sha256=None,
+                        preparation_audit_sha256=None):
+    """Verify one tier's independently prepared rows and calculation receipt."""
     import pandas as pd
     from rdkit import Chem
     from rdkit.Chem import MACCSkeys
 
-    root = Path(run_directory).expanduser().resolve()
-    manifest = json.loads((root / "run_manifest.json").read_text(encoding="utf-8"))
-    if manifest.get("entrypoint") != "inrange_evaluation.py":
-        raise ValueError("Fingerprint delivery check: the declared learning entrypoint is missing or unsupported.")
-    reference = manifest.get("fingerprint_contract", {})
-    if reference.get("path") != "fingerprint_contract.json" or reference.get("status") != "verified":
+    if not isinstance(reference, dict) or reference.get("status") != "verified":
         raise ValueError("Fingerprint delivery check: a verified H-cap contract is required.")
-    payload = (root / "fingerprint_contract.json").read_bytes()
+    if reference.get("representation", "hcap_maccs167") != "hcap_maccs167":
+        raise ValueError("Fingerprint delivery check: unsupported calculation representation.")
+    prepared_path = _artifact_path(root, preparation_directory + "/cleaned.csv")
+    audit_path = _artifact_path(root, preparation_directory + "/audit.json")
+    receipt_path = _artifact_path(root, fingerprint_contract_path)
+    payload = receipt_path.read_bytes()
     if hashlib.sha256(payload).hexdigest() != reference.get("sha256"):
         raise ValueError("Fingerprint delivery check: receipt hash mismatch.")
     stored = json.loads(payload)
-    prepared_path = root / "preparation" / "cleaned.csv"
-    if "prepared_data_sha256" in manifest and hashlib.sha256(prepared_path.read_bytes()).hexdigest() != manifest["prepared_data_sha256"]:
+    if prepared_data_sha256 is not None and hashlib.sha256(prepared_path.read_bytes()).hexdigest() != prepared_data_sha256:
         raise ValueError("Fingerprint delivery check: prepared dataset hash mismatch.")
-    if "preparation_audit_sha256" in manifest and hashlib.sha256((root / "preparation" / "audit.json").read_bytes()).hexdigest() != manifest["preparation_audit_sha256"]:
+    if preparation_audit_sha256 is not None and hashlib.sha256(audit_path.read_bytes()).hexdigest() != preparation_audit_sha256:
         raise ValueError("Fingerprint delivery check: preparation audit hash mismatch.")
-    data = pd.read_csv(root / "preparation" / "cleaned.csv",
+    data = pd.read_csv(prepared_path,
                        dtype={"original_canon": str, "stca_calculation_smiles_hcap": str})
     capped = data["stca_calculation_smiles_hcap"].tolist()
     bits = []
@@ -135,12 +151,56 @@ def verify_run_artifacts(run_directory):
         raise ValueError("Fingerprint delivery check: prepared structures or stored fingerprint receipt changed.")
     if actual["matrix_sha256"] != reference.get("matrix_sha256"):
         raise ValueError("Fingerprint delivery check: manifest fit-matrix hash mismatch.")
-    if len(data) != manifest.get("prepared_measurement_n"):
+    if len(data) != prepared_measurement_n:
         raise ValueError("Fingerprint delivery check: prepared record count differs from the run manifest.")
     return {"schema": "stca-fit-fingerprint-delivery-check-v1", "status": "verified",
             "scope": "stored_representation_artifact_consistency; not_independent_CV_reproduction",
             "representation": actual["representation"], "prepared_record_n": len(data),
-            "matrix_sha256": actual["matrix_sha256"], "fingerprint_contract": "fingerprint_contract.json"}
+            "matrix_sha256": actual["matrix_sha256"], "fingerprint_contract": fingerprint_contract_path}
+
+
+def verify_run_artifacts(run_directory):
+    """Verify every tier's stored representation before result delivery.
+
+    Legacy single-preparation runs keep their result schema. New independently
+    prepared tiers each have their own dataset, audit, receipt and matrix hash;
+    the root compatibility receipt alone cannot certify another tier.
+    """
+    from pathlib import Path
+
+    root = Path(run_directory).expanduser().resolve()
+    manifest = json.loads(_artifact_path(root, "run_manifest.json").read_text(encoding="utf-8"))
+    if manifest.get("entrypoint") != "inrange_evaluation.py":
+        raise ValueError("Fingerprint delivery check: the declared learning entrypoint is missing or unsupported.")
+    reference = manifest.get("fingerprint_contract", {})
+    if reference.get("path") != "fingerprint_contract.json":
+        raise ValueError("Fingerprint delivery check: a verified H-cap contract is required.")
+    result = _verify_preparation(root, preparation_directory="preparation",
+        fingerprint_contract_path="fingerprint_contract.json", reference=reference,
+        prepared_measurement_n=manifest.get("prepared_measurement_n"),
+        prepared_data_sha256=manifest.get("prepared_data_sha256"),
+        preparation_audit_sha256=manifest.get("preparation_audit_sha256"))
+    if "per_tier_preparation" not in manifest:
+        return result
+    records = manifest["per_tier_preparation"]
+    if not isinstance(records, dict) or not records:
+        raise ValueError("Fingerprint delivery check: per-tier preparation records must be a nonempty mapping.")
+    requested = manifest.get("tiers")
+    if not isinstance(requested, list) or set(records) != {format(float(q), ".12g") for q in requested}:
+        raise ValueError("Fingerprint delivery check: per-tier preparation records must cover all requested tiers exactly.")
+    required = {"preparation_directory", "fingerprint_contract_path", "prepared_measurement_n",
+                "prepared_data_sha256", "preparation_audit_sha256", "fingerprint_contract"}
+    tier_results = {}
+    for tier, record in records.items():
+        if not isinstance(record, dict) or not required.issubset(record):
+            raise ValueError(f"Fingerprint delivery check: preparation evidence is incomplete for tier {tier}.")
+        if any(not isinstance(record[key], str) or len(record[key]) != 64
+               for key in ("prepared_data_sha256", "preparation_audit_sha256")):
+            raise ValueError(f"Fingerprint delivery check: preparation hashes are missing for tier {tier}.")
+        tier_results[tier] = _verify_preparation(root, **{key: record[key] for key in required
+            if key != "fingerprint_contract"}, reference=record["fingerprint_contract"])
+    result.update(tier_results=tier_results, all_tiers_verified=True)
+    return result
 
 
 def main(argv=None):

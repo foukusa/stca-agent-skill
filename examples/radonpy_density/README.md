@@ -25,26 +25,26 @@ Upload the original repeat-unit SMILES **with their `*` attachment points retain
 ## Screen with an existing rule
 
 ```text
-Screen this PI1070.csv with the existing RadonPy high-density Top 30% STCA rule. Return selected records and every unmet condition.
+Screen this PI1070.csv with the recommended existing RadonPy high-density Top 30% rule. Return selected records and every unmet condition.
 ```
 
-The frozen condition is `K42=1`, with a density target boundary **≥ 1.222343047 g/cm³**. Applying it to all 1,077 structures gives **137 matches, 940 non-matches and no unknowns**. Keep the rule's frozen cutoff instead of recalculating it from candidates. Structural compliance is not a density measurement for a new proposal.
+The recommended [Top 30% WRAcc rule](../../skills/stca/assets/rule_library/entries/current-pi-rho-wracc-high-30/constraints.json) uses nine saved MACCS conditions and a density target boundary **≥ 1.222080875 g/cm³**. Applying it to all 1,077 structures gives **389 matches, 688 non-matches and no unknowns**. Explicitly choosing the paired [STCA rule](../../skills/stca/assets/rule_library/entries/current-pi-rho-stca-high-30/constraints.json) uses its ten conditions and gives **282 matches, 795 non-matches and no unknowns**. The assistant preserves your method choice. A match is a structural screening result; candidate density has not been measured or predicted.
 
 ## Learn and check saved results
 
 ```text
-Learn high-density rules from all rows of this RadonPy file. Use smiles for structures and density for the target, in g/cm³. Return screening results, compare them with the existing rule and save the new rules.
+Learn high-density Top 30% rules from all rows of this RadonPy file. Use smiles for structures and density for the target, in g/cm³. Return screening results, compare them with the existing rule and save the new rules.
 ```
 
-Default targets are Top 10%, 20% and 30%; other percentages are supported. The assistant selects transforms, scan steps and support settings, returns STCA and WRAcc separately and reports numerical cutoffs and recommendations.
+If you omit percentages, the defaults are Top 10%, 20% and 30%; other percentages are supported. Each requested percentage is prepared and fitted independently. The assistant reports the chosen transform, scan step and support, both methods, physical cutoffs and its recommendation.
 
-Existing and newly learned rules should agree only when preparation, fingerprints, learning settings and versions agree. Adaptive relearning may produce different rules; retain both identities and explain any difference. Then check saving and loading:
+For this fixed file, the same version and default settings reproduce both bundled Top 30% rules: recommended WRAcc selects 389 records, while STCA selects 282. Requesting 30% alone or alongside other percentages gives the same Top 30% task. Distinct repeat-unit attachment positions remain separate records even when their H-cap calculation copies coincide. Check saving and loading:
 
 ```text
-Reload the saved Top 30% STCA model, screen the same file again and check every row against its original screening result.
+Reload the saved recommended Top 30% model, screen the same file again and check every row against its original screening result.
 ```
 
-**The same saved model, tier and input must give identical row decisions.** Never merge distinct repeat-unit attachment positions to force agreement with an older rule. H-cap is used only for calculation copies.
+**The same saved model, tier and input must give identical row decisions.** H-cap is used only for calculation copies; output keeps every original field and attachment point.
 
 ## Generate with the selected rule
 
@@ -66,4 +66,4 @@ The [machine-readable case](case.json) records the file, columns and consistency
 
 ## A computed generation example
 
-[Five LLM proposals with row-level verification](generated_examples.csv) record one actual generation and calculation example. All five have two terminal attachment points, parse successfully and satisfy the frozen `K42=1` condition. See the [complete generation prompt](generation_prompt.zh-CN.md). Candidate density was not measured or predicted. A new generation request uses the current LLM instead of copying these static example rows.
+[Five LLM proposals with row-level verification](generated_examples.csv) show the original proposals and the computed checks against the **Top 30% STCA rule**, explicitly selected for this generation illustration. All five proposals pass the selected rule and are absent from the original-structure reference in PI1070. The table identifies the exact rule used and every unmet condition. See the [complete generation prompt](generation_prompt.zh-CN.md). Candidate density was not measured or predicted. Each generation request uses the current LLM to produce its own proposals.

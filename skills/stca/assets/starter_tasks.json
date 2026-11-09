@@ -162,7 +162,7 @@
       },
       "workflow": "apply_existing_rules",
       "agent_steps": [
-        "Resolve named existing rules through the current curated task_menu rule directory. Do not silently choose an older same-name compatibility entry. The public RadonPy density case uses assets/examples/radonpy_density_case.json and latest-pi-rho-stca-high-30; generation reuses the exact rule already selected in the conversation.",
+        "Resolve named existing rules through the current task_menu rule directory. For the RadonPy density case, read assets/examples/radonpy_density_case.json: use its catalog-primary WRAcc Top 30% rule unless the user explicitly selects STCA. Preserve an explicit method choice. Generation reuses the exact rule already selected in the conversation; the static five-candidate illustration is explicitly STCA.",
         "The current open-data directory provides STCA and WRAcc rules as primary and alternative methods for each source/property/tier. Let the user select a method or accept the marked primary after choosing the target. Do not combine the alternative methods unless explicitly requested; a single rule contains AND literals.",
         "Honor user-defined percentages only when an exact frozen rule exists; never substitute a nearby tier or interpolate conditions/cutoffs. Once source, property and direction are clear, omitted percentages automatically apply the available exact Top/Bottom 10%, 20%, 30% defaults without another percentage question. Report any unavailable default tier. If the target is still unclear, offer target choices and wait; defaults do not choose a source or property.",
         "By default, return separate STCA and WRAcc results for every requested available tier, together with their recorded AS evidence, primary method and recommendation reason. Apply methods separately, not as an AND or OR. Honor an explicit request for only STCA or only WRAcc. If the user accepts the recommendation for subsequent use, adopt the marked per-tier primary without another method-confirmation question. Show Top/Bottom, physical comparison, numeric cutoff and unit; mark missing evidence or an unavailable alternative honestly.",
@@ -267,7 +267,7 @@
       "workflow": "generate_and_verify",
       "default_count": 20,
       "agent_steps": [
-        "Resolve named existing rules through the current curated task_menu rule directory. Do not silently choose an older same-name compatibility entry. The public RadonPy density case uses assets/examples/radonpy_density_case.json and latest-pi-rho-stca-high-30; generation reuses the exact rule already selected in the conversation.",
+        "Resolve named existing rules through the current task_menu rule directory. For the RadonPy density case, read assets/examples/radonpy_density_case.json: use its catalog-primary WRAcc Top 30% rule unless the user explicitly selects STCA. Preserve an explicit method choice. Generation reuses the exact rule already selected in the conversation; the static five-candidate illustration is explicitly STCA.",
         "The current open-data directory provides STCA and WRAcc rules as primary and alternative methods for each source/property/tier. Let the user select a method or accept the marked primary after choosing the target. Do not combine the alternative methods unless explicitly requested; a single rule contains AND literals.",
         "The selected exact frozen rule already defines its percentage. Do not implicitly expand generation to 10%, 20%, 30%. Honor user-defined percentages only when an exact frozen rule exists; if unavailable, offer a saved exact rule or learning from labelled data. If the user explicitly requests multiple tiers, prepare a separate session and prompt, generate and verify independently for every tier; never AND different tiers of the same property into a single prompt.",
         "If the user requests automatic method choice or accepts the recommendation, apply the marked per-tier primary method without another method-confirmation question. Honor an explicitly named STCA or WRAcc method. Show each selected tier as Top/Bottom, physical comparison, numeric cutoff and unit.",
@@ -439,14 +439,15 @@
         "learn_rules",
         "design_verify"
       ],
-      "preferred_builtin_rule": "latest-pi-rho-stca-high-30",
+      "preferred_builtin_rule": "current-pi-rho-wracc-high-30",
       "input_columns": {
         "smiles": "smiles",
         "target": "density",
         "id": "monomer_ID"
       },
       "row_policy": "all_original_rows_preserved",
-      "relearn_equality": "same_model_and_tier_reapplication_is_identical; adaptive_refit_may_differ_from_legacy_frozen_profile"
+      "relearn_equality": "same_source_columns_tier_settings_and_software_reproduce_current_bundled_rule; saved_model_reapplication_is_row_identical",
+      "explicit_stca_rule": "current-pi-rho-stca-high-30"
     }
   ],
   "execution_error_policy": {

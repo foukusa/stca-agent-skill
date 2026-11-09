@@ -27,14 +27,14 @@
     "preserve_all_original_columns": true
   },
   "existing_rule": {
-    "id": "latest-pi-rho-stca-high-30",
-    "method": "STCA",
+    "id": "current-pi-rho-wracc-high-30",
+    "method": "WRAcc",
     "fraction": 0.3,
     "physical_operator": ">=",
-    "physical_cutoff": 1.222343047,
-    "rule": "K42=1",
-    "expected_selected": 137,
-    "expected_not_selected": 940,
+    "physical_cutoff": 1.222080875,
+    "rule": "K11=0 AND K17=0 AND K37=0 AND K41=0 AND K86=0 AND K99=0 AND K116=0 AND K128=0 AND K149=0",
+    "expected_selected": 389,
+    "expected_not_selected": 688,
     "expected_unknown": 0,
     "physical_cutoff_policy": "keep_frozen_source_cutoff; never_recalculate_from_candidate_table"
   },
@@ -59,8 +59,18 @@
       "cv_oof_predictions.csv",
       "saved_rule_receipts.json"
     ],
-    "comparison": "same_csv_does_not_imply_same_preparation_and_training_settings",
-    "saved_model_reapplication": "same_model_tier_same_input_must_match_every_row"
+    "comparison": "same_source_columns_and_default_settings_reproduce_current_bundled_rule",
+    "saved_model_reapplication": "same_model_tier_same_input_must_match_every_row",
+    "contract": "original_connection_preserving_independent_tier_v1",
+    "tier_independent": true,
+    "original_connection_graphs_preserved": true,
+    "expected_top30_transform": "none",
+    "expected_top30_scan": {
+      "mode": "value",
+      "step": 0.001,
+      "min_subset_size": 162,
+      "max_points": 20000
+    }
   },
   "generation": {
     "count": 5,
@@ -70,6 +80,25 @@
       "direct"
     ],
     "generator": "current_LLM",
-    "verification": "same_exact_rule; Hcap_computation_copy; preserve_original_star_SMILES"
+    "verification": "same_exact_rule; Hcap_computation_copy; preserve_original_star_SMILES",
+    "static_example_rule_id": "current-pi-rho-stca-high-30"
+  },
+  "alternative_method_rule": {
+    "id": "current-pi-rho-stca-high-30",
+    "method": "STCA",
+    "fraction": 0.3,
+    "physical_operator": ">=",
+    "physical_cutoff": 1.222080875,
+    "rule": "K116=0 AND K115=0 AND K108=0 AND K147=0 AND K118=0 AND K141=0 AND K114=0 AND K129=0 AND K128=0 AND K149=0",
+    "expected_selected": 282,
+    "expected_not_selected": 795,
+    "expected_unknown": 0,
+    "physical_cutoff_policy": "keep_frozen_source_cutoff; never_recalculate_from_candidate_table"
+  },
+  "recommended_method": "WRAcc",
+  "selection_policy": {
+    "default_screening_method": "catalog_primary",
+    "honor_explicit_method": true,
+    "generation": "reuse_exact_rule_already_selected_in_conversation"
   }
 }

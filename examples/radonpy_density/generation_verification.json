@@ -1,0 +1,14 @@
+{
+  "generation_executor": "current_ai_assistant",
+  "generation_performed": true,
+  "verification_performed": true,
+  "generation_mode": "direct",
+  "approved_prompt_sha256": "529c26710ab41ac7673c5b63095f1aa5462c9d634c549cabd2a251c9b9e7488b",
+  "raw_proposal_count": 5,
+  "selected_count": 5,
+  "all_proposals_preserved": true,
+  "hcap_only_for_calculation": true,
+  "new_in_this_reference_dataset_count": 5,
+  "global_novelty_claimed": false,
+  "physical_property_predicted": false
+}

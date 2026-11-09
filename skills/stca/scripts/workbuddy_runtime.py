@@ -13,6 +13,7 @@ import base64
 import binascii
 import hashlib
 import json
+import lzma
 import os
 from pathlib import Path
 import re
@@ -94,20 +95,38 @@ def load_payload(path=PAYLOAD):
         raise ValueError("Invalid WorkBuddy release version or platform.")
     if not isinstance(outer, dict) or outer.get("schema") != SCHEMA or outer.get("version") != version:
         raise ValueError("WorkBuddy payload version does not match its release manifest.")
-    if outer.get("payload_encoding") != "zlib+base64":
+    encoding = outer.get("payload_encoding")
+    if encoding not in {"zlib+base64", "lzma+base85"}:
         raise ValueError("Unsupported runtime payload encoding.")
     expected = _hash(outer.get("payload_sha256"), "runtime payload")
     count = outer.get("file_count")
     if type(count) is not int or count < 1:
         raise ValueError("The runtime payload has no valid file count.")
-    encoded = _decode(outer.get("payload"), "runtime payload")
-    try:
-        decoder = zlib.decompressobj()
-        raw = decoder.decompress(encoded, MAX_PAYLOAD_BYTES + 1)
-    except zlib.error as exc:
-        raise ValueError("The runtime payload is not valid zlib data.") from exc
-    if (len(raw) > MAX_PAYLOAD_BYTES or decoder.unconsumed_tail or
-            not decoder.eof or decoder.unused_data):
+    if encoding == "zlib+base64":
+        encoded = _decode(outer.get("payload"), "runtime payload")
+        try:
+            decoder = zlib.decompressobj()
+            raw = decoder.decompress(encoded, MAX_PAYLOAD_BYTES + 1)
+        except zlib.error as exc:
+            raise ValueError("The runtime payload is not valid zlib data.") from exc
+        incomplete = bool(decoder.unconsumed_tail or not decoder.eof or decoder.unused_data)
+    else:
+        value = outer.get("payload")
+        if not isinstance(value, str):
+            raise ValueError("Base85 runtime payload must be text.")
+        try:
+            encoded = base64.b85decode(value.encode("ascii"))
+            if base64.b85encode(encoded).decode("ascii") != value:
+                raise ValueError("Non-canonical base85 runtime payload.")
+        except (ValueError, UnicodeError) as exc:
+            raise ValueError("Invalid base85 runtime payload.") from exc
+        try:
+            decoder = lzma.LZMADecompressor(memlimit=64 * 1024 * 1024)
+            raw = decoder.decompress(encoded, max_length=MAX_PAYLOAD_BYTES + 1)
+        except lzma.LZMAError as exc:
+            raise ValueError("The runtime payload is not valid bounded LZMA data.") from exc
+        incomplete = not decoder.eof or bool(decoder.unused_data)
+    if len(raw) > MAX_PAYLOAD_BYTES or incomplete:
         raise ValueError("The runtime payload is incomplete, oversized, or has trailing data.")
     if _digest(raw) != expected:
         raise ValueError("Runtime payload SHA-256 mismatch.")
@@ -144,7 +163,85 @@ def load_payload(path=PAYLOAD):
     if (not isinstance(restored_manifest, dict) or restored_manifest.get("package_version") != version
             or restored_manifest.get("platform") != "workbuddy"):
         raise ValueError("Restored runtime version does not match its WorkBuddy package.")
+    _verify_visible_author_source(path.parent.parent, manifest, files)
     return expected, files
+
+
+def _verify_visible_author_source(installed, manifest, files):
+    """Verify the review-visible source mirror against the complete payload."""
+    declaration = manifest.get("visible_author_source")
+    if declaration is None:
+        # Older published packages had only the verified runtime payload.
+        # New packages declare the visible mirror and may never omit it.
+        if tuple(map(int, manifest["package_version"].split("."))) >= (0, 1, 3):
+            raise ValueError("The visible author-source declaration is missing.")
+        return
+    if not isinstance(declaration, dict) or set(declaration) != {"layout", "layout_sha256", "file_count"}:
+        raise ValueError("Invalid visible author-source declaration.")
+    if declaration["layout"] != "author_source/layout.json":
+        raise ValueError("Invalid visible author-source layout path.")
+    directory = installed / "author_source"
+    if directory.is_symlink() or not directory.is_dir():
+        raise ValueError("The visible author_source directory is missing or unsafe.")
+    path = installed / declaration["layout"]
+    try:
+        data = _regular_bytes(path)
+    except (OSError, RuntimeError) as exc:
+        raise ValueError("The visible author-source layout is missing or unsafe.") from exc
+    if _digest(data) != _hash(declaration["layout_sha256"], "visible author-source layout"):
+        raise ValueError("Visible author-source layout SHA-256 mismatch.")
+    layout = _json(data)
+    if (not isinstance(layout, dict) or layout.get("schema") != "stca-workbuddy-visible-author-source-v1"
+            or layout.get("original_directory") != "assets/author_source"):
+        raise ValueError("Invalid visible author-source layout.")
+    mapping = layout.get("files")
+    prefix = "assets/author_source/"
+    source = {name[len(prefix):]: record for name, record in files.items() if name.startswith(prefix)}
+    if (not isinstance(mapping, dict) or set(mapping) != set(source)
+            or type(declaration["file_count"]) is not int or declaration["file_count"] != len(source)):
+        raise ValueError("Visible author-source inventory differs from the complete runtime payload.")
+    original = _json(source.get("source_manifest.json", {}).get("data", b"{}"))
+    original_files = original.get("files") if isinstance(original, dict) else None
+    if (not isinstance(original_files, dict)
+            or set(source) != set(original_files) | {"source_manifest.json"}
+            or not {"LICENSE", "NOTICE"}.issubset(original_files)):
+        raise ValueError("The original author-source integrity manifest is incomplete.")
+    for relative, digest in original_files.items():
+        if source[relative]["sha256"] != digest:
+            raise ValueError("Original author-source SHA-256 mismatch: " + relative)
+    expected_paths = {"author_source/layout.json"}
+    for relative, record in mapping.items():
+        if not isinstance(record, dict) or set(record) != {"path", "sha256", "encoding", "stored_sha256"}:
+            raise ValueError("Invalid visible author-source mapping: " + relative)
+        target = record["path"]
+        parts = _safe_relative(target)
+        if len(parts) != 2 or parts[0] != "author_source" or target in expected_paths:
+            raise ValueError("Unsafe or duplicate visible author-source path: " + str(target))
+        expected_paths.add(target)
+        expected = source[relative]
+        if record["sha256"] != expected["sha256"]:
+            raise ValueError("Visible author-source mapping SHA-256 mismatch: " + relative)
+        try:
+            visible = _regular_bytes(installed / target)
+        except (OSError, RuntimeError) as exc:
+            raise ValueError("Visible author-source file is missing or unsafe: " + target) from exc
+        if _digest(visible) != _hash(record["stored_sha256"], "visible author-source file"):
+            raise ValueError("Visible author-source stored SHA-256 mismatch: " + target)
+        if record["encoding"] == "xz":
+            try:
+                decoder = lzma.LZMADecompressor(memlimit=64 * 1024 * 1024)
+                visible = decoder.decompress(visible, max_length=MAX_PAYLOAD_BYTES + 1)
+            except lzma.LZMAError as exc:
+                raise ValueError("Invalid compressed visible author source: " + target) from exc
+            if len(visible) > MAX_PAYLOAD_BYTES or not decoder.eof or decoder.unused_data:
+                raise ValueError("Incomplete, oversized or trailing visible author source: " + target)
+        elif record["encoding"] != "raw":
+            raise ValueError("Unsupported visible author-source encoding: " + target)
+        if _digest(visible) != expected["sha256"] or visible != expected["data"]:
+            raise ValueError("Visible author-source file differs from the original: " + target)
+    actual_paths = {"author_source/" + entry.name for entry in directory.iterdir()}
+    if actual_paths != expected_paths:
+        raise ValueError("Unexpected resource in the visible author_source directory.")
 
 
 def _cache_base():

@@ -4,9 +4,9 @@ STCA is used by the current LLM in the conversation. It does not create a fixed 
 
 ## 同一份 RadonPy 数据试用筛选
 
-读取 [案例配置](../assets/examples/radonpy_density_case.json)。用户上传完整 PI1070.csv，说明：使用现成 RadonPy 高密度 Top 30% STCA 规则筛选这份数据。
+读取 [案例配置](../assets/examples/radonpy_density_case.json)。用户上传完整 PI1070.csv，说明：使用推荐的现成 RadonPy 高密度 Top 30% 规则筛选这份数据。
 
-按列名读取全部1077条输入：可选标识monomer_ID、结构smiles、目标density（g/cm³，MD计算），不让用户逐格选取集成表。当前精选条目为`latest-pi-rho-stca-high-30`，条件K42=1，物理目标边界≥1.222343047g/cm³。实际筛选应得到137条匹配、940条未匹配、0未知；读取真实输出才报数字。不要静默选用同名旧兼容条目，也不从候选表重算冻结阈值。
+按列名读取全部1077条输入：可选标识monomer_ID、结构smiles、目标density（g/cm³，MD计算），不让用户逐格选取集成表。默认采用主推 WRAcc 条目`current-pi-rho-wracc-high-30`，得到389条匹配、688条未匹配、0未知。用户明确选择 STCA 时，采用`current-pi-rho-stca-high-30`，得到282条匹配、795条未匹配、0未知；不能静默改成推荐方法。两条规则的物理目标边界均为≥1.222080875g/cm³。读取真实输出才报数字。不从候选表重算冻结阈值。
 
 ## 从公开数据总结规则后继续筛选
 
@@ -60,7 +60,7 @@ STCA is used by the current LLM in the conversation. It does not create a fixed 
 
 ## 直接生成
 
-同一RadonPy案例可说：“用刚才选定的高密度 Top 30% STCA 规则直接生成5个聚合物重复单元并核验。”生成前读取该精确条目的完整prompt；静态示例只供展示，不当作新提案复制。
+同一RadonPy案例可说：“用刚才选定的高密度 Top 30% 规则直接生成5个聚合物重复单元并核验。”生成前读取该精确条目的完整prompt，不因推荐方法而替换当前选择。随包静态五条生成示例明确使用 STCA，只供展示，不当作新提案复制。
 
 用户：用刚才选定的规则直接生成 20 个聚合物重复单元并核验。
 
@@ -81,4 +81,4 @@ STCA is used by the current LLM in the conversation. It does not create a fixed 
 - **Direct:** “Generate and verify 20 polymer repeat units directly with the selected rule.” The current LLM generates; the calculation verifies. Preserve proposals as pending if verification cannot run.
 - **Continue elsewhere:** “Load this saved rule bundle and continue.” Import it, then resolve the intended saved target from the conversation.
 
-同一保存模型重新载入后应用同表必须逐行一致；自适应重学与旧冻结规则只有在原始数据、准备方法、H-cap、算法及全部设置相同时才应一致。保留不同原始连接图，不按H-cap结果相同强行合并。
+同一保存模型重新载入后应用同表必须逐行一致；当前默认冻结规则与重新归纳采用相同原始数据、逐档准备、H-cap、算法和设置；同一档位单独或批量请求时应一致。保留不同原始连接图，不按H-cap结果相同强行合并。

@@ -44,10 +44,17 @@ STCA 是由当前 AI 助手在对话中使用的 skill，处理流程已内置�
 **直接使用已有规则筛选：**
 
 ```text
-使用现成的 RadonPy 高密度 Top 30% STCA 规则筛选这份数据。
+使用推荐的 RadonPy 高密度 Top 30% 规则筛选这份数据。
 ```
 
-这个固定文件应返回 **137 条规则匹配、940 条未匹配、0 条未知**；规则的密度目标边界为 **≥ 1.222343047 g/cm³**。
+本例推荐 **WRAcc**。两种方法的密度目标边界均为 **≥ 1.222080875 g/cm³**；这个固定文件应返回：
+
+| 方法 | 规则匹配 | 未匹配 | 未知 | 交叉验证平均筛选评分 |
+|---|---:|---:|---:|---:|
+| **WRAcc（推荐）** | **389** | 688 | 0 | **0.7014** |
+| STCA | 282 | 795 | 0 | 0.6479 |
+
+WRAcc 的综合评分、召回率和 F1 更高；STCA 的精确率更高。也可明确指定“使用 STCA 规则”。
 
 **从同一数据总结规则并保存：**
 
@@ -55,7 +62,7 @@ STCA 是由当前 AI 助手在对话中使用的 skill，处理流程已内置�
 从这份 RadonPy 数据总结高密度 Top 30% 规则。结构列为 smiles，性质列为 density，单位 g/cm³，使用全部数据行。返回筛选结果，与现成规则比较，并保存新规则。
 ```
 
-AI 助手自动选择数据形式与扫描步长，分别返回 STCA 和 WRAcc 结果。固定相同的训练数据、预处理、指纹、学习设置与程序版本时，重新计算应得到相同规则；重新自适应学习可能与现成冻结规则不同。要核对保存复用，可接着说 **“重新载入刚保存的 Top 30% STCA 规则，再筛选同一份数据。”** 逐行判断应与这条规则学习完成时的筛选结果一致。
+AI 助手为每个百分比独立选择数据变换、扫描步长和支持量，分别返回 STCA 和 WRAcc。使用这份固定文件、同一版本和默认设置时，新学习的两种 Top 30% 规则应分别与对应内置规则一致；同时请求其他百分比不会改变这一档。复用推荐规则时，可接着说 **“重新载入刚保存的 Top 30% WRAcc 规则，再筛选同一份数据。”** 每行判断应与刚才一致。
 
 **使用选定规则生成：**
 
@@ -73,9 +80,9 @@ AI 助手自动选择数据形式与扫描步长，分别返回 STCA 和 WRAcc �
 
 WRAcc 默认在训练数据内自动选择条件数上限。也可以直接说 **“WRAcc 最多使用 10 条条件”** 或 **“不限制 WRAcc 条件数”**。
 
-总结完成后，同时交付**两种方法在每个档位的规则与对应筛选结果**：包含百分比对应的**具体物理数值、≥／≤ 比较符及单位**，以及原始 SMILES、入选判断、每条未满足的规则条件及不可计算记录。即使用 log10 归纳，也返回原始物理尺度的阈值。原上传表始终返回逐档结果；另传独立候选表时，其结果另列。
+总结完成后，同时交付**两种方法在每个档位的结果与规则可用状态**：包含百分比对应的**具体物理数值、≥／≤ 比较符及单位**，以及原始 SMILES、入选判断、每条未满足的规则条件及不可计算记录。即使用 log10 归纳，也返回原始物理尺度的阈值。原上传表始终返回逐档结果；另传独立候选表时，其结果另列。
 
-AI 助手将模型、规则、物理阈值和完整中英文生成 prompt 保存为文件，并报告文件名与位置。接着说 **“用刚才保存的规则筛选这份表”**，或 **“用刚才的高密度规则生成 20 个重复单元”**，即可继续。需要在新会话或其他平台复用时，下载并携带规则包；本地文件能否长期保留取决于当前工作区。
+AI 助手将可用模型、规则、物理阈值和完整中英文生成 prompt 保存为文件，并报告文件名与位置。接着说 **“用刚才保存的规则筛选这份表”**，或 **“用刚才的高密度规则生成 20 个重复单元”**，即可继续。需要在新会话或其他平台复用时，下载并携带规则包；本地文件能否长期保留取决于当前工作区。
 
 ![STCA 工作流程](assets/workflow.zh-CN.svg)
 
@@ -95,8 +102,8 @@ AI 助手将模型、规则、物理阈值和完整中英文生成 prompt 保存
 | 平台 | 安装方式 | 调用 |
 |---|---|---|
 | **Codex** | 安装 GitHub 中的 skill 目录，或使用 [Codex ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-codex-0.1.0.zip)。 | `使用 $stca` |
-| **DeepSeek Harness** | 在“添加插件”中填写 GitHub 仓库地址；无需先发布 npm。 | `/stca` |
-| **WorkBuddy** | 导入 [WorkBuddy ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.1.zip)。 | “开始使用 STCA” |
+| **DeepSeek Harness** | 在“添加插件”中填写下方 GitHub 安装地址；无需先发布 npm。 | `/stca` |
+| **WorkBuddy** | 导入 [WorkBuddy ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.3.zip)。 | “开始使用 STCA” |
 | **ChatGPT** | 在支持 skill 安装的客户端中导入 [OpenAI skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-openai-skill-0.1.0.zip)。 | 选择 STCA 或要求使用 STCA。 |
 
 ### Codex
@@ -112,10 +119,10 @@ AI 助手将模型、规则、物理阈值和完整中英文生成 prompt 保存
 ### DeepSeek Harness
 
 1. 打开 **插件 → 添加插件**。
-2. 在输入框填写下面的 **GitHub 仓库地址**，点击安装：
+2. 在输入框填写下面的 **GitHub 安装地址**，点击安装：
 
 ```text
-https://github.com/foukusa/stca-agent-skill.git
+github:foukusa/stca-agent-skill
 ```
 
 3. 安装并启用 STCA 后，输入 `/stca` 或“开始使用 STCA”，说明任务并按需上传数据。
@@ -130,7 +137,7 @@ https://github.com/foukusa/stca-agent-skill.git
 
 ### WorkBuddy
 
-1. 从上表下载 `stca-workbuddy-0.1.1.zip`。
+1. 从上表下载 `stca-workbuddy-0.1.3.zip`。
 2. 打开 WorkBuddy 的 skill 管理页面，选择添加／上传本地 skill 包，直接选择 ZIP，完成导入并启用 **STCA Polymer Rules and Design**。
 3. 输入“开始使用 STCA”，上传文件，再说明要总结规则、筛选候选还是生成重复单元。
 
@@ -150,7 +157,7 @@ ZIP 和 TGZ 链接均指向本仓库 [`downloads` 目录](https://github.com/fou
 
 ## 现成规则与生成 prompt
 
-[规则与 prompt 目录](docs/RULE_LIBRARY.zh-CN.md)按**数据来源 → 性质 → 百分比**列出选择；也可载入你自己归纳并保存的规则包。开源数据规则覆盖 **12 项任务**，均提供 Top **10%、20%、30%** 及两种方法的主推／备选；也提供作者 STCA 论文中实现的 Tg 与电导率冻结规则。
+[规则与 prompt 目录](docs/RULE_LIBRARY.zh-CN.md)按**数据来源 → 性质 → 百分比**列出选择；也可载入你自己归纳并保存的规则包。开源数据规则覆盖 **12 项任务**，提供 Top **10%、20%、30%** 的两种方法结果，目录标明规则可用状态与推荐；也提供作者 STCA 论文中实现的 Tg 与电导率冻结规则。
 
 | 来源 | 可选性质 |
 |---|---|
@@ -159,7 +166,7 @@ ZIP 和 TGZ 链接均指向本仓库 [`downloads` 目录](https://github.com/fou
 | [RadonPy 计算数据](https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv) | 热导率、折射率、密度、比热、介电常数 |
 | [ADEPT 计算数据](https://github.com/sobinalosious/PolyGraphMT/tree/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw) | 热导率、密度、孤立单体 HOMO–LUMO 能隙、介电常数、折射率 |
 
-目录显示每个档位的**方法、主推与备选、具体物理阈值、比较符及单位**。接受推荐就直接使用主推，也可明确指定方法；两套规则分别应用。所选冻结目录没有的百分比，例如开源数据目录之外的 15%、25%，需上传带标签数据学习新规则，不能插值或改用相邻档位。若只想将 prompt 用于其他 LLM，可明确请求“只给完整 prompt，暂不生成”。
+目录显示每个档位的**方法、规则可用状态、推荐、具体物理阈值、比较符及单位**。接受推荐就直接使用，也可明确选择可用方法；可用规则分别应用。所选冻结目录没有的百分比，例如开源数据目录之外的 15%、25%，需上传带标签数据学习新规则，不能插值或改用相邻档位。若只想将 prompt 用于其他 LLM，可明确请求“只给完整 prompt，暂不生成”。
 
 Tg 与电导率规则用于作者 STCA 论文中展示的实验性质筛选任务。GAS、RadonPy 和 ADEPT 的 12 项公开数据任务也已使用 STCA 完成规则归纳与筛选验证。选择符合目标的现成规则，或从自己的数据总结；详见[规则目录](docs/RULE_LIBRARY.zh-CN.md#stca-论文规则)、[数据来源](examples/open_data/dataset_registry.csv)和[应用示例](examples/open_data/README.zh-CN.md)。
 

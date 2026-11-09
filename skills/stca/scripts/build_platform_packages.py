@@ -10,10 +10,10 @@ import argparse
 import base64
 import hashlib
 import json
+import lzma
 from pathlib import Path
 import re
 import zipfile
-import zlib
 
 
 CORE_SCRIPTS = (
@@ -28,15 +28,39 @@ PUBLICATION_FILES = (
     "LICENSE", "THIRD_PARTY_NOTICES.md", "CITATION.cff",
 )
 PLATFORMS = ("deepseek-harness", "workbuddy")
+WORKBUDDY_MAX_EXPANDED_BYTES = 3 * 1024 * 1024
+NOTICE_LAYOUT_HEADING = "\n## Included source files\n"
 
 
 def sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def publication_notice(data: bytes, source_directory: str, *, flattened: bool = False) -> bytes:
+    """Describe the physical source layout of this particular distribution."""
+    text = data.decode("utf-8").split(NOTICE_LAYOUT_HEADING, 1)[0].rstrip()
+    location = source_directory.rstrip("/")
+    description = (
+        f"\nThe author implementation is included in `{location}`. Original license "
+        f"and attribution files: `{location}/LICENSE` and `{location}/NOTICE`. "
+        f"The unchanged original file-integrity manifest is `{location}/source_manifest.json`.\n"
+    )
+    if flattened:
+        description += (
+            f"`{location}/layout.json` maps every original source path to its visible "
+            "flat filename, storage encoding and SHA-256. Python source, LICENSE, "
+            "NOTICE and the original integrity manifest are ordinary readable files; "
+            "model JSON resources use lossless `.xz` compression. All original file "
+            "bytes are retained and checked after decoding. The "
+            "complete original hierarchy is also included in the verified runtime "
+            "payload and restored before calculations.\n"
+        )
+    return (text + "\n" + NOTICE_LAYOUT_HEADING + description).encode("utf-8")
+
+
 def source_payload(skill: Path) -> dict[str, bytes]:
     files: dict[str, bytes] = {}
-    for directory in ("scripts", "references", "assets"):
+    for directory in ("scripts", "references", "assets", "validation"):
         for path in sorted((skill / directory).rglob("*")):
             relative = path.relative_to(skill)
             if path.is_symlink():
@@ -50,6 +74,8 @@ def source_payload(skill: Path) -> dict[str, bytes]:
             files[relative.as_posix()] = path.read_bytes()
     for name in PUBLICATION_FILES:
         files[name] = (skill / "assets" / "publication" / name).read_bytes()
+    files["THIRD_PARTY_NOTICES.md"] = publication_notice(
+        files["THIRD_PARTY_NOTICES.md"], "assets/author_source")
     required = ["scripts/" + n for n in CORE_SCRIPTS] + [
         "scripts/launch_runtime.sh", "scripts/launch_runtime.ps1",
         "assets/stca-logo.png", "assets/objectives_example.json",
@@ -60,6 +86,7 @@ def source_payload(skill: Path) -> dict[str, bytes]:
         "assets/examples/candidates.csv",
         "assets/examples/quick_start_candidates.csv",
         "assets/rule_library/original_trial_evidence.json",
+        "validation/historical_validation_20261107.json",
         "references/platform-runtime.md", "references/deepseek-harness.md",
         "references/workbuddy.md",
         "references/usage_examples.md",
@@ -102,9 +129,9 @@ def workbuddy_payload(files: dict[str, bytes], version: str) -> bytes:
     }}, sort_keys=True, separators=(",", ":")).encode("utf-8")
     return (json.dumps({
         "schema": "stca-workbuddy-runtime-v1", "version": version,
-        "payload_encoding": "zlib+base64", "payload_sha256": sha256(inner),
+        "payload_encoding": "lzma+base85", "payload_sha256": sha256(inner),
         "file_count": len(files),
-        "payload": base64.b64encode(zlib.compress(inner, level=9)).decode("ascii"),
+        "payload": base64.b85encode(lzma.compress(inner, preset=6)).decode("ascii"),
     }, sort_keys=True, separators=(",", ":")) + "\n").encode("utf-8")
 
 
@@ -166,6 +193,12 @@ def shallow_workbuddy_files(skill: Path, files: dict[str, bytes], meta: dict) ->
     payload = workbuddy_payload(files, meta["package_version"])
     payload_metadata = json.loads(payload)
     manifest = json.loads(files["assets/platform-release.json"])
+    visible_source = visible_author_source(files)
+    manifest["visible_author_source"] = {
+        "layout": "author_source/layout.json",
+        "layout_sha256": sha256(visible_source["author_source/layout.json"]),
+        "file_count": len(visible_source) - 1,
+    }
     entrypoints = {
         "scripts/workbuddy_runtime.py": (skill / "scripts/workbuddy_runtime.py").read_bytes(),
         "scripts/agent_runtime.py": workbuddy_agent_entry(),
@@ -175,6 +208,8 @@ def shallow_workbuddy_files(skill: Path, files: dict[str, bytes], meta: dict) ->
     manifest.update({
         "archive_layout": "root_SKILL_and_direct_child_files_only",
         "maximum_archive_path_components": 2,
+        "maximum_upload_expanded_bytes": WORKBUDDY_MAX_EXPANDED_BYTES,
+        "runtime_payload_encoding": payload_metadata["payload_encoding"],
         "runtime_payload_sha256": payload_metadata["payload_sha256"],
         "runtime_payload_files": len(files),
         "core_scripts_location": "verified_runtime_payload",
@@ -187,6 +222,9 @@ def shallow_workbuddy_files(skill: Path, files: dict[str, bytes], meta: dict) ->
         },
     })
     shallow = {name: files[name] for name in PUBLICATION_FILES}
+    shallow["THIRD_PARTY_NOTICES.md"] = publication_notice(
+        files["THIRD_PARTY_NOTICES.md"], "author_source", flattened=True)
+    shallow.update(visible_source)
     shallow.update(entrypoints)
     shallow.update({
         "SKILL.md": workbuddy_entry(meta),
@@ -200,7 +238,44 @@ def shallow_workbuddy_files(skill: Path, files: dict[str, bytes], meta: dict) ->
     if any(len(Path(name).parts) > 2 or Path(name).is_absolute() or ".." in Path(name).parts for name in shallow):
         raise ValueError("WorkBuddy export must contain only root or direct-child files.")
     validate_workbuddy_entry_resources(shallow)
+    validate_workbuddy_size(shallow)
     return shallow
+
+
+def visible_author_source(files: dict[str, bytes]) -> dict[str, bytes]:
+    """Expose real, byte-exact author resources within WorkBuddy's depth limit."""
+    prefix = "assets/author_source/"
+    source = {name[len(prefix):]: data for name, data in files.items() if name.startswith(prefix)}
+    if not {"LICENSE", "NOTICE", "source_manifest.json"}.issubset(source):
+        raise ValueError("The author source, original license/notice or integrity manifest is missing.")
+    original = json.loads(source["source_manifest.json"])
+    declared = original.get("files")
+    if not isinstance(declared, dict) or set(source) != set(declared) | {"source_manifest.json"}:
+        raise ValueError("Author-source inventory differs from its original integrity manifest.")
+    for relative, digest in declared.items():
+        if sha256(source[relative]) != digest:
+            raise ValueError("Author source differs from its original SHA-256: " + relative)
+    visible = {}
+    mapping = {}
+    for relative, data in sorted(source.items()):
+        name = "author_source/" + "__".join(relative.split("/"))
+        encoding = "raw"
+        stored = data
+        if relative.startswith("src/stca/assets/") and relative.endswith(".json"):
+            name += ".xz"
+            encoding = "xz"
+            stored = lzma.compress(data, preset=6)
+        if name == "author_source/layout.json" or name.casefold() in {n.casefold() for n in visible}:
+            raise ValueError("Flattened author-source filename collision: " + relative)
+        visible[name] = stored
+        mapping[relative] = {"path": name, "sha256": sha256(data),
+                             "encoding": encoding, "stored_sha256": sha256(stored)}
+    visible["author_source/layout.json"] = (json.dumps({
+        "schema": "stca-workbuddy-visible-author-source-v1",
+        "original_directory": "assets/author_source",
+        "files": mapping,
+    }, ensure_ascii=False, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    return visible
 
 
 def workbuddy_agent_entry() -> bytes:
@@ -222,11 +297,28 @@ if __name__ == "__main__":
 
 def validate_workbuddy_entry_resources(files: dict[str, bytes]) -> None:
     """Reject upload instructions that refer to an absent visible resource."""
-    entry = files["SKILL.md"].decode("utf-8")
-    paths = set(re.findall(r"\b(?:scripts|assets|references)/[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*", entry))
-    missing = sorted(path for path in paths if path not in files)
+    paths = set()
+    for name in ("SKILL.md", "THIRD_PARTY_NOTICES.md"):
+        entry = files.get(name, b"").decode("utf-8")
+        # Local resources are written in code spans. External source URLs are
+        # attribution, not claims about the installed package's file layout.
+        paths.update(re.findall(r"`((?:scripts|assets|references|author_source|skills)/[A-Za-z0-9_./-]+|author_source)`", entry))
+    missing = sorted(path for path in paths if path not in files
+                     and not any(name.startswith(path.rstrip("/") + "/") for name in files))
     if missing:
         raise ValueError("WorkBuddy entry references missing bundled resources: " + ", ".join(missing))
+
+
+def validate_workbuddy_size(files: dict[str, bytes]) -> int:
+    """Enforce WorkBuddy's extracted-upload limit, including every file."""
+    expanded = sum(len(data) for data in files.values())
+    if expanded > WORKBUDDY_MAX_EXPANDED_BYTES:
+        raise ValueError(
+            f"WorkBuddy extracted package is {expanded} bytes; the maximum is "
+            f"{WORKBUDDY_MAX_EXPANDED_BYTES} bytes. Keep all runtime resources "
+            "and improve the lossless payload encoding before release."
+        )
+    return expanded
 
 
 def main() -> int:
@@ -303,6 +395,7 @@ def main() -> int:
                 info.external_attr = 0o100644 << 16
                 z.writestr(info, data)
         archives.append({"file": str(archive), "files": len(files), "bytes": archive.stat().st_size,
+                         "expanded_bytes": sum(len(data) for data in files.values()),
                          "sha256": sha256(archive.read_bytes())})
     print(json.dumps({"archives": archives}, indent=2))
     return 0

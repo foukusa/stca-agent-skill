@@ -82,14 +82,16 @@ assert(loaded.content.startsWith('# STCA'));
 assert(!loaded.content.startsWith('---'));
 assert(loaded.invocation.modelInvocable && loaded.invocation.userInvocable);
 const catalog=JSON.parse(fs.readFileSync(path.join(loaded.resourceBase.path,'assets/rule_library/catalog.json'),'utf8'));
-assert.equal(catalog.entries.length,149);
+assert.equal(catalog.entries.length,Number(process.argv[2]));
+assert.equal(new Set(catalog.entries.map(entry=>entry.id)).size,catalog.entries.length);
 for(const entry of catalog.entries)for(const p of [entry.constraints,...Object.values(entry.prompts)])assert(fs.existsSync(path.join(loaded.resourceBase.path,'assets/rule_library',p)));
 assert.equal(await provider.get({name:'other',provider:'other'},{}),undefined);
 const cancel=new AbortController();cancel.abort();
 await assert.rejects(provider.list({signal:cancel.signal}));
 console.log(JSON.stringify({registered:true,external_dependencies:0,rules:catalog.entries.length}));
 '''
-        result=subprocess.run(['node','--input-type=module','-e',script,str(directory)],
+        expected_catalog=json.loads((ROOT/'skills/stca/assets/rule_library/catalog.json').read_bytes())
+        result=subprocess.run(['node','--input-type=module','-e',script,str(directory),str(len(expected_catalog['entries']))],
                               cwd=self.temp.name,capture_output=True,text=True,
                               env={**os.environ,'NODE_PATH':''})
         self.assertEqual(result.returncode,0,result.stderr)
@@ -98,16 +100,83 @@ console.log(JSON.stringify({registered:true,external_dependencies:0,rules:catalo
     def test_all_frozen_rules_prompts_and_computational_scripts_preserved(self):
         prefix='skills/stca/'
         catalog=json.loads(self.files[prefix+'assets/rule_library/catalog.json'])
-        self.assertEqual(len(catalog['entries']),149)
-        self.assertEqual(sum(len(e['prompts']) for e in catalog['entries']),298)
+        self.assertEqual(self.files[prefix+'assets/rule_library/catalog.json'],
+                         (ROOT/prefix/'assets/rule_library/catalog.json').read_bytes())
+        entries=catalog['entries']
+        self.assertEqual(len({entry['id'] for entry in entries}),len(entries))
+        self.assertEqual(catalog['counts']['retained'],len(entries))
+        paper=[entry for entry in entries if entry['id'].startswith('paper-')]
+        previous=[entry for entry in entries if entry['id'].startswith('latest-')]
+        current=[entry for entry in entries if entry['id'].startswith('current-')]
+        historical=[entry for entry in entries
+                    if not entry['id'].startswith(('paper-','latest-','current-'))]
+        self.assertEqual(len(paper),11)
+        self.assertEqual(len(entries),83)
+        self.assertEqual(len(previous),0)
+        self.assertEqual(len(historical),0)
+        self.assertEqual(len(current),72)
+        self.assertEqual(sum(entry.get('available', True) for entry in current),71)
+        visible=[entry for entry in entries if entry.get('user_visible',True)]
+        self.assertEqual(len(visible),83)
+        active=current
+        self.assertTrue(all(entry.get('user_visible',True) for entry in active))
+        self.assertEqual({entry['id'] for entry in entries},
+                         {path.parent.name for path in (ROOT/'skills/stca/assets/rule_library/entries').glob('*/constraints.json')})
+        pairs={}
+        for entry in active:
+            pairs.setdefault((entry['dataset'],entry['tier']),[]).append(entry)
+        self.assertEqual(len(pairs),36)
+        for pair in pairs.values():
+            self.assertEqual({entry['learner'] for entry in pair},{'STCA','WRAcc'})
+            self.assertEqual(sum(bool(entry['is_primary']) for entry in pair),1)
+            self.assertTrue(all(entry['alternative_id'] in {other['id'] for other in pair}
+                                and entry['alternative_id']!=entry['id'] for entry in pair))
+        self.assertEqual(sum(len(entry['prompts']) for entry in entries),2*len(entries))
         for e in catalog['entries']:
+            self.assertEqual(set(e['prompts']),{'en','zh-CN'})
             for relative in [e['constraints'],*e['prompts'].values()]:
                 name=prefix+'assets/rule_library/'+relative
                 self.assertEqual(self.files[name],(ROOT/name).read_bytes())
-        for name,data in self.files.items():
-            if name.startswith(prefix+'scripts/') and name.endswith('.py'):
-                self.assertEqual(data,(ROOT/name).read_bytes(),name)
-        self.assertFalse(any('__pycache__' in n or n.endswith('.pyc') or '.DS_Store' in n for n in self.files))
+        # Every ordinary skill resource must survive npm's selection, including
+        # scripts that are not directly referenced by the entry module.
+        for source in (ROOT/'skills/stca').rglob('*'):
+            if not source.is_file() or self.is_junk(source.relative_to(ROOT).as_posix()):
+                continue
+            name=source.relative_to(ROOT).as_posix()
+            self.assertIn(name,self.files,name)
+            self.assertEqual(self.files[name],source.read_bytes(),name)
+        self.assertFalse(any(self.is_junk(name) for name in self.files))
+
+    @staticmethod
+    def is_junk(name):
+        path=Path(name)
+        return ('__pycache__' in path.parts or path.suffix in {'.pyc','.pyo'}
+                or path.name in {'.DS_Store','Thumbs.db'})
+
+    def test_pack_excludes_junk_inside_explicitly_included_directories(self):
+        # npm's explicit `files` directories take precedence over root ignore
+        # rules. Exercise the real npm selector with junk still on disk.
+        with tempfile.TemporaryDirectory(prefix='stca npm exclusion fixture ') as temp:
+            root=Path(temp)
+            (root/'package.json').write_bytes((ROOT/'package.json').read_bytes())
+            (root/'.npmignore').write_bytes((ROOT/'.npmignore').read_bytes())
+            good=['skills/stca/SKILL.md','skills/stca/scripts/agent_runtime.py',
+                  'skills/stca/assets/resource.json','dsh/index.js']
+            junk=['skills/stca/scripts/__pycache__/agent_runtime.cpython-312.pyc',
+                  'skills/stca/assets/author_source/stca/__pycache__/training.pyc',
+                  'skills/stca/scripts/leftover.pyo','skills/stca/.DS_Store',
+                  'skills/stca/assets/Thumbs.db','dsh/__pycache__/cache.bin']
+            for name in good+junk:
+                path=root/name
+                path.parent.mkdir(parents=True,exist_ok=True)
+                path.write_bytes(b'fixture')
+            result=subprocess.run(['npm','pack','--ignore-scripts','--dry-run','--json'],
+                                  cwd=root,capture_output=True,text=True)
+            self.assertEqual(result.returncode,0,result.stderr)
+            names={item['path'] for item in json.loads(result.stdout)[0]['files']}
+            self.assertTrue(set(good)<=names)
+            self.assertFalse(any(name in names for name in junk))
+            self.assertTrue(all((root/name).is_file() for name in junk))
 
 
 if __name__=='__main__':

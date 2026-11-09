@@ -1,6 +1,6 @@
 # STCA 可执行命令
 
-> 当前默认开源主线已更新为12任务、10/20/30档的STCA/WRAcc主推与备选；来源及证据见 [effectiveness.md](effectiveness.md)。用户上传数据默认走 [范围内流程](agent_workflows.md)，显式source/holdout保留原严格路径。下文旧实验、13任务或15/25内置条目仅对应保留的legacy版本，不作为当前默认目录。
+> 当前开源目录覆盖12项任务和10/20/30档的STCA/WRAcc结果；来源及证据见 [effectiveness.md](effectiveness.md)。用户上传数据默认走 [范围内流程](agent_workflows.md)，明确要求source/holdout时采用对应的独立评价流程；其他百分比可从上传数据重新学习。
 
 
 ## 目录

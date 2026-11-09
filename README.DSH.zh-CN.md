@@ -21,7 +21,7 @@
 2. 在“包名、GitHub 仓库地址或本地目录路径”输入框中填写：
 
 ```text
-https://github.com/foukusa/stca-agent-skill.git
+github:foukusa/stca-agent-skill
 ```
 
 3. 点击安装，完成后启用 STCA，再输入 `/stca` 或“开始使用 STCA”。
@@ -30,14 +30,14 @@ https://github.com/foukusa/stca-agent-skill.git
 
 | 方式 | 在“添加插件”中填写 |
 |---|---|
-| **GitHub 仓库，当前推荐** | `https://github.com/foukusa/stca-agent-skill.git` |
+| **GitHub 仓库，当前推荐** | `github:foukusa/stca-agent-skill` |
 | 下载插件 ZIP 后安装 | [插件 ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.zip)解压后，直接包含 `package.json` 的文件夹完整路径 |
 | npm 包名，发布后可用 | `dsh-plugin-stca` |
 | 插件中心 | —（上架后补充链接） |
 
 <!-- DSH_PLUGIN_CENTER_URL: add the actual listing URL after publication. -->
 
-已有 STCA 条目时先检查并启用；需要替换时，仅通过插件管理处理旧 STCA，保留数据、结果和保存的规则。 若重复添加 HTTPS 地址时出现依赖识别报错，可在同一输入框改填 `github:foukusa/stca-agent-skill`；这仍是 GitHub 来源，不要求 npm 发布。安装报错及可选 CLI 操作见[安装说明](https://github.com/foukusa/stca-agent-skill/blob/main/docs/INSTALL.zh-CN.md#deepseek-harness)。
+在“添加插件”中使用上面的 `github:` 地址。若之前用 HTTPS 地址安装时出现“无法从依赖变更中确定安装了哪一个包”，改用此地址重试。已有 STCA 条目时先检查并启用；替换旧版时保留数据、结果和保存的规则。安装报错及可选 CLI 操作见[安装说明](https://github.com/foukusa/stca-agent-skill/blob/main/docs/INSTALL.zh-CN.md#deepseek-harness)。
 
 本地目录方式是备选：打开插件 ZIP 文件页，点击 **Download raw file** 下载并解压，再填写完整目录路径。另有[独立 skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip)，用于手动放置含 `SKILL.md` 的完整 `stca` 文件夹，与插件目录的安装方式分开。
 
@@ -47,7 +47,7 @@ STCA 通过当前 LLM 对话工作。你可以直接提出任务；只说“开�
 
 | 选择 | 得到什么 | 可以直接说 |
 |---|---|---|
-| **上传数据总结规则** | 保存 STCA 与 WRAcc 规则，返回对应筛选结果、实际阈值及推荐方法 | “从这份聚合物热导率数据总结高值规则并保存。” |
+| **上传数据总结规则** | 返回两种方法的结果与可用状态，保存可用规则并给出阈值和推荐 | “从这份聚合物热导率数据总结高值规则并保存。” |
 | **用已有规则筛选** | 每条原始候选的判断、未满足的规则条件及入选表 | “先显示规则目录，用我选的规则筛选这份候选。” |
 | **用已有规则生成** | 当前 LLM 按规则生成重复单元，再逐条核验结构条件 | “先选规则，再直接生成 20 个聚合物重复单元并核验。” |
 
@@ -72,10 +72,10 @@ STCA 通过当前 LLM 对话工作。你可以直接提出任务；只说“开�
 **现成规则筛选：**
 
 ```text
-使用现成的 RadonPy 高密度 Top 30% STCA 规则筛选这份数据。
+使用推荐的 RadonPy 高密度 Top 30% 规则筛选这份数据。
 ```
 
-这个固定文件应返回 **137 条规则匹配、940 条未匹配、0 条未知**；规则的密度目标边界为 **≥ 1.222343047 g/cm³**。
+本例推荐 **WRAcc**，应返回 **389 条规则匹配、688 条未匹配、0 条未知**；明确选择 STCA 时为 **282 条匹配、795 条未匹配、0 条未知**。两种方法的密度目标边界均为 **≥ 1.222080875 g/cm³**。WRAcc 的交叉验证平均筛选评分为 **0.7014**，STCA 为 **0.6479**；WRAcc 的召回率和 F1 更高，STCA 的精确率更高。
 
 **学习、筛选并保存：**
 
@@ -83,7 +83,7 @@ STCA 通过当前 LLM 对话工作。你可以直接提出任务；只说“开�
 从这份 RadonPy 文件的全部数据行总结高密度 Top 30% 规则。结构列为 smiles，性质列为 density，单位 g/cm³。返回筛选结果，与现成规则比较，并保存新规则。
 ```
 
-相同训练数据、预处理、指纹和设置下重新计算应得到相同规则；自适应重学可能与现成规则不同。重新载入刚保存的模型再筛同表，逐行判断应与该模型学习完成时一致，可直接说：“重新载入刚保存的 Top 30% STCA 规则，再筛选同一份数据。”
+每个百分比独立准备并学习。使用这份固定文件、同一版本和默认设置时，新学习的两种 Top 30% 规则应分别与对应内置规则一致，单独运行或同时请求其他百分比均相同。要复用推荐规则，可说：“重新载入刚保存的 Top 30% WRAcc 规则，再筛选同一份数据。”每行判断应与刚才一致。
 
 **生成：**
 

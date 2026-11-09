@@ -18,7 +18,7 @@
       "interface": {
         "displayName": "STCA",
         "shortDescription": "Polymer rules and design",
-        "longDescription": "Learn and save readable STCA and WRAcc rules from polymer structure-property data, with screening results for every requested tier. Screen candidates with paper, open-data or saved rules, or choose a rule to generate and verify polymer repeat units. Preserve original polymer SMILES and attachment points. The current AI assistant handles compatible CPU environment discovery and returns to the main menu after saving.",
+        "longDescription": "Learn and save readable STCA and WRAcc rules from polymer structure-property data, with screening results for every requested tier. Screen candidates with paper, open-data or saved rules, or choose a rule to generate and verify polymer repeat units. Preserve original polymer SMILES and attachment points. The current AI assistant handles compatible CPU environment discovery, saves reusable rule files and continues in natural language.",
         "developerName": "Weihao Wang",
         "category": "Education & Research",
         "defaultPrompt": [

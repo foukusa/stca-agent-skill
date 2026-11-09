@@ -1,3 +1,4 @@
+import csv
 import json
 from pathlib import Path
 import subprocess
@@ -51,15 +52,41 @@ class StarterTaskTests(unittest.TestCase):
         self.assertIn('precision and F1', data['score_explanation'])
 
     def test_direct_generation_keeps_one_rule_and_marks_runtime_failures_unverified(self):
-        result = self.call('3', '--rule', 'latest-pi-rho-stca-high-30', '--generation-mode', 'direct')
+        result = self.call('3', '--rule', 'current-pi-rho-stca-high-30', '--generation-mode', 'direct')
         self.assertEqual(result.returncode, 0, result.stderr)
         data = json.loads(result.stdout)
         self.assertIsNone(data['rule_options'])
-        self.assertEqual([r['id'] for r in data['selected_rules']], ['latest-pi-rho-stca-high-30'])
+        self.assertEqual([r['id'] for r in data['selected_rules']], ['current-pi-rho-stca-high-30'])
         self.assertEqual(data['next_action'], 'generate_with_current_llm_then_verify')
         self.assertTrue(data['generation_policy']['dependency_import_error_is_not_invalid_smiles'])
         self.assertEqual(data['generation_policy']['runtime_failure_status'], 'generated_unverified')
         self.assertLess(len(result.stdout), 25000)
+
+    def test_density_default_uses_primary_and_keeps_static_stca_generation_explicit(self):
+        case = json.loads((SKILL/'assets/examples/radonpy_density_case.json').read_text())
+        tasks = json.loads((SKILL/'assets/starter_tasks.json').read_text())
+        catalog = json.loads((SKILL/'assets/rule_library/catalog.json').read_text())
+        entries = {entry['id']: entry for entry in catalog['entries']}
+        primary = case['existing_rule']
+        alternative = case['alternative_method_rule']
+        self.assertEqual(primary['id'], 'current-pi-rho-wracc-high-30')
+        self.assertTrue(entries[primary['id']]['is_primary'])
+        self.assertEqual((primary['expected_selected'], primary['expected_not_selected']), (389, 688))
+        self.assertEqual(alternative['id'], 'current-pi-rho-stca-high-30')
+        self.assertEqual((alternative['expected_selected'], alternative['expected_not_selected']), (282, 795))
+        self.assertEqual(case['selection_policy']['default_screening_method'], 'catalog_primary')
+        self.assertTrue(case['selection_policy']['honor_explicit_method'])
+        self.assertEqual(tasks['example_cases'][0]['preferred_builtin_rule'], primary['id'])
+        result = self.call('2', '--rule', primary['id'])
+        self.assertEqual(result.returncode, 0, result.stderr)
+        selected = json.loads(result.stdout)['selected_rules']
+        self.assertEqual([rule['id'] for rule in selected], [primary['id']])
+        self.assertTrue(selected[0]['is_primary'])
+        with (SKILL/'assets/examples/radonpy_generation_examples.csv').open(newline='') as stream:
+            proposals = list(csv.DictReader(stream))
+        self.assertEqual(len(proposals), 5)
+        self.assertEqual({row['catalog_id'] for row in proposals}, {alternative['id']})
+        self.assertEqual(case['generation']['static_example_rule_id'], alternative['id'])
 
     def test_invalid_or_conflicting_choices_are_not_silently_routed(self):
         for arguments in [('4',), ('missing',), ('1', '--task', '2')]:

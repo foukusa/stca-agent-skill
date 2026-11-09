@@ -79,7 +79,7 @@ class PercentageMethodContractTest(unittest.TestCase):
         self.assertIn("never_pass_alternative_methods_to_an_implicit_AND", policy["method_comparison_execution"])
 
     def test_generation_uses_selected_tier_without_implicit_multi_tier_expansion(self):
-        result = self.call("3", "--rule", "latest-gas-co2-stca-high-10", "--generation-mode", "preview")
+        result = self.call("3", "--rule", "current-gas-co2-stca-high-10", "--generation-mode", "preview")
         self.assertIsNone(result["default_tiers"])
         self.assertFalse(result["percentage_policy"]["implicit_default_tiers_for_generation"])
         self.assertTrue(result["percentage_policy"]["never_AND_same_property_different_tiers"])
@@ -89,7 +89,7 @@ class PercentageMethodContractTest(unittest.TestCase):
         self.assertTrue(result["generation_gate"]["confirmation_required"])
 
     def test_selected_builtin_cutoff_matches_frozen_physical_target_and_unit(self):
-        result = self.call("2", "--rule", "latest-gas-co2-stca-high-10")
+        result = self.call("2", "--rule", "current-gas-co2-stca-high-10")
         choice = result["selected_rules"][0]
         constraint = json.loads(Path(choice["constraints_path"]).read_text(encoding="utf-8"))
         target = constraint["target"]

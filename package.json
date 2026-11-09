@@ -18,7 +18,15 @@
     "README.zh-CN.md",
     "LICENSE",
     "THIRD_PARTY_NOTICES.md",
-    "CITATION.cff"
+    "CITATION.cff",
+    "validation/historical_validation_20261107.json",
+    "!**/__pycache__/**",
+    "!**/*.pyc",
+    "!**/*.pyo",
+    "!**/.DS_Store",
+    "!**/Thumbs.db",
+    "README.DSH.md",
+    "README.DSH.zh-CN.md"
   ],
   "icon": "./assets/stca-logo.png",
   "engines": {

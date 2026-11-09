@@ -4,7 +4,7 @@
 
 ## 从 GitHub 安装插件
 
-在 DSH 的“插件 → 添加插件”输入框填写 `https://github.com/foukusa/stca-agent-skill.git`，安装并启用后输入 `/stca`。这是直接从 GitHub 获取插件，不要求预先发布 npm 包。仓库根目录需包含 `package.json`、`dsh` 和 `skills`；`/tree/main` 是网页路径，不作为安装地址。
+在 DSH 的“插件 → 添加插件”输入框填写 `github:foukusa/stca-agent-skill`，安装并启用后输入 `/stca`。这是直接从 GitHub 获取插件，不要求预先发布 npm 包。仓库根目录需包含 `package.json`、`dsh` 和 `skills`；`/tree/main` 是网页路径，不作为安装地址。
 
 若重复安装出现“无法从依赖变更中确定安装了哪一个包”，先查看现有 STCA 条目；需要使用相同来源的规范写法时，可在同一输入框填写 `github:foukusa/stca-agent-skill`。它仍然是 GitHub 来源，不是 npm 包名。CLI 命令不填入这个输入框。
 

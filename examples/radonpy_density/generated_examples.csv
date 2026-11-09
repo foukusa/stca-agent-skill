@@ -1,6 +1,6 @@
-candidate_id,SMILES,design_note,verification_status,failed_conditions,K42_required,K42_observed,star_count,terminal_single_bond_stars,connected_components,valid_input,catalog_id,density_value,calculation_smiles_hcap
-RHO_TOP30_01,*OC(=O)c1cc(F)c(OCCOc2ccc(*)cc2)cc1,单氟芳香酯与乙二醇芳醚片段组合,selected,[],1,1,2,True,1,True,latest-pi-rho-stca-high-30,not_predicted,O=C(O)c1ccc(OCCOc2ccccc2)c(F)c1
-RHO_TOP30_02,*NCC(F)(F)CNC(=O)c1ccc(S(=O)(=O)c2ccc(*)cc2)cc1,二氟脂肪链与芳香酰胺砜骨架组合,selected,[],1,1,2,True,1,True,latest-pi-rho-stca-high-30,not_predicted,NCC(F)(F)CNC(=O)c1ccc(S(=O)(=O)c2ccccc2)cc1
-RHO_TOP30_03,*CC(F)OC(=O)Nc1cc(F)c(Oc2ccc(*)cc2)cc1,含脂肪氟与芳香氟的氨基甲酸酯芳醚骨架,selected,[],1,1,2,True,1,True,latest-pi-rho-stca-high-30,not_predicted,CC(F)OC(=O)Nc1ccc(Oc2ccccc2)c(F)c1
-RHO_TOP30_04,*c1cc(F)c(-c2nnc(-c3ccc(*)cc3)o2)cc1,单氟芳环与噁二唑连接的刚性芳香骨架,selected,[],1,1,2,True,1,True,latest-pi-rho-stca-high-30,not_predicted,Fc1ccccc1-c1nnc(-c2ccccc2)o1
-RHO_TOP30_05,*N1C(=O)c2cc(F)c(Oc3ccc(C(F)(F)F)c(*)c3)cc2C1=O,芳香氟及三氟甲基取代的酰亚胺芳醚骨架,selected,[],1,1,2,True,1,True,latest-pi-rho-stca-high-30,not_predicted,O=C1NC(=O)c2cc(Oc3ccc(C(F)(F)F)cc3)c(F)cc21
+candidate_id,SMILES,design_note,verification_status,failed_conditions,star_count,terminal_single_bond_stars,connected_components,valid_input,catalog_id,in_reference_dataset,property_value_status,calculation_smiles_hcap
+RHO_STCA_01,*c1cc(F)c(-c2cc(Cl)c(*)cc2F)cc1Cl,氟氯混合取代的联苯重复单元,selected,[],2,True,1,True,current-pi-rho-stca-high-30,False,not_predicted,Fc1ccc(Cl)cc1-c1cc(Cl)ccc1F
+RHO_STCA_02,*c1cc(F)c(Oc2ccc(-c3cc(F)c(*)cc3Cl)cc2)cc1,芳醚与联苯组合的氟氯取代骨架,selected,[],2,True,1,True,current-pi-rho-stca-high-30,False,not_predicted,Fc1ccc(Cl)c(-c2ccc(Oc3ccccc3F)cc2)c1
+RHO_STCA_03,*c1cc(Cl)c(S(=O)(=O)c2cc(F)c(*)cc2)cc1F,氟氯取代的二芳基砜重复单元,selected,[],2,True,1,True,current-pi-rho-stca-high-30,False,not_predicted,O=S(=O)(c1cccc(F)c1)c1cc(F)ccc1Cl
+RHO_STCA_04,*c1cc(F)c(-c2nnc(-c3cc(Cl)c(*)cc3)o2)cc1Cl,噁二唑连接的氟氯取代双芳环,selected,[],2,True,1,True,current-pi-rho-stca-high-30,False,not_predicted,Fc1ccc(Cl)cc1-c1nnc(-c2cccc(Cl)c2)o1
+RHO_STCA_05,*c1cc(F)c(C(=O)c2cc(Cl)c(*)cc2F)cc1,氟氯取代的二芳基酮重复单元,selected,[],2,True,1,True,current-pi-rho-stca-high-30,False,not_predicted,O=C(c1ccccc1F)c1cc(Cl)ccc1F

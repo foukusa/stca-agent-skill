@@ -130,7 +130,7 @@ class RenderPromptTest(unittest.TestCase):
             module.render_prompt(bad)
 
     def test_bundled_frozen_rule_metadata_and_count_semantics(self):
-        path = SKILL/'assets/rule_library/entries/gas-co2-high-15/constraints.json'
+        path = SKILL/'assets/rule_library/entries/current-gas-co2-stca-high-10/constraints.json'
         constraint = json.loads(path.read_text())
         text = module.render_prompt(constraint, 'en', 12)
         self.assertIn('CO2 permeability', text)

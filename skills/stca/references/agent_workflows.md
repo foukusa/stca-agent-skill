@@ -14,7 +14,7 @@ PY SKILL_DIR/scripts/agent_runtime.py run --script inrange_evaluation.py -- --st
 
 参数按实际文件填写，ID可省略或用--id-column。未定义百分比时直接用10/20/30，明确百分比时按请求（包括15/25）计算，不为缺省档位再问。读取screening_summary.json/recommendation.md，向用户同时显示每档物理cutoff、比较符、单位，两方法各自入选/未知数、AS及主推理由和结果表。先读取文件单位及是否已log；`--metadata-columns`只传样品加工描述，`--condition-columns`传可比测量条件，Reference/DOI/Journal是书目信息，不能作为加工描述扫描。用户可给任意合法档位，例如0.10 0.15 0.20 0.25 0.30；内置目录只有已供给的10/20/30，不能插值伪造15/25。
 
-默认准备数据、按protected_group做5折×3，STCA与WRAcc在相同训练折标签边界比较。WRAcc 默认 `--wracc-max-literals auto --wracc-length-folds 3`，在每个训练分区内部按分组验证，从 1、2、3、5、10 及 unlimited 的长度上限中选择；内部标签阈值来自各内部训练折。外层标签不参与长度选择。最终全量模型在全量训练部分内部重新选择，并保存选择记录和实际长度。用户明确说最多 N 条条件时传 N，说不限制时传 unlimited；数据不足以选择时显示实际回退与证据不足状态。STCA 正负方向各最多10条排序条件、每家族保留8个候选，不改变作者算法。WRAcc beam宽度30、最小入选支持5，不把两种不同支持参数等同。AS差超过0.02才取WRAcc，否则STCA优先。`--nested`按外层训练内部3折选择方法，`--with-rf`仅在用户要求预测参照时启用。
+每个请求档位独立准备数据和选择扫描设置，按各自protected_group做5折×3，STCA与WRAcc在相同训练折标签边界比较。WRAcc 默认 `--wracc-max-literals auto --wracc-length-folds 3`，在每个训练分区内部按分组验证，从 1、2、3、5、10 及 unlimited 的长度上限中选择；内部标签阈值来自各内部训练折。外层标签不参与长度选择。最终全量模型在全量训练部分内部重新选择，并保存选择记录和实际长度。用户明确说最多 N 条条件时传 N，说不限制时传 unlimited；数据不足以选择时显示实际回退与证据不足状态。STCA 正负方向各最多10条排序条件、每家族保留8个候选，不改变作者算法。WRAcc beam宽度30、最小入选支持5，不把两种不同支持参数等同。AS差超过0.02才取WRAcc，否则STCA优先。`--nested`按外层训练内部3折选择方法，`--with-rf`仅在用户要求预测参照时启用。
 
 读取run_manifest、inrange结果、两方法各模型与导出约束、全量逐档筛选表和主推记录。预处理后CV、最终全量回筛和可选外推各自注明范围；方法选择不是规则OR或AND。没有有效规则、单一标签类、无法CV和运行失败不能填伪0。
 
@@ -42,7 +42,7 @@ PY SKILL_DIR/scripts/rule_library.py show RULE_ID
 PY SKILL_DIR/scripts/agent_runtime.py run --script rule_library.py -- screen RULE_ID --input candidates.csv --smiles-column SMILES --output-dir out/screening
 ```
 
-按用户来源、性质、档位与方法选择，允许接受标出的主推。两种方法是备选关系：比较时分别screen，不将同一目标主备自动AND。不同性质的明确联合请求才给选定规则交集。用户明确要求同目标方法交集时才使用--allow-method-intersection。
+按用户来源、性质、档位与方法选择，允许接受标出的主推。RadonPy高密度Top 30%示例默认采用主推WRAcc（389条入选）；用户明确选择STCA时保留该选择（282条入选）。生成沿用当前选定的精确规则，不能因静态示例使用STCA就更换用户选择。两种方法是备选关系：比较时分别screen，不将同一目标主备自动AND。不同性质的明确联合请求才给选定规则交集。用户明确要求同目标方法交集时才使用--allow-method-intersection。
 
 读取实际保存的用户规则目录（不是平台页面）：
 
@@ -82,3 +82,5 @@ PY SKILL_DIR/scripts/user_rule_library.py --library-dir USER_RULES_DIR import --
 检查成功后交付真实文件名、保存路径和下载包。用户可直接说“用刚才的规则筛选”或“按刚才的规则生成”；新会话/跨平台导入包继续，不承诺临时文件自动持久保存。无条件项不能作为有效规则保存，用户数据不写回skill安装目录。
 
 计算状态必须来自实际运行。RDKit 导入、macOS 签名或执行权限失败时不能把未解析提案记作无效 SMILES、零入选或零覆盖；保留错误并将提案标为待核验，自动尝试其他兼容环境。向用户显示交叉验证结果时，把 AS 解释为马修斯相关系数、精确率和 F1 分数的平均筛选评分，不能只给 CV AS 缩写。
+
+逐档准备记录见 `run_manifest.json` 的 `per_tier_preparation` 和 `preparation_by_tier.json`。每档返回实际变换、步长及扫描支持量；不能将第一档的根目录兼容记录用于解释其他档位。相同档位的学习与筛选不得依赖批量请求中的其他档位。

@@ -47,7 +47,7 @@ STCA works through the current LLM conversation. State a task directly; if you o
 
 | Choice | What you receive | Example request |
 |---|---|---|
-| **Learn from my data** | Saved STCA and WRAcc rules, their screening results, physical cutoffs and a recommendation | “Learn high thermal-conductivity rules from this polymer dataset and save them.” |
+| **Learn from my data** | Both methods’ results and availability, saved rules, physical cutoffs and a recommendation | “Learn high thermal-conductivity rules from this polymer dataset and save them.” |
 | **Screen with existing rules** | Decisions for every original candidate, unmet rule conditions and selected records | “Show the rule catalog and screen my candidates with the rule I choose.” |
 | **Generate with existing rules** | Rule-guided proposals from the current LLM, followed by structural-rule verification | “Choose a rule, then directly generate and verify 20 polymer repeat units.” |
 
@@ -72,10 +72,10 @@ Download [RadonPy `PI1070.csv`](https://github.com/RadonPy/RadonPy/blob/db5732b7
 **Existing-rule screening:**
 
 ```text
-Use the existing RadonPy high-density Top 30% STCA rule to screen this dataset.
+Use the recommended RadonPy high-density Top 30% rule to screen this dataset.
 ```
 
-This fixed file gives **137 rule matches, 940 non-matches and no unknowns**; the rule's density target boundary is **≥ 1.222343047 g/cm³**.
+**WRAcc is recommended**, giving **389 rule matches, 688 non-matches and no unknowns**. Explicitly choosing STCA gives **282 matches, 795 non-matches and no unknowns**. Both methods use the density target boundary **≥ 1.222080875 g/cm³**. Their cross-validation average screening scores are **0.7014 for WRAcc** and **0.6479 for STCA**; WRAcc has higher recall and F1, while STCA has higher precision.
 
 **Learning, screening and saving:**
 
@@ -83,7 +83,7 @@ This fixed file gives **137 rule matches, 940 non-matches and no unknowns**; the
 Learn high-density Top 30% rules from all rows of this RadonPy file. Use smiles for structures and density for the target, in g/cm³. Return screening results, compare them with the existing rule and save the new rules.
 ```
 
-A repeat fit requires identical prepared data, fingerprints and settings to reproduce an existing rule. A new adaptive fit may differ. Reapplying the newly saved model to the same table must reproduce that model’s screening decisions: “Reload the Top 30% STCA rule just saved and screen the same dataset again.”
+Each percentage is prepared and fitted independently. With this fixed file, the same version and default settings, both new Top 30% rules match their corresponding bundled rules, whether requested alone or with other percentages. To reuse the recommendation, say “Reload the Top 30% WRAcc rule just saved and screen the same dataset again.” Every row must match its earlier decision.
 
 **Generation:**
 

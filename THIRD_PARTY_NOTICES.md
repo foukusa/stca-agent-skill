@@ -8,7 +8,7 @@
 - Package version at this revision: `1.0`
 - License source: <https://github.com/foukusa/polymer-stca/blob/5951b0ef23d63edc8f7e803aaaffa5e4168288f6/LICENSE>
 
-The agent integration calls this pinned implementation. The unchanged author source and required packaged model/resources are included under `skills/stca/assets/author_source`, with the original `LICENSE`, `NOTICE`, and a per-file integrity manifest. Runtime verification checks these contents before importing them; ordinary calculations do not need Git or a separate source download. Original measured research tables are not included. Extracted frozen structure conditions and generation prompts retain their rule and data-source provenance. Use and redistribution of the author implementation remain subject to the original terms below.
+The agent integration calls this pinned implementation. The unchanged author source and required packaged model/resources are included with the original license, attribution notice, and per-file integrity manifest. Runtime verification checks these contents before importing them; ordinary calculations do not need Git or a separate source download. Original measured research tables are not included. Extracted frozen structure conditions and generation prompts retain their rule and data-source provenance. Use and redistribution of the author implementation remain subject to the original terms below.
 
 The upstream LICENSE at the pinned revision is reproduced unchanged below:
 
@@ -35,3 +35,7 @@ The execution environment uses Python, NumPy, pandas, SciPy and RDKit, together 
 Weihao Wang, Haoou Ruan, Keith T. Butler, Akiko Kumada and Masahiro Sato. *Interpretable substructure-based screening of multi-property polymer dielectrics with prompt-ready rules for rational design.* npj Computational Materials (2026). <https://doi.org/10.1038/s41524-026-02345-x>.
 
 The public fixture contains agent-proposed structures with no measured-property labels. It is not a redistribution of the original measured polymer dataset and does not claim that the proposed structures are chemically novel.
+
+## Included source files
+
+The author implementation is included in `skills/stca/assets/author_source`. Original license and attribution files: `skills/stca/assets/author_source/LICENSE` and `skills/stca/assets/author_source/NOTICE`. The unchanged original file-integrity manifest is `skills/stca/assets/author_source/source_manifest.json`.

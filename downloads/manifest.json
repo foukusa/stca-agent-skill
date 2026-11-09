@@ -3,53 +3,59 @@
   "version": "0.1.0",
   "platform_versions": {
     "deepseek-harness": "0.1.0",
-    "workbuddy": "0.1.1"
+    "workbuddy": "0.1.3"
   },
   "shared_openai_skill": "stca-openai-skill-0.1.0.zip",
   "compatibility_aliases": [
     "stca-chatgpt-0.1.0.zip",
     "stca-codex-0.1.0.zip"
   ],
+  "workbuddy_upload": {
+    "archive": "stca-workbuddy-0.1.3.zip",
+    "expanded_size_bytes": 2398206,
+    "maximum_expanded_size_bytes": 3145728,
+    "maximum_archive_path_components": 2
+  },
   "files": [
     {
       "file": "dsh-plugin-stca-0.1.0.tgz",
-      "size_bytes": 1493798,
-      "sha256": "e9189257d7462bf2720d6508a3700764b2b7c8dd4453a8a8c3d4f140a4fe3290"
+      "size_bytes": 1496797,
+      "sha256": "af307c83104acc693a2b7ec283e92fd5e9b11aa3aa43629c4a4ff05e6dae0d46"
     },
     {
       "file": "dsh-plugin-stca-0.1.0.zip",
-      "size_bytes": 2626999,
-      "sha256": "4dbbb1544c97a32c9b7de537427b8dc5d7822f09f60e4ef8ecfbbe2c5ccde7b5"
+      "size_bytes": 2273590,
+      "sha256": "72fa88dfea8f0ab4e3e7e04aa8e953db0ae36fc3b28f772d35cf69dabea3671b"
     },
     {
       "file": "stca-chatgpt-0.1.0.zip",
-      "size_bytes": 2472540,
-      "sha256": "ea966a3417c46cf9ade3245dc09b8a9c96ebf362f8860079e720edac1848aea5"
+      "size_bytes": 2124149,
+      "sha256": "732d32fdef1cac21437436f7b223061608a776be3ac017c75c0d5d93fd7343b3"
     },
     {
       "file": "stca-codex-0.1.0.zip",
-      "size_bytes": 2472540,
-      "sha256": "ea966a3417c46cf9ade3245dc09b8a9c96ebf362f8860079e720edac1848aea5"
+      "size_bytes": 2124149,
+      "sha256": "732d32fdef1cac21437436f7b223061608a776be3ac017c75c0d5d93fd7343b3"
     },
     {
       "file": "stca-deepseek-harness-0.1.0.zip",
-      "size_bytes": 2485707,
-      "sha256": "866ee6eeb279660ed1465eb72bf12c24ba2ee0d97b174abdc12f8910985ead72"
+      "size_bytes": 2125846,
+      "sha256": "0f0699992c20de4040f7c753fba4be886680229753e3c7bc20cda84fdb09f940"
     },
     {
       "file": "stca-openai-plugin-0.1.0.zip",
-      "size_bytes": 2800940,
-      "sha256": "670990eb987dde4e04c4842e27d0de82bb3b984118f24e7f447c09bed8c11b82"
+      "size_bytes": 2485489,
+      "sha256": "df7926bd16c7deb05afe97c896a4e3752ff4605e5645d4fb47b1b52058a1ab01"
     },
     {
       "file": "stca-openai-skill-0.1.0.zip",
-      "size_bytes": 2472540,
-      "sha256": "ea966a3417c46cf9ade3245dc09b8a9c96ebf362f8860079e720edac1848aea5"
+      "size_bytes": 2124149,
+      "sha256": "732d32fdef1cac21437436f7b223061608a776be3ac017c75c0d5d93fd7343b3"
     },
     {
-      "file": "stca-workbuddy-0.1.1.zip",
-      "size_bytes": 2611225,
-      "sha256": "ef691eaf41c3353a6635d8c6a81d68164d18eef2e1e3d9fecf9b9e38da3fa2be"
+      "file": "stca-workbuddy-0.1.3.zip",
+      "size_bytes": 1990682,
+      "sha256": "048c62cd856e8620f98cdf95df0b688910c7adb0dc362a174c89ae0b99bc2081"
     }
   ]
 }

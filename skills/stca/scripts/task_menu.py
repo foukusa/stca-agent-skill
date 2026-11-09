@@ -77,14 +77,15 @@ def physical_target(constraint):
             "physical_cutoff_status": "available" if cutoff is not None and unit else "not_provided"}
 
 
-def rule_options(directory, language="zh-CN", catalog_root=CATALOG_ROOT):
-    """Return selectable frozen conditions, grouped for a readable user choice."""
+def rule_options(directory, language="zh-CN", catalog_root=CATALOG_ROOT, *, include_hidden_ids=()):
+    """List current choices; retain hidden exact rules only when explicitly named."""
     from rule_library import RuleLibrary, read_json
     from user_rule_library import show_entry
     groups = {key: {"source": key, "title": labels[language], "properties": []}
               for key, labels in SOURCE_LABELS.items()}
     indexed = {key: {} for key in groups}
     unavailable = []
+    explicit_ids = set(include_hidden_ids)
 
     def add(source, prop, direction, unit, option):
         key = (prop, direction, unit)
@@ -120,11 +121,15 @@ def rule_options(directory, language="zh-CN", catalog_root=CATALOG_ROOT):
             })
 
     library = RuleLibrary(catalog_root)
-    visible = 0
+    visible, explicit_hidden = 0, 0
     for entry in library.entries.values():
-        if not entry.get("user_visible", True):
+        is_visible = entry.get("user_visible", True)
+        if not is_visible and entry["id"] not in explicit_ids:
             continue
-        visible += 1
+        if is_visible:
+            visible += 1
+        else:
+            explicit_hidden += 1
         dataset = str(entry.get("dataset", ""))
         source = ("paper" if entry.get("provenance", {}).get("kind") == "paper" else
                   "gas" if dataset.startswith("GAS_") else
@@ -148,6 +153,13 @@ def rule_options(directory, language="zh-CN", catalog_root=CATALOG_ROOT):
             "constraints_path": str(path), "prompt_paths": prompt_paths,
             "method": entry.get("method", "STCA"),
             "is_primary": entry.get("is_primary"), "alternative_id": entry.get("alternative_id"),
+            "user_visible": bool(is_visible), "legacy": bool(entry.get("legacy", False)),
+            "selection_scope": "current_catalog" if is_visible else "explicit_hidden_rule",
+            "preparation_profile": entry.get("preparation_profile"),
+            "superseded_by": entry.get("superseded_by"),
+            **({"legacy_notice": "明确选择的历史冻结规则；保留原条件和阈值。"
+                if language == "zh-CN" else "Explicitly selected legacy frozen rule; original conditions and cutoff are retained."}
+               if entry.get("legacy", False) else {}),
             **physical_target(constraint),
             "reference_evaluation": entry.get("reference_evaluation"),
             "publication_alignment": entry.get("publication_alignment"),
@@ -159,7 +171,8 @@ def rule_options(directory, language="zh-CN", catalog_root=CATALOG_ROOT):
             prop["choices"].sort(key=lambda item: (item["tier"], item.get("is_primary") is False, item.get("method", "STCA")))
     return {"schema": "stca-rule-choice-menu-v1", "version": library.catalog.get("version"),
             "language": language, "retained_builtin_entries": len(library.entries),
-            "visible_builtin_entries": visible, "groups": list(groups.values()),
+            "visible_builtin_entries": visible, "explicit_hidden_builtin_entries": explicit_hidden,
+            "groups": list(groups.values()),
             "unavailable_entries": unavailable}
 
 
@@ -175,6 +188,8 @@ def display_rules(options):
             tail = "Top" if prop["direction"] == "high" else "Bottom"
             def label(item):
                 role = ("主推" if zh else "primary") if item.get("is_primary") is True else (("备选" if zh else "alternative") if item.get("is_primary") is False else item["evidence"]["label"])
+                if item.get("legacy"):
+                    role = "历史规则，明确选择" if zh else "legacy, explicitly selected"
                 return f"{tail} {item['tier']*100:g}% ({item.get('method', 'STCA')}, {role})"
             choices = " · ".join(label(item) for item in prop["choices"])
             print(f"- {prop['property']} [{prop['unit']}]：{choices}")
@@ -190,6 +205,10 @@ def resolve_rules(options, requested):
                  for prop in group["properties"] for choice in prop["choices"]}
     missing = [identifier for identifier in requested if identifier not in available]
     if missing:
+        unavailable = {entry["id"] for entry in options.get("unavailable_entries", [])}
+        unknown = [identifier for identifier in missing if identifier not in unavailable]
+        if unknown:
+            raise ValueError("Unknown rule ID in this catalog: " + ", ".join(unknown))
         raise ValueError("The specified rule is unavailable in this choice menu: " + ", ".join(missing))
     return [available[identifier] for identifier in requested]
 
@@ -283,7 +302,7 @@ def main(argv=None):
         selected = args.selected_task or args.task
         saved = saved_rules(args.library_dir)
         if args.show_rules:
-            display_rules(rule_options(args.library_dir, args.language))
+            display_rules(rule_options(args.library_dir, args.language, include_hidden_ids=args.rule))
             return 0
         if selected is None or selected.strip().casefold() in RETURN_COMMANDS:
             if args.generation_mode:
@@ -296,7 +315,7 @@ def main(argv=None):
             raise ValueError("Unknown task. Choose 1, 2 or 3.")
         if args.generation_mode and task["number"] != 3:
             raise ValueError("Generation modes apply only to task 3.")
-        options = rule_options(args.library_dir, args.language) if task["number"] in (2, 3) else None
+        options = rule_options(args.library_dir, args.language, include_hidden_ids=args.rule) if task["number"] in (2, 3) else None
         if args.rule and options is None:
             raise ValueError("Explicit existing rules apply to tasks 2 or 3, not data learning.")
         selected_rules = resolve_rules(options, args.rule) if args.rule else []

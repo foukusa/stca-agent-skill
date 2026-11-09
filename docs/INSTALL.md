@@ -5,6 +5,7 @@
 ## Contents
 
 - [Choose a package](#choose-a-package)
+- [Update an existing installation](#update-an-existing-installation)
 - [Codex](#codex)
 - [DeepSeek Harness](#deepseek-harness)
 - [WorkBuddy](#workbuddy)
@@ -24,10 +25,19 @@ Choose your platform below. Every package link opens a file page in this GitHub 
 | DeepSeek Harness: local skill | [stca-deepseek-harness-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip) |
 | DeepSeek Harness: GUI plugin | [dsh-plugin-stca-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.zip) |
 | DeepSeek Harness: CLI plugin | [dsh-plugin-stca-0.1.0.tgz](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz) |
-| WorkBuddy | [stca-workbuddy-0.1.1.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.1.zip) |
+| WorkBuddy | [stca-workbuddy-0.1.3.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.3.zip) |
 | ChatGPT desktop | [stca-openai-skill-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-openai-skill-0.1.0.zip) |
 
 All STCA tasks accept natural language. The assistant handles calculation-environment discovery; you do not need to enter a Python path during installation.
+
+## Update an existing installation
+
+The STCA core version remains **0.1.0**. Replace or reimport the updated files to receive these fixes; the version label alone does not confirm that an installed copy is current. First save your exported rule bundles and task results.
+
+- **Codex folder installation:** replace the installed `stca` folder with the complete updated folder, keeping `SKILL.md`, `scripts`, `references` and `assets` together. Keep saved rules and results in their task directories outside the installation folder.
+- **DeepSeek Harness:** check STCA’s installation source in plugin management and use the available update or replacement operation. If an old copy remains, remove only the STCA plugin, then add it again with `github:foukusa/stca-agent-skill`. Keep the DSH profile, configuration, data and saved rules.
+- **WorkBuddy:** import `stca-workbuddy-0.1.3.zip` and enable the updated STCA entry.
+- **ChatGPT:** where local skill import is supported, reimport the updated OpenAI skill ZIP through the existing skill-management entry.
 
 ## Codex
 
@@ -56,14 +66,14 @@ See the [official skill guide](https://learn.chatgpt.com/docs/build-skills) for 
 
 ## DeepSeek Harness
 
-The recommended route is **Plugins → Add plugin**, using the `github:` installation address below. **GitHub installation does not require npm publication.** DSH reads `package.json`, the plugin entry and complete skill from the repository root. Plugin-center link: — (to be added after listing).
+The recommended route is **Plugins → Add plugin**, using the GitHub installation address below. **GitHub installation does not require npm publication.** DSH reads `package.json`, the plugin entry and complete skill from the repository root. Plugin-center link: — (to be added after listing).
 
 <!-- DSH_PLUGIN_CENTER_URL: add the actual listing URL after publication. -->
 
 ### Install from GitHub
 
 1. In DSH, open **Plugins → Add plugin**.
-2. Enter this GitHub installation address and click Install:
+2. Enter this full repository URL and click Install:
 
 ```text
 github:foukusa/stca-agent-skill
@@ -71,7 +81,7 @@ github:foukusa/stca-agent-skill
 
 3. Enable STCA in your current profile, then enter `/stca` or say “Start STCA”.
 
-Use the `github:` address above in this field. A `/tree/main` browsing page and a terminal command are not installation addresses. This GitHub route remains available before npm publication. Only entering the bare npm name `dsh-plugin-stca` requires a published npm package.
+Use the repository URL, not a `/tree/main` browsing page or a terminal command. This GitHub route remains available before npm publication. Only entering the bare npm name `dsh-plugin-stca` requires a published npm package.
 
 ### Optional: extract the plugin ZIP and install its directory
 
@@ -94,7 +104,7 @@ In a terminal, the DSH CLI can explicitly name the package and its GitHub source
 dsh plugin --profile web add 'dsh-plugin-stca@github:foukusa/stca-agent-skill'
 ```
 
-**This command still installs from GitHub and does not require npm publication.** `plugin` is a DSH command name; `@github:...` specifies the GitHub source. Replace `web` with your actual profile. Run this in a terminal, not the graphical input field; use the `github:` address above in the interface.
+**This command still installs from GitHub and does not require npm publication.** `plugin` is a DSH command name; `@github:...` specifies the GitHub source. Replace `web` with your actual profile. Run this in a terminal, not the graphical input field; use the repository URL in the interface.
 
 ### npm package name: after publication
 
@@ -122,15 +132,15 @@ Download [dsh-plugin-stca-0.1.0.tgz](https://github.com/foukusa/stca-agent-skill
 dsh plugin --profile web add 'dsh-plugin-stca@file:/Users/your-name/Downloads/dsh-plugin-stca-0.1.0.tgz'
 ```
 
-This named file argument is for the CLI. The graphical interface uses the `github:` address above or an extracted plugin directory.
+This named file argument is for the CLI. The graphical interface uses a repository URL or an extracted plugin directory.
 
 ### “Unable to determine the installed package from dependency changes”
 
-The DSH plugin manager could not identify one target package after the package-manager step. Even when pnpm reports `Packages: +1` and `Done`, DSH can still fail to match the installation address to the saved dependency name. This error occurs before STCA loads and does not require npm publication or changes to Python or RDKit.
+This means the DSH plugin manager could not identify one target package from the dependency changes, before loading STCA. It does not mean npm publication is required, and it is unrelated to Python, RDKit or STCA calculations.
 
-If you previously used an HTTPS repository URL, retry with the `github:foukusa/stca-agent-skill` address shown above in the same **Add plugin** field. This GitHub form has been verified with the DSH installer.
+Check the plugin list first: enable an existing STCA entry instead of repeatedly adding it. To replace an old copy, manage only the old STCA plugin while preserving your data, results and rule bundles.
 
-If STCA is already listed, check and enable that entry. To replace an old copy, manage only STCA and preserve your data, results and saved rules; do not clear the DSH configuration. If installation still fails, use the local plugin-directory option above and retain the complete installation log and DSH version.
+A successful pnpm log, including `Packages: +1` and `Done`, confirms package installation but does not by itself identify a unique plugin for DSH. Use `github:foukusa/stca-agent-skill` in Add plugin as shown above. If an earlier HTTPS installation produced this error, retry with that address. If STCA is already listed, enable it. If installation still fails, use the local plugin-directory fallback and retain the complete log and DSH version. Keep your data, results and saved rules.
 
 See the [official plugin installation guide](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/develop/basic/publish.md) and [filesystem skill guide](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/skill/skill-filesystem/README.md).
 
@@ -138,7 +148,7 @@ See the [official plugin installation guide](https://github.com/deepseek-ai/deep
 
 1. Open [WorkBuddy](https://www.workbuddy.cn/) and its skill management page.
 2. Choose the action for adding and uploading a local skill package.
-3. Open [stca-workbuddy-0.1.1.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.1.zip) in the repository and click **Download raw file**. Select that downloaded ZIP in WorkBuddy, complete import and enable **STCA Polymer Rules and Design**. Keep the ZIP intact for upload.
+3. Open [stca-workbuddy-0.1.3.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.3.zip) in the repository and click **Download raw file**. Select that downloaded ZIP in WorkBuddy, complete import and enable **STCA Polymer Rules and Design**. Keep the ZIP intact for upload.
 4. Say “Start STCA”.
 
 The package includes its referenced startup resources and logo in the upload layout. The public marketplace installation link will be added after review and publication.

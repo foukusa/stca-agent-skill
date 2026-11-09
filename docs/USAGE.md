@@ -58,7 +58,7 @@ Use the existing RadonPy high-density Top 30% STCA rule to screen this dataset.
 Learn high-density Top 30% rules from all rows of this RadonPy file. Use smiles for structures and density for the target, in g/cm³. Return screening results, compare them with the existing rule and save the new rules.
 ```
 
-The assistant reports the prepared data, chosen transform and scan step, both methods’ rules, numerical physical cutoffs and outputs. Reproducing an existing frozen rule requires matching its training cohort, preprocessing, fingerprints, learning parameters and software version; adaptive learning can choose different settings. To check reuse of your new model, ask:
+The assistant reports the data transform, scan step and support selected for each percentage, both methods’ rules, numeric physical cutoffs and output files. With this fixed file, the same version and default settings, the new Top 30% STCA rule matches the bundled STCA rule: 282 selected records at density ≥ 1.222080875 g/cm³. Adding other percentages does not change the Top 30% task. WRAcc is recommended for this example and selects 389 records; you can choose either method. To check reuse of your new STCA model, ask:
 
 ```text
 Reload the Top 30% STCA rule just saved and screen the same RadonPy dataset again. Check that every row's decision matches its earlier result.
@@ -100,7 +100,7 @@ Learn these rules without a WRAcc condition-count limit.
 
 You receive:
 
-- Each tier's two methods, exact rules, evaluation scores, recommendation and reusable models.
+- Each tier's two method results and availability, with exact rules, evaluation scores, recommendations and reusable models where available.
 - Row-level screening results for both methods: original identifiers and SMILES, selection decisions, unmet conditions and uncomputable records.
 - Numeric physical cutoffs, comparison signs and units, plus complete English and Chinese generation prompts.
 - Saved rule files, their actual location and a rule bundle for reuse.
