@@ -1,6 +1,6 @@
 # STCA 算法与证据约定
 
-> 当前开源目录覆盖12项任务和10/20/30档的STCA/WRAcc结果；来源及证据见 [effectiveness.md](effectiveness.md)。用户上传数据默认走 [范围内流程](agent_workflows.md)，明确要求source/holdout时采用对应的独立评价流程；其他百分比可从上传数据重新学习。
+> 新数据默认先按 ECFP4／Morgan 最近邻 Tanimoto 距离划分 source、holdout 和 buffer，再仅在 source 学习；方法推荐来自 source 内 Morgan 距离验证。来源及规则目录见 [effectiveness.md](effectiveness.md)，执行见 [agent_workflows.md](agent_workflows.md)。历史结果保留其原评价协议。
 
 
 ## 目录

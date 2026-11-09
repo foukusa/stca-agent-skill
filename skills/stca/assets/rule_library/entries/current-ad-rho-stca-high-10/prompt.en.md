@@ -4,7 +4,7 @@ Propose 20 distinct polymer repeat-unit candidates for the goals below. Generate
 
 ## Design goals
 
-1. Density; high / Top 10%; source-training physical boundary: >= 1.2675096 g/cm3; rule source: current-ad-rho-stca-high-10. Rule learner: STCA.
+1. Density; high / Top 10%; source-training physical boundary: >= 1.333961 g/cm3; rule source: current-ad-rho-stca-high-10. Rule learner: STCA.
 
 Each percentage describes the desired tail of its source dataset, not the percentage of generated candidates that will pass. A physical cutoff, when supplied, is the frozen training-label boundary; a rule match does not predict a property value or establish experimental success.
 
@@ -12,20 +12,25 @@ Each percentage describes the desired tail of its source dataset, not the percen
 
 Objective 1 — Density:
 
-`K134=1 AND K107=1 AND K99=0 AND K66=0 AND K118=0 AND K147=0 AND K149=0`
+`K134=1 AND K107=1 AND K66=0 AND K116=0 AND K115=0 AND K128=0 AND K111=0 AND K86=0 AND K84=0 AND K100=0 AND K141=0 AND K149=0`
 
-Rule signature: `STCA|AND|K66=0&K99=0&K107=1&K118=0&K134=1&K147=0&K149=0`
+Rule signature: `STCA|AND|K66=0&K84=0&K86=0&K100=0&K107=1&K111=0&K115=0&K116=0&K128=0&K134=1&K141=0&K149=0`
 
 Satisfy every literal within each selected rule using AND. For multiple goals, apply all selected rules to the same repeat unit and require their intersection. Preserve the key numbers and required 0/1 values. Do not substitute a rule from another percentage, weaken a condition, or combine alternative family members into a new rule. Report a conflict if the requirements cannot be satisfied together.
 
 ## MACCS activation semantics
 
 - `K66=0`: SMARTS `[#6]~[#6](~[#6])(~[#6])~*`; count_parameter=0; bit-one activation: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
-- `K99=0`: SMARTS `[#6]=[#6]`; count_parameter=0; bit-one activation: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
+- `K84=0`: SMARTS `[NH2]`; count_parameter=0; bit-one activation: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
+- `K86=0`: SMARTS `[C;H2,H3][!#6;!#1][C;H2,H3]`; count_parameter=0; bit-one activation: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
+- `K100=0`: SMARTS `*~[CH2]~[#7]`; count_parameter=0; bit-one activation: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
 - `K107=1`: SMARTS `[F,Cl,Br,I]~*(~*)~*`; count_parameter=0; bit-one activation: `has_substructure_match`; definition RDKit 2026.09.1.
-- `K118=0`: SMARTS `[$(*~[CH2]~[CH2]~*),$(*1~[CH2]~[CH2]1)]`; count_parameter=1; bit-one activation: `unique_substructure_match_count > 1`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
+- `K111=0`: SMARTS `[#7]~*~[CH2]~*`; count_parameter=0; bit-one activation: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
+- `K115=0`: SMARTS `[CH3]~*~[CH2]~*`; count_parameter=0; bit-one activation: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
+- `K116=0`: SMARTS `[$([CH3]~*~*~[CH2]~*),$([CH3]~*1~*~[CH2]1)]`; count_parameter=0; bit-one activation: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
+- `K128=0`: SMARTS `[$(*~[CH2]~*~*~*~[CH2]~*),$([R]1@[CH2;R]@[R]@[R]@[R]@[CH2;R]1),$(*~[CH2]~[R]1@[R]@[R]@[CH2;R]1),$(*~[CH2]~*~[R]1@[R]@[CH2;R]1)]`; count_parameter=0; bit-one activation: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
 - `K134=1`: SMARTS `[F,Cl,Br,I]`; count_parameter=0; bit-one activation: `has_substructure_match`; definition RDKit 2026.09.1.
-- `K147=0`: SMARTS `[$(*~[CH2]~[CH2]~*),$([R]1@[CH2;R]@[CH2;R]1)]`; count_parameter=0; bit-one activation: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
+- `K141=0`: SMARTS `[CH3]`; count_parameter=2; bit-one activation: `unique_substructure_match_count > 2`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
 - `K149=0`: SMARTS `[C;H3,H4]`; count_parameter=1; bit-one activation: `unique_substructure_match_count > 1`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
 
 Use the complete RDKit MACCS167 calculation as the authority. A required zero means the key's activation criterion is false; for a count key it does not necessarily mean that no matching substructure exists. Preserve count thresholds and special-key logic. Do not turn a special key into a guessed SMARTS pattern or infer a functional-group name from a key number.

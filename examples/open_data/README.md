@@ -22,13 +22,13 @@ The complete task prompts are built in. The AI assistant reads the headers, offe
 
 ## Choose a rule and method
 
-The [rule and generation-prompt directory](../../docs/RULE_LIBRARY.md) includes **12 public-data property tasks**: two measured GAS tasks, five RadonPy computed tasks and five ADEPT computed tasks. Their frozen rules target **high values at Top 10%, 20% and 30%**.
+The [rule and generation-prompt directory](../../docs/RULE_LIBRARY.md) includes **13 public-data property tasks**: two measured GAS tasks, five RadonPy computed tasks, five ADEPT computed tasks and OpenPoly water contact angle. Their source-trained frozen rules target **high values at Top 10%, 20% and 30%**.
 
 Each source, property and percentage reports **STCA and WRAcc separately, including rule availability**. Choose an available rule or accept the recommendation; the catalog gives scores and the reason for each recommendation. All conditions within a selected rule must hold.
 
-For RadonPy dielectric constant at Top 20%, the current STCA result has no valid rule; the WRAcc rule is available. The catalog marks this status rather than offering an empty rule.
+Rule availability follows the current calculation for each method and tier. A missing rule retains its reason; it is not represented as an empty rule that selects every structure.
 
-See the [current rules and screening scores](current_rule_metrics.csv) for each task and percentage. Recommendations use the average screening score introduced in the [STCA paper](https://doi.org/10.1038/s41524-026-02345-x). The assistant explains the comparison; you can say “Use the recommended method” or select STCA or WRAcc. See the [usage guide](../../docs/USAGE.md#learn-rules-and-receive-screening-results) for the score definition and recommendation policy.
+See the [current rules and screening scores](current_rule_metrics.csv) for each task and percentage. New rules are learned from source data after a strict **ECFP4 Morgan-distance split**; every outer holdout structure has nearest-source Tanimoto distance **≥ 0.5**. A separate source-inner Morgan validation determines the method recommendation before outer evaluation. Recommendations use the average screening score introduced in the [STCA paper](https://doi.org/10.1038/s41524-026-02345-x). Say “Use the recommended method” or select STCA or WRAcc. See [evaluation details](../../docs/MORGAN_EVALUATION.md).
 
 When learning from your own data, WRAcc selects its condition-count limit within training data by default. You can also request “at most 10 conditions” or “no condition-count limit.”
 
@@ -42,6 +42,7 @@ Upload your candidate table, then use one of these requests:
 |---|---|
 | High CO₂ permeability | “Use the recommended measured GAS high-CO₂-permeability Top 10% rule to screen this table.” |
 | High O₂ permeability | “Screen these candidates with the recommended measured GAS high-O₂-permeability Top 10% rule.” |
+| High water contact angle | “Use the existing OpenPoly high-water-contact-angle Top 30% rule to screen these candidates.” |
 | High specific heat | “Use RadonPy's recommended high-specific-heat Top 10% rule to screen my candidates.” |
 | High dielectric constant | “Use ADEPT's recommended high-dielectric-constant Top 20% rule to screen this table.” |
 
@@ -51,13 +52,14 @@ For generation, ask to see the available rules, or specify the source, property,
 
 ## Data sources and fields
 
-STCA has been used to learn and validate screening rules for these 12 public-data tasks. The source datasets and label types are:
+STCA learns readable screening rules and evaluates their transfer to structurally distant polymers across these 13 public-data tasks. The source datasets and label types are:
 
 | Source | Data and original study | Labels used |
 |---|---|---|
 | GAS | [Dataset A](https://github.com/jsunn-y/PolymerGasMembraneML/blob/30981d71e1e3f12a057e009cd79f119bc659c7f5/datasets/datasetA_imputed_all.csv) · [source paper](https://doi.org/10.1126/sciadv.abn9545) | Measured CO₂ and O₂ permeability |
 | RadonPy | [PI1070](https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv) · [source paper](https://doi.org/10.1038/s41524-022-00906-4) | Molecular-dynamics properties |
 | ADEPT | [PolyGraphMT data](https://github.com/sobinalosious/PolyGraphMT/tree/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw) · [source paper](https://doi.org/10.1039/D6DD00206D) | MD properties and DFT isolated-monomer gap |
+| OpenPoly | [Original property table](https://github.com/WangGroupFDU/Openpoly_benchmark/blob/ccaa66900747bfc576ef935e3d5f220b6c9b1f85/data/final_polymer_properties_fromliterature.csv) · [source paper](https://doi.org/10.1007/s10118-025-3402-y) | Literature-reported water contact angle |
 
 GAS rules use the original measured `CO2` and `O2` values. Missing values are excluded from learning; Bayesian and Etree imputed columns are not substituted for measured labels.
 
@@ -77,6 +79,9 @@ Use the original columns when uploading these source files:
 | Isolated-monomer HOMO–LUMO gap | ADEPT: `BANDGAP_DFT.csv` | `SMILES` | `BANDGAP` | eV |
 | Dielectric constant | ADEPT: `DC_MD.csv` | `SMILES` | `DC` | dimensionless |
 | Refractive index | ADEPT: `RI_MD.csv` | `SMILES` | `RI` | dimensionless |
+| Water contact angle | OpenPoly: [`OpenPoly.csv`](../water_contact_angle/OpenPoly.csv) | `PSMILES` | `Water Contact Angle (deg)` | degrees |
+
+The [water-contact-angle example](../water_contact_angle/README.md) includes the original OpenPoly table, exact column binding and natural-language requests. A 0° contact angle is valid and retained. OpenPoly measurement conditions are not supplied in the property table.
 
 The ADEPT gap is the DFT HOMO–LUMO gap of a hydrogen-capped isolated monomer. The [source and field index](dataset_registry.csv) provides dataset links, original columns, units and licence information. Cite the original sources when using their data.
 
@@ -92,7 +97,7 @@ Upload the original repeat-unit SMILES **with their `*` attachment points retain
 
 ## Learn, save and continue
 
-Each percentage independently selects its data preparation and scan settings. With the same input, version and settings, requesting a percentage alone or together with others gives the same result for that percentage.
+First split structures, then independently select preparation and scan settings for each percentage using source data only. With the same input, version and settings, requesting a percentage alone or together with others gives the same result for that percentage.
 
 After learning, STCA returns rules, physical cutoffs and **a separate screening result for each method at every requested tier**. The original uploaded table is screened by default. If you also upload an independent candidate table, its screening results are returned separately.
 

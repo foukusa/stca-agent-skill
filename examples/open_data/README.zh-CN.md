@@ -22,13 +22,13 @@
 
 ## 选择规则与方法
 
-[规则与生成 prompt 目录](../../docs/RULE_LIBRARY.zh-CN.md)包含 **12 项公开数据性质任务**：GAS 实测数据 2 项、RadonPy 计算数据 5 项、ADEPT 计算数据 5 项。这些冻结规则均针对**高值方向的 Top 10%、20%、30%**。
+[规则与生成 prompt 目录](../../docs/RULE_LIBRARY.zh-CN.md)包含 **13 项公开数据性质任务**：GAS 实测数据 2 项、RadonPy 计算数据 5 项、ADEPT 计算数据 5 项，以及 OpenPoly 水接触角。source 训练的冻结规则针对**高值方向 Top 10%、20%、30%**。
 
 每个来源、性质和百分比均分别列出 **STCA 与 WRAcc 的结果及规则可用状态**。可以接受推荐，也可以自行选择可用规则；目录提供评分与推荐理由，选定规则内部的条件须同时满足。
 
-RadonPy 介电常数 Top 20% 的当前 STCA 结果没有有效规则，可使用已提供的 WRAcc 规则。目录会标明这一状态，不提供空规则。
+各方法、各档位的可用状态以当前计算为准。没有有效规则时保留具体原因，不能用空条件表示全部结构通过。
 
-各任务、各百分比的结果见[当前规则与筛选评分](current_rule_metrics.csv)。推荐采用作者 [STCA 论文](https://doi.org/10.1038/s41524-026-02345-x)提出的平均筛选评分，AI 助手会解释比较结果。你可以说“使用推荐方法”，也可以明确选择 STCA 或 WRAcc。评分定义与推荐方式见[使用说明](../../docs/USAGE.zh-CN.md#总结规则并取得筛选结果)。
+各任务、各百分比结果见[当前规则与筛选评分](current_rule_metrics.csv)。新规则先按 **ECFP4 Morgan 距离划分**，再仅用 source 学习；每条外部 holdout 到 source 的最近邻 Tanimoto 距离 **≥ 0.5**。方法推荐由 source 内另一层 Morgan 验证确定，随后才评价外部 holdout。推荐沿用作者 [STCA 论文](https://doi.org/10.1038/s41524-026-02345-x)的平均筛选评分。可以说“使用推荐方法”，也可明确选择 STCA 或 WRAcc。详见[评价说明](../../docs/MORGAN_EVALUATION.zh-CN.md)。
 
 从自己的数据学习时，WRAcc 默认在训练数据内部选择条件数；也可要求“最多 10 个条件”或“不限制条件数”。
 
@@ -42,6 +42,7 @@ RadonPy 介电常数 Top 20% 的当前 STCA 结果没有有效规则，可使用
 |---|---|
 | 高 CO₂ 渗透率 | “用 GAS 实测数据的高 CO₂ 渗透率 Top 10% 规则，使用推荐方法筛选这份表。” |
 | 高 O₂ 渗透率 | “用 GAS 实测数据的高 O₂ 渗透率 Top 10% 规则，使用推荐方法筛选候选。” |
+| 高水接触角 | “用现成的 OpenPoly 高水接触角 Top 30% 规则筛选这些候选。” |
 | 高比热容 | “使用 RadonPy 的高比热容 Top 10% 规则，按推荐方法筛选我的候选。” |
 | 高介电常数 | “使用 ADEPT 的高介电常数 Top 20% 规则，按推荐方法筛选这份表。” |
 
@@ -51,13 +52,14 @@ RadonPy 介电常数 Top 20% 的当前 STCA 结果没有有效规则，可使用
 
 ## 数据来源与字段
 
-这些 12 项公开数据任务已使用 STCA 进行了规则归纳与筛选验证。数据来源及标签类型如下：
+这 13 项公开数据任务用于 STCA 规则归纳，以及向结构距离较远聚合物迁移的评价。数据来源及标签类型如下：
 
 | 来源 | 数据与原始研究 | 使用的标签 |
 |---|---|---|
 | GAS | [Dataset A](https://github.com/jsunn-y/PolymerGasMembraneML/blob/30981d71e1e3f12a057e009cd79f119bc659c7f5/datasets/datasetA_imputed_all.csv) · [原始论文](https://doi.org/10.1126/sciadv.abn9545) | CO₂、O₂ 实测渗透率 |
 | RadonPy | [PI1070](https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv) · [原始论文](https://doi.org/10.1038/s41524-022-00906-4) | 分子动力学计算性质 |
 | ADEPT | [PolyGraphMT 数据](https://github.com/sobinalosious/PolyGraphMT/tree/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw) · [原始论文](https://doi.org/10.1039/D6DD00206D) | MD 计算性质及 DFT 孤立单体能隙 |
+| OpenPoly | [原始性质表](https://github.com/WangGroupFDU/Openpoly_benchmark/blob/ccaa66900747bfc576ef935e3d5f220b6c9b1f85/data/final_polymer_properties_fromliterature.csv) · [原始论文](https://doi.org/10.1007/s10118-025-3402-y) | 文献报道的水接触角 |
 
 GAS 规则使用原始 `CO2`、`O2` 列的实测值。缺失值不参与归纳，Bayesian、Etree 插补列不作为实测标签替代。
 
@@ -77,6 +79,9 @@ GAS 规则使用原始 `CO2`、`O2` 列的实测值。缺失值不参与归纳�
 | 孤立单体 HOMO–LUMO 能隙 | ADEPT：`BANDGAP_DFT.csv` | `SMILES` | `BANDGAP` | eV |
 | 介电常数 | ADEPT：`DC_MD.csv` | `SMILES` | `DC` | 无量纲 |
 | 折射率 | ADEPT：`RI_MD.csv` | `SMILES` | `RI` | 无量纲 |
+| 水接触角 | OpenPoly：[`OpenPoly.csv`](../water_contact_angle/OpenPoly.csv) | `PSMILES` | `Water Contact Angle (deg)` | 度 |
+
+[水接触角案例](../water_contact_angle/README.zh-CN.md)提供 OpenPoly 原始表、明确列绑定和自然语言用法。0° 接触角是有效值，予以保留；原性质表没有给出测量条件。
 
 ADEPT 能隙指氢封端孤立单体的 DFT HOMO–LUMO 能隙。[来源与字段索引](dataset_registry.csv)列出数据链接、原始列名、单位与许可信息；使用数据时请引用原始来源。
 
@@ -92,7 +97,7 @@ ADEPT 能隙指氢封端孤立单体的 DFT HOMO–LUMO 能隙。[来源与字�
 
 ## 学习保存并继续使用
 
-每个百分比独立选择数据准备和扫描设置。同一输入、版本和设置下，单独请求某个百分比，或同时请求其他百分比，这一档的结果相同。
+先按结构划分，再仅使用 source 标签，对每个百分比独立选择数据准备和扫描设置。同一输入、版本和设置下，单独请求某个百分比，或同时请求其他百分比，这一档的结果相同。
 
 总结完成后，STCA 返回规则、物理阈值，以及**每种方法在每个请求档位的独立筛选结果**。默认筛选原始上传表；如果另传独立候选表，会将该候选表的筛选结果另列。
 

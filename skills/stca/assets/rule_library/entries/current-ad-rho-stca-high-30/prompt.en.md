@@ -4,7 +4,7 @@ Propose 20 distinct polymer repeat-unit candidates for the goals below. Generate
 
 ## Design goals
 
-1. Density; high / Top 30%; source-training physical boundary: >= 1.1352940299 g/cm3; rule source: current-ad-rho-stca-high-30. Rule learner: STCA.
+1. Density; high / Top 30%; source-training physical boundary: >= 1.1705175995000001 g/cm3; rule source: current-ad-rho-stca-high-30. Rule learner: STCA.
 
 Each percentage describes the desired tail of its source dataset, not the percentage of generated candidates that will pass. A physical cutoff, when supplied, is the frozen training-label boundary; a rule match does not predict a property value or establish experimental success.
 
@@ -12,15 +12,14 @@ Each percentage describes the desired tail of its source dataset, not the percen
 
 Objective 1 — Density:
 
-`K134=1 AND K99=0`
+`K134=1`
 
-Rule signature: `STCA|AND|K99=0&K134=1`
+Rule signature: `STCA|AND|K134=1`
 
 Satisfy every literal within each selected rule using AND. For multiple goals, apply all selected rules to the same repeat unit and require their intersection. Preserve the key numbers and required 0/1 values. Do not substitute a rule from another percentage, weaken a condition, or combine alternative family members into a new rule. Report a conflict if the requirements cannot be satisfied together.
 
 ## MACCS activation semantics
 
-- `K99=0`: SMARTS `[#6]=[#6]`; count_parameter=0; bit-one activation: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
 - `K134=1`: SMARTS `[F,Cl,Br,I]`; count_parameter=0; bit-one activation: `has_substructure_match`; definition RDKit 2026.09.1.
 
 Use the complete RDKit MACCS167 calculation as the authority. A required zero means the key's activation criterion is false; for a count key it does not necessarily mean that no matching substructure exists. Preserve count thresholds and special-key logic. Do not turn a special key into a guessed SMARTS pattern or infer a functional-group name from a key number.

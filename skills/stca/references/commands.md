@@ -1,6 +1,6 @@
 # STCA 可执行命令
 
-> 当前开源目录覆盖12项任务和10/20/30档的STCA/WRAcc结果；来源及证据见 [effectiveness.md](effectiveness.md)。用户上传数据默认走 [范围内流程](agent_workflows.md)，明确要求source/holdout时采用对应的独立评价流程；其他百分比可从上传数据重新学习。
+> 新数据默认先按 ECFP4／Morgan 最近邻 Tanimoto 距离划分 source、holdout 和 buffer，再仅在 source 学习；方法推荐来自 source 内 Morgan 距离验证。来源及规则目录见 [effectiveness.md](effectiveness.md)，执行见 [agent_workflows.md](agent_workflows.md)。历史结果保留其原评价协议。
 
 
 ## 目录
@@ -35,15 +35,18 @@ paper profiles：Tg high 0.30/0.20/0.10；EC low 或 high 0.20/0.15/0.10/0.05。
 ## 自动新数据流程
 
 ```bash
-"$STCA_PY" "$SKILL_DIR/scripts/auto_screen.py" \
+"$STCA_PY" "$SKILL_DIR/scripts/morgan_evaluation.py" \
   --input permeability.csv --target Permeability --unit Barrer \
-  --direction high --tiers 0.10,0.15,0.20,0.25,0.30 \
-  --smiles-column SMILES --data-kind experimental --output-dir out/permeability_auto
+  --direction high --tiers 0.10 0.15 0.20 0.25 0.30 \
+  --smiles-column SMILES --structure-kind polymer_repeat_unit \
+  --distance-threshold 0.5 --output-dir out/permeability_morgan
 ```
 
-默认自动清理、ECFP4（radius2/2048）外层及source内角色、auto目标形式与步长、nested配置选择。已有角色用 `--role-column Role --source-value source --evaluation-value holdout`；显式 `--scan-policy fixed` 可固定扫描支持量。质量过滤用 `--quality-column QC --exclude-quality-value failed`，物理范围用 `--target-min`/`--target-max`；只执行声明条件。
+结构先划分，所有依赖标签的数据准备和规则拟合仅使用source；source内部Morgan距离验证确定方法推荐。每条外部holdout到source的最近邻Tanimoto距离至少0.5，buffer单独保留，不参与拟合和外评。默认请求的留出比例为0.2，整组保护和距离约束可能改变实际数量；读取 `split_audit.json`，不能假定恰好20%。
 
-输出：`input_format_audit.json`、`cleaned_input.csv`、`excluded_rows.csv`、`cleaning_audit.json`、`split_membership.csv`、`split_audit.json`、`fit/model.json`、`fit/source_settings.json`、`fit/tier_cutoffs.csv`、`fit/evaluation_metrics.json`、`tier_recommendations.json`。加 `--candidates candidates.csv` 可应用源内建议档位；`--screen-tier` 指定已学习档位。
+输出包括 `original_input.csv`、`split_membership.csv`、`split_audit.json`、`source_input.csv`、`holdout_input.csv`、`buffer_input.csv`、`source_fit/`、`source_inner_selection.json`、`screening_summary.json`、`holdout_metrics.json`、`morgan_holdout_evaluation.csv`、`all_rows_screening.csv` 及每方法模型/逐档筛选/约束。`--already-log` 明确声明已log输入；`--wracc-max-literals` 可取auto、正整数或unlimited。自然语言用户不需填写这些命令。
+
+距离划分不可用时保留失败状态，不静默改用随机或t-SNE。下列显式角色与旧协议接口仍可在用户明确要求时使用。
 
 ## 新数据诊断
 

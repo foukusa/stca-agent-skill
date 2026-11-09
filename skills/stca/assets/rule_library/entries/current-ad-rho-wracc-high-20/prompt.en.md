@@ -6,7 +6,7 @@ Propose 20 distinct polymer repeat-unit candidates for the goals below. Generate
 
 ## Design goals
 
-1. Density; high / Top 20%; source-training physical boundary: >= 1.1927404 g/cm3; rule source: current-ad-rho-wracc-high-20. Rule learner: WRAcc.
+1. Density; high / Top 20%; source-training physical boundary: >= 1.229317 g/cm3; rule source: current-ad-rho-wracc-high-20. Rule learner: WRAcc.
 
 Each percentage describes the desired tail of its source dataset, not the percentage of generated candidates that will pass. A physical cutoff, when supplied, is the frozen training-label boundary; a rule match does not predict a property value or establish experimental success.
 

@@ -34,4 +34,8 @@ The execution environment uses Python, NumPy, pandas, SciPy and RDKit, together 
 
 Weihao Wang, Haoou Ruan, Keith T. Butler, Akiko Kumada and Masahiro Sato. *Interpretable substructure-based screening of multi-property polymer dielectrics with prompt-ready rules for rational design.* npj Computational Materials (2026). <https://doi.org/10.1038/s41524-026-02345-x>.
 
-The public fixture contains agent-proposed structures with no measured-property labels. It is not a redistribution of the original measured polymer dataset and does not claim that the proposed structures are chemically novel.
+The agent-generated demonstration candidates have no measured-property labels and make no claim of chemical novelty.
+
+## OpenPoly example data
+
+The repository includes the public literature-property table from [OpenPoly](https://github.com/WangGroupFDU/Openpoly_benchmark), associated with DOI 10.1007/s10118-025-3402-y, under the upstream MIT license. The original license accompanies the redistributed table. Standalone platform skill packages contain rule metadata and source links; they do not contain this raw table. The original STCA paper measurement tables are not redistributed.

@@ -6,15 +6,15 @@ STCA is used by the current LLM in the conversation. It does not create a fixed 
 
 读取 [案例配置](../assets/examples/radonpy_density_case.json)。用户上传完整 PI1070.csv，说明：使用推荐的现成 RadonPy 高密度 Top 30% 规则筛选这份数据。
 
-按列名读取全部1077条输入：可选标识monomer_ID、结构smiles、目标density（g/cm³，MD计算），不让用户逐格选取集成表。默认采用主推 WRAcc 条目`current-pi-rho-wracc-high-30`，得到389条匹配、688条未匹配、0未知。用户明确选择 STCA 时，采用`current-pi-rho-stca-high-30`，得到282条匹配、795条未匹配、0未知；不能静默改成推荐方法。两条规则的物理目标边界均为≥1.222080875g/cm³。读取真实输出才报数字。不从候选表重算冻结阈值。
+按列名读取全部1077条输入：可选标识monomer_ID、结构smiles、目标density（g/cm³，MD计算），不让用户逐格选取集成表。读取当前案例配置和目录的推荐及精确规则，用户明确指定STCA或WRAcc时保留该选择。运行后才报告实际匹配、未匹配、未知数量和冻结物理阈值；不要引用旧全量拟合数量作为当前距离留出规则的预期。不从候选表重算阈值。
 
 ## 从公开数据总结规则后继续筛选
 
 用户上传 RadonPy 的 PI1070.csv，说明：“从这份数据总结高密度规则。结构列为smiles，性质列为density，单位g/cm³，使用全部数据行，返回筛选结果并保存规则。”
 
-学习前简短告知实际绑定：“PI1070.csv，1077行；结构列smiles；目标列density（第27列/AA），单位g/cm³，MD计算，高值方向。”按列名执行，其他密度统计列不作为目标。已知案例与用户列名一致时直接继续；不要求额外确认。自己的文件含多个候选密度列或单位/条件不清时，列出候选并等待选择，再开始学习。默认执行 Top 10%、20%、30%，用户明确给出的其他合法百分比按请求计算。自动准备数据、选择变换和步长；WRAcc 条件数上限仅在当前训练部分内部选择，也接受用户指定上限或不限制。不能按外部测试分数挑选长度。同时返回 STCA 与 WRAcc 在各档位的规则、原始物理阈值、比较符、单位、完整原表筛选和主推理由。读取实际文件后说明采用的设置，不能凭预期声称已自适应。
+学习前简短告知实际绑定：“PI1070.csv，1077行；结构列smiles；目标列density（第27列/AA），单位g/cm³，MD计算，高值方向。”按列名执行，其他密度统计列不作为目标。已知案例与用户列名一致时直接继续；不要求额外确认。自己的文件含多个候选密度列或单位/条件不清时，列出候选并等待选择，再开始学习。默认执行 Top 10%、20%、30%，用户明确给出的其他合法百分比按请求计算。先以ECFP4／Morgan最近邻距离至少0.5建立外部留出，buffer单列；仅在source自动准备数据、选择变换和步长，source内Morgan验证确定方法推荐；WRAcc 条件数上限仅在当前训练部分内部选择，也接受用户指定上限或不限制。不能按外部测试分数挑选长度。同时返回 STCA 与 WRAcc 在各档位的规则、原始物理阈值、比较符、单位、完整原表筛选和主推理由。读取实际文件后说明采用的设置，不能凭预期声称已自适应。
 
-检查run_manifest.json、fingerprint_contract.json、真实交叉验证分组和折外预测，再执行fingerprint_contract.py --run-dir输出目录。只有表示核对通过后才交付成功状态。保存成功后交付真实文件名、位置及便携规则包。用户可以接着说：
+检查run_manifest.json、split_audit.json、split_membership.csv、source_inner_selection.json及holdout_metrics.json，核对距离约束、source-only准备和内部推荐。对source_fit运行fingerprint_contract.py --run-dir RUN_DIR/source_fit，核对逐档指纹凭据。成功后交付真实文件名、位置及便携规则包。用户可以接着说：
 
 > 用刚才保存的高密度 Top 20% 推荐规则筛选这份新候选表。
 
@@ -28,7 +28,7 @@ STCA is used by the current LLM in the conversation. It does not create a fixed 
 
 用户：这是我的聚合物热导率数据，单位 W/(m K)，计算值。我想总结高值规则，考虑 Top 15% 和 25%。
 
-只询问缺失的科学信息，使用用户的百分比，不替换为默认值。交付两方法独立结果和推荐理由。首次解释评分时，说明交叉验证用未参与本折训练的数据评价规则；平均筛选评分为马修斯相关系数、精确率和 F1 分数的平均值。不能只报“CV AS”缩写。精确条件、原始 SMILES 和全部未满足条件保留。
+只询问缺失的科学信息，使用用户的百分比，不替换为默认值。交付两方法独立结果和推荐理由。首次解释评分时，说明推荐使用source内Morgan验证，外部holdout在规则冻结后才评价；平均筛选评分为马修斯相关系数、精确率和 F1 分数的平均值。不能只报“CV AS”缩写。精确条件、原始 SMILES 和全部未满足条件保留。
 
 用户：WRAcc 最多用 10 条条件。
 
@@ -38,7 +38,7 @@ STCA is used by the current LLM in the conversation. It does not create a fixed 
 
 用户：用已有规则筛选这份候选表。
 
-目标尚不明确时，简短列出论文、RadonPy、ADEPT、GAS 及当前可读的已保存规则，按性质和可用百分比让用户选择。不要倾倒全部规则条件。若请求已明确来源、目标和档位，直接读取所选条件执行。
+目标尚不明确时，简短列出论文、RadonPy、ADEPT、GAS、OpenPoly 及当前可读的已保存规则，按性质和可用百分比让用户选择。不要倾倒全部规则条件。若请求已明确来源、目标和档位，直接读取所选条件执行。
 
 用户：使用作者 STCA 论文中的高 Tg Top 20% 规则。
 
@@ -81,4 +81,4 @@ STCA is used by the current LLM in the conversation. It does not create a fixed 
 - **Direct:** “Generate and verify 20 polymer repeat units directly with the selected rule.” The current LLM generates; the calculation verifies. Preserve proposals as pending if verification cannot run.
 - **Continue elsewhere:** “Load this saved rule bundle and continue.” Import it, then resolve the intended saved target from the conversation.
 
-同一保存模型重新载入后应用同表必须逐行一致；当前默认冻结规则与重新归纳采用相同原始数据、逐档准备、H-cap、算法和设置；同一档位单独或批量请求时应一致。保留不同原始连接图，不按H-cap结果相同强行合并。
+同一保存模型重新载入后应用同表必须逐行一致；当前默认冻结规则与重新归纳采用相同原始数据、source-first距离划分、逐档准备、H-cap、算法和设置；同一档位单独或批量请求时应一致。保留不同原始连接图，不按H-cap结果相同强行合并。

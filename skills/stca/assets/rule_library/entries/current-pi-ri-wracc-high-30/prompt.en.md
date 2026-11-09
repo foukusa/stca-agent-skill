@@ -6,7 +6,7 @@ Propose 20 distinct polymer repeat-unit candidates for the goals below. Generate
 
 ## Design goals
 
-1. Refractive index; high / Top 30%; source-training physical boundary: >= 1.5918637462 1; rule source: current-pi-ri-wracc-high-30. Rule learner: WRAcc.
+1. Refractive index; high / Top 30%; source-training physical boundary: >= 1.5566620429 1; rule source: current-pi-ri-wracc-high-30. Rule learner: WRAcc.
 
 Each percentage describes the desired tail of its source dataset, not the percentage of generated candidates that will pass. A physical cutoff, when supplied, is the frozen training-label boundary; a rule match does not predict a property value or establish experimental success.
 
@@ -14,19 +14,21 @@ Each percentage describes the desired tail of its source dataset, not the percen
 
 Objective 1 — Refractive index:
 
-`K24=0 AND K28=0 AND K41=0 AND K42=0 AND K125=1`
+`K15=0 AND K29=0 AND K32=0 AND K46=0 AND K72=0 AND K141=0 AND K162=1`
 
-Rule signature: `STCA|AND|K24=0&K28=0&K41=0&K42=0&K125=1`
+Rule signature: `STCA|AND|K15=0&K29=0&K32=0&K46=0&K72=0&K141=0&K162=1`
 
 Satisfy every literal within each selected rule using AND. For multiple goals, apply all selected rules to the same repeat unit and require their intersection. Preserve the key numbers and required 0/1 values. Do not substitute a rule from another percentage, weaken a condition, or combine alternative family members into a new rule. Report a conflict if the requirements cannot be satisfied together.
 
 ## MACCS activation semantics
 
-- `K24=0`: SMARTS `[#7]-[#8]`; count_parameter=0; bit-one activation: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
-- `K28=0`: SMARTS `[!#6;!#1]~[CH2]~[!#6;!#1]`; count_parameter=0; bit-one activation: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
-- `K41=0`: SMARTS `[#6]#[#7]`; count_parameter=0; bit-one activation: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
-- `K42=0`: SMARTS `F`; count_parameter=0; bit-one activation: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
-- `K125=1`: special/undefined key; use the complete MACCS generator; definition RDKit 2026.09.1.
+- `K15=0`: SMARTS `[#8]~[#6](~[#8])~[#8]`; count_parameter=0; bit-one activation: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
+- `K29=0`: SMARTS `[#15]`; count_parameter=0; bit-one activation: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
+- `K32=0`: SMARTS `[#6]~[#16]~[#7]`; count_parameter=0; bit-one activation: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
+- `K46=0`: SMARTS `Br`; count_parameter=0; bit-one activation: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
+- `K72=0`: SMARTS `[#8]~*~*~[#8]`; count_parameter=0; bit-one activation: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
+- `K141=0`: SMARTS `[CH3]`; count_parameter=2; bit-one activation: `unique_substructure_match_count > 2`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
+- `K162=1`: SMARTS `a`; count_parameter=0; bit-one activation: `has_substructure_match`; definition RDKit 2026.09.1.
 
 Use the complete RDKit MACCS167 calculation as the authority. A required zero means the key's activation criterion is false; for a count key it does not necessarily mean that no matching substructure exists. Preserve count thresholds and special-key logic. Do not turn a special key into a guessed SMARTS pattern or infer a functional-group name from a key number.
 

@@ -4,7 +4,7 @@ Propose 20 distinct polymer repeat-unit candidates for the goals below. Generate
 
 ## Design goals
 
-1. Thermal conductivity; high / Top 30%; source-training physical boundary: >= 0.272 W/(m K); rule source: current-ad-tc-stca-high-30. Rule learner: STCA.
+1. Thermal conductivity; high / Top 30%; source-training physical boundary: >= 0.24359999999999996 W/(m K); rule source: current-ad-tc-stca-high-30. Rule learner: STCA.
 
 Each percentage describes the desired tail of its source dataset, not the percentage of generated candidates that will pass. A physical cutoff, when supplied, is the frozen training-label boundary; a rule match does not predict a property value or establish experimental success.
 
@@ -12,19 +12,20 @@ Each percentage describes the desired tail of its source dataset, not the percen
 
 Objective 1 — Thermal conductivity:
 
-`K155=1 AND K114=1 AND K118=1 AND K147=1 AND K129=1`
+`K163=1 AND K156=1 AND K165=1 AND K162=1 AND K161=1 AND K135=1`
 
-Rule signature: `STCA|AND|K114=1&K118=1&K129=1&K147=1&K155=1`
+Rule signature: `STCA|AND|K135=1&K156=1&K161=1&K162=1&K163=1&K165=1`
 
 Satisfy every literal within each selected rule using AND. For multiple goals, apply all selected rules to the same repeat unit and require their intersection. Preserve the key numbers and required 0/1 values. Do not substitute a rule from another percentage, weaken a condition, or combine alternative family members into a new rule. Report a conflict if the requirements cannot be satisfied together.
 
 ## MACCS activation semantics
 
-- `K114=1`: SMARTS `[CH3]~[CH2]~*`; count_parameter=0; bit-one activation: `has_substructure_match`; definition RDKit 2026.09.1.
-- `K118=1`: SMARTS `[$(*~[CH2]~[CH2]~*),$(*1~[CH2]~[CH2]1)]`; count_parameter=1; bit-one activation: `unique_substructure_match_count > 1`; definition RDKit 2026.09.1.
-- `K129=1`: SMARTS `[$(*~[CH2]~*~*~[CH2]~*),$([R]1@[CH2]@[R]@[R]@[CH2;R]1),$(*~[CH2]~[R]1@[R]@[CH2;R]1)]`; count_parameter=0; bit-one activation: `has_substructure_match`; definition RDKit 2026.09.1.
-- `K147=1`: SMARTS `[$(*~[CH2]~[CH2]~*),$([R]1@[CH2;R]@[CH2;R]1)]`; count_parameter=0; bit-one activation: `has_substructure_match`; definition RDKit 2026.09.1.
-- `K155=1`: SMARTS `*!@[CH2]!@*`; count_parameter=0; bit-one activation: `has_substructure_match`; definition RDKit 2026.09.1.
+- `K135=1`: SMARTS `[#7]!:*:*`; count_parameter=0; bit-one activation: `has_substructure_match`; definition RDKit 2026.09.1.
+- `K156=1`: SMARTS `[#7]~*(~*)~*`; count_parameter=0; bit-one activation: `has_substructure_match`; definition RDKit 2026.09.1.
+- `K161=1`: SMARTS `[#7]`; count_parameter=0; bit-one activation: `has_substructure_match`; definition RDKit 2026.09.1.
+- `K162=1`: SMARTS `a`; count_parameter=0; bit-one activation: `has_substructure_match`; definition RDKit 2026.09.1.
+- `K163=1`: SMARTS `*1~*~*~*~*~*~1`; count_parameter=0; bit-one activation: `has_substructure_match`; definition RDKit 2026.09.1.
+- `K165=1`: SMARTS `[R]`; count_parameter=0; bit-one activation: `has_substructure_match`; definition RDKit 2026.09.1.
 
 Use the complete RDKit MACCS167 calculation as the authority. A required zero means the key's activation criterion is false; for a count key it does not necessarily mean that no matching substructure exists. Preserve count thresholds and special-key logic. Do not turn a special key into a guessed SMARTS pattern or infer a functional-group name from a key number.
 

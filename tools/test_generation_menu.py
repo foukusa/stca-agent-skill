@@ -11,7 +11,9 @@ import unittest
 SKILL = Path(os.environ.get('STCA_TEST_SKILL_DIR',
                            str(Path(__file__).resolve().parents[1]/'skills'/'stca')))
 SCRIPT = SKILL/'scripts/task_menu.py'
-RULE = 'current-gas-co2-stca-high-10'
+# Test the conversation gates with an immutable, available paper rule. The
+# availability of a newly learned open-data rule is tested with its catalog.
+RULE = 'paper-tg-high-30'
 
 
 class GenerationMenuTests(unittest.TestCase):

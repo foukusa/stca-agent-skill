@@ -589,7 +589,7 @@ def prepare_dataset(input, *, smiles_column="SMILES", target, property_name=None
     evaluation_output = (Path(output_dir).expanduser().resolve() if output_dir is not None
                          else Path.cwd()) / "evaluation"
     evaluation_argv = [sys.executable, str(HERE / "agent_runtime.py"), "run", "--script",
-                       "inrange_evaluation.py", "--", "--input", str(Path(input).expanduser().resolve()),
+                       "morgan_evaluation.py", "--", "--input", str(Path(input).expanduser().resolve()),
                        "--target", target, "--smiles-column", smiles_column, "--property", key,
                        "--direction", direction, "--tiers", *[str(q) for q in tiers],
                        "--output-dir", str(evaluation_output)]

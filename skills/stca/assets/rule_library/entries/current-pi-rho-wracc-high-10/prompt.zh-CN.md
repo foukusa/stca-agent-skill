@@ -6,7 +6,7 @@
 
 ## 设计目标
 
-1. Density; high / Top 10%; 源训练物理边界: >= 1.3075122106 g/cm3; 规则来源: current-pi-rho-wracc-high-10. 规则学习方法: WRAcc.
+1. Density; high / Top 10%; 源训练物理边界: >= 1.3605449643999998 g/cm3; 规则来源: current-pi-rho-wracc-high-10. 规则学习方法: WRAcc.
 
 每个百分比表示相应源数据集的目标尾部范围，不是生成候选的通过比例。若给出物理 cutoff，它是冻结的训练标签边界；命中结构规则不等于预测出性质数值或证明实验达标。
 
@@ -14,14 +14,18 @@
 
 目标 1 — Density:
 
-`K134=1 AND K141=0`
+`K38=0 AND K86=0 AND K89=0 AND K99=0 AND K134=1 AND K141=0`
 
-规则签名: `STCA|AND|K134=1&K141=0`
+规则签名: `STCA|AND|K38=0&K86=0&K89=0&K99=0&K134=1&K141=0`
 
 每条选定规则中的所有条件必须以 AND 同时满足。多目标时，对同一个重复单元应用全部选定规则并取交集。保留每个位编号及其要求的 0/1 值。不要换用其他百分比的规则、放宽条件，或将多个备选家族成员拼成新规则。要求无法同时满足时，明确报告冲突。
 
 ## MACCS 激活语义
 
+- `K38=0`: SMARTS `[#7]~[#6](~[#6])~[#7]`; count_parameter=0; 位 1 激活条件: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
+- `K86=0`: SMARTS `[C;H2,H3][!#6;!#1][C;H2,H3]`; count_parameter=0; 位 1 激活条件: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
+- `K89=0`: SMARTS `[#8]~*~*~*~[#8]`; count_parameter=0; 位 1 激活条件: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
+- `K99=0`: SMARTS `[#6]=[#6]`; count_parameter=0; 位 1 激活条件: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
 - `K134=1`: SMARTS `[F,Cl,Br,I]`; count_parameter=0; 位 1 激活条件: `has_substructure_match`; definition RDKit 2026.09.1.
 - `K141=0`: SMARTS `[CH3]`; count_parameter=2; 位 1 激活条件: `unique_substructure_match_count > 2`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
 

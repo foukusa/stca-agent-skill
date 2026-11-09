@@ -1,12 +1,15 @@
 <p align="center"><img src="assets/stca-logo.png" alt="STCA logo" width="104"></p>
 <h1 align="center">STCA Agent Skill</h1>
-<p align="center">Learn polymer structure–property rules, screen candidates, or generate repeat units.</p>
+<p align="center">Use natural language to turn polymer data into reusable rules, screen candidates, and generate repeat units.</p>
 <p align="center"><strong>0.1.0</strong> · English · <a href="README.zh-CN.md">简体中文</a></p>
+<p align="center"><a href="https://doi.org/10.1038/s41524-026-02345-x">STCA paper</a> · <a href="https://github.com/foukusa/polymer-stca">Python library</a> · <a href="#download-and-install">Install the skill</a></p>
 
 ## Contents
 
+- [Why STCA](#why-stca)
 - [Start here](#start-here)
 - [Try RadonPy density](#try-radonpy-density)
+- [Try water contact angle](#try-water-contact-angle)
 - [Save rules and continue](#save-rules-and-continue)
 - [Natural-language examples after installation](docs/USAGE.md)
 - [Download and install](#download-and-install)
@@ -14,6 +17,12 @@
 - [Existing rules and generation prompts](#existing-rules-and-generation-prompts)
 - [Prepare your data](#prepare-your-data)
 - [Paper and author](#paper-and-author)
+
+## Why STCA
+
+**STCA — Sliding Threshold Correlation Analysis — turns polymer structure–property data into readable structural rules.** It follows how substructure–property relationships change across property thresholds, then expresses a screening objective as conditions that a repeat unit must satisfy together.
+
+Those rules connect three practical tasks: understand which structural conditions support your target, apply the same conditions to new candidates, and give an LLM precise guidance for designing and checking new repeat units. Rules, numeric property cutoffs and complete generation prompts can be saved and reused. The skill handles the calculations behind a natural-language conversation and compares STCA with WRAcc on your data.
 
 ## Start here
 
@@ -47,14 +56,7 @@ Row 1 contains headers; rows **2–1078** contain data. Use all records initiall
 Use the recommended RadonPy high-density Top 30% rule to screen this dataset.
 ```
 
-**WRAcc is recommended for this example.** Both methods use the density target boundary **≥ 1.222080875 g/cm³**. This fixed file gives:
-
-| Method | Rule matches | Non-matches | Unknowns | Cross-validation average screening score |
-|---|---:|---:|---:|---:|
-| **WRAcc (recommended)** | **389** | 688 | 0 | **0.7014** |
-| STCA | 282 | 795 | 0 | 0.6479 |
-
-WRAcc has the higher average score, recall and F1; STCA has higher precision. You can also explicitly request the STCA rule.
+The assistant shows the selected rule, its **numeric density cutoff in g/cm³**, and both methods’ screening results. The rule is applied unchanged to every input row; Top 30% defines the property target in its training data, rather than a quota requiring 30% of candidates to match.
 
 **Learn from the same data and save the result:**
 
@@ -62,7 +64,7 @@ WRAcc has the higher average score, recall and F1; STCA has higher precision. Yo
 Learn high-density Top 30% rules from this RadonPy dataset. Use smiles for structures and density for the property, in g/cm³, and include all data rows. Return screening results, compare them with the existing rule and save the new rules.
 ```
 
-The assistant chooses the data transform, scan step and support separately for each percentage, then returns STCA and WRAcc. With this fixed file and the default settings in the same version, both newly learned Top 30% rules match their corresponding bundled rules. Requesting other percentages alongside 30% does not change that task. To reuse the recommended rule, say **“Reload the Top 30% WRAcc rule just saved and screen the same dataset again.”** Every row must match its earlier decision.
+The assistant first separates structurally distant evaluation records using Morgan fingerprints, then chooses the data transform, scan step and support **within the training data** for each percentage. It returns both STCA and WRAcc rules, the training-defined density cutoff, independent extrapolation results, and screening results for all original rows. To reuse the result, say **“Reload the recommended Top 30% rule just saved and screen the same dataset again.”** Every row must match its earlier decision.
 
 **Generate with the selected rule:**
 
@@ -74,9 +76,21 @@ For a preview first, say **“Show the complete prompt for five repeat units bef
 
 See [five actual generated proposals and their verification](examples/radonpy_density/generated_examples.csv).
 
+## Try water contact angle
+
+STCA also supports other polymer properties without changing the learner. The [OpenPoly water-contact-angle example](examples/water_contact_angle/README.md) uses `PSMILES` for repeat units and `Water Contact Angle (deg)` for the measured target. Upload the source CSV and say:
+
+```text
+Learn high water-contact-angle Top 30% rules from this OpenPoly file. Use PSMILES for structures and Water Contact Angle (deg) for the property, in degrees. Return both methods, extrapolation results and screening results, then save the rules.
+```
+
+The assistant uses the rows with usable target labels for learning and keeps the other structures available for candidate screening. You can instead choose an existing water-contact-angle rule from the catalog, or ask the current LLM to generate repeat units with that rule and verify them. See the example for the data source, column mapping and computed results.
+
 ## Save rules and continue
 
-With your own data, STCA automatically cleans unusable records, chooses data transforms and scan settings, and compares **STCA and WRAcc within your data range**. It returns both methods separately and recommends one for each tier. The recommendation uses cross-validation: rules are repeatedly learned from part of the supplied data and evaluated on the remaining part. Its average screening score, introduced and validated in the author’s [STCA paper](https://doi.org/10.1038/s41524-026-02345-x), is the mean of the **Matthews correlation coefficient, precision and F1 score**; F1 combines precision and recall. The results explain the recommendation. Say “Use the recommended rule” to continue, or name either method. [Evaluation details](docs/USAGE.md).
+New learning uses **Morgan-distance extrapolation evaluation** by default. ECFP4 fingerprints (radius 2, 2,048 bits) separate training and evaluation structures so that every evaluated repeat unit has a nearest-training Tanimoto distance of **at least 0.5**. Structures needed as a similarity buffer are kept out of both learning and evaluation; screening still covers the original input table. The returned files identify each row’s role and its measured distance.
+
+All label-dependent preparation, transformations, scan settings and rule selection use the training part. Both **STCA and WRAcc** are returned. The method recommendation uses training-side validation; the distant evaluation set is used only to report extrapolation performance. Its average screening score, introduced and validated in the author’s [STCA paper](https://doi.org/10.1038/s41524-026-02345-x), is the mean of the **Matthews correlation coefficient, precision and F1 score**. Say “Use the recommended rule” to continue, or name either method. [Evaluation details](docs/USAGE.md).
 
 WRAcc automatically chooses its maximum condition count within the training data. You can also say **“Allow up to 10 WRAcc conditions”** or **“Do not limit the number of WRAcc conditions.”**
 
@@ -103,7 +117,7 @@ Choose your platform below. The [installation guide](docs/INSTALL.md) includes e
 |---|---|---|
 | **Codex** | Install the GitHub skill folder or the [Codex ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-codex-0.1.0.zip). | `Use $stca` |
 | **DeepSeek Harness** | Enter the GitHub installation address below in Add plugin; npm publication is not required. | `/stca` |
-| **WorkBuddy** | Import the [WorkBuddy ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.3.zip). | “Start STCA” |
+| **WorkBuddy** | Import the [WorkBuddy ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.4.zip). | “Start STCA” |
 | **ChatGPT** | Import the [OpenAI skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-openai-skill-0.1.0.zip) using a client with skill installation support. | Select STCA or ask to use it. |
 
 ### Codex
@@ -127,6 +141,12 @@ github:foukusa/stca-agent-skill
 
 3. Enable STCA, then enter `/stca` or say “Start STCA”. Describe the task and attach data when needed.
 
+Alternatively, install from the terminal with the DSH CLI:
+
+```bash
+dsh plugin --profile web add github:foukusa/stca-agent-skill
+```
+
 **Installing from GitHub does not require npm publication.** DSH reads the plugin configuration and entry from the public repository. Entering only `dsh-plugin-stca` requires that package to have been published on npm; use the repository URL until then.
 
 If STCA is already listed, check and enable that entry instead of repeatedly adding it. See [DSH installation](docs/INSTALL.md#deepseek-harness) for installation errors, optional CLI use and the [plugin ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.zip) local-directory fallback. The separate [standalone skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip) is extracted into a DSH skill directory; it is different from the plugin root used by Add plugin. See the [DSH guide](README.DSH.md).
@@ -137,7 +157,7 @@ Plugin-center link: — (to be added after listing).
 
 ### WorkBuddy
 
-1. Download `stca-workbuddy-0.1.3.zip` from the table above.
+1. Download `stca-workbuddy-0.1.4.zip` from the table above.
 2. Open WorkBuddy’s skill management page and choose the action to add/upload a local skill package. Select the ZIP directly, complete import and enable **STCA Polymer Rules and Design**.
 3. Say “Start STCA”, attach your file, then describe whether you want to learn rules, screen candidates or generate repeat units.
 
@@ -157,7 +177,7 @@ At the first calculation, STCA looks for and checks a suitable local Python envi
 
 ## Existing rules and generation prompts
 
-The [rule and prompt directory](docs/RULE_LIBRARY.md) offers **source → property → percentage** choices. You can also load a rule bundle learned from your own data. The open-data library covers **12 tasks**, each with Top **10%, 20% and 30%** results from both methods; the catalog identifies available rules and recommendations. Frozen Tg and electrical-conductivity rules from the author’s STCA paper are also included.
+The [rule and prompt directory](docs/RULE_LIBRARY.md) offers **source → property → percentage** choices. You can also load a rule bundle learned from your own data. The open-data library includes gas permeability, bulk polymer properties and water contact angle; the catalog identifies the available percentages, both methods and their recommendations. Frozen Tg and electrical-conductivity rules from the author’s STCA paper are also included.
 
 | Source | Properties |
 |---|---|
@@ -165,10 +185,11 @@ The [rule and prompt directory](docs/RULE_LIBRARY.md) offers **source → proper
 | [GAS measured data](https://github.com/jsunn-y/PolymerGasMembraneML) | CO₂ and O₂ permeability |
 | [RadonPy computed data](https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv) | Thermal conductivity, refractive index, density, specific heat, dielectric constant |
 | [ADEPT computed data](https://github.com/sobinalosious/PolyGraphMT/tree/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw) | Thermal conductivity, density, isolated-monomer HOMO–LUMO gap, dielectric constant, refractive index |
+| [OpenPoly measured data](examples/water_contact_angle/README.md) | Water contact angle |
 
 The catalog shows each tier’s **method, rule availability, recommendation and numeric physical cutoff with its comparison and unit**. Accept the recommendation or choose an available method; available rule sets are applied separately. A percentage absent from the selected frozen catalog, such as 15% or 25% in the open-data library, requires labelled data to learn a new rule. Existing percentages are never interpolated or substituted. If you only want a prompt for another LLM, ask for the complete prompt without generation.
 
-The Tg and electrical-conductivity rules implement the experimental-property screening tasks presented in the author’s STCA paper. STCA has also been used with the GAS, RadonPy and ADEPT datasets for rule extraction and screening validation across the 12 open-data tasks. Choose rules matching your objective, or learn from your own data. See the [rule directory](docs/RULE_LIBRARY.md#stca-paper-rules), [dataset sources](examples/open_data/dataset_registry.csv) and [application examples](examples/open_data/README.md).
+The Tg and electrical-conductivity rules implement the experimental-property screening tasks presented in the author’s STCA paper. STCA has also been used with GAS, RadonPy, ADEPT and OpenPoly datasets for rule extraction and screening validation. Choose rules matching your objective, or learn from your own data. See the [rule directory](docs/RULE_LIBRARY.md#stca-paper-rules), [dataset sources](examples/open_data/dataset_registry.csv) and [application examples](examples/open_data/README.md).
 
 ## Prepare your data
 
@@ -191,10 +212,10 @@ Upload polymer repeat units with their **original `*` attachment points; you do 
 | Stage | Example SMILES | What happens |
 |---|---|---|
 | Input | `*CCO*` | Preserve the original repeat unit and attachment-point positions |
-| Calculation | `CCO` | Replace terminal, single-bonded `*` attachment atoms with hydrogen in a calculation copy, then compute MACCS fingerprints |
+| Calculation | `CCO` | Replace terminal, single-bonded `*` attachment atoms with hydrogen in a calculation copy, then compute fingerprints |
 | Output | `*CCO*` | Return the preserved original star-containing SMILES, with its attachment positions and labels intact |
 
-**Original `*` input → H-cap calculation copy → original `*` output.** The H-cap copy does not overwrite the original SMILES. Screening and verification of generated proposals follow this same process. Already capped input without `*` is processed and returned as supplied.
+**Original `*` input → H-cap calculation copy → original `*` output.** ECFP4 fingerprints define structural distance; MACCS167 fingerprints encode the conditions used in STCA and WRAcc rules. The H-cap copy does not overwrite the original SMILES. Screening and verification of generated proposals follow this same process. Already capped input without `*` is processed and returned as supplied.
 
 A candidate-only screening CSV can contain:
 

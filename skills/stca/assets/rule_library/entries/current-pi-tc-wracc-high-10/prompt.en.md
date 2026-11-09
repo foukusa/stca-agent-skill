@@ -6,7 +6,7 @@ Propose 20 distinct polymer repeat-unit candidates for the goals below. Generate
 
 ## Design goals
 
-1. Thermal conductivity; high / Top 10%; source-training physical boundary: >= 0.3098994358 W/(m K); rule source: current-pi-tc-wracc-high-10. Rule learner: WRAcc.
+1. Thermal conductivity; high / Top 10%; source-training physical boundary: >= 0.3079640755 W/(m K); rule source: current-pi-tc-wracc-high-10. Rule learner: WRAcc.
 
 Each percentage describes the desired tail of its source dataset, not the percentage of generated candidates that will pass. A physical cutoff, when supplied, is the frozen training-label boundary; a rule match does not predict a property value or establish experimental success.
 
@@ -14,24 +14,15 @@ Each percentage describes the desired tail of its source dataset, not the percen
 
 Objective 1 — Thermal conductivity:
 
-`K17=0 AND K59=0 AND K72=0 AND K74=0 AND K79=0 AND K99=0 AND K110=1 AND K112=0 AND K138=0 AND K141=0`
+`K151=1`
 
-Rule signature: `STCA|AND|K17=0&K59=0&K72=0&K74=0&K79=0&K99=0&K110=1&K112=0&K138=0&K141=0`
+Rule signature: `STCA|AND|K151=1`
 
 Satisfy every literal within each selected rule using AND. For multiple goals, apply all selected rules to the same repeat unit and require their intersection. Preserve the key numbers and required 0/1 values. Do not substitute a rule from another percentage, weaken a condition, or combine alternative family members into a new rule. Report a conflict if the requirements cannot be satisfied together.
 
 ## MACCS activation semantics
 
-- `K17=0`: SMARTS `[#6]#[#6]`; count_parameter=0; bit-one activation: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
-- `K59=0`: SMARTS `[#16]!:*:*`; count_parameter=0; bit-one activation: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
-- `K72=0`: SMARTS `[#8]~*~*~[#8]`; count_parameter=0; bit-one activation: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
-- `K74=0`: SMARTS `[CH3]~*~[CH3]`; count_parameter=0; bit-one activation: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
-- `K79=0`: SMARTS `[#7]~*~*~[#7]`; count_parameter=0; bit-one activation: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
-- `K99=0`: SMARTS `[#6]=[#6]`; count_parameter=0; bit-one activation: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
-- `K110=1`: SMARTS `[#7]~[#6]~[#8]`; count_parameter=0; bit-one activation: `has_substructure_match`; definition RDKit 2026.09.1.
-- `K112=0`: SMARTS `*~*(~*)(~*)~*`; count_parameter=0; bit-one activation: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
-- `K138=0`: SMARTS `[!#6;!#1]~[CH2]~*`; count_parameter=1; bit-one activation: `unique_substructure_match_count > 1`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
-- `K141=0`: SMARTS `[CH3]`; count_parameter=2; bit-one activation: `unique_substructure_match_count > 2`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
+- `K151=1`: SMARTS `[#7;!H0]`; count_parameter=0; bit-one activation: `has_substructure_match`; definition RDKit 2026.09.1.
 
 Use the complete RDKit MACCS167 calculation as the authority. A required zero means the key's activation criterion is false; for a count key it does not necessarily mean that no matching substructure exists. Preserve count thresholds and special-key logic. Do not turn a special key into a guessed SMARTS pattern or infer a functional-group name from a key number.
 

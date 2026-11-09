@@ -6,7 +6,7 @@
 
 ## 设计目标
 
-1. Thermal conductivity; high / Top 30%; 源训练物理边界: >= 0.272 W/(m K); 规则来源: current-ad-tc-wracc-high-30. 规则学习方法: WRAcc.
+1. Thermal conductivity; high / Top 30%; 源训练物理边界: >= 0.24359999999999996 W/(m K); 规则来源: current-ad-tc-wracc-high-30. 规则学习方法: WRAcc.
 
 每个百分比表示相应源数据集的目标尾部范围，不是生成候选的通过比例。若给出物理 cutoff，它是冻结的训练标签边界；命中结构规则不等于预测出性质数值或证明实验达标。
 
@@ -14,28 +14,19 @@
 
 目标 1 — Thermal conductivity:
 
-`K11=0 AND K14=0 AND K24=0 AND K25=0 AND K33=0 AND K74=0 AND K75=0 AND K76=0 AND K87=0 AND K112=0 AND K118=1 AND K128=1 AND K129=1 AND K155=1`
+`K25=0 AND K76=0 AND K102=0 AND K134=0 AND K141=0`
 
-规则签名: `STCA|AND|K11=0&K14=0&K24=0&K25=0&K33=0&K74=0&K75=0&K76=0&K87=0&K112=0&K118=1&K128=1&K129=1&K155=1`
+规则签名: `STCA|AND|K25=0&K76=0&K102=0&K134=0&K141=0`
 
 每条选定规则中的所有条件必须以 AND 同时满足。多目标时，对同一个重复单元应用全部选定规则并取交集。保留每个位编号及其要求的 0/1 值。不要换用其他百分比的规则、放宽条件，或将多个备选家族成员拼成新规则。要求无法同时满足时，明确报告冲突。
 
 ## MACCS 激活语义
 
-- `K11=0`: SMARTS `*1~*~*~*~1`; count_parameter=0; 位 1 激活条件: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
-- `K14=0`: SMARTS `[#16]-[#16]`; count_parameter=0; 位 1 激活条件: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
-- `K24=0`: SMARTS `[#7]-[#8]`; count_parameter=0; 位 1 激活条件: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
 - `K25=0`: SMARTS `[#7]~[#6](~[#7])~[#7]`; count_parameter=0; 位 1 激活条件: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
-- `K33=0`: SMARTS `[#7]~[#16]`; count_parameter=0; 位 1 激活条件: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
-- `K74=0`: SMARTS `[CH3]~*~[CH3]`; count_parameter=0; 位 1 激活条件: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
-- `K75=0`: SMARTS `*!@[#7]@*`; count_parameter=0; 位 1 激活条件: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
 - `K76=0`: SMARTS `[#6]=[#6](~*)~*`; count_parameter=0; 位 1 激活条件: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
-- `K87=0`: SMARTS `[F,Cl,Br,I]!@*@*`; count_parameter=0; 位 1 激活条件: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
-- `K112=0`: SMARTS `*~*(~*)(~*)~*`; count_parameter=0; 位 1 激活条件: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
-- `K118=1`: SMARTS `[$(*~[CH2]~[CH2]~*),$(*1~[CH2]~[CH2]1)]`; count_parameter=1; 位 1 激活条件: `unique_substructure_match_count > 1`; definition RDKit 2026.09.1.
-- `K128=1`: SMARTS `[$(*~[CH2]~*~*~*~[CH2]~*),$([R]1@[CH2;R]@[R]@[R]@[R]@[CH2;R]1),$(*~[CH2]~[R]1@[R]@[R]@[CH2;R]1),$(*~[CH2]~*~[R]1@[R]@[CH2;R]1)]`; count_parameter=0; 位 1 激活条件: `has_substructure_match`; definition RDKit 2026.09.1.
-- `K129=1`: SMARTS `[$(*~[CH2]~*~*~[CH2]~*),$([R]1@[CH2]@[R]@[R]@[CH2;R]1),$(*~[CH2]~[R]1@[R]@[CH2;R]1)]`; count_parameter=0; 位 1 激活条件: `has_substructure_match`; definition RDKit 2026.09.1.
-- `K155=1`: SMARTS `*!@[CH2]!@*`; count_parameter=0; 位 1 激活条件: `has_substructure_match`; definition RDKit 2026.09.1.
+- `K102=0`: SMARTS `[!#6;!#1]~[#8]`; count_parameter=0; 位 1 激活条件: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
+- `K134=0`: SMARTS `[F,Cl,Br,I]`; count_parameter=0; 位 1 激活条件: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
+- `K141=0`: SMARTS `[CH3]`; count_parameter=2; 位 1 激活条件: `unique_substructure_match_count > 2`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
 
 以完整的 RDKit MACCS167 计算为判据。要求位值为 0，表示对应激活条件不成立；对于计数位，这不一定表示匹配子结构完全不存在。保留计数阈值和特殊位逻辑。不要把特殊位改写成猜测的 SMARTS，也不要根据位编号编造官能团名称。
 

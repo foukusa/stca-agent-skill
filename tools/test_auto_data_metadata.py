@@ -7,7 +7,7 @@ Run in a supported STCA CPU environment:
 
 Four valid repeat units keep preparation below the t-SNE split minimum. Influence
 analysis is disabled. These checks do not fit rules or run cross-validation. The
-continuation check uses the real inrange argparse entry point and replaces only
+continuation check uses the real Morgan argparse entry point and replaces only
 its run() function, so it validates parsing without repeating an evaluation.
 """
 from __future__ import annotations
@@ -35,6 +35,7 @@ class AutoDataMetadataRegression(unittest.TestCase):
         sys.path.insert(0, str(SKILL_ROOT / "scripts"))
         cls.layer = importlib.import_module("auto_data_layer")
         cls.inrange = importlib.import_module("inrange_evaluation")
+        cls.morgan = importlib.import_module("morgan_evaluation")
         if Path(cls.layer.__file__).resolve() != SKILL_ROOT / "scripts" / "auto_data_layer.py":
             raise RuntimeError("auto_data_layer was imported from a different skill root")
 
@@ -134,7 +135,7 @@ class AutoDataMetadataRegression(unittest.TestCase):
         self.assertEqual(shlex.split(audit["recommended_evaluation_command"]), argv)
         self.assertNotIn("--auto-dir", argv)
         self.assertEqual(argv[:6], [sys.executable, str(SKILL_ROOT / "scripts" / "agent_runtime.py"),
-                                   "run", "--script", "inrange_evaluation.py", "--"])
+                                   "run", "--script", "morgan_evaluation.py", "--"])
         parsed = {}
 
         def capture(args):
@@ -143,8 +144,8 @@ class AutoDataMetadataRegression(unittest.TestCase):
 
         # argparse itself is real: unsupported flags or missing required values
         # fail this call before capture() can be invoked.
-        with patch.object(self.inrange, "run", side_effect=capture) as execute:
-            self.assertEqual(self.inrange.main(argv[argv.index("--") + 1:]), 0)
+        with patch.object(self.morgan, "run", side_effect=capture) as execute:
+            self.assertEqual(self.morgan.main(argv[argv.index("--") + 1:]), 0)
         execute.assert_called_once()
         expected = {
             "input": str(path.resolve()), "target": "target", "smiles_column": "SMILES",
@@ -157,6 +158,8 @@ class AutoDataMetadataRegression(unittest.TestCase):
         for key, value in expected.items():
             self.assertEqual(parsed[key], value, key)
         self.assertEqual(self.inrange.parse_tiers(parsed["tiers"]), [.15, .25])
+        self.assertEqual(parsed['distance_threshold'], .5)
+        self.assertEqual(parsed['holdout_fraction'], .2)
         self.assert_original_fields_preserved(result)
 
 

@@ -28,7 +28,7 @@
 用推荐的现成 RadonPy 高密度 Top 30% 规则筛选这份 PI1070.csv，返回入选表和逐条未满足条件。
 ```
 
-本例默认使用推荐的 [Top 30% WRAcc 规则](../../skills/stca/assets/rule_library/entries/current-pi-rho-wracc-high-30/constraints.json)，包含九条已保存的 MACCS 条件，密度目标边界为 **≥ 1.222080875 g/cm³**。筛选全部 1,077 条结构，得到 **389 条匹配、688 条未匹配、0 条未知**。明确选择配套 [STCA 规则](../../skills/stca/assets/rule_library/entries/current-pi-rho-stca-high-30/constraints.json)时，使用其十条条件，得到 **282 条匹配、795 条未匹配、0 条未知**；AI 助手保留你指定的方法。匹配是结构筛选结果，候选密度尚未测量或预测。
+本例分别提供 [Top 30% STCA 规则](../../skills/stca/assets/rule_library/entries/current-pi-rho-stca-high-30/constraints.json)与 [WRAcc 规则](../../skills/stca/assets/rule_library/entries/current-pi-rho-wracc-high-30/constraints.json)，保留各自精确条件和由 source 得到的密度目标边界。AI 助手从[案例配置](case.json)读取当前推荐、具体阈值和真实筛选数量；你可以明确选择任一可用方法。匹配是结构筛选结果，候选密度尚未测量或预测。
 
 ## 重新总结规则，并核对保存结果
 
@@ -38,7 +38,7 @@
 
 未指定百分比时，默认考虑 Top 10%、20%、30%，也可以指定其他百分比。每个档位独立准备并学习；AI 助手返回实际选择的数据变换、步长、支持量、两种方法、具体物理阈值和推荐。
 
-使用这份固定文件、同一版本和默认设置时，新学习的 Top 30% 两种方法应分别复现内置规则：推荐 WRAcc 入选389条，STCA 入选282条；单独请求 30% 或同时请求其他百分比时，这一档相同。即使 H-cap 计算副本相同，原始连接位置不同的重复单元也保留为各自的记录。随后可检查保存与载入：
+完整上传表先按 ECFP4 结构划分。每条 holdout 到 source 的最近邻 Tanimoto 距离**至少为 0.5**；buffer 保留用于回筛，但不训练、不外评。数据准备和扫描自适应仅使用 source 标签，source 内 Morgan 验证确定推荐后才评价外部 holdout。同一文件、安装包和划分设置应复现对应内置规则；单独请求 30% 或同时加入其他百分比，这一档保持一致。不同原始连接位置不会因 H-cap 副本相同而合并。随后可检查保存与载入：
 
 ```text
 重新载入刚保存的 Top 30% 推荐模型，再筛选同一份文件，核对每行判断是否一致。
@@ -66,4 +66,4 @@
 
 ## 已计算的生成示例
 
-[五条 LLM 提案及逐条核验](generated_examples.csv)展示原始提案及**明确选定的 Top 30% STCA 规则**的计算检查，五条提案均通过所选规则，且未出现在 PI1070 的原始结构参照中；表内标明精确规则和每条未满足条件。完整使用文本见[生成 prompt](generation_prompt.zh-CN.md)。这里核验结构条件，未测量或预测候选密度。每次生成请求都由当前 LLM 提出本次候选。
+[LLM 提案及逐条核验](generated_examples.csv)展示原始提案及每条未满足条件的返回形式。核对这些已保存提案时，使用[完整生成 prompt](generation_prompt.used.zh-CN.md)所标明的精确规则；改用其他规则或新学规则时，应让 AI 助手重新核验。结构检查不测量或预测候选密度。每次新的生成请求都由当前 LLM 提出本次候选。

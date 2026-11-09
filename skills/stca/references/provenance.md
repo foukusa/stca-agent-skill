@@ -21,8 +21,9 @@
 | PolymerGasMembraneML / GAS Dataset A | 实测 CO₂、O₂ 渗透率 | [数据与代码](https://github.com/jsunn-y/PolymerGasMembraneML) · [研究论文](https://doi.org/10.1126/sciadv.abn9545) |
 | RadonPy / PI1070 | MD 计算的热导率、折射率、密度、比热、介电常数 | [数据与代码](https://github.com/RadonPy/RadonPy) · [研究论文](https://doi.org/10.1038/s41524-022-00906-4) |
 | ADEPT / PolyGraphMT | 计算的热导率、密度、孤立单体 HOMO–LUMO 能隙、介电常数、折射率 | [数据与代码](https://github.com/sobinalosious/PolyGraphMT) · [研究论文](https://doi.org/10.1039/D6DD00206D) |
+| OpenPoly | 文献报道的水接触角 | [数据与代码](https://github.com/WangGroupFDU/Openpoly_benchmark) · [研究论文](https://doi.org/10.1007/s10118-025-3402-y) |
 
-当前默认开源目录采用 `current-*` 条目，使用保留原始连接图的逐档独立准备与学习流程；同一来源文件和软件设置下，现成筛选与重学结果应一致。包内仅保留11条论文规则和72项当前开源方法结果，其中71项可用；RadonPy介电常数Top 20%的STCA结果没有有效规则，可选同档WRAcc。原始连接位置不同的重复单元不能因 H-cap 相同而合并。
+当前开源规则采用 `current-*` 条目，以保留原始连接图的逐档独立准备和严格 Morgan 距离留出流程重新归纳。相同来源文件、软件环境和划分设置下，现成规则与重新学习对应规则一致。每项方法的可用状态、实际条件和证据保存在目录中；没有有效规则时不能用空条件代替。不同原始连接位置不能因 H-cap 相同而合并。
 
 每条规则保留对应的数据来源、性质、方向、百分比及数值阈值。选择与你的目标相符的规则即可筛选或生成，也可上传自己的数据重新归纳。
 
@@ -32,7 +33,7 @@
 
 `AS = (MCC + Precision + F1) / 3`
 
-本 skill 沿用该定义，在同一数据与目标档位上比较 STCA 和 WRAcc，分别返回两种方法的结果，并给出推荐方法及理由。
+本 skill 沿用该定义，在 source 内 Morgan 距离验证上比较同一数据与目标档位的 STCA 和 WRAcc，分别返回两种方法的结果，并给出推荐方法及理由。
 
 ## 进一步使用
 

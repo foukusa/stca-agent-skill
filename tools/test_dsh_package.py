@@ -111,13 +111,18 @@ console.log(JSON.stringify({registered:true,external_dependencies:0,rules:catalo
         historical=[entry for entry in entries
                     if not entry['id'].startswith(('paper-','latest-','current-'))]
         self.assertEqual(len(paper),11)
-        self.assertEqual(len(entries),83)
+        self.assertEqual(len(entries),13*3*2+11)
         self.assertEqual(len(previous),0)
         self.assertEqual(len(historical),0)
-        self.assertEqual(len(current),72)
-        self.assertEqual(sum(entry.get('available', True) for entry in current),71)
+        self.assertEqual(len(current),13*3*2)
+        available=sum(entry.get('available', False) for entry in current)
+        self.assertEqual(available,catalog['counts']['current_available_rules'])
+        self.assertEqual(len(current)-available,catalog['counts']['current_unavailable_results'])
+        water=[entry for entry in current if entry['dataset']=='OPENPOLY_WCA']
+        self.assertEqual({(entry['method'],entry['tier']) for entry in water},
+                         {(method,tier) for method in ('STCA','WRAcc') for tier in (.1,.2,.3)})
         visible=[entry for entry in entries if entry.get('user_visible',True)]
-        self.assertEqual(len(visible),83)
+        self.assertEqual(len(visible),len(entries))
         active=current
         self.assertTrue(all(entry.get('user_visible',True) for entry in active))
         self.assertEqual({entry['id'] for entry in entries},
@@ -125,10 +130,11 @@ console.log(JSON.stringify({registered:true,external_dependencies:0,rules:catalo
         pairs={}
         for entry in active:
             pairs.setdefault((entry['dataset'],entry['tier']),[]).append(entry)
-        self.assertEqual(len(pairs),36)
+        self.assertEqual(len(pairs),13*3)
         for pair in pairs.values():
             self.assertEqual({entry['learner'] for entry in pair},{'STCA','WRAcc'})
-            self.assertEqual(sum(bool(entry['is_primary']) for entry in pair),1)
+            self.assertEqual(sum(bool(entry['is_primary']) for entry in pair),
+                             int(any(entry.get('available') for entry in pair)))
             self.assertTrue(all(entry['alternative_id'] in {other['id'] for other in pair}
                                 and entry['alternative_id']!=entry['id'] for entry in pair))
         self.assertEqual(sum(len(entry['prompts']) for entry in entries),2*len(entries))
@@ -137,6 +143,13 @@ console.log(JSON.stringify({registered:true,external_dependencies:0,rules:catalo
             for relative in [e['constraints'],*e['prompts'].values()]:
                 name=prefix+'assets/rule_library/'+relative
                 self.assertEqual(self.files[name],(ROOT/name).read_bytes())
+            evidence=e.get('reference_evaluation',{}).get('evidence_source')
+            self.assertTrue(evidence, e['id'])
+            if not evidence.startswith(('https://','http://')):
+                candidates=[prefix+evidence,prefix+'assets/rule_library/'+evidence]
+                resource=next((name for name in candidates if name in self.files),None)
+                self.assertIsNotNone(resource,(e['id'],evidence))
+                json.loads(self.files[resource])
         # Every ordinary skill resource must survive npm's selection, including
         # scripts that are not directly referenced by the entry module.
         for source in (ROOT/'skills/stca').rglob('*'):

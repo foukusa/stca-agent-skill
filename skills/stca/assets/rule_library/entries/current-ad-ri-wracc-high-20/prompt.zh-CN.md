@@ -6,7 +6,7 @@
 
 ## 设计目标
 
-1. Refractive index; high / Top 20%; 源训练物理边界: >= 1.5372858999999999 1; 规则来源: current-ad-ri-wracc-high-20. 规则学习方法: WRAcc.
+1. Refractive index; high / Top 20%; 源训练物理边界: >= 1.5446628 1; 规则来源: current-ad-ri-wracc-high-20. 规则学习方法: WRAcc.
 
 每个百分比表示相应源数据集的目标尾部范围，不是生成候选的通过比例。若给出物理 cutoff，它是冻结的训练标签边界；命中结构规则不等于预测出性质数值或证明实验达标。
 

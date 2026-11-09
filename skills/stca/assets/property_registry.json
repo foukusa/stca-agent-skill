@@ -242,6 +242,23 @@
         16.0
       ],
       "measurement_semantics": "isolated_monomer_HOMO_LUMO_gap; not an assumed bulk electronic band gap"
+    },
+    "water_contact_angle": {
+      "aliases": [
+        "water contact angle",
+        "water contact angle (deg)",
+        "water_contact_angle",
+        "contact angle",
+        "接触角",
+        "水接触角"
+      ],
+      "unit": "deg",
+      "log_scale": false,
+      "plausible_range": [
+        0.0,
+        180.0
+      ],
+      "measurement_semantics": "reported_water_contact_angle; surface preparation and measurement conditions require explicit metadata when available; 0deg is valid complete wetting"
     }
   },
   "processing_text_policy": "Scan explicitly selected metadata/text columns only; exclude the configured ID column. A keyword is a scope-exclusion heuristic, not proof of erroneous measurement.",
@@ -265,6 +282,10 @@
     "C": "degC",
     "摄氏度": "degC",
     "Kelvin": "K",
-    "kelvin": "K"
+    "kelvin": "K",
+    "degree": "deg",
+    "degrees": "deg",
+    "°": "deg",
+    "度": "deg"
   }
 }

@@ -58,7 +58,7 @@ Use the existing RadonPy high-density Top 30% STCA rule to screen this dataset.
 Learn high-density Top 30% rules from all rows of this RadonPy file. Use smiles for structures and density for the target, in g/cm³. Return screening results, compare them with the existing rule and save the new rules.
 ```
 
-The assistant reports the data transform, scan step and support selected for each percentage, both methods’ rules, numeric physical cutoffs and output files. With this fixed file, the same version and default settings, the new Top 30% STCA rule matches the bundled STCA rule: 282 selected records at density ≥ 1.222080875 g/cm³. Adding other percentages does not change the Top 30% task. WRAcc is recommended for this example and selects 389 records; you can choose either method. To check reuse of your new STCA model, ask:
+The assistant first separates structurally distant holdout records, then learns both methods within source. It reports the source-only transform, scan step, support and physical cutoff for each percentage; the method recommendation comes from Morgan-distance validation inside source. The independent holdout scores and the original-table screening counts are returned separately. With the same file, version and split settings, learning reproduces the corresponding bundled rules. Requesting additional percentages does not change the Top 30% task. To check reuse of your new STCA model, ask:
 
 ```text
 Reload the Top 30% STCA rule just saved and screen the same RadonPy dataset again. Check that every row's decision matches its earlier result.
@@ -82,9 +82,11 @@ Learn high-density rules from this computed data in g/cm³, using Top 15% and 25
 
 Each tier reports the cutoff on the original physical scale, its comparison sign (≥ for high targets, ≤ for low targets) and unit. Log-transformed learning still returns physical cutoffs.
 
-STCA and WRAcc are evaluated separately using cross-validation within the supplied data. Their recommendation uses the **average screening score** introduced in the [STCA paper](https://doi.org/10.1038/s41524-026-02345-x): the arithmetic mean of **Matthews correlation coefficient, precision and F1 score**. The software calls this Average Score (AS). When both methods are evaluable, WRAcc becomes the primary only if its cross-validation average screening score exceeds STCA's by more than 0.02; otherwise STCA remains primary. The assistant returns both methods' results and explains its recommendation. Say “Use the recommendation” or name either method.
+New learning uses **strict Morgan-distance extrapolation**: ECFP4 fingerprints, with every holdout structure at nearest-neighbour Tanimoto distance **at least 0.5** from source. Structures are split before label-dependent preparation; any buffer records are reported. A further Morgan-distance validation within source compares STCA and WRAcc and fixes the recommendation before the outer holdout is evaluated. See [how evaluation works](MORGAN_EVALUATION.md).
 
-WRAcc automatically selects a maximum condition count from **1, 2, 3, 5, 10 and no length limit**, separately for each target tier. For every evaluation split, that choice uses grouped validation **inside its training portion**; it never uses that split's test outcomes. The final saved rule repeats the selection within the full training data. The chosen setting and actual condition count are saved with the rule. If there is insufficient evidence to choose a length, the report states this instead of presenting the fallback as validated.
+The **average screening score** introduced in the [STCA paper](https://doi.org/10.1038/s41524-026-02345-x) is the arithmetic mean of **Matthews correlation coefficient, precision and F1 score**. When both methods have usable source-validation evidence, WRAcc becomes primary only if its score exceeds STCA's by more than 0.02; otherwise STCA remains primary. The assistant returns both methods and explains its recommendation. Say “Use the recommendation” or name either method.
+
+WRAcc automatically selects a maximum condition count from **1, 2, 3, 5, 10 and no length limit**, separately for each target tier. This selection uses only the relevant training data; the outer holdout never selects rule length. The chosen setting and actual condition count are saved with the rule. If there is insufficient evidence to choose a length, the report states this rather than presenting the fallback as validated.
 
 You may override the length policy in ordinary language:
 
@@ -111,7 +113,7 @@ The original uploaded table receives results for every requested tier. If you al
 Apply each tier to the separate candidates.csv I uploaded and return its screening results.
 ```
 
-Limited evaluation support, unavailable rules and computation failures are reported with their own status. If you supply a source/holdout split or request extrapolation testing, settings are chosen within the source data before independent holdout evaluation.
+The assistant reports unavailable distance splits, insufficient evaluation support, missing rules and computation failures explicitly. It does not silently switch to a random split. If you provide an existing source/holdout protocol, it preserves that choice and names the actual evaluation method.
 
 ## Screen candidates with existing rules
 

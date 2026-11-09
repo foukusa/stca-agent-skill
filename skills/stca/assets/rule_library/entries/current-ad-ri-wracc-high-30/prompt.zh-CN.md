@@ -6,7 +6,7 @@
 
 ## 设计目标
 
-1. Refractive index; high / Top 30%; 源训练物理边界: >= 1.5129933999999998 1; 规则来源: current-ad-ri-wracc-high-30. 规则学习方法: WRAcc.
+1. Refractive index; high / Top 30%; 源训练物理边界: >= 1.519258 1; 规则来源: current-ad-ri-wracc-high-30. 规则学习方法: WRAcc.
 
 每个百分比表示相应源数据集的目标尾部范围，不是生成候选的通过比例。若给出物理 cutoff，它是冻结的训练标签边界；命中结构规则不等于预测出性质数值或证明实验达标。
 
@@ -14,16 +14,15 @@
 
 目标 1 — Refractive index:
 
-`K42=0 AND K128=0 AND K141=0 AND K162=1`
+`K42=0 AND K141=0 AND K162=1`
 
-规则签名: `STCA|AND|K42=0&K128=0&K141=0&K162=1`
+规则签名: `STCA|AND|K42=0&K141=0&K162=1`
 
 每条选定规则中的所有条件必须以 AND 同时满足。多目标时，对同一个重复单元应用全部选定规则并取交集。保留每个位编号及其要求的 0/1 值。不要换用其他百分比的规则、放宽条件，或将多个备选家族成员拼成新规则。要求无法同时满足时，明确报告冲突。
 
 ## MACCS 激活语义
 
 - `K42=0`: SMARTS `F`; count_parameter=0; 位 1 激活条件: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
-- `K128=0`: SMARTS `[$(*~[CH2]~*~*~*~[CH2]~*),$([R]1@[CH2;R]@[R]@[R]@[R]@[CH2;R]1),$(*~[CH2]~[R]1@[R]@[R]@[CH2;R]1),$(*~[CH2]~*~[R]1@[R]@[CH2;R]1)]`; count_parameter=0; 位 1 激活条件: `has_substructure_match`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
 - `K141=0`: SMARTS `[CH3]`; count_parameter=2; 位 1 激活条件: `unique_substructure_match_count > 2`; The bit-one activation criterion is not met; for a count key this need not mean no matches.; definition RDKit 2026.09.1.
 - `K162=1`: SMARTS `a`; count_parameter=0; 位 1 激活条件: `has_substructure_match`; definition RDKit 2026.09.1.
 

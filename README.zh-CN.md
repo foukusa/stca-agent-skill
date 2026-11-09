@@ -1,12 +1,15 @@
 <p align="center"><img src="assets/stca-logo.png" alt="STCA logo" width="104"></p>
 <h1 align="center">STCA Agent Skill</h1>
-<p align="center">从聚合物结构与性质数据总结规则，筛选候选，或按规则生成重复单元。</p>
+<p align="center">用自然语言，将聚合物数据转成可复用规则，筛选候选并生成重复单元。</p>
 <p align="center"><strong>0.1.0</strong> · <a href="README.md">English</a> · 简体中文</p>
+<p align="center"><a href="https://doi.org/10.1038/s41524-026-02345-x">STCA 论文</a> · <a href="https://github.com/foukusa/polymer-stca">Python 程序库</a> · <a href="#下载与安装">安装 skill</a></p>
 
 ## 目录
 
+- [STCA 的意义与优势](#stca-的意义与优势)
 - [开始使用](#开始使用)
 - [用 RadonPy 密度数据试用](#用-radonpy-密度数据试用)
+- [用水接触角数据试用](#用水接触角数据试用)
 - [保存规则并继续](#保存规则并继续)
 - [安装后的自然语言使用案例](docs/USAGE.zh-CN.md)
 - [下载与安装](#下载与安装)
@@ -14,6 +17,12 @@
 - [现成规则与生成 prompt](#现成规则与生成-prompt)
 - [准备数据](#准备数据)
 - [论文与作者](#论文与作者)
+
+## STCA 的意义与优势
+
+**STCA（Sliding Threshold Correlation Analysis，滑动阈值相关分析）将聚合物结构与性质数据转成可读的结构规则。** 它追踪不同性质阈值下的子结构关联，将筛选目标表达为重复单元需要同时满足的一组条件。
+
+这些规则贯通三项工作：理解哪些结构条件支持目标、用同一组条件筛选新候选，以及指导 LLM 设计并核验新的重复单元。规则、具体性质阈值和完整生成 prompt 可以保存复用。通过自然语言说明需求，skill 会完成计算，并在你的数据上比较 STCA 与 WRAcc，给出可继续使用的结果。
 
 ## 开始使用
 
@@ -47,14 +56,7 @@ STCA 是由当前 AI 助手在对话中使用的 skill，处理流程已内置�
 使用推荐的 RadonPy 高密度 Top 30% 规则筛选这份数据。
 ```
 
-本例推荐 **WRAcc**。两种方法的密度目标边界均为 **≥ 1.222080875 g/cm³**；这个固定文件应返回：
-
-| 方法 | 规则匹配 | 未匹配 | 未知 | 交叉验证平均筛选评分 |
-|---|---:|---:|---:|---:|
-| **WRAcc（推荐）** | **389** | 688 | 0 | **0.7014** |
-| STCA | 282 | 795 | 0 | 0.6479 |
-
-WRAcc 的综合评分、召回率和 F1 更高；STCA 的精确率更高。也可明确指定“使用 STCA 规则”。
+AI 助手会显示所选规则、**以 g/cm³ 表示的具体密度阈值**，以及两种方法的筛选结果。规则逐行应用且保持不变；Top 30% 定义的是训练数据中的性质目标，并不要求候选恰好入选 30%。
 
 **从同一数据总结规则并保存：**
 
@@ -62,7 +64,7 @@ WRAcc 的综合评分、召回率和 F1 更高；STCA 的精确率更高。也�
 从这份 RadonPy 数据总结高密度 Top 30% 规则。结构列为 smiles，性质列为 density，单位 g/cm³，使用全部数据行。返回筛选结果，与现成规则比较，并保存新规则。
 ```
 
-AI 助手为每个百分比独立选择数据变换、扫描步长和支持量，分别返回 STCA 和 WRAcc。使用这份固定文件、同一版本和默认设置时，新学习的两种 Top 30% 规则应分别与对应内置规则一致；同时请求其他百分比不会改变这一档。复用推荐规则时，可接着说 **“重新载入刚保存的 Top 30% WRAcc 规则，再筛选同一份数据。”** 每行判断应与刚才一致。
+AI 助手先用 Morgan 指纹留出结构距离较远的评价记录，再为每个百分比**只在训练数据内**选择变换、扫描步长和支持量。返回 STCA 与 WRAcc 两种规则、训练数据确定的密度阈值、独立外推成绩，以及全部原始行的筛选结果。复用时可接着说 **“重新载入刚保存的 Top 30% 推荐规则，再筛选同一份数据。”** 每行判断应与刚才一致。
 
 **使用选定规则生成：**
 
@@ -74,9 +76,21 @@ AI 助手为每个百分比独立选择数据变换、扫描步长和支持量�
 
 也可查看[一次实际生成的五条提案及核验结果](examples/radonpy_density/generated_examples.csv)。
 
+## 用水接触角数据试用
+
+无需修改学习器，也可以分析其他聚合物性质。[OpenPoly 水接触角案例](examples/water_contact_angle/README.zh-CN.md)使用 `PSMILES` 作为重复单元结构，`Water Contact Angle (deg)` 作为实测目标。上传来源 CSV 后直接说：
+
+```text
+从这份 OpenPoly 数据总结高水接触角 Top 30% 规则。结构列为 PSMILES，性质列为 Water Contact Angle (deg)，单位为度。返回两种方法、外推评价和筛选结果，并保存规则。
+```
+
+AI 助手使用具有有效目标标签的记录学习，其余结构可继续用于候选筛选。也可在规则目录选择现成的水接触角规则，直接筛选，或调用当前 LLM 按规则生成并核验重复单元。数据来源、列映射和实算结果见该案例。
+
 ## 保存规则并继续
 
-上传自己的数据后，STCA 自动清理不可用记录、调整数据形式与扫描设置，并在你的数据范围内比较 **STCA 与 WRAcc**。两种方法分别交付，每档明确推荐结果及理由。推荐依据数据内部的**交叉验证**：多次用部分数据学习规则，再用其余数据评价。综合得分采用作者 [STCA 论文](https://doi.org/10.1038/s41524-026-02345-x)提出并验证使用的**马修斯相关系数、精确率和 F1 分数的平均值**；F1 综合衡量精确率与召回率。说“使用推荐规则”即可继续，也可明确指定方法。[评价方式说明](docs/USAGE.zh-CN.md)。
+新学习默认进行 **Morgan 距离外推评价**。使用 ECFP4（radius 2、2,048 位）划分训练与评价结构，保证每条评价重复单元到最近训练结构的 Tanimoto 距离**至少为 0.5**。相似性缓冲记录不参与训练或评价，但原始输入表仍完整返回筛选结果；输出文件标明各行角色及实际距离。
+
+所有依赖标签的数据清理、变换、扫描设置与规则选择均在训练部分完成，分别返回 **STCA 与 WRAcc**。推荐方法由训练内部验证确定，较远的评价集只用于报告外推表现。综合筛选评分采用作者 [STCA 论文](https://doi.org/10.1038/s41524-026-02345-x)提出并验证使用的**马修斯相关系数、精确率和 F1 分数的平均值**。说“使用推荐规则”即可继续，也可明确指定方法。[评价方式说明](docs/USAGE.zh-CN.md)。
 
 WRAcc 默认在训练数据内自动选择条件数上限。也可以直接说 **“WRAcc 最多使用 10 条条件”** 或 **“不限制 WRAcc 条件数”**。
 
@@ -103,7 +117,7 @@ AI 助手将可用模型、规则、物理阈值和完整中英文生成 prompt 
 |---|---|---|
 | **Codex** | 安装 GitHub 中的 skill 目录，或使用 [Codex ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-codex-0.1.0.zip)。 | `使用 $stca` |
 | **DeepSeek Harness** | 在“添加插件”中填写下方 GitHub 安装地址；无需先发布 npm。 | `/stca` |
-| **WorkBuddy** | 导入 [WorkBuddy ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.3.zip)。 | “开始使用 STCA” |
+| **WorkBuddy** | 导入 [WorkBuddy ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.4.zip)。 | “开始使用 STCA” |
 | **ChatGPT** | 在支持 skill 安装的客户端中导入 [OpenAI skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-openai-skill-0.1.0.zip)。 | 选择 STCA 或要求使用 STCA。 |
 
 ### Codex
@@ -127,6 +141,12 @@ github:foukusa/stca-agent-skill
 
 3. 安装并启用 STCA 后，输入 `/stca` 或“开始使用 STCA”，说明任务并按需上传数据。
 
+也可在终端通过 DSH CLI 安装：
+
+```bash
+dsh plugin --profile web add github:foukusa/stca-agent-skill
+```
+
 **GitHub 地址安装不需要先发布 npm 包。** DSH 会从公开仓库读取插件配置和入口。只填 `dsh-plugin-stca` 的方式才需要该包已发布到 npm；尚未发布时使用上面的仓库地址。
 
 已有 STCA 条目时先检查并启用，不必反复添加。安装报错、可选 CLI 及[插件 ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.zip)本地目录安装见[DSH 安装说明](docs/INSTALL.zh-CN.md#deepseek-harness)。另有[独立 skill ZIP](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip)，用于解压后放入 DSH 的 skill 目录；它与“添加插件”读取的插件根目录用途不同。详见 [DSH 专用说明](README.DSH.zh-CN.md)。
@@ -137,7 +157,7 @@ github:foukusa/stca-agent-skill
 
 ### WorkBuddy
 
-1. 从上表下载 `stca-workbuddy-0.1.3.zip`。
+1. 从上表下载 `stca-workbuddy-0.1.4.zip`。
 2. 打开 WorkBuddy 的 skill 管理页面，选择添加／上传本地 skill 包，直接选择 ZIP，完成导入并启用 **STCA Polymer Rules and Design**。
 3. 输入“开始使用 STCA”，上传文件，再说明要总结规则、筛选候选还是生成重复单元。
 
@@ -157,7 +177,7 @@ ZIP 和 TGZ 链接均指向本仓库 [`downloads` 目录](https://github.com/fou
 
 ## 现成规则与生成 prompt
 
-[规则与 prompt 目录](docs/RULE_LIBRARY.zh-CN.md)按**数据来源 → 性质 → 百分比**列出选择；也可载入你自己归纳并保存的规则包。开源数据规则覆盖 **12 项任务**，提供 Top **10%、20%、30%** 的两种方法结果，目录标明规则可用状态与推荐；也提供作者 STCA 论文中实现的 Tg 与电导率冻结规则。
+[规则与 prompt 目录](docs/RULE_LIBRARY.zh-CN.md)按**数据来源 → 性质 → 百分比**列出选择；也可载入你自己归纳并保存的规则包。开源数据规则覆盖气体渗透率、聚合物体相性质与水接触角，目录标明可选百分比、两种方法的规则可用状态与推荐；也提供作者 STCA 论文中实现的 Tg 与电导率冻结规则。
 
 | 来源 | 可选性质 |
 |---|---|
@@ -165,10 +185,11 @@ ZIP 和 TGZ 链接均指向本仓库 [`downloads` 目录](https://github.com/fou
 | [GAS 实测数据](https://github.com/jsunn-y/PolymerGasMembraneML) | CO₂、O₂ 渗透率 |
 | [RadonPy 计算数据](https://github.com/RadonPy/RadonPy/blob/db5732b7fdd0b656d9c06d89151066d1edfbe911/data/PI1070.csv) | 热导率、折射率、密度、比热、介电常数 |
 | [ADEPT 计算数据](https://github.com/sobinalosious/PolyGraphMT/tree/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw) | 热导率、密度、孤立单体 HOMO–LUMO 能隙、介电常数、折射率 |
+| [OpenPoly 实测数据](examples/water_contact_angle/README.zh-CN.md) | 水接触角 |
 
 目录显示每个档位的**方法、规则可用状态、推荐、具体物理阈值、比较符及单位**。接受推荐就直接使用，也可明确选择可用方法；可用规则分别应用。所选冻结目录没有的百分比，例如开源数据目录之外的 15%、25%，需上传带标签数据学习新规则，不能插值或改用相邻档位。若只想将 prompt 用于其他 LLM，可明确请求“只给完整 prompt，暂不生成”。
 
-Tg 与电导率规则用于作者 STCA 论文中展示的实验性质筛选任务。GAS、RadonPy 和 ADEPT 的 12 项公开数据任务也已使用 STCA 完成规则归纳与筛选验证。选择符合目标的现成规则，或从自己的数据总结；详见[规则目录](docs/RULE_LIBRARY.zh-CN.md#stca-论文规则)、[数据来源](examples/open_data/dataset_registry.csv)和[应用示例](examples/open_data/README.zh-CN.md)。
+Tg 与电导率规则用于作者 STCA 论文中展示的实验性质筛选任务。GAS、RadonPy、ADEPT 和 OpenPoly 的公开数据任务也已使用 STCA 完成规则归纳与筛选验证。选择符合目标的现成规则，或从自己的数据总结；详见[规则目录](docs/RULE_LIBRARY.zh-CN.md#stca-论文规则)、[数据来源](examples/open_data/dataset_registry.csv)和[应用示例](examples/open_data/README.zh-CN.md)。
 
 ## 准备数据
 
@@ -191,7 +212,7 @@ AI 助手会在学习前说明读取的文件、数据行数、结构列、性�
 | 环节 | SMILES 示例 | 处理方式 |
 |---|---|---|
 | 输入 | `*CCO*` | 保存原始重复单元及星号位置 |
-| 计算 | `CCO` | 在计算副本中将末端单键 `*` 连接点替换为氢，完成 H-cap，再计算 MACCS 指纹 |
+| 计算 | `CCO` | 在计算副本中将末端单键 `*` 连接点替换为氢，完成 H-cap，再计算指纹 |
 | 输出 | `*CCO*` | 从保留的原始结构返回带星号 SMILES，原始连接点位置与标记保持一致 |
 
 **输入带 `*` → H-cap 副本计算 → 返回原始带 `*` 的结构。** H-cap 副本不覆盖原始 SMILES；筛选结果和生成候选核验均遵循这一流程。若输入本来已封端且没有 `*`，则照原样处理和返回。

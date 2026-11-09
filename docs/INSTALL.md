@@ -25,7 +25,7 @@ Choose your platform below. Every package link opens a file page in this GitHub 
 | DeepSeek Harness: local skill | [stca-deepseek-harness-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip) |
 | DeepSeek Harness: GUI plugin | [dsh-plugin-stca-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.zip) |
 | DeepSeek Harness: CLI plugin | [dsh-plugin-stca-0.1.0.tgz](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz) |
-| WorkBuddy | [stca-workbuddy-0.1.3.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.3.zip) |
+| WorkBuddy | [stca-workbuddy-0.1.4.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.4.zip) |
 | ChatGPT desktop | [stca-openai-skill-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-openai-skill-0.1.0.zip) |
 
 All STCA tasks accept natural language. The assistant handles calculation-environment discovery; you do not need to enter a Python path during installation.
@@ -36,7 +36,7 @@ The STCA core version remains **0.1.0**. Replace or reimport the updated files t
 
 - **Codex folder installation:** replace the installed `stca` folder with the complete updated folder, keeping `SKILL.md`, `scripts`, `references` and `assets` together. Keep saved rules and results in their task directories outside the installation folder.
 - **DeepSeek Harness:** check STCA’s installation source in plugin management and use the available update or replacement operation. If an old copy remains, remove only the STCA plugin, then add it again with `github:foukusa/stca-agent-skill`. Keep the DSH profile, configuration, data and saved rules.
-- **WorkBuddy:** import `stca-workbuddy-0.1.3.zip` and enable the updated STCA entry.
+- **WorkBuddy:** import `stca-workbuddy-0.1.4.zip` and enable the updated STCA entry.
 - **ChatGPT:** where local skill import is supported, reimport the updated OpenAI skill ZIP through the existing skill-management entry.
 
 ## Codex
@@ -148,7 +148,7 @@ See the [official plugin installation guide](https://github.com/deepseek-ai/deep
 
 1. Open [WorkBuddy](https://www.workbuddy.cn/) and its skill management page.
 2. Choose the action for adding and uploading a local skill package.
-3. Open [stca-workbuddy-0.1.3.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.3.zip) in the repository and click **Download raw file**. Select that downloaded ZIP in WorkBuddy, complete import and enable **STCA Polymer Rules and Design**. Keep the ZIP intact for upload.
+3. Open [stca-workbuddy-0.1.4.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.4.zip) in the repository and click **Download raw file**. Select that downloaded ZIP in WorkBuddy, complete import and enable **STCA Polymer Rules and Design**. Keep the ZIP intact for upload.
 4. Say “Start STCA”.
 
 The package includes its referenced startup resources and logo in the upload layout. The public marketplace installation link will be added after review and publication.

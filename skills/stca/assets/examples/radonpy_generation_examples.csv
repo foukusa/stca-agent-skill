@@ -1,6 +1,6 @@
 candidate_id,SMILES,design_note,verification_status,failed_conditions,star_count,terminal_single_bond_stars,connected_components,valid_input,catalog_id,in_reference_dataset,property_value_status,calculation_smiles_hcap
-RHO_STCA_01,*c1cc(F)c(-c2cc(Cl)c(*)cc2F)cc1Cl,氟氯混合取代的联苯重复单元,selected,[],2,True,1,True,current-pi-rho-stca-high-30,False,not_predicted,Fc1ccc(Cl)cc1-c1cc(Cl)ccc1F
-RHO_STCA_02,*c1cc(F)c(Oc2ccc(-c3cc(F)c(*)cc3Cl)cc2)cc1,芳醚与联苯组合的氟氯取代骨架,selected,[],2,True,1,True,current-pi-rho-stca-high-30,False,not_predicted,Fc1ccc(Cl)c(-c2ccc(Oc3ccccc3F)cc2)c1
-RHO_STCA_03,*c1cc(Cl)c(S(=O)(=O)c2cc(F)c(*)cc2)cc1F,氟氯取代的二芳基砜重复单元,selected,[],2,True,1,True,current-pi-rho-stca-high-30,False,not_predicted,O=S(=O)(c1cccc(F)c1)c1cc(F)ccc1Cl
-RHO_STCA_04,*c1cc(F)c(-c2nnc(-c3cc(Cl)c(*)cc3)o2)cc1Cl,噁二唑连接的氟氯取代双芳环,selected,[],2,True,1,True,current-pi-rho-stca-high-30,False,not_predicted,Fc1ccc(Cl)cc1-c1nnc(-c2cccc(Cl)c2)o1
-RHO_STCA_05,*c1cc(F)c(C(=O)c2cc(Cl)c(*)cc2F)cc1,氟氯取代的二芳基酮重复单元,selected,[],2,True,1,True,current-pi-rho-stca-high-30,False,not_predicted,O=C(c1ccccc1F)c1cc(Cl)ccc1F
+MORGAN_RHO_01,*C(F)(F)CC(c1cc(F)cc(C(F)(F)F)c1)C*,含氟脂肪链与三氟甲基芳环,selected,[],2,True,1,True,current-pi-rho-stca-high-30,False,not_predicted,CC(CC(F)F)c1cc(F)cc(C(F)(F)F)c1
+MORGAN_RHO_02,*CC(C(=O)OCC(F)(F)CC(F)(F)F)*,含氟酯侧链的乙烯基重复单元,selected,[],2,True,1,True,current-pi-rho-stca-high-30,False,not_predicted,CCC(=O)OCC(F)(F)CC(F)(F)F
+MORGAN_RHO_03,*Oc1ccc(C(F)(F)C(F)(F)c2cc(F)c(*)cc2)cc1,含氟桥联双芳环与醚连接点,selected,[],2,True,1,True,current-pi-rho-stca-high-30,False,not_predicted,Oc1ccc(C(F)(F)C(F)(F)c2cccc(F)c2)cc1
+MORGAN_RHO_04,*c1cc(F)c(S(=O)(=O)c2cc(C(F)(F)F)c(*)cc2)cc1,氟与三氟甲基取代的二芳基砜,selected,[],2,True,1,True,current-pi-rho-stca-high-30,False,not_predicted,O=S(=O)(c1cccc(C(F)(F)F)c1)c1ccccc1F
+MORGAN_RHO_05,*CC(c1cc(F)c(Oc2ccc(C(F)(F)F)cc2)cc1)*,含氟二芳醚侧基的重复单元,selected,[],2,True,1,True,current-pi-rho-stca-high-30,False,not_predicted,CCc1ccc(Oc2ccc(C(F)(F)F)cc2)c(F)c1

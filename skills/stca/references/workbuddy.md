@@ -4,7 +4,7 @@
 
 ## 安装与开始
 
-在 WorkBuddy 的 skill 管理界面直接上传 `stca-workbuddy-0.1.3.zip`，导入并启用 STCA。无需解压或重新打包；不要套入额外文件夹。首次调用时由 AI 助手通过随包启动入口查找 Python 并准备完整运行资源，后续仍用自然语言操作。计算时自动检查 RDKit 与所需依赖，不要求用户填写 Python 路径。
+在 WorkBuddy 的 skill 管理界面直接上传 `stca-workbuddy-0.1.4.zip`，导入并启用 STCA。无需解压或重新打包；不要套入额外文件夹。首次调用时由 AI 助手通过随包启动入口查找 Python 并准备完整运行资源，后续仍用自然语言操作。计算时自动检查 RDKit 与所需依赖，不要求用户填写 Python 路径。
 
 输入 **“开始使用 STCA”**，或直接描述上传数据总结规则、按现成规则筛选或生成的目标。
 
@@ -39,4 +39,4 @@
 - [WorkBuddy skill 查看、安装与管理](https://www.workbuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Skills-Market)
 - [WorkBuddy skill 包结构](https://open.workbuddy.cn/docs/skill)
 
-当前开源目录提供12任务的Top10/20/30两方法主推与备选。新归纳默认按结构分组5折×3次比较STCA与WRAcc，分别回筛原表、保存模型/完整prompt并继续对话；15/25等自定义档位可用自己的数据学习，不能冒称已有新版内置规则。
+当前开源目录及已保存规则均可按来源、性质和百分比选择。新归纳默认先以严格ECFP4／Morgan距离留出，再仅在source准备和学习；方法推荐来自source内Morgan验证，外部holdout独立评价。分别回筛原表、保存模型和完整prompt后继续对话；用户可自定百分比。

@@ -1,0 +1,198 @@
+{
+  "schema": "stca-openpoly-water-contact-angle-example-v1",
+  "version": "0.1.0",
+  "dataset_id": "OPENPOLY_WCA",
+  "source": {
+    "repository": "https://github.com/WangGroupFDU/Openpoly_benchmark",
+    "file_url": "https://github.com/WangGroupFDU/Openpoly_benchmark/blob/ccaa66900747bfc576ef935e3d5f220b6c9b1f85/data/final_polymer_properties_fromliterature.csv",
+    "raw_download": "https://raw.githubusercontent.com/WangGroupFDU/Openpoly_benchmark/ccaa66900747bfc576ef935e3d5f220b6c9b1f85/data/final_polymer_properties_fromliterature.csv",
+    "source_commit": "ccaa66900747bfc576ef935e3d5f220b6c9b1f85",
+    "filename": "OpenPoly.csv",
+    "sha256": "8de5baf76f79610fe9173e63c65b824714aeb8445f9d670e1767956ea9db5eb3",
+    "records": 741,
+    "columns": 32,
+    "labeled_records": 175,
+    "paper_doi": "10.1007/s10118-025-3402-y",
+    "license": "MIT"
+  },
+  "input": {
+    "header_row": 1,
+    "spreadsheet_data_rows": [
+      2,
+      742
+    ],
+    "id_column": null,
+    "smiles_column": "PSMILES",
+    "structure_column_number": 2,
+    "target_column": "Water Contact Angle (deg)",
+    "target_spreadsheet_column": "Y",
+    "target_column_number": 25,
+    "unit": "deg",
+    "data_kind": "literature_reported",
+    "direction": "high",
+    "input_rows": "all",
+    "preserve_all_original_columns": true,
+    "do_not_use_structure_variants": [
+      "PSMILES_2",
+      "PSMILES_4"
+    ],
+    "zero_is_valid": true,
+    "name_metadata_column": "Name",
+    "identifier_policy": "Name may repeat; preserve it as metadata and generate stable row identifiers. Do not pass Name as a unique candidate ID."
+  },
+  "relearn": {
+    "entrypoint": "morgan_evaluation.py",
+    "default_tiers": [
+      0.1,
+      0.2,
+      0.3
+    ],
+    "demonstration_tier": 0.3,
+    "distance_fingerprint": {
+      "name": "ECFP4",
+      "radius": 2,
+      "n_bits": 2048
+    },
+    "minimum_holdout_to_source_tanimoto_distance": 0.5,
+    "preparation_scope": "source_only",
+    "transform": "automatic",
+    "scan_step": "automatic",
+    "min_subset_size": "automatic",
+    "representation": "Hcap_MACCS167"
+  },
+  "user_requests": {
+    "zh-CN": "从这份 OpenPoly 数据总结高水接触角 Top 30% 规则。结构列为 PSMILES，性质列为 Water Contact Angle (deg)，单位为度。返回 Morgan 距离外推评价、筛选结果并保存规则。",
+    "en": "Learn high water-contact-angle Top 30% rules from this OpenPoly file. Use PSMILES and Water Contact Angle (deg), in degrees. Return Morgan-distance extrapolation evaluation and screening results, then save the rules."
+  },
+  "evaluation": {
+    "kind": "independent_strict_ecfp4_tanimoto_distance_holdout",
+    "source_n": 461,
+    "source_prepared_labeled_n": 104,
+    "holdout_n": 148,
+    "holdout_labeled_n": 31,
+    "holdout_unlabeled_n": 117,
+    "buffer_n": 131,
+    "unsupported_structure_n": 1,
+    "nearest_source_distance_min": 0.5,
+    "nearest_source_distance_median": 0.5913729128014842,
+    "every_holdout_meets_distance": true,
+    "method_recommendation_scope": "source_inner_strict_morgan_validation_before_outer_holdout",
+    "outer_holdout_not_used_for_selection": true
+  },
+  "frozen_rules": [
+    {
+      "id": "current-openpoly-wca-stca-high-10",
+      "method": "STCA",
+      "fraction": 0.1,
+      "physical_cutoff": 104.17491015,
+      "physical_operator": ">=",
+      "unit": "deg",
+      "rule": "K132=0 AND K159=0 AND K157=0 AND K155=0 AND K154=0 AND K126=0 AND K153=0 AND K104=0 AND K141=0 AND K123=0",
+      "recommended": true,
+      "expected_original_selected_n": 113,
+      "expected_original_unknown_n": 1,
+      "holdout": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "mcc": -0.18856180831641267,
+        "AS": -0.0628539361054709
+      }
+    },
+    {
+      "id": "current-openpoly-wca-stca-high-20",
+      "method": "STCA",
+      "fraction": 0.2,
+      "physical_cutoff": 97.36882489400001,
+      "physical_operator": ">=",
+      "unit": "deg",
+      "rule": "K132=0 AND K159=0 AND K157=0 AND K155=0 AND K154=0 AND K126=0 AND K153=0 AND K104=0 AND K141=0 AND K123=0",
+      "recommended": false,
+      "expected_original_selected_n": 113,
+      "expected_original_unknown_n": 1,
+      "holdout": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "mcc": -0.20786985482077452,
+        "AS": -0.06928995160692485
+      }
+    },
+    {
+      "id": "current-openpoly-wca-stca-high-30",
+      "method": "STCA",
+      "fraction": 0.3,
+      "physical_cutoff": 87.714722219,
+      "physical_operator": ">=",
+      "unit": "deg",
+      "rule": "K132=0 AND K159=0 AND K157=0 AND K155=0",
+      "recommended": true,
+      "expected_original_selected_n": 172,
+      "expected_original_unknown_n": 1,
+      "holdout": {
+        "precision": 0.5,
+        "recall": 0.18181818181818182,
+        "f1": 0.26666666666666666,
+        "mcc": 0.11677484162422845,
+        "AS": 0.2944805027636317
+      }
+    },
+    {
+      "id": "current-openpoly-wca-wracc-high-10",
+      "method": "WRAcc",
+      "fraction": 0.1,
+      "physical_cutoff": 104.17491015,
+      "physical_operator": ">=",
+      "unit": "deg",
+      "rule": "K141=0 AND K157=0 AND K161=0",
+      "recommended": false,
+      "expected_original_selected_n": 187,
+      "expected_original_unknown_n": 1,
+      "holdout": {
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1": 0.6666666666666666,
+        "mcc": 0.6681531047810609,
+        "AS": 0.7782732571492424
+      }
+    },
+    {
+      "id": "current-openpoly-wca-wracc-high-20",
+      "method": "WRAcc",
+      "fraction": 0.2,
+      "physical_cutoff": 97.36882489400001,
+      "physical_operator": ">=",
+      "unit": "deg",
+      "rule": "K155=0 AND K159=0",
+      "recommended": true,
+      "expected_original_selected_n": 216,
+      "expected_original_unknown_n": 1,
+      "holdout": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "mcc": -0.23683273335783545,
+        "AS": -0.07894424445261182
+      }
+    },
+    {
+      "id": "current-openpoly-wca-wracc-high-30",
+      "method": "WRAcc",
+      "fraction": 0.3,
+      "physical_cutoff": 87.714722219,
+      "physical_operator": ">=",
+      "unit": "deg",
+      "rule": "K159=0 AND K161=0",
+      "recommended": false,
+      "expected_original_selected_n": 281,
+      "expected_original_unknown_n": 1,
+      "holdout": {
+        "precision": 0.6,
+        "recall": 0.2727272727272727,
+        "f1": 0.375,
+        "mcc": 0.22469871047585138,
+        "AS": 0.39989957015861716
+      }
+    }
+  ]
+}

@@ -51,12 +51,30 @@ class StarterTaskTests(unittest.TestCase):
         self.assertIn('Matthews correlation coefficient', data['score_explanation'])
         self.assertIn('precision and F1', data['score_explanation'])
 
+    def test_default_learning_requires_real_distance_and_source_only_evidence(self):
+        result = self.call('1', '--language', 'en')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        data = json.loads(result.stdout)
+        self.assertEqual(data['workflow'], 'learn_source_rules_with_strict_morgan_holdout')
+        contract = data['execution_contract']
+        self.assertEqual(contract['entrypoint'], 'morgan_evaluation.py')
+        self.assertEqual(contract['representation'], 'hcap_maccs167')
+        self.assertEqual(contract['verification_script'], 'fingerprint_contract.py')
+        self.assertEqual(contract['verification_action'], '--run-dir')
+        self.assertTrue({'run_manifest.json', 'source_fit/fingerprint_contract.json',
+                         'split_membership.csv', 'split_audit.json',
+                         'holdout_actual_training_distances.csv',
+                         'morgan_holdout_evaluation.csv', 'source_inner_selection.json'}
+                        <= set(contract['required_evidence']))
+        self.assertEqual(data['method_policy']['recommendation_evidence'],
+                         'source_internal_strict_morgan_validation; never_final_holdout')
+
     def test_direct_generation_keeps_one_rule_and_marks_runtime_failures_unverified(self):
-        result = self.call('3', '--rule', 'current-pi-rho-stca-high-30', '--generation-mode', 'direct')
+        result = self.call('3', '--rule', 'paper-tg-high-30', '--generation-mode', 'direct')
         self.assertEqual(result.returncode, 0, result.stderr)
         data = json.loads(result.stdout)
         self.assertIsNone(data['rule_options'])
-        self.assertEqual([r['id'] for r in data['selected_rules']], ['current-pi-rho-stca-high-30'])
+        self.assertEqual([r['id'] for r in data['selected_rules']], ['paper-tg-high-30'])
         self.assertEqual(data['next_action'], 'generate_with_current_llm_then_verify')
         self.assertTrue(data['generation_policy']['dependency_import_error_is_not_invalid_smiles'])
         self.assertEqual(data['generation_policy']['runtime_failure_status'], 'generated_unverified')
@@ -69,11 +87,39 @@ class StarterTaskTests(unittest.TestCase):
         entries = {entry['id']: entry for entry in catalog['entries']}
         primary = case['existing_rule']
         alternative = case['alternative_method_rule']
-        self.assertEqual(primary['id'], 'current-pi-rho-wracc-high-30')
-        self.assertTrue(entries[primary['id']]['is_primary'])
-        self.assertEqual((primary['expected_selected'], primary['expected_not_selected']), (389, 688))
-        self.assertEqual(alternative['id'], 'current-pi-rho-stca-high-30')
-        self.assertEqual((alternative['expected_selected'], alternative['expected_not_selected']), (282, 795))
+        choices = [entry for entry in catalog['entries']
+                   if entry.get('dataset') == 'PI_RHO' and entry.get('tier') == .3]
+        self.assertEqual({entry['method'] for entry in choices}, {'STCA', 'WRAcc'})
+        primaries = [entry for entry in choices if entry.get('is_primary')]
+        self.assertEqual(len(primaries), 1)
+        self.assertEqual(primary['id'], primaries[0]['id'])
+        self.assertEqual(alternative['id'], primaries[0]['alternative_id'])
+        evidence = json.loads((SKILL/'assets/rule_library/current_profile_evidence.json').read_text())
+        self.assertEqual(evidence['contract'], 'strict_morgan_source_v1')
+        self.assertFalse(evidence['holdout_used_for_method_choice'])
+        evidence_rules = {row['id']: row for row in evidence['rules']}
+        for example in (primary, alternative):
+            entry = entries[example['id']]
+            record = evidence_rules[example['id']]
+            self.assertEqual(example['method'], entry['method'])
+            self.assertEqual(example['expected_selected'], record['selected_n'])
+            self.assertEqual(example['expected_unknown'], record['unknown_n'])
+            self.assertEqual(example['expected_not_selected'],
+                             record['input_n'] - record['selected_n'] - record['unknown_n'])
+            self.assertEqual(example['physical_cutoff'], record['cutoff'])
+            self.assertEqual(example['rule'], record['rule'])
+            reference = entry['reference_evaluation']
+            self.assertEqual(reference['evaluation_kind'], 'strict_morgan_distance_holdout')
+            self.assertEqual(reference['fit_scope'], 'source_only_frozen_model')
+            self.assertTrue(reference['every_holdout_meets_distance'])
+            self.assertGreaterEqual(reference['minimum_holdout_nearest_source_distance'] + 1e-12,
+                                    reference['distance_threshold'])
+            self.assertEqual(reference['method_recommendation_scope'],
+                             'source_inner_strict_morgan_validation_before_outer_holdout')
+            self.assertTrue(entry['provenance']['original_repeat_unit_identity_preserved'])
+            self.assertTrue(entry['provenance']['hcap_structure_not_used_to_merge_materials'])
+        self.assertEqual(case['relearn']['entrypoint'], 'morgan_evaluation.py')
+        self.assertEqual(case['relearn']['contract'], evidence['contract'])
         self.assertEqual(case['selection_policy']['default_screening_method'], 'catalog_primary')
         self.assertTrue(case['selection_policy']['honor_explicit_method'])
         self.assertEqual(tasks['example_cases'][0]['preferred_builtin_rule'], primary['id'])
@@ -85,8 +131,44 @@ class StarterTaskTests(unittest.TestCase):
         with (SKILL/'assets/examples/radonpy_generation_examples.csv').open(newline='') as stream:
             proposals = list(csv.DictReader(stream))
         self.assertEqual(len(proposals), 5)
-        self.assertEqual({row['catalog_id'] for row in proposals}, {alternative['id']})
-        self.assertEqual(case['generation']['static_example_rule_id'], alternative['id'])
+        generation_rule = case['generation']['static_example_rule_id']
+        self.assertEqual(entries[generation_rule]['method'], 'STCA')
+        self.assertEqual({row['catalog_id'] for row in proposals}, {generation_rule})
+        self.assertTrue(all('*' in row['SMILES'] for row in proposals))
+        self.assertTrue(all('*' not in row['calculation_smiles_hcap'] for row in proposals))
+
+    def test_current_catalog_metrics_belong_to_the_source_frozen_distance_models(self):
+        root = SKILL/'assets/rule_library'
+        catalog = json.loads((root/'catalog.json').read_text())
+        evidence = json.loads((root/'current_profile_evidence.json').read_text())
+        current = [entry for entry in catalog['entries'] if entry['id'].startswith('current-')]
+        self.assertTrue(current)
+        self.assertEqual(catalog['current_contract'], 'strict_morgan_source_v1')
+        records = {row['id']: row for row in evidence['rules']}
+        self.assertEqual({entry['id'] for entry in current}, set(records))
+        self.assertFalse(evidence['holdout_used_for_method_choice'])
+        for entry in current:
+            with self.subTest(rule=entry['id']):
+                record = records[entry['id']]
+                payload = json.loads((root/entry['constraints']).read_text())
+                provenance = entry['provenance']
+                reference = entry['reference_evaluation']
+                self.assertEqual(entry['experiment_id'], evidence['contract'])
+                self.assertEqual(provenance['fit_scope'], 'source_only_frozen_model')
+                self.assertEqual(provenance['cutoff_scope'], 'source_only')
+                self.assertEqual(provenance['structural_role_fingerprint'],
+                                 {'name': 'ECFP4', 'kind': 'Morgan', 'radius': 2, 'n_bits': 2048})
+                self.assertEqual(provenance['rule_fingerprint'], 'Hcap_MACCS167')
+                self.assertEqual(reference['evaluation_kind'], 'strict_morgan_distance_holdout')
+                self.assertFalse(reference['buffer_used_for_learning'])
+                self.assertEqual(reference['protected_group_overlap_n'], 0)
+                self.assertEqual(reference['method_recommendation_scope'],
+                                 'source_inner_strict_morgan_validation_before_outer_holdout')
+                self.assertEqual(reference['physical_cutoff'], payload['target']['physical_cutoff'])
+                self.assertEqual(reference['screened_input_selected_n'], record['selected_n'])
+                self.assertEqual(reference['holdout_AS'], record['holdout_AS'])
+                self.assertEqual(bool(payload.get('rule') and payload['rule'].get('keys')),
+                                 entry['available'])
 
     def test_invalid_or_conflicting_choices_are_not_silently_routed(self):
         for arguments in [('4',), ('missing',), ('1', '--task', '2')]:

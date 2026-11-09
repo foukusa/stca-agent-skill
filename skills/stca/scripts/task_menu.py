@@ -17,6 +17,7 @@ SOURCE_LABELS = {
     "gas": {"zh-CN": "GAS 实测数据", "en": "GAS measured data"},
     "radonpy": {"zh-CN": "RadonPy 计算数据", "en": "RadonPy computed data"},
     "adept": {"zh-CN": "ADEPT 计算数据", "en": "ADEPT computed data"},
+    "openpoly": {"zh-CN": "OpenPoly 文献数据", "en": "OpenPoly literature data"},
 }
 EVIDENCE_LABELS = {
     "paper_implementation": ("STCA 论文实现", "STCA paper implementation"),
@@ -28,6 +29,9 @@ EVIDENCE_LABELS = {
     "reference_inconclusive": ("证据不足", "Inconclusive evidence"),
     "user_saved_rule": ("已保存的冻结规则", "Saved frozen rule"),
     "inrange_cv_evaluated": ("范围内交叉验证", "In-range cross-validation"),
+    "morgan_holdout_evaluated": ("Morgan距离外推评价", "Morgan-distance holdout evaluation"),
+    "strict_morgan_holdout_evaluated": ("Morgan距离外推评价", "Morgan-distance holdout evaluation"),
+    "strict_morgan_holdout_inconclusive": ("Morgan外推证据不足", "Inconclusive Morgan holdout evidence"),
 }
 
 
@@ -98,7 +102,7 @@ def rule_options(directory, language="zh-CN", catalog_root=CATALOG_ROOT, *, incl
     def evidence(status):
         labels = EVIDENCE_LABELS.get(status, EVIDENCE_LABELS["reference_inconclusive"])
         return {"status": status, "label": labels[0 if language == "zh-CN" else 1],
-                "caution": status in {"no_reference_coverage", "no_demonstrated_enrichment", "reference_inconclusive"}}
+                "caution": status in {"no_reference_coverage", "no_demonstrated_enrichment", "reference_inconclusive", "strict_morgan_holdout_inconclusive"}}
 
     saved = saved_rules(directory)
     unavailable.extend({"kind": "saved", **item} for item in saved["invalid_entries"])
@@ -134,7 +138,8 @@ def rule_options(directory, language="zh-CN", catalog_root=CATALOG_ROOT, *, incl
         source = ("paper" if entry.get("provenance", {}).get("kind") == "paper" else
                   "gas" if dataset.startswith("GAS_") else
                   "radonpy" if dataset.startswith("PI_") else
-                  "adept" if dataset.startswith("AD_") else None)
+                  "adept" if dataset.startswith("AD_") else
+                  "openpoly" if dataset.startswith("OPENPOLY_") else None)
         if source is None:
             unavailable.append({"kind": "builtin", "id": entry["id"], "reason": "unclassified_source"})
             continue
@@ -333,6 +338,8 @@ def main(argv=None):
                           "percentage_policy": task["percentage_policy"],
                           "method_policy": task["method_policy"],
                           "required_summary_columns": task["required_summary_columns"],
+                          "execution_contract": task.get("execution_contract"),
+                          "column_binding_policy": task.get("column_binding_policy"),
                           "on_complete": task.get("on_complete", "continue_conversation"),
                           "interaction_policy": data.get("interaction_policy", {}),
                           "score_explanation": data.get("score_explanation", {}).get(args.language),

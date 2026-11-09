@@ -1,7 +1,7 @@
 {
   "name": "dsh-plugin-stca",
   "version": "0.1.0",
-  "description": "Learn readable polymer structure-property rules, screen candidates, and generate and verify polymer repeat units with STCA.",
+  "description": "STCA for AI agents: learn and save polymer rules from data, screen candidates, and generate and verify polymer repeat units.",
   "type": "module",
   "main": "./dsh/index.js",
   "exports": {
@@ -35,10 +35,19 @@
   "keywords": [
     "dsh-plugin",
     "deepseek-harness",
+    "agent-skills",
+    "codex-skills",
     "stca",
+    "wracc",
     "polymers",
-    "materials-science",
-    "agent-skill"
+    "polymer-informatics",
+    "materials-informatics",
+    "cheminformatics",
+    "ai-for-science",
+    "rule-learning",
+    "materials-screening",
+    "polymer-design",
+    "rdkit"
   ],
   "author": "Weihao Wang",
   "license": "SEE LICENSE IN LICENSE",
@@ -55,5 +64,8 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "bugs": {
+    "url": "https://github.com/foukusa/stca-agent-skill/issues"
   }
 }

@@ -1,6 +1,6 @@
 # ECFP4 案例与自动数据流程
 
-> 当前开源目录覆盖12项任务和10/20/30档的STCA/WRAcc结果；来源及证据见 [effectiveness.md](effectiveness.md)。用户上传数据默认走 [范围内流程](agent_workflows.md)，明确要求source/holdout时采用对应的独立评价流程；其他百分比可从上传数据重新学习。
+> 新数据默认先按 ECFP4／Morgan 最近邻 Tanimoto 距离划分 source、holdout 和 buffer，再仅在 source 学习；方法推荐来自 source 内 Morgan 距离验证。来源及规则目录见 [effectiveness.md](effectiveness.md)，执行见 [agent_workflows.md](agent_workflows.md)。历史结果保留其原评价协议。
 
 
 ## 目录
@@ -14,7 +14,7 @@
 
 主流程采用2048位Morgan radius=2（ECFP4-like）作化学空间划分，MACCS167作STCA规则特征。原始星号SMILES保留，H-cap只用于计算；这两种指纹不能混用。
 
-13项外部任务：实测CO2/O2渗透率，RadonPy计算热导率/折射率/密度/比热/介电常数，ADEPT计算热导率/密度/单体HOMO–LUMO gap/介电常数/折射率/Tg。官方来源与固定版本、字段和单位见发行源码 `examples/open_data/dataset_registry.csv`。
+早期13项探索任务（按当时的协议记录，不是当前规则目录清单）：实测CO2/O2渗透率，RadonPy计算热导率/折射率/密度/比热/介电常数，ADEPT计算热导率/密度/单体HOMO–LUMO gap/介电常数/折射率/Tg。官方来源与固定版本、字段和单位见发行源码 `examples/open_data/dataset_registry.csv`。
 
 ## 代表性比较
 
@@ -33,9 +33,9 @@
 
 原始ADEPT gap另有2916条自动实验，分组保护后的outer仅2–9正例，没有超过两基线；它与档案清理合并后的2773条不是同一实验，不把历史胜例冒充新流程复现。
 
-## 自动流程
+## 早期投影外围流程
 
-默认 `auto_screen.py` 自动规范化空/重复表头并保存映射，自动排除无法计算的结构、缺失/非有限目标和相同显式ID的完全重复导出。声明质量/物理范围时自动执行；所有排除保留原行与原因。有效极端值或处理关键词本身不构成自动删除理由。
+以下保留早期投影外围协议。当前默认使用 `morgan_evaluation.py`，先结构划分再 source-only 准备，详见 `auto_pipeline.md`。旧 `auto_screen.py` 自动规范化空/重复表头并保存映射，自动排除无法计算的结构、缺失/非有限目标和相同显式ID的完全重复导出。声明质量/物理范围时自动执行；所有排除保留原行与原因。有效极端值或处理关键词本身不构成自动删除理由。
 
 无角色时按ECFP4 t-SNE外围20%生成outer，source内部重复构造inner；已有角色保留。原结构/H-cap/显式分组保护在同侧但不合并观察。目标none/log10、value网格步长及最小扫描支持量仅源内决定；冻结后评价outer，按inner合格检查推荐最严格的请求档位。10%不满足要求时实际检验15/20/25/30%，完整报告而非停在一档。
 

@@ -6,7 +6,7 @@
 
 ## 设计目标
 
-1. Density; high / Top 20%; 源训练物理边界: >= 1.2654511714 g/cm3; 规则来源: current-pi-rho-wracc-high-20. 规则学习方法: WRAcc.
+1. Density; high / Top 20%; 源训练物理边界: >= 1.2626662424 g/cm3; 规则来源: current-pi-rho-wracc-high-20. 规则学习方法: WRAcc.
 
 每个百分比表示相应源数据集的目标尾部范围，不是生成候选的通过比例。若给出物理 cutoff，它是冻结的训练标签边界；命中结构规则不等于预测出性质数值或证明实验达标。
 

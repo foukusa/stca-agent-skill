@@ -1,6 +1,6 @@
 # STCA 验证范围
 
-> 当前开源目录覆盖12项任务和10/20/30档的STCA/WRAcc结果；来源及证据见 [effectiveness.md](effectiveness.md)。用户上传数据默认走 [范围内流程](agent_workflows.md)，明确要求source/holdout时采用对应的独立评价流程；其他百分比可从上传数据重新学习。
+> 新数据默认先按 ECFP4／Morgan 最近邻 Tanimoto 距离划分 source、holdout 和 buffer，再仅在 source 学习；方法推荐来自 source 内 Morgan 距离验证。来源及规则目录见 [effectiveness.md](effectiveness.md)，执行见 [agent_workflows.md](agent_workflows.md)。历史结果保留其原评价协议。
 
 
 ## 目录
@@ -19,13 +19,13 @@
 
 ## ECFP4代表性案例
 
-13项外部任务的最终试用使用2048位Morgan radius2划分。代表性胜例、各方法数值和出处见 `case_studies.md` 与发行源码 `examples/open_data/ecfp4_selected_comparisons.csv`，全部历史格子保留在同目录表中。ADEPT单体gapTop10%历史MCC0.702837，对照WRAcc0.467958、RF0.566755；不是新自动流程逐项复现的分数。
+早期13项外部任务的试用使用2048位Morgan radius2划分。代表性胜例、各方法数值和出处见 `case_studies.md` 与发行源码 `examples/open_data/ecfp4_selected_comparisons.csv`，全部历史格子保留在同目录表中。ADEPT单体gapTop10%历史MCC0.702837，对照WRAcc0.467958、RF0.566755；不是新自动流程逐项复现的分数。
 
 可获得的251行CO2 ECFP4快照，按原step0.01/min_subset1重现30/20/10%规则、cutoff及全部旧外评字段。新增15%外评7入选、TP2、MCC0.1110；其阈值4100 Barrer。所有原字段、星号、顺序、身份保护及独立MACCS混淆矩阵复核通过。
 
-## 默认自动流程实跑
+## 早期投影外围自动流程实跑
 
-2026-11-08实际从公开固定版本原始表运行自动入口：
+以下为 2026-11-08 的早期 ECFP4–t-SNE 投影外围协议，不是当前严格最近邻距离默认入口。实际从公开固定版本原始表运行：
 
 | 数据 | 原始→可用 | source/outer | 自动形式 | value步长 | 最小子集 |
 |---|---:|---:|---|---:|---:|
@@ -48,6 +48,6 @@ RadonPy密度Top15%新外评MCC：STCA0.542267、WRAcc0.390058、RF0.430808；TP
 
 ## 证据边界
 
-主案例和自动默认分割均为ECFP4，规则特征为MACCS167；新自动角色不称为恢复原paper精确成员。展示最强案例需与完整表并列可查，不能把不同清理、成员或目标定义混成同一次方法改进。算法仍调用固定作者实现，paper冻结规则不变。
+当前默认以 ECFP4 最近邻 Tanimoto 距离作严格留出，规则特征为MACCS167；本页旧 t-SNE 记录和保护组随机评价不据此改称严格距离外推。新自动角色不称为恢复原paper精确成员。展示最强案例需与完整表并列可查，不能把不同清理、成员或目标定义混成同一次方法改进。算法仍调用固定作者实现，paper冻结规则不变。
 
 本轮没有重新执行全部13项及其全部对照、没有新材料实验，也没有原生macOS/每个平台UI安装实测。发行包 `validation/`记录实际运行环境、哈希和范围。原始逐材料测量表不内嵌公开skill。

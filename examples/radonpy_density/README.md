@@ -28,7 +28,7 @@ Upload the original repeat-unit SMILES **with their `*` attachment points retain
 Screen this PI1070.csv with the recommended existing RadonPy high-density Top 30% rule. Return selected records and every unmet condition.
 ```
 
-The recommended [Top 30% WRAcc rule](../../skills/stca/assets/rule_library/entries/current-pi-rho-wracc-high-30/constraints.json) uses nine saved MACCS conditions and a density target boundary **≥ 1.222080875 g/cm³**. Applying it to all 1,077 structures gives **389 matches, 688 non-matches and no unknowns**. Explicitly choosing the paired [STCA rule](../../skills/stca/assets/rule_library/entries/current-pi-rho-stca-high-30/constraints.json) uses its ten conditions and gives **282 matches, 795 non-matches and no unknowns**. The assistant preserves your method choice. A match is a structural screening result; candidate density has not been measured or predicted.
+The paired [Top 30% STCA rule](../../skills/stca/assets/rule_library/entries/current-pi-rho-stca-high-30/constraints.json) and [WRAcc rule](../../skills/stca/assets/rule_library/entries/current-pi-rho-wracc-high-30/constraints.json) retain separate exact conditions and a source-derived density boundary. The assistant reads the current recommendation, physical cutoff and actual screening counts from [the case configuration](case.json). You can explicitly select either available method. A match is a structural screening result; candidate density has not been measured or predicted.
 
 ## Learn and check saved results
 
@@ -38,7 +38,7 @@ Learn high-density Top 30% rules from all rows of this RadonPy file. Use smiles 
 
 If you omit percentages, the defaults are Top 10%, 20% and 30%; other percentages are supported. Each requested percentage is prepared and fitted independently. The assistant reports the chosen transform, scan step and support, both methods, physical cutoffs and its recommendation.
 
-For this fixed file, the same version and default settings reproduce both bundled Top 30% rules: recommended WRAcc selects 389 records, while STCA selects 282. Requesting 30% alone or alongside other percentages gives the same Top 30% task. Distinct repeat-unit attachment positions remain separate records even when their H-cap calculation copies coincide. Check saving and loading:
+The complete uploaded file is first split by ECFP4 structures. Each holdout record must be at nearest-source Tanimoto distance **at least 0.5**; buffer records remain available for screening but do not train or score the models. All preparation and automatic scan settings use source labels only, and source-inner Morgan validation determines the recommendation before the outer holdout is evaluated. The same file, package and split settings reproduce the corresponding bundled rules. Requesting 30% alone or with other percentages keeps that task unchanged. Distinct original attachment patterns remain separate even when H-cap copies coincide. Check saving and loading:
 
 ```text
 Reload the saved recommended Top 30% model, screen the same file again and check every row against its original screening result.
@@ -66,4 +66,4 @@ The [machine-readable case](case.json) records the file, columns and consistency
 
 ## A computed generation example
 
-[Five LLM proposals with row-level verification](generated_examples.csv) show the original proposals and the computed checks against the **Top 30% STCA rule**, explicitly selected for this generation illustration. All five proposals pass the selected rule and are absent from the original-structure reference in PI1070. The table identifies the exact rule used and every unmet condition. See the [complete generation prompt](generation_prompt.zh-CN.md). Candidate density was not measured or predicted. Each generation request uses the current LLM to produce its own proposals.
+[LLM proposals with row-level verification](generated_examples.csv) illustrate how proposals and each unmet condition are returned. Use the exact rule identified by the linked [generation prompt](generation_prompt.en.md) when checking those saved proposals. To test a different or newly learned rule, ask the assistant to verify them again with that rule. Candidate density is not measured or predicted by structural verification; a new generation request uses the current LLM to produce its own proposals.

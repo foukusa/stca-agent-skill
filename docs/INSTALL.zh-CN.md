@@ -25,7 +25,7 @@
 | DeepSeek Harness：本地 skill | [stca-deepseek-harness-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-deepseek-harness-0.1.0.zip) |
 | DeepSeek Harness：图形界面插件 | [dsh-plugin-stca-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.zip) |
 | DeepSeek Harness：CLI 插件 | [dsh-plugin-stca-0.1.0.tgz](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/dsh-plugin-stca-0.1.0.tgz) |
-| WorkBuddy | [stca-workbuddy-0.1.3.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.3.zip) |
+| WorkBuddy | [stca-workbuddy-0.1.4.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.4.zip) |
 | ChatGPT 桌面端 | [stca-openai-skill-0.1.0.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-openai-skill-0.1.0.zip) |
 
 所有 STCA 功能均可用自然语言调用。AI 助手会查找计算环境，安装时不需要填写 Python 路径。
@@ -36,7 +36,7 @@ STCA 核心版本仍为 **0.1.0**，需要替换或重新导入更新后的文�
 
 - **Codex 文件夹安装：** 用新版完整 `stca` 文件夹替换原安装目录，将 `SKILL.md`、`scripts`、`references` 和 `assets` 一起更新。已保存的规则与结果保留在安装目录外的任务文件夹中。
 - **DeepSeek Harness：** 在插件管理中检查 STCA 的安装来源，使用当前可用的更新或替换操作。若仍保留旧副本，仅移除 STCA 插件，再用 `github:foukusa/stca-agent-skill` 添加。DSH 的 profile、配置、数据和保存的规则均保留。
-- **WorkBuddy：** 导入 `stca-workbuddy-0.1.3.zip`，启用更新后的 STCA 条目。
+- **WorkBuddy：** 导入 `stca-workbuddy-0.1.4.zip`，启用更新后的 STCA 条目。
 - **ChatGPT：** 当前客户端支持本地 skill 导入时，通过已有 skill 管理入口重新导入新版 OpenAI skill ZIP。
 
 ## Codex
@@ -148,7 +148,7 @@ pnpm 显示 `Packages: +1` 和 `Done` 说明包安装已完成，但不代表 DS
 
 1. 打开 [WorkBuddy](https://www.workbuddy.cn/)，进入 skill 管理界面。
 2. 选择添加和上传本地 skill 包。
-3. 打开仓库中的 [stca-workbuddy-0.1.3.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.3.zip) 文件页，点击 **Download raw file**。在 WorkBuddy 中选择下载好的 ZIP，完成导入并启用 **STCA 聚合物规则与设计**；保持 ZIP 原样上传。
+3. 打开仓库中的 [stca-workbuddy-0.1.4.zip](https://github.com/foukusa/stca-agent-skill/blob/main/downloads/stca-workbuddy-0.1.4.zip) 文件页，点击 **Download raw file**。在 WorkBuddy 中选择下载好的 ZIP，完成导入并启用 **STCA 聚合物规则与设计**；保持 ZIP 原样上传。
 4. 输入“开始使用 STCA”。
 
 包内按上传目录要求提供所引用的启动资源和 logo。公开商店安装链接将在审核通过并发布后补充。

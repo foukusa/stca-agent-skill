@@ -159,6 +159,97 @@ def _verify_preparation(root, *, preparation_directory, fingerprint_contract_pat
             "matrix_sha256": actual["matrix_sha256"], "fingerprint_contract": fingerprint_contract_path}
 
 
+def _verify_morgan_artifacts(root, manifest):
+    """Recompute the distance contract and verify the actual source-fit artifacts."""
+    import pandas as pd
+    from rdkit import Chem, DataStructs
+    from rdkit.Chem import rdFingerprintGenerator
+
+    source_manifest_path = _artifact_path(root, manifest.get("source_learning_manifest", "source_fit/run_manifest.json"))
+    source_root = source_manifest_path.parent
+    source_check = verify_run_artifacts(source_root)
+    source_manifest = json.loads(source_manifest_path.read_text(encoding="utf-8"))
+    source_input = _artifact_path(root, "source_input.csv")
+    if hashlib.sha256(source_input.read_bytes()).hexdigest() != manifest.get("learning_input_sha256"):
+        raise ValueError("Morgan delivery check: source input hash changed.")
+    if source_manifest.get("input_sha256") != manifest.get("learning_input_sha256"):
+        raise ValueError("Morgan delivery check: learner did not consume the declared source input.")
+    if (manifest.get("holdout_labels_used_for_fit_or_selection") is not False
+            or manifest.get("buffer_used_for_fit_or_selection") is not False
+            or manifest.get("all_target_dependent_preparation_fit_scope") != "source_only"):
+        raise ValueError("Morgan delivery check: source-only preparation contract is missing.")
+    raw = pd.read_csv(_artifact_path(root, "original_input.csv"), dtype=str, keep_default_na=False)
+    membership = pd.read_csv(_artifact_path(root, "split_membership.csv"), keep_default_na=False)
+    if sorted(membership.input_row_position.tolist()) != list(range(len(raw))):
+        raise ValueError("Morgan delivery check: membership does not cover each original row exactly once.")
+    membership = membership.sort_values("input_row_position").reset_index(drop=True)
+    source = membership.role.eq("source")
+    holdout = membership.role.eq("holdout")
+    if not source.any() or not holdout.any():
+        raise ValueError("Morgan delivery check: a source and holdout are required.")
+    expected_source = raw.loc[source].reset_index(drop=True)
+    actual_source = pd.read_csv(source_input, dtype=str, keep_default_na=False)
+    if not expected_source.equals(actual_source):
+        raise ValueError("Morgan delivery check: source input includes changed or non-source rows.")
+    settings = manifest.get("learning_settings", source_manifest.get("learning_settings", {}))
+    smiles_column = settings.get("smiles_column")
+    if smiles_column not in raw:
+        raise ValueError("Morgan delivery check: original structure column is missing.")
+    valid = ~membership.role.eq("excluded_structure")
+    for position in membership.index[valid]:
+        cap, _ = hcap_smiles(raw.loc[position, smiles_column])
+        canonical = Chem.MolToSmiles(Chem.MolFromSmiles(cap), canonical=True, isomericSmiles=True)
+        if canonical != membership.loc[position, "canonical_hcap"]:
+            raise ValueError("Morgan delivery check: saved H-cap structure does not match original input.")
+    groups = membership.loc[valid].groupby("protected_group").role.nunique()
+    if (groups > 1).any():
+        raise ValueError("Morgan delivery check: a protected group crosses partitions.")
+    for column in ("canonical_original", "canonical_hcap"):
+        if (membership.loc[valid].groupby(column).role.nunique() > 1).any():
+            raise ValueError("Morgan delivery check: identical structures cross partitions.")
+    audit = json.loads(_artifact_path(root, "split_audit.json").read_text(encoding="utf-8"))
+    threshold = float(audit["distance_threshold"])
+    fingerprint = audit.get("fingerprint", {})
+    if (audit != manifest.get("split") or not 0 < threshold <= 1
+            or fingerprint.get("radius") != 2 or fingerprint.get("bits") != 2048
+            or fingerprint.get("metric") != "1-Tanimoto"
+            or audit.get("target_values_used") is not False
+            or audit.get("candidate_ids_used") is not False
+            or audit.get("buffer_used_for_learning") is not False):
+        raise ValueError("Morgan delivery check: invalid or inconsistent distance protocol.")
+    generator = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=2048)
+    fingerprints = {i: generator.GetFingerprint(Chem.MolFromSmiles(membership.loc[i, "canonical_hcap"]))
+                    for i in membership.index[valid]}
+    training = [fingerprints[i] for i in membership.index[source]]
+    distances = [1 - max(DataStructs.BulkTanimotoSimilarity(fingerprints[i], training))
+                 for i in membership.index[holdout]]
+    stored = pd.to_numeric(membership.loc[holdout, "nearest_source_distance"]).to_numpy()
+    if (not np.allclose(distances, stored, rtol=0, atol=1e-12)
+            or min(distances) + 1e-12 < threshold):
+        raise ValueError("Morgan delivery check: nearest-source distances changed or violate the boundary.")
+    from morgan_evaluation import prepared_source_distances
+    for tier in manifest["tiers"]:
+        actual_distances = prepared_source_distances(root, source_manifest, tier, membership)
+        if any(record["nearest_actual_prepared_source_distance"] is None
+               or record["nearest_actual_prepared_source_distance"] + 1e-12 < threshold
+               for record in actual_distances):
+            raise ValueError("Morgan delivery check: actual retained training structures violate the distance boundary.")
+    for method in ("stca", "wracc"):
+        final_model = _artifact_path(root, f"{method}/model.json").read_bytes()
+        fitted_model = _artifact_path(source_root, f"{method}/model.json").read_bytes()
+        if final_model != fitted_model:
+            raise ValueError("Morgan delivery check: delivered model differs from the evaluated source model.")
+    inner = root / "source_inner_morgan" / "run_manifest.json"
+    inner_check = verify_run_artifacts(inner.parent) if inner.is_file() else None
+    return {"schema": "stca-morgan-delivery-check-v1", "status": "verified",
+            "scope": "recomputed_distance_and_stored_source_artifact_consistency",
+            "representation": "hcap_maccs167", "source": source_check,
+            "source_inner_morgan": inner_check, "distance_threshold": threshold,
+            "holdout_n": int(holdout.sum()), "nearest_source_distance_min": min(distances),
+            "all_tiers_verified": source_check.get("all_tiers_verified", True),
+            "source_frozen_models_unchanged": True}
+
+
 def verify_run_artifacts(run_directory):
     """Verify every tier's stored representation before result delivery.
 
@@ -170,6 +261,8 @@ def verify_run_artifacts(run_directory):
 
     root = Path(run_directory).expanduser().resolve()
     manifest = json.loads(_artifact_path(root, "run_manifest.json").read_text(encoding="utf-8"))
+    if manifest.get("entrypoint") == "morgan_evaluation.py":
+        return _verify_morgan_artifacts(root, manifest)
     if manifest.get("entrypoint") != "inrange_evaluation.py":
         raise ValueError("Fingerprint delivery check: the declared learning entrypoint is missing or unsupported.")
     reference = manifest.get("fingerprint_contract", {})

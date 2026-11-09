@@ -22,7 +22,7 @@ RECEIPT = cache_root() / "agent-runtime.json"
 ALLOWED = {"rule_library.py", "auto_screen.py", "custom_fit.py", "evaluate_custom.py",
            "stca_tools.py", "data_cleaning.py", "prepare_hcap.py", "data_readiness.py",
            "generation_prompt.py", "generation_session.py", "audit_dataset.py", "task_menu.py", "user_rule_library.py",
-           "inrange_evaluation.py", "auto_data_layer.py", "fingerprint_contract.py"}
+           "inrange_evaluation.py", "morgan_evaluation.py", "auto_data_layer.py", "fingerprint_contract.py"}
 
 
 def receipt():

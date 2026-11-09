@@ -93,6 +93,10 @@ class WorkBuddyPackageTests(unittest.TestCase):
         runtime = Path(self.prepare()['runtime_skill_dir'])
         library = runtime / 'assets/rule_library'
         catalog = json.loads((library/'catalog.json').read_bytes())
+        self.assertEqual(len(catalog['entries']), 13 * 3 * 2 + 11)
+        water = [entry for entry in catalog['entries'] if entry.get('dataset') == 'OPENPOLY_WCA']
+        self.assertEqual({(entry['method'], entry['tier']) for entry in water},
+                         {(method, tier) for method in ('STCA', 'WRAcc') for tier in (.1, .2, .3)})
         checked = 0
         for entry in catalog['entries']:
             evidence = entry.get('reference_evaluation', {}).get('evidence_source')
@@ -103,7 +107,9 @@ class WorkBuddyPackageTests(unittest.TestCase):
             self.assertIsNotNone(resolved, (entry['id'], evidence))
             json.loads(resolved.read_bytes())
             checked += 1
-        self.assertEqual(checked, 83)
+        # Every current source-fitted profile and all eleven paper entries must
+        # retain their referenced evidence inside the actual restored artifact.
+        self.assertEqual(checked, len(catalog['entries']))
 
     def test_actual_upload_expanded_size_is_within_three_mebibytes(self):
         with zipfile.ZipFile(self.archive) as archive:
@@ -227,6 +233,18 @@ class WorkBuddyPackageTests(unittest.TestCase):
         self.assertEqual((self.install/'author_source/NOTICE').read_bytes(),(original/'NOTICE').read_bytes())
         release=json.loads((self.install/'assets/platform-release.json').read_bytes())
         self.assertEqual(release['visible_author_source']['file_count'],38)
+
+    def test_public_agent_entry_does_not_write_bytecode_into_the_installation(self):
+        copied = self.root / 'direct public wrapper installation'
+        shutil.copytree(self.install, copied)
+        environment = dict(self.env)
+        environment.pop('PYTHONDONTWRITEBYTECODE', None)
+        result = subprocess.run([sys.executable, str(copied / 'scripts/agent_runtime.py'),
+                                 'run', '--script', 'task_menu.py', '--', '1'],
+                                cwd=self.workspace, env=environment, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout)['execution_contract']['entrypoint'], 'morgan_evaluation.py')
+        self.assertEqual(list(copied.rglob('__pycache__')), [])
 
     def test_missing_or_tampered_visible_source_is_rejected_even_with_hot_cache(self):
         self.prepare()

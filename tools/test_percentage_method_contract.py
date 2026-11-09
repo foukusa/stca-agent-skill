@@ -36,6 +36,8 @@ class PercentageMethodContractTest(unittest.TestCase):
         self.assertFalse(result["choice_required"])
         self.assertFalse(any("tier" in value or "percentage" in value for value in result["ask_only_if_missing"]))
         self.assertFalse(self.library.exists())
+        self.assertEqual(policy['cutoff_scope'],
+                         'source_prepared_training_labels_only; same_physical_cutoff_applied_to_holdout')
 
     def test_two_methods_and_explicit_recommendation_are_required_deliverables(self):
         result = self.call("1")
@@ -47,6 +49,8 @@ class PercentageMethodContractTest(unittest.TestCase):
         self.assertEqual(policy["wracc_selection_comparison"], "strictly_greater_than")
         self.assertEqual(policy["otherwise_prefer"], "STCA")
         self.assertTrue(policy["accept_recommended_method_without_another_confirmation"])
+        self.assertEqual(policy['recommendation_evidence'],
+                         'source_internal_strict_morgan_validation; never_final_holdout')
         required = set(result["required_summary_columns"])
         self.assertTrue({"percentage", "physical_cutoff", "physical_comparison", "physical_unit",
                          "stca_selected", "wracc_selected", "stca_AS", "wracc_AS",
@@ -79,7 +83,7 @@ class PercentageMethodContractTest(unittest.TestCase):
         self.assertIn("never_pass_alternative_methods_to_an_implicit_AND", policy["method_comparison_execution"])
 
     def test_generation_uses_selected_tier_without_implicit_multi_tier_expansion(self):
-        result = self.call("3", "--rule", "current-gas-co2-stca-high-10", "--generation-mode", "preview")
+        result = self.call("3", "--rule", "paper-ec-low-5", "--generation-mode", "preview")
         self.assertIsNone(result["default_tiers"])
         self.assertFalse(result["percentage_policy"]["implicit_default_tiers_for_generation"])
         self.assertTrue(result["percentage_policy"]["never_AND_same_property_different_tiers"])
@@ -89,13 +93,13 @@ class PercentageMethodContractTest(unittest.TestCase):
         self.assertTrue(result["generation_gate"]["confirmation_required"])
 
     def test_selected_builtin_cutoff_matches_frozen_physical_target_and_unit(self):
-        result = self.call("2", "--rule", "current-gas-co2-stca-high-10")
+        result = self.call("2", "--rule", "paper-ec-low-5")
         choice = result["selected_rules"][0]
         constraint = json.loads(Path(choice["constraints_path"]).read_text(encoding="utf-8"))
         target = constraint["target"]
         self.assertEqual(choice["physical_cutoff"], target["physical_cutoff"])
-        self.assertEqual(choice["physical_unit"], "Barrer")
-        self.assertEqual(choice["physical_comparison"], ">=")
+        self.assertEqual(choice["physical_unit"], "S/cm")
+        self.assertEqual(choice["physical_comparison"], "<=")
         self.assertEqual(choice["physical_cutoff_status"], "available")
         self.assertFalse(result["rule_choice_required"])
         self.assertFalse(result["choice_required"])

@@ -3,12 +3,18 @@
   "generation_performed": true,
   "verification_performed": true,
   "generation_mode": "direct",
-  "approved_prompt_sha256": "529c26710ab41ac7673c5b63095f1aa5462c9d634c549cabd2a251c9b9e7488b",
+  "approved_prompt_sha256": "17f27bd90ac0b0e925294cea861759288a76a82e6d73ed88ef5cc43ab49d5d91",
   "raw_proposal_count": 5,
   "selected_count": 5,
   "all_proposals_preserved": true,
   "hcap_only_for_calculation": true,
   "new_in_this_reference_dataset_count": 5,
   "global_novelty_claimed": false,
-  "physical_property_predicted": false
+  "physical_property_predicted": false,
+  "rule_signature": "STCA|AND|K42=1",
+  "physical_source_cutoff": 1.2037262406,
+  "unit": "g/cm3",
+  "evaluation_protocol": "strict_morgan_source_v1",
+  "source_model_sha256": "aa5469ec28eae9adea15e36d9ed1a84805788528445201e13a5f49d2ec0d0dad",
+  "approved_prompt_file": "generation_prompt.used.zh-CN.md"
 }
