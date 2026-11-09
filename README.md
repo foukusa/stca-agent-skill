@@ -1,13 +1,13 @@
 <p align="center"><img src="assets/stca-logo.png" alt="STCA logo" width="104"></p>
 <h1 align="center">STCA Agent Skill</h1>
-<p align="center">Interpretable polymer screening, rule extraction, and rule-guided candidate verification with Sliding Threshold Correlation Analysis.</p>
+<p align="center">Learn rules from data, screen with existing rules, or generate new structures</p>
 <p align="center"><strong>0.1.0</strong> · English · <a href="README.zh-CN.md">简体中文</a></p>
 <p align="center"><a href="https://doi.org/10.1038/s41524-026-02345-x">STCA paper</a> · <a href="https://github.com/foukusa/polymer-stca">Python library</a> · <a href="#download-and-install">Install the skill</a></p>
 
 ## Contents
 
 - [Start here](#start-here)
-- [Try ADEPT gap data](#try-adept-gap-data)
+- [Try an example](#try-an-example)
 - [Save rules and continue](#save-rules-and-continue)
 - [Natural-language examples after installation](docs/USAGE.md)
 - [Download and install](#download-and-install)
@@ -31,7 +31,7 @@ STCA is a skill used by your AI assistant in the conversation. The task instruct
 
 Before learning, the assistant states the **structure column, property column, unit and direction** it will use. Known datasets have built-in column mappings; for your own table, you can name the columns directly. If several columns could represent the target, such as measured density, computed density or density at different temperatures, it asks you to choose before learning. See [Prepare your data](#prepare-your-data).
 
-## Try ADEPT gap data
+## Try an example
 
 Download [ADEPT `BANDGAP_DFT.csv`](https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/BANDGAP_DFT.csv) and upload it to the conversation. This file has **2,916 records and two columns**. The target is the **DFT HOMO–LUMO gap of a hydrogen-capped isolated monomer**, in eV.
 
@@ -48,7 +48,7 @@ Row 1 is the header; rows **2–2917** contain data. Use all rows as input. No i
 Use the existing ADEPT high isolated-monomer HOMO–LUMO gap Top 30% STCA rule to screen this file.
 ```
 
-The frozen target is **gap ≥ 11.914537535 eV**. This file produces **976 matches, 1,940 non-matches and no unknowns**. On 584 independent Morgan-distance holdout records, the STCA rule has **precision 0.7500, recall 0.7784, F1 0.7639 and Matthews correlation coefficient 0.6517**. Full-table matches and independent evaluation are reported separately.
+The frozen target is **gap ≥ 11.914537535 eV**. This file produces **976 matches, 1,940 non-matches and no unknowns**. On 584 independent Morgan-distance extrapolation records, the STCA rule has **precision 0.7500, recall 0.7784, F1 0.7639 and Matthews correlation coefficient 0.6517**. Full-table matches and independent evaluation are reported separately.
 
 **Learn rules, screen and save:**
 
@@ -209,16 +209,16 @@ For learning, add the corresponding numeric property column on each row and stat
 
 ## Data splitting and evaluation
 
-Structural distance uses **ECFP4**: 2,048-bit Morgan fingerprints with radius 2, calculated from the H-cap copy; **distance = 1 − Tanimoto similarity**. Identical original structures and identical H-cap copies stay in the same protected group.
+Structural distance uses **ECFP4**: radius=2, 2,048-bit Morgan fingerprints of H-capped calculation copies, with **distance = 1 − Tanimoto similarity**. Identical original structures and identical H-capped copies stay in the same protected group.
 
-| Partition or evaluation | How it is used |
+| Partition or evaluation | What happens |
 |---|---|
-| **Training (`source`)** | Learn rules and choose data transforms, scan steps and support using this partition only. |
-| **Independent extrapolation (`holdout`)** | Select a peripheral structural neighborhood, targeting 20% of structurally valid records, before using target labels. Every holdout structure has nearest-source distance **≥0.5**. |
-| **Similarity buffer** | Keep groups closer than 0.5 to the holdout out of training and evaluation. They remain in the returned screening table. |
-| **Within-range diagnostic** | Protected-group 5-fold cross-validation, repeated three times within source. This is a diagnostic conditional on source preparation, not a separate distance-defined interpolation test. |
+| **Interpolation region** | Learn rules and choose data transforms, scan steps and support in this region. |
+| **Extrapolation region** | Select a peripheral structural neighborhood, targeting 20% of structurally valid records, before using property labels. Every extrapolation structure has nearest-neighbour distance **≥0.5** from the interpolation region. |
+| **Similarity buffer** | Keep other groups closer than 0.5 to the extrapolation region out of training and evaluation. They remain in the returned screening table. |
+| **Evaluation within the interpolation region** | Protected-group 5-fold cross-validation, repeated three times. This diagnostic uses the region's data preparation; it is not a separate independent interpolation test set. |
 
-This design keeps identical and nearby structures from bridging the training–holdout boundary and tests whether rules transfer to structurally different polymers. A further Morgan-distance validation **inside source** selects the recommended method before the outer holdout is evaluated. Frozen source thresholds and rules are then applied unchanged. See [evaluation details](docs/MORGAN_EVALUATION.md).
+This design keeps identical and nearby structures from crossing the interpolation–extrapolation boundary and tests whether rules transfer to structurally different polymers. A further Morgan-distance validation **inside the interpolation region** selects the recommended method before the extrapolation region is evaluated. Frozen thresholds and rules are then applied unchanged. See [evaluation details](docs/MORGAN_EVALUATION.md).
 
 ## Paper and author
 

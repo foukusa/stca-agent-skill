@@ -19,13 +19,13 @@
   "files": [
     {
       "file": "dsh-plugin-stca-0.1.0.tgz",
-      "size_bytes": 1582785,
-      "sha256": "6ce4c60617699a8eec0124e2f12f1b5dddf5037b352f8c7fc4913e8c7ea9dce0"
+      "size_bytes": 1582714,
+      "sha256": "2dc6e19d6a2c2425958d3e6a33dc4077380ffb2258f5f438060441f1a48000da"
     },
     {
       "file": "dsh-plugin-stca-0.1.0.zip",
-      "size_bytes": 2450855,
-      "sha256": "22f6240db800988255b1983af06c1129962db94743b9228760953c76bfc0d688"
+      "size_bytes": 2450707,
+      "sha256": "a2bd69e7b2df176880b1a96fe93fbf2636dd3ab74d8a33cae5a810844dd74aa0"
     },
     {
       "file": "stca-chatgpt-0.1.0.zip",
@@ -44,8 +44,8 @@
     },
     {
       "file": "stca-openai-plugin-0.1.0.zip",
-      "size_bytes": 2774024,
-      "sha256": "7556f639140c18aab5e0bb456ac653bb95cfd34b672c2b3f0dbaf1398905e6fc"
+      "size_bytes": 2773930,
+      "sha256": "956c14ec189598099c7f986f5932d93be453303752edcca4d9871bd25d8ada1f"
     },
     {
       "file": "stca-openai-skill-0.1.0.zip",

@@ -2,7 +2,7 @@
 
 # STCA：DeepSeek Harness 版
 
-在DeepSeek Harness中，使用STCA实现可解释的聚合物筛选、规则提取与规则引导候选核验。
+从数据总结规则，使用已有规则筛选，或按规则生成新结构
 
 **版本 0.1.0** · [English](https://github.com/foukusa/stca-agent-skill/blob/main/README.DSH.md)
 
@@ -14,7 +14,7 @@
 - [选择任务](#选择任务)
 - [数据列与星号连接点](#数据列与星号连接点)
 - [数据划分与评价](#数据划分与评价)
-- [用 ADEPT 能隙数据试用](#用-adept-能隙数据试用)
+- [试用范例](#试用范例)
 - [现成规则与支持性质](#现成规则与支持性质)
 - [运行环境与权限](#运行环境与权限)
 - [许可与来源](#许可与来源)
@@ -79,18 +79,18 @@ STCA 通过当前 LLM 对话工作。你可以直接提出任务；只说“开�
 
 ## 数据划分与评价
 
-结构距离使用 **ECFP4**：对H-cap计算副本生成radius=2、2,048位Morgan指纹，**距离 = 1 − Tanimoto相似度**。相同原始结构及相同H-cap副本保持在同一保护组。
+结构距离使用 **ECFP4**：对 H-cap 计算副本生成 radius=2、2,048 位 Morgan 指纹，**距离 = 1 − Tanimoto 相似度**。相同原始结构及相同 H-cap 副本保持在同一保护组。
 
 | 分区或评价 | 具体做法 |
 |---|---|
-| **训练集（source）** | 仅在这里归纳规则，选择数据变换、扫描步长及支持量。 |
-| **独立外推集（holdout）** | 使用性质标签前，先在结构空间外围选择一个邻域，目标约占有效结构记录的20%；每条留出结构到source的最近邻距离均**≥0.5**。 |
-| **相似性缓冲区** | 将与外推集距离不足0.5的其他结构组隔离，不训练、不外评，但仍返回筛选结果。 |
-| **范围内诊断** | 在source中按保护结构组进行5折、3次重复交叉验证；结果条件于source的数据准备，不是另设的严格距离内推测试。 |
+| **内推区域（interpolation）** | 在这里归纳规则，选择数据变换、扫描步长及支持量。 |
+| **外推区域（extrapolation）** | 使用性质标签前，先在结构空间外围选择一个邻域，目标约占有效结构记录的 20%；每条外推结构到 interpolation 区域的最近邻距离均 **≥0.5**。 |
+| **相似性缓冲区** | 将与 extrapolation 区域距离不足 0.5 的其他结构组隔离，不训练、不外评，但仍返回筛选结果。 |
+| **内推范围内评价** | 在 interpolation 区域中按保护结构组进行 5 折、3 次重复交叉验证；结果基于该区域的数据准备，不是另设的独立内推测试集。 |
 
-这样划分是为了防止相同或近邻结构跨越训练与外推边界，检验规则向不同聚合物结构的迁移能力。推荐方法由**source内部的另一层Morgan距离验证**确定，再评价外部holdout；冻结后的阈值与规则保持不变。详见[评价说明](https://github.com/foukusa/stca-agent-skill/blob/main/docs/MORGAN_EVALUATION.zh-CN.md)。
+这样划分是为了防止相同或近邻结构跨越 interpolation 与 extrapolation 边界，检验规则向不同聚合物结构的迁移能力。推荐方法由 **interpolation 区域内部的另一层 Morgan 距离验证**确定，再评价 extrapolation 区域；冻结后的阈值与规则保持不变。详见[评价说明](https://github.com/foukusa/stca-agent-skill/blob/main/docs/MORGAN_EVALUATION.zh-CN.md)。
 
-## 用 ADEPT 能隙数据试用
+## 试用范例
 
 下载 [ADEPT `BANDGAP_DFT.csv`](https://github.com/sobinalosious/PolyGraphMT/blob/1c51a8578b6d23bd45bae7f7e175516dc22a3ed9/data/raw/BANDGAP_DFT.csv)，上传到对话。文件有 **2,916 条记录、两列**，目标是**氢封端孤立单体的 DFT HOMO–LUMO 能隙**，单位 eV。
 
